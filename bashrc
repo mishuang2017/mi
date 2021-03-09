@@ -34,6 +34,7 @@ alias rc='. ~/.bashrc'
 [[ "$(hostname -s)" == "c-235-13-1-007" ]] && host_num=7
 [[ "$(hostname -s)" == "c-235-13-1-008" ]] && host_num=8
 [[ "$(hostname -s)" == "c-141-18-1-009" ]] && host_num=9
+[[ "$(hostname -s)" == "c-141-18-1-010" ]] && host_num=10
 
 [[ "$(hostname -s)" == "qa-h-vrt-074" ]] && host_num=74
 
@@ -200,11 +201,13 @@ elif (( host_num == 45 )); then
 	cloud=1
 elif (( host_num == 9 )); then
 	link_mac=0c:42:a1:60:62:94
+	remote_mac=0c:42:a1:60:62:9c
 	machine_num=1
 	cloud=1
 elif (( host_num == 10 )); then
 	machine_num=2
 	link_mac=0c:42:a1:60:62:9c
+	remote_mac=0c:42:a1:60:62:94
 	cloud=1
 elif (( host_num == 74 )); then
 	link=ens4f0
@@ -9980,7 +9983,7 @@ alias s3=tc_ct_pf_sample
 function tc_ct_pf_sample
 {
 	rate=1
-	full=0
+	full=1
 	offload=""
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
