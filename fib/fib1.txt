@@ -1,0 +1,287 @@
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_seq_start: fib_table ffff8bc2fe87eb80
+crash> fib_table ffff8bc2fe87eb80
+struct fib_table {
+  tb_hlist = {
+    next = 0x0,
+    pprev = 0xffff8bc2fe87eb40
+  },
+  tb_id = 254,
+  tb_num_default = 1,
+  rcu = {
+    next = 0x0,
+    func = 0x0
+  },
+  tb_data = 0xffff8bc2fe87ebb0,
+  __data = 0xffff8bc2fe87ebb0
+}
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2fe87ebb0, cindex: 0, key: 0, pn->key: 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f5e48820, pn: ffff8bc2fe87ebb0, cindex: 1
+crash> key_vector ffff8bc2fe87ebb0
+struct key_vector {
+  key = 0,
+  pos = 32 ' ',
+  bits = 0 '\000',
+  slen = 32 ' ',
+  {
+    leaf = {
+      first = 0xffff8bc2f5e48820
+    },
+    tnode = 0xffff8bc2fe87ebb8
+  }
+}
+
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2f5e48820, cindex: 0, key: 0, pn->key: 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f72f3380, pn: ffff8bc2f5e48820, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 9: n  ffff8bc2f72f3380
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2f5e48820
+crash> key_vector ffff8bc2f5e48820
+struct key_vector {
+  key = 0,
+  pos = 29 '\035',
+  bits = 3 '\003',
+  slen = 32 ' ',
+  {
+    leaf = {
+      first = 0xffff8bc2f72f3380
+    },
+    tnode = 0xffff8bc2f5e48828
+  }
+}
+
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2f5e48820, cindex: 0, key: 1, pn->key: 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f72f3380, pn: ffff8bc2f5e48820, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 3
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2fdb453e0, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 7: pn ffff8bc2fdb453e0, cindex = 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2fdb30d20, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 7: pn ffff8bc2fdb30d20, cindex = 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f5741320, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f5741320
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2fdb30d20
+crash> rd 0xffff8bc2f5e48828 4
+ffff8bc2f5e48828:  ffff8bc2f72f3380 0000000000000000   .3/.............
+ffff8bc2f5e48838:  0000000000000000 ffff8bc2fdb453e0   .........S......
+crash> key_vector ffff8bc2fdb453e0
+struct key_vector {
+  key = 0x7f000000,
+  pos = 0x16,
+  bits = 0x2,
+  slen = 0x18,
+  {
+    leaf = {
+      first = 0xffff8bc2fdb30d20
+    },
+    tnode = 0xffff8bc2fdb453e8
+  }
+}
+crash> key_vector 0xffff8bc2fdb30d20
+struct key_vector {
+  key = 0x7f000000,
+  pos = 0x0,
+  bits = 0x1,
+  slen = 0x18,
+  {
+    leaf = {
+      first = 0xffff8bc2f5741320
+    },
+    tnode = 0xffff8bc2fdb30d28
+  }
+}
+
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2fdb30d20, cindex: 1, key: 7f000001, pn->key: 7f000000
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f57412f0, pn: ffff8bc2fdb30d20, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 9: n  ffff8bc2f57412f0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2fdb30d20
+crash> rd 0xffff8bc2fdb30d28 2
+ffff8bc2fdb30d28:  ffff8bc2f5741320 ffff8bc2f57412f0    .t.......t.....
+
+
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2fdb30d20, cindex: 2, key: 7f000002, pn->key: 7f000000
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 2: cindex 1, pn->bits: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: 7f000000, parent pn: ffff8bc2fdb453e0, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 3
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f5741350, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f5741350
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2fdb453e0
+crash> rd 0xffff8bc2fdb30d28 4
+ffff8bc2fdb30d28:  ffff8bc2f5741320 ffff8bc2f57412f0    .t.......t.....
+ffff8bc2fdb30d38:  0000000000000000 ffff8bc2fdb30e40   ........@.......
+crash> key_vector ffff8bc2fdb453e0
+struct key_vector {
+  key = 0x7f000000,
+  pos = 0x16,
+  bits = 0x2,
+  slen = 0x18,
+  {
+    leaf = {
+      first = 0xffff8bc2fdb30d20
+    },
+    tnode = 0xffff8bc2fdb453e8
+  }
+}
+crash> rd 0xffff8bc2fdb453e8 4
+ffff8bc2fdb453e8:  ffff8bc2fdb30d20 0000000000000000    ...............
+ffff8bc2fdb453f8:  0000000000000000 ffff8bc2f5741350   ........P.t.....
+
+
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2fdb453e0, cindex: 1020, key: 80000000, pn->key: 7f000000
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 2: cindex 255, pn->bits: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: 7f000000, parent pn: ffff8bc2f5e48820, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 5
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2d74d2bc0, cindex: 6
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2d74d2bc0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2f5e48820
+crash> rd 0xffff8bc2f5e48828 6
+ffff8bc2f5e48828:  ffff8bc2f72f3380 0000000000000000   .3/.............
+ffff8bc2f5e48838:  0000000000000000 ffff8bc2fdb453e0   .........S......
+ffff8bc2f5e48848:  0000000000000000 ffff8bc2d74d2bc0   .........+M.....
+crash> key_vector ffff8bc2d74d2bc0
+struct key_vector {
+  key = 0xa9fe0000,
+  pos = 0x0,
+  bits = 0x0,
+  slen = 0x10,
+  {
+    leaf = {
+      first = 0xffff8bc2f9bcee00
+    },
+    tnode = 0xffff8bc2d74d2bc8
+  }
+}
+
+
+
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2f5e48820, cindex: 5, key: a9fe0001, pn->key: 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2d74d2bc0, pn: ffff8bc2f5e48820, cindex: 6
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2dbf9d260, cindex: 7
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 7: pn ffff8bc2dbf9d260, cindex = 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2dbf9d9e0, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 7: pn ffff8bc2dbf9d9e0, cindex = 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f72f3350, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f72f3350
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2dbf9d9e0
+
+
+
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2dbf9d9e0, cindex: 0, key: c0a81f01, pn->key: c0a81f00
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f72f3350, pn: ffff8bc2dbf9d9e0, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 3
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f72f32f0, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f72f32f0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2dbf9d9e0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2dbf9d9e0, cindex: 3, key: c0a81f0f, pn->key: c0a81f00
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f72f32f0, pn: ffff8bc2dbf9d9e0, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: c0a81f00, parent pn: ffff8bc2dbf9d260, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 3
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f72f3320, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f72f3320
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2dbf9d260
+
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2dbf9d260, cindex: 252, key: c0a82000, pn->key: c0a81f00
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 2: cindex 63, pn->bits: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: c0a81f00, parent pn: ffff8bc2f5e48820, cindex: 7
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 8
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: 0, parent pn: ffff8bc2fe87ebb0, cindex: 1
+
+
+
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_seq_start: fib_table ffff8bc2fe87eb80
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_seq_start: *pos 9
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_get_idx: pos 9, iter->pos: 1, i: 1, key: 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2fe87ebb0, cindex: 0, key: 0, pn->key: 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f5e48820, pn: ffff8bc2fe87ebb0, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2f5e48820, cindex: 0, key: 0, pn->key: 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f72f3380, pn: ffff8bc2f5e48820, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 9: n  ffff8bc2f72f3380
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2f5e48820
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_get_idx: key 0000000000000001, iter->pos: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2f5e48820, cindex: 0, key: 1, pn->key: 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f72f3380, pn: ffff8bc2f5e48820, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 3
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2fdb453e0, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 7: pn ffff8bc2fdb453e0, cindex = 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2fdb30d20, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 7: pn ffff8bc2fdb30d20, cindex = 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f5741320, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f5741320
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2fdb30d20
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_get_idx: key 000000007f000001, iter->pos: 3
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2fdb30d20, cindex: 1, key: 7f000001, pn->key: 7f000000
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f57412f0, pn: ffff8bc2fdb30d20, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 9: n  ffff8bc2f57412f0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2fdb30d20
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_get_idx: key 000000007f000002, iter->pos: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2fdb30d20, cindex: 2, key: 7f000002, pn->key: 7f000000
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 2: cindex 1, pn->bits: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: 7f000000, parent pn: ffff8bc2fdb453e0, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 3
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f5741350, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f5741350
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2fdb453e0
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_get_idx: key 0000000080000000, iter->pos: 5
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2fdb453e0, cindex: 1020, key: 80000000, pn->key: 7f000000
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 2: cindex 255, pn->bits: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: 7f000000, parent pn: ffff8bc2f5e48820, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 5
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2d74d2bc0, cindex: 6
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2d74d2bc0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2f5e48820
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_get_idx: key 00000000a9fe0001, iter->pos: 6
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2f5e48820, cindex: 5, key: a9fe0001, pn->key: 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2d74d2bc0, pn: ffff8bc2f5e48820, cindex: 6
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2dbf9d260, cindex: 7
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 7: pn ffff8bc2dbf9d260, cindex = 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2dbf9d9e0, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 7: pn ffff8bc2dbf9d9e0, cindex = 0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f72f3350, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f72f3350
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2dbf9d9e0
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_get_idx: key 00000000c0a81f01, iter->pos: 7
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2dbf9d9e0, cindex: 0, key: c0a81f01, pn->key: c0a81f00
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f72f3350, pn: ffff8bc2dbf9d9e0, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 3
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f72f32f0, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f72f32f0
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2dbf9d9e0
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_get_idx: key 00000000c0a81f0f, iter->pos: 8
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2dbf9d9e0, cindex: 3, key: c0a81f0f, pn->key: c0a81f00
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 3: n: ffff8bc2f72f32f0, pn: ffff8bc2dbf9d9e0, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: c0a81f00, parent pn: ffff8bc2dbf9d260, cindex: 1
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 3
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  ffff8bc2f72f3320, cindex: 4
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 6: n  ffff8bc2f72f3320
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 8: pn ffff8bc2dbf9d260
+[Sun Dec  1 17:04:32 2019] fib1: fib_route_get_idx: key 00000000c0a82000, iter->pos: 9
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 1: key_vector ffff8bc2dbf9d260, cindex: 252, key: c0a82000, pn->key: c0a81f00
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 2: cindex 63, pn->bits: 2
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: c0a81f00, parent pn: ffff8bc2f5e48820, cindex: 7
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 5: n  0000000000000000, cindex: 8
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu continue
+[Sun Dec  1 17:04:32 2019] fib1: leaf_walk_rcu 4: pkey: 0, parent pn: ffff8bc2fe87ebb0, cindex: 1

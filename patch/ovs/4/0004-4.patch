@@ -1,0 +1,110 @@
+From 96dd0bc02029829838da3d7da268c1e46aadfa18 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Wed, 11 Dec 2019 16:56:33 +0800
+Subject: [PATCH 4/9] 4
+
+---
+ net/openvswitch/datapath.c     |  4 ++++
+ net/openvswitch/vport-netdev.c | 40 +++++++++++++++++++++++++++++++---------
+ 2 files changed, 35 insertions(+), 9 deletions(-)
+
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index dbe7ca08e23f..f9cfa1f26be3 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -251,12 +251,16 @@ int ovs_dp_process_packet(struct sk_buff *skb, struct sw_flow_key *key)
+ 		error = ovs_dp_upcall(dp, skb, key, &upcall, 0);
+ 		if (likely(!error))
+ 			consume_skb(skb);
++		else
++			pr_info("%s: ovs_dp_upcall failed: %d\n", __func__,
++				error);
+ 		stats_counter = &stats->n_missed;
+ 		goto out;
+ 	}
+ 
+ 	ovs_flow_stats_update(flow, key->tp.flags, skb);
+ 	sf_acts = rcu_dereference(flow->sf_acts);
++	pr_info("%s: ovs_execute_actions\n", __func__);
+ 	ovs_execute_actions(dp, skb, sf_acts, key);
+ 
+ 	stats_counter = &stats->n_hit;
+diff --git a/net/openvswitch/vport-netdev.c b/net/openvswitch/vport-netdev.c
+index 1f6ff23af923..ea6814f0d693 100644
+--- a/net/openvswitch/vport-netdev.c
++++ b/net/openvswitch/vport-netdev.c
+@@ -38,28 +38,44 @@
+ 
+ static struct vport_ops ovs_netdev_vport_ops;
+ 
+-static void ovs_netdev_down_event(struct work_struct *dummy);
+-static DECLARE_WORK(ovs_netdev_down_work, ovs_netdev_down_event);
++struct ovs_work_struct {
++	struct work_struct work;
++	struct flow_table *table;
++};
++
++struct ovs_work_struct ovs_work;
++static void ovs_netdev_down_event(struct work_struct *work);
+ static unsigned long last_jiffies;
+ 
+-static void ovs_netdev_down_event(struct work_struct *dummy)
++static void ovs_netdev_down_event(struct work_struct *work)
+ {
++	struct ovs_work_struct *ovs_work = container_of(work, struct ovs_work_struct, work);
+ 	struct net_device *dev;
+ 
+-	if (jiffies && time_before(jiffies, last_jiffies + HZ * 5)) {
+-		last_jiffies = jiffies;
+-		return;
+-	}
++/* 	if (last_jiffies && time_after(jiffies, last_jiffies + HZ * 5)) { */
++/* 		return; */
++/* 	} */
++/* 	last_jiffies = jiffies; */
++
++	pr_info("flow_table %px\n", ovs_work->table);
+ 
+ 	rtnl_lock();
+ 	rcu_read_lock();
+ 	for_each_netdev_rcu(&init_net, dev) {
+ 		if (dev->priv_flags & IFF_OPENVSWITCH &&
+-		    dev->flags & IFF_UP)
++		    dev->flags & IFF_UP) {
++			pr_info("%s: dev_change_flags: %x\n", __func__, dev->flags);
+ 			dev_change_flags(dev, dev->flags & ~IFF_UP);
++		}
+ 	}
+ 	rcu_read_unlock();
+ 	rtnl_unlock();
++
++	ovs_lock();
++	ovs_flow_tbl_flush(ovs_work->table);
++	ovs_unlock();
++
++	kfree(ovs_work);
+ }
+ 
+ /* Must be called with rcu_read_lock. */
+@@ -90,11 +106,17 @@ static int netdev_port_receive(struct sk_buff *skb)
+ 	ret = ovs_vport_receive(vport, skb, skb_tunnel_info(skb));
+ 
+ 	if (unlikely(ret == -ENOTCONN || ret == -ECONNREFUSED)) {
++		struct ovs_work_struct *ovs_work;
++
+ 		if (skb->dev->type == ARPHRD_ETHER) {
++/* 			struct net_device *dev; */
+ 			skb_pull(skb, ETH_HLEN);
+ 			skb->ip_summed = CHECKSUM_NONE;
+ 		}
+-		queue_work(system_wq, &ovs_netdev_down_work);
++		ovs_work = kmalloc(sizeof(*ovs_work), GFP_KERNEL);
++		ovs_work->table = &(vport->dp->table);
++		INIT_WORK(&ovs_work->work, ovs_netdev_down_event);
++		schedule_work(&ovs_work->work);
+ 	}
+ 
+ 	return ret;
+-- 
+2.14.4
+

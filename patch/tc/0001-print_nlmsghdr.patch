@@ -1,0 +1,45 @@
+From 62353beaaafaf262262106e826c5d7636bc442f6 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Thu, 16 Apr 2020 14:15:58 +0800
+Subject: [PATCH 1/2] print_nlmsghdr
+
+---
+ include/utils.h |  1 +
+ lib/utils.c     | 13 +++++++++++++
+ 2 files changed, 14 insertions(+)
+
+diff --git a/include/utils.h b/include/utils.h
+index 001491a1..dec8dcf1 100644
+--- a/include/utils.h
++++ b/include/utils.h
+@@ -319,5 +319,6 @@ int get_time(unsigned int *time, const char *str);
+ int get_time64(__s64 *time, const char *str);
+ char *sprint_time(__u32 time, char *buf);
+ char *sprint_time64(__s64 time, char *buf);
++void print_nlmsghdr(struct nlmsghdr *n);
+ 
+ #endif /* __UTILS_H__ */
+diff --git a/lib/utils.c b/lib/utils.c
+index c6f19ce1..41171f62 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -1695,3 +1695,16 @@ char *sprint_time64(__s64 time, char *buf)
+ 	print_time64(buf, SPRINT_BSIZE-1, time);
+ 	return buf;
+ }
++
++void print_nlmsghdr(struct nlmsghdr *n)
++{
++	int i = 0;
++
++	printf("%04x: ", i);
++	for (i = 0; i < n->nlmsg_len; i++) {
++		printf("%02x " , ((char *)n)[i] & 0xff);
++		if ((i+1) % 16 == 0)
++			printf("\n%04x: ", i);
++	}
++	printf("\n");
++}
+-- 
+2.21.1
+

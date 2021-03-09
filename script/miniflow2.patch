@@ -1,0 +1,51 @@
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
+index 6e74ce3f4..723d22e8e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.c
+@@ -170,6 +170,8 @@ static void miniflow_cleanup(struct mlx5e_miniflow *miniflow)
+ 	for (j = 0; j < MINIFLOW_MAX_CT_TUPLES; j++) {
+ 		flow = miniflow->ct_tuples[j].flow;
+ 		if (flow) {
++			if (miniflow->aged)
++				continue;
+ 			mlx5e_flow_put(flow->priv, flow);
+ 			miniflow->ct_tuples[j].flow = NULL;
+ 		}
+@@ -817,6 +819,7 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
+ 	}
+ 
+ 	miniflow->flow = mflow;
++	miniflow->aged = false;
+ 	mflow->miniflow = miniflow;
+ 	mflow->esw_attr->in_rep = rpriv->rep;
+ 	mflow->esw_attr->in_mdev = priv->mdev;
+@@ -828,6 +831,9 @@ static int __miniflow_merge(struct mlx5e_miniflow *miniflow)
+ 	for (i=0; i < miniflow->nr_flows; i++) {
+ 		flow = miniflow->path.flows[i];
+ 
++		if (flow->miniflow == NULL && miniflow != NULL)
++			flow->miniflow = miniflow;
++
+ 		flags |= atomic_read(&flow->flags);
+ 
+ 		miniflow_merge_match(mflow, flow, tmp_mask);
+@@ -1315,6 +1321,7 @@ void ct_flow_offload_get_stats(struct list_head *head, u64 *lastuse)
+ 
+ static void ct_flow_offload_del(struct mlx5e_tc_flow *flow)
+ {
++	flow->miniflow->aged = true;
+ 	mlx5e_flow_put(flow->priv, flow);
+ }
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.h b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.h
+index 5a04e90db..799a07dce 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/miniflow.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/miniflow.h
+@@ -49,6 +49,7 @@ struct mlx5e_miniflow {
+ 	} path;
+ 
+ 	int nr_ct_tuples;
++	bool aged;
+ 	struct mlx5e_ct_tuple ct_tuples[MINIFLOW_MAX_CT_TUPLES];
+ 
+ 	struct mlx5e_miniflow_node mnodes[MINIFLOW_MAX_FLOWS];

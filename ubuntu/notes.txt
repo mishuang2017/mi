@@ -1,0 +1,145 @@
+# list all install packages
+dpkg -l
+
+# show content of package
+dpkg-deb -c mlnx-ofed-kernel-utils_5.0-OFED.5.0.0.3.0.1.g3c54026_amd64.deb
+dpkg --contents linux-image-4.19.0-6-amd64-dbg_4.19.67-2+deb10u2_amd64.deb
+
+# list installed files on a package
+dpkg-query -L crash
+
+dpkg-query -l | grep crash
+
+dpkg-query -S /usr/bin/crash
+
+# install
+dpkg -i linux-image-unsigned-4.18.0-17-generic-dbgsym_4.18.0-17.18_amd64.ddeb
+
+apt-get install --download-only linux-image-4.19.0-6-amd64
+
+
+# add a user to sudoer
+usermod -aG sudo chrism
+
+# edit /etc/vim/vimrc to uncomment autocmd to remember last position
+
+# install broadcom wifi driver
+sudo apt-get update
+sudo apt-get install bcmwl-kernel-source
+
+# ctrl + shit + M to show konsole menu bar
+
+http://ddebs.ubuntu.com/pool/main/l/linux/
+
+/usr/lib/debug/boot
+
+install linux-image-dbgsym
+https://wiki.ubuntu.com/Debug%20Symbol%20Packages
+
+echo "deb http://ddebs.ubuntu.com $(lsb_release -cs) main restricted universe multiverse
+deb http://ddebs.ubuntu.com $(lsb_release -cs)-updates main restricted universe multiverse
+deb http://ddebs.ubuntu.com $(lsb_release -cs)-proposed main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ddebs.list
+
+sudo apt install ubuntu-dbgsym-keyring
+
+sudo apt-get update
+sudo apt -y install linux-image-$(uname -r)-dbgsym
+
+sudo apt-get install linux-source
+
+# install 4.18 kernel on 18.04.2
+sudo apt install linux-generic-hwe-18.04
+
+
+# install ovs for debian
+apt-cache show openvswitch-switch
+apt-get install openvswitch-switch
+
+# fix lsb issue
+[root@dev-r630-03 Python-3.6.0]# lsb_release -a
+Traceback (most recent call last):
+  File "/usr/bin/lsb_release", line 25, in <module>
+    import lsb_release
+ModuleNotFoundError: No module named 'lsb_release'
+
+ln -s /usr/share/pyshared/lsb_release.py /usr/lib/python3.6/site-packages/lsb_release.py
+
+# debian kdump-tools
+apt-get install kdump-tools crash kexec-tools makedumpfile `uname -r`-dbg
+crash /usr/lib/debug/lib/modules/4.19.0-6-amd64/vmlinux /var/crash/201912270351/dump.201912270351
+
+mod -s virtio_net /usr/lib/debug/lib/modules/4.19.0-6-amd64/kernel/drivers/net/virtio_net.ko
+mod -s virtio /usr/lib/debug/lib/modules/4.19.0-6-amd64/kernel/drivers/virtio/virtio.ko
+mod -s virtio_ring /usr/lib/debug/lib/modules/4.19.0-6-amd64/kernel/drivers/virtio/virtio_ring.ko
+hex
+
+vi /etc/sudoers
+%admin ALL=(ALL)  NOPASSWD:  ALL
+%sudo    ALL=(ALL:ALL)    NOPASSWD:   ALL
+
+sudo vim /etc/systemd/logind.conf
+HandleLidSwitch=suspend
+service systemd-logind restart
+
+crash
+defs.h:43:18: fatal error: zlib.h: No such file or directory
+# dpkg-query -S /usr/include/zlib.h
+zlib1g-dev:amd64: /usr/include/zlib.h
+
+
+Debian source
+deb http://mirrors.163.com/debian/ stretch main
+deb http://mirrors.163.com/debian/ stretch-updates main non-free contrib
+deb-src http://mirrors.163.com/debian/ stretch-updates main non-free contrib
+deb http://mirrors.163.com/debian-security/ stretch/updates main non-free contrib
+deb http://httpredir.debian.org/debian stretch-backports main contrib non-free
+
+
+
+build debian kernel:
+https://wiki.debian.org/BuildADebianKernelPackage
+
+Using your current Debian kernel configuration as a starting point
+Alternatively, you can use the configuration from a Debian-built kernel that you already have installed by copying the /boot/config-* file to .config and then running make oldconfig to only answer new questions.
+If you do this, ensure that you modify the configuration to set:
+
+CONFIG_SYSTEM_TRUSTED_KEYS = ""
+otherwise the build may fail:
+
+make[4]: *** No rule to make target 'debian/certs/test-signing-certs.pem', needed by 'certs/x509_certificate_list'.  Stop.
+make[4]: *** Waiting for unfinished jobs....
+
+debian mirror in Israel:
+# cat /etc/apt/sources.list
+deb http://mirror.isoc.org.il/pub/debian/ buster main non-free contrib
+deb-src http://mirror.isoc.org.il/pub/debian/ buster main non-free contrib
+
+
+squid:
+
+http_access allow all
+
+sudo ln -fs gcc-8 /usr/bin/gcc
+
+How to repare bad efi partition:
+https://askubuntu.com/questions/778117/installation-fails-on-grub-read-only-efi-partition
+sudo dosfsck -t -a -w /dev/nvme0n1p1
+
+sudo apt install gnome-tweak-tool
+
+Add locale:
+
+0. apt-get install locales && dpkg-reconfigure locales 
+1. vi /etc/locale.gen to uncomment
+2. locale-gen
+3. reboot
+
+
+iptables v1.8.2 (nf_tables):  CHAIN_ADD failed (No such file or directory): chain PREROUTING
+
+The docker installer uses iptables for nat. Unfortunately Debian uses nftables. You can convert the entries over to nftables or just setup Debian to use the legacy iptables.
+
+sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+
+nm-connection-editor

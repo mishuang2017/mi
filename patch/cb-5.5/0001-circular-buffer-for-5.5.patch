@@ -1,0 +1,95 @@
+From 120e94a20bf4d716128181159e8fa58f6a27b374 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Mon, 6 Jan 2020 12:55:18 +0800
+Subject: [PATCH] circular buffer for 5.5
+
+Change-Id: I14e128a4dee58c654ee302974e320c3e0b4f3b22
+---
+ drivers/net/ethernet/mellanox/mlx5/core/main.c     | 44 ++++++++++++++++++++++
+ .../net/ethernet/mellanox/mlx5/core/mlx5_core.h    |  1 +
+ 2 files changed, 45 insertions(+)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index cf7b8da0f010..3475092bc1f8 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -1605,6 +1605,47 @@ static void mlx5_core_verify_params(void)
+ 	}
+ }
+ 
++struct mutex mlx5_buf_lock;
++
++#define MLX5_LOG_BUF_LEN   (16*PAGE_SIZE)
++
++char __mlx5_log_buf[MLX5_LOG_BUF_LEN] __aligned(4);
++char *mlx5_log_buf = __mlx5_log_buf;
++u32 mlx5_log_buf_len = MLX5_LOG_BUF_LEN;
++
++u16 mlx5_log_next_seq = 0;
++u32 mlx5_log_next_idx = 0;
++
++void mlx5_log(char *fmt, ...)
++{
++	char va_buf[512] = {0};
++	char buf[512] = {0};
++	va_list argptr;
++	size_t len;
++	int cnt;
++
++	va_start(argptr, fmt);
++	cnt = vsnprintf(va_buf, 512, fmt, argptr);
++	va_end(argptr);
++	if (cnt > 500)
++		return;
++
++	snprintf(buf, 512, "%d: %ld: %s\n", mlx5_log_next_seq++, jiffies, va_buf);
++	len = strlen(buf);
++
++	if (len + mlx5_log_next_idx >= mlx5_log_buf_len) {
++		memset(mlx5_log_buf, 0, mlx5_log_buf_len - mlx5_log_next_idx - 1);
++		mlx5_log_next_idx = 0;
++		mlx5_log_buf = __mlx5_log_buf;
++	}
++
++	mutex_lock(&mlx5_buf_lock);
++	memcpy(mlx5_log_buf, buf, len);
++	mlx5_log_buf += len;
++	mlx5_log_next_idx += len;
++	mutex_unlock(&mlx5_buf_lock);
++}
++
+ static int __init init(void)
+ {
+ 	int err;
+@@ -1623,6 +1664,8 @@ static int __init init(void)
+ 	mlx5e_init();
+ #endif
+ 
++	mutex_init(&mlx5_buf_lock);
++
+ 	return 0;
+ 
+ err_debug:
+@@ -1637,6 +1680,7 @@ static void __exit cleanup(void)
+ #endif
+ 	pci_unregister_driver(&mlx5_core_driver);
+ 	mlx5_unregister_debugfs();
++	mutex_destroy(&mlx5_buf_lock);
+ }
+ 
+ module_init(init);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
+index da67b28d6e23..4cd18b220257 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
+@@ -213,6 +213,7 @@ int mlx5_fw_version_query(struct mlx5_core_dev *dev,
+ 
+ void mlx5e_init(void);
+ void mlx5e_cleanup(void);
++void mlx5_log(char *fmt, ...);
+ 
+ static inline bool mlx5_sriov_is_enabled(struct mlx5_core_dev *dev)
+ {
+-- 
+2.14.4
+

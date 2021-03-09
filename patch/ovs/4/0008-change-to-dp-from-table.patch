@@ -1,0 +1,88 @@
+From fc5b64f9a597fedf9632bcfeba4a17a3c1d88813 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Thu, 12 Dec 2019 18:12:12 +0800
+Subject: [PATCH 8/9] change to dp from table
+
+---
+ net/openvswitch/datapath.c     |  1 +
+ net/openvswitch/datapath.h     |  2 ++
+ net/openvswitch/vport-netdev.c | 10 ++++++----
+ 3 files changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index 238023505bb1..a5d7dd33745e 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -1570,6 +1570,7 @@ static int ovs_dp_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	if (dp == NULL)
+ 		goto err_free_reply;
+ 
++	atomic_set(&dp->refcnt, 0);
+ 	ovs_dp_set_net(dp, sock_net(skb->sk));
+ 
+ 	/* Allocate table. */
+diff --git a/net/openvswitch/datapath.h b/net/openvswitch/datapath.h
+index eb2eea5b3ae9..441784835c7c 100644
+--- a/net/openvswitch/datapath.h
++++ b/net/openvswitch/datapath.h
+@@ -96,6 +96,8 @@ struct datapath {
+ 
+ 	/* Switch meters. */
+ 	struct hlist_head *meters;
++
++	atomic_t refcnt;
+ };
+ 
+ /**
+diff --git a/net/openvswitch/vport-netdev.c b/net/openvswitch/vport-netdev.c
+index 484e17477366..5fee3d7bfb36 100644
+--- a/net/openvswitch/vport-netdev.c
++++ b/net/openvswitch/vport-netdev.c
+@@ -40,7 +40,7 @@ static struct vport_ops ovs_netdev_vport_ops;
+ 
+ struct ovs_work_struct {
+ 	struct work_struct work;
+-	struct flow_table *table;
++	struct datapath *dp;
+ };
+ 
+ struct ovs_work_struct ovs_work;
+@@ -49,6 +49,7 @@ static unsigned long last_jiffies;
+ static void ovs_netdev_down_event(struct work_struct *work)
+ {
+ 	struct ovs_work_struct *ovs_work = container_of(work, struct ovs_work_struct, work);
++	struct datapath *dp = ovs_work->dp;
+ 	struct net_device *dev;
+ 
+ 	pr_info("%s: jiffies: %lx, last_jiffies: %lx\n", __func__, jiffies, last_jiffies);
+@@ -58,7 +59,6 @@ static void ovs_netdev_down_event(struct work_struct *work)
+ 	}
+ 
+ 	last_jiffies = jiffies + HZ;
+-	pr_info("flow_table %px\n", ovs_work->table);
+ 
+ 	rtnl_lock();
+ 	rcu_read_lock();
+@@ -73,7 +73,8 @@ static void ovs_netdev_down_event(struct work_struct *work)
+ 	rtnl_unlock();
+ 
+ 	ovs_lock();
+-	ovs_flow_tbl_flush(ovs_work->table);
++	ovs_flow_tbl_flush(&dp->table);
++	atomic_dec(&dp->refcnt);
+ 	ovs_unlock();
+ 
+ 	kfree(ovs_work);
+@@ -114,7 +115,8 @@ static int netdev_port_receive(struct sk_buff *skb)
+ 			skb->ip_summed = CHECKSUM_NONE;
+ 		}
+ 		ovs_work = kmalloc(sizeof(*ovs_work), GFP_KERNEL);
+-		ovs_work->table = &vport->dp->table;
++		ovs_work->dp = vport->dp;
++		atomic_inc(&vport->dp->refcnt);
+ 		INIT_WORK(&ovs_work->work, ovs_netdev_down_event);
+ 		queue_work(ovs_wq, &ovs_work->work);
+ 	}
+-- 
+2.14.4
+

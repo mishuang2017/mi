@@ -1,0 +1,6 @@
+hardstatus alwayslastline
+hardstatus string '[ %H ][%=%w%=][ %Y-%M-%d %c ]'
+startup_message off
+vbell on
+bind ' ' title
+maptimeout 5

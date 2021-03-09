@@ -1,0 +1,124 @@
+diff --git a/net/ipv4/fib_trie.c b/net/ipv4/fib_trie.c
+index 1ab2fb6bb37d..a9800e7f24a6 100644
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -1625,18 +1625,29 @@ static struct key_vector *leaf_walk_rcu(struct key_vector **tn, t_key key)
+ 		/* record parent and next child index */
+ 		pn = n;
+ 		cindex = (key > pn->key) ? get_index(key, pn) : 0;
++		pr_info("fib1: %s 1: key_vector %px, cindex: %d, key: %x, pn->key: %x\n",
++			__func__, pn, cindex, key, pn->key);
+ 
+-		if (cindex >> pn->bits)
++		if (cindex >> pn->bits) {
++			pr_info("fib1: %s 2: cindex %d, pn->bits: %d\n",
++				__func__, cindex >> pn->bits, pn->bits);
+ 			break;
++		}
+ 
+ 		/* descend into the next child */
+ 		n = get_child_rcu(pn, cindex++);
+-		if (!n)
++		pr_info("fib1: %s 3: n: %px, pn: %px, cindex: %d\n",
++			__func__, n, pn, cindex);
++		if (!n) {
++			pr_info("fib1: %s break\n", __func__);
+ 			break;
++		}
+ 
+ 		/* guarantee forward progress on the keys */
+-		if (IS_LEAF(n) && (n->key >= key))
++		if (IS_LEAF(n) && (n->key >= key)) {
++			pr_info("fib1: %s 9: n  %px\n", __func__, n);
+ 			goto found;
++		}
+ 	} while (IS_TNODE(n));
+ 
+ 	/* this loop will search for the next leaf with a greater key */
+@@ -1647,21 +1658,29 @@ static struct key_vector *leaf_walk_rcu(struct key_vector **tn, t_key key)
+ 
+ 			pn = node_parent_rcu(pn);
+ 			cindex = get_index(pkey, pn) + 1;
++			pr_info("fib1: %s 4: pkey: %x, parent pn: %px, cindex: %d\n",
++				__func__, pkey, pn, cindex);
+ 			continue;
+ 		}
+ 
+ 		/* grab the next available node */
+ 		n = get_child_rcu(pn, cindex++);
+-		if (!n)
++		pr_info("fib1: %s 5: n  %px, cindex: %d\n", __func__, n, cindex);
++		if (!n) {
++			pr_info("fib1: %s continue\n", __func__);
+ 			continue;
++		}
+ 
+ 		/* no need to compare keys since we bumped the index */
+-		if (IS_LEAF(n))
++		if (IS_LEAF(n)) {
++			pr_info("fib1: %s 6: n  %px\n", __func__, n);
+ 			goto found;
++		}
+ 
+ 		/* Rescan start scanning in new node */
+ 		pn = n;
+ 		cindex = 0;
++		pr_info("fib1: %s 7: pn %px, cindex = 0\n", __func__, pn);
+ 	}
+ 
+ 	*tn = pn;
+@@ -1669,6 +1688,7 @@ static struct key_vector *leaf_walk_rcu(struct key_vector **tn, t_key key)
+ found:
+ 	/* if we are at the limit for keys just return NULL for the tnode */
+ 	*tn = pn;
++	pr_info("fib1: %s 8: pn %px\n", __func__, pn);
+ 	return n;
+ }
+ 
+@@ -2659,20 +2679,26 @@ static struct key_vector *fib_route_get_idx(struct fib_route_iter *iter,
+ {
+ 	struct key_vector *l, **tp = &iter->tnode;
+ 	t_key key;
++	int i;
+ 
+ 	/* use cached location of previously found key */
+ 	if (iter->pos > 0 && pos >= iter->pos) {
++		i = 0;
+ 		key = iter->key;
+ 	} else {
+ 		iter->pos = 1;
++		i = 1;
+ 		key = 0;
+ 	}
+ 
++	pr_info("fib1: %s: pos %llx, iter->pos: %llx, i: %d, key: %x\n",
++		__func__, pos, iter->pos, i, key);
+ 	pos -= iter->pos;
+ 
+ 	while ((l = leaf_walk_rcu(tp, key)) && (pos-- > 0)) {
+ 		key = l->key + 1;
+ 		iter->pos++;
++		pr_info("fib1: %s: key %px, iter->pos: %d\n", __func__, key, iter->pos);
+ 		l = NULL;
+ 
+ 		/* handle unlikely case of a key wrap */
+@@ -2698,6 +2724,7 @@ static void *fib_route_seq_start(struct seq_file *seq, loff_t *pos)
+ 	rcu_read_lock();
+ 
+ 	tb = fib_get_table(seq_file_net(seq), RT_TABLE_MAIN);
++	pr_info("fib1: %s: fib_table %px\n", __func__, tb);
+ 	if (!tb)
+ 		return NULL;
+ 
+@@ -2705,8 +2732,10 @@ static void *fib_route_seq_start(struct seq_file *seq, loff_t *pos)
+ 	t = (struct trie *)tb->tb_data;
+ 	iter->tnode = t->kv;
+ 
+-	if (*pos != 0)
++	if (*pos != 0) {
++		pr_info("fib1: %s: *pos %llx\n", __func__, *pos);
+ 		return fib_route_get_idx(iter, *pos);
++	}
+ 
+ 	iter->pos = 0;
+ 	iter->key = KEY_MAX;

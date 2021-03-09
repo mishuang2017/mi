@@ -1,0 +1,847 @@
+
+xport has the mapping of ofp_port_t and odp_port_t
+
+http://docs.openvswitch.org/en/latest/faq/design/?highlight=dump-flows
+
+VLOG_ERR("%s: cannot add a loopback device", devname);
+
+===kernel===
+
+ovs_dp_process_packet
+    ovs_flow_tbl_lookup_stats
+    ovs_dp_upcall(OVS_PACKET_CMD_MISS)
+        queue_userspace_packet
+            ovs_nla_put_key
+                __ovs_nla_put_key
+    ovs_execute_actions
+
+netdev_frame_hook
+netdev_port_receive
+ovs_vport_receive
+    ovs_flow_key_extract
+        key_extract
+    ovs_dp_process_packet
+
+ovs_action_attr
+
+===dp_netdevs===
+
+p dp_netdevs
+
+===vlan===
+
+OVS_ACTION_ATTR_PUSH_VLAN
+
+===backer===
+
+open_dpif_backer
+
+p all_dpif_backers
+$4 = {
+  map = {
+    buckets = 0x7fece8 <all_dpif_backers+8>,
+    one = 0x1969870,
+    mask = 0,
+    n = 1
+  }
+}
+(gdb) p/x 128
+$5 = 0x80
+print *( struct dpif_backer  *) 0x1968ce0
+$6 = {
+  type = 0x198b240 "system",
+  refcount = 1,
+  dpif = 0x198bb40,
+  udpif = 0x19696e0,
+
+struct dpif_backer
+    hmap odp_to_ofport_map  contains the mapping from ofp_port_t to struct struct ofport_dpif
+
+to xport
+to struct ofproto_dpif
+
+===function===
+
+(gdb) bt
+#0  odp_key_from_dp_packet (buf=0x7f0054f9bff8, packet=0x7f0054fc5240) at lib/odp-util.c:5096
+#1  0x000000000051632e in dpif_netlink_encode_execute (buf=0x7f0054f9bff8, d_exec=0x7f0054fb92f0, dp_ifindex=58) at lib/dpif-netlink.c:1858
+#2  dpif_netlink_operate__ (dpif=dpif@entry=0x20a77f0, ops=ops@entry=0x7f0054fb6e90, n_ops=n_ops@entry=5) at lib/dpif-netlink.c:1944
+#3  0x0000000000516f6e in dpif_netlink_operate_chunks (n_ops=5, ops=0x7f0054fb6e90, dpif=0x20a77f0) at lib/dpif-netlink.c:2243
+#4  dpif_netlink_operate (dpif_=0x20a77f0, ops=0x7f0054fb7e40, n_ops=<optimized out>) at lib/dpif-netlink.c:2276
+#5  0x000000000046ecb8 in dpif_operate (dpif=0x20a77f0, ops=ops@entry=0x7f0054fb7e40, n_ops=<optimized out>, n_ops@entry=6) at lib/dpif.c:1355
+#6  0x000000000043b90e in handle_upcalls (n_upcalls=4, upcalls=0x7f0054fd9640, udpif=0x20a8c10) at ofproto/ofproto-dpif-upcall.c:1482
+#7  recv_upcalls (handler=<optimized out>, handler=<optimized out>) at ofproto/ofproto-dpif-upcall.c:841
+#8  0x000000000043bc32 in udpif_upcall_handler (arg=0x2097758) at ofproto/ofproto-dpif-upcall.c:746
+#9  0x00000000004dc234 in ovsthread_wrapper (aux_=<optimized out>) at lib/ovs-thread.c:348
+#10 0x00007f005fe43609 in start_thread () from /lib64/libpthread.so.0
+#11 0x00007f005f613e6f in clone () from /lib64/libc.so.6
+
+When creating a new bridge:
+
+#0  ofproto_create (datapath_name=0x209f120 "br-vxlan2", datapath_type=0x20ad7a0 "system", ofprotop=ofprotop@entry=0x20dd558) at ofproto/ofproto.c:471
+#1  0x000000000040bd15 in bridge_reconfigure (ovs_cfg=ovs_cfg@entry=0x20b3c20) at vswitchd/bridge.c:647
+#2  0x000000000040fad9 in bridge_run () at vswitchd/bridge.c:2992
+#3  0x0000000000406945 in main (argc=<optimized out>, argv=<optimized out>) at vswitchd/ovs-vswitchd.c:119
+
+xbridge_lookup
+
+rule_dpif_lookup_from_table
+
+(gdb) bt
+#0  nl_msg_put_flower_options (flower=0x7f56837bbb60, request=0x7f56837bb980) at lib/tc.c:1389
+#1  tc_replace_flower (ifindex=ifindex@entry=28, prio=<optimized out>, handle=handle@entry=0, flower=flower@entry=0x7f56837bbb60) at lib/tc.c:1473
+#2  0x0000000000523150 in netdev_tc_flow_put (netdev=<optimized out>, match=<optimized out>, actions=<optimized out>, actions_len=<optimized out>, ufid=<optimized out>, info=<optimized out>, stats=<optimized out>)
+    at lib/netdev-tc-offloads.c:1025
+#3  0x0000000000517112 in parse_flow_put (put=0x7f56837be270, dpif=0x2746b40) at lib/dpif-netlink.c:2139
+#4  try_send_to_netdev (op=0x7f56837be268, dpif=0x2746b40) at lib/dpif-netlink.c:2204
+#5  dpif_netlink_operate (dpif_=0x2746b40, ops=0x7f56837bce40, n_ops=2) at lib/dpif-netlink.c:2266
+#6  0x000000000046ed48 in dpif_operate (dpif=0x2746b40, ops=ops@entry=0x7f56837bce40, n_ops=<optimized out>, n_ops@entry=2) at lib/dpif.c:1355
+#7  0x000000000043b94e in handle_upcalls (n_upcalls=1, upcalls=0x7f56837de640, udpif=0x27246e0) at ofproto/ofproto-dpif-upcall.c:1482
+
+#8  recv_upcalls (handler=<optimized out>, handler=<optimized out>) at ofproto/ofproto-dpif-upcall.c:841
+#9  0x000000000043bc72 in udpif_upcall_handler (arg=0x2722578) at ofproto/ofproto-dpif-upcall.c:746
+#10 0x00000000004dc2c4 in ovsthread_wrapper (aux_=<optimized out>) at lib/ovs-thread.c:348
+#11 0x00007f568a49b609 in start_thread () from /lib64/libpthread.so.0
+#12 0x00007f5689c6be6f in clone () from /lib64/libc.so.6
+
+
+
+#0  compose_output_action__ (ctx=ctx@entry=0x7fdf96dbb010, ofp_port=65534, xr=xr@entry=0x0, check_stp=check_stp@entry=true, mirror=mirror@entry=false) at ofproto/ofproto-dpif-xlate.c:3720
+#1  0x000000000044263f in compose_output_action (mirror=false, xr=0x0, ofp_port=<optimized out>, ctx=0x7fdf96dbb010) at ofproto/ofproto-dpif-xlate.c:3892
+#2  output_normal (ctx=ctx@entry=0x7fdf96dbb010, out_xbundle=out_xbundle@entry=0x199a410, xvlan=xvlan@entry=0x7fdf96db9a84, mirror=mirror@entry=false) at ofproto/ofproto-dpif-xlate.c:2221
+#3  0x0000000000442d3c in xlate_normal_flood (ctx=ctx@entry=0x7fdf96dbb010, in_xbundle=in_xbundle@entry=0x19a10f0, xvlan=xvlan@entry=0x7fdf96db9a84) at ofproto/ofproto-dpif-xlate.c:2620
+#4  0x000000000044614d in xlate_normal (ctx=0x7fdf96dbb010) at ofproto/ofproto-dpif-xlate.c:2837
+#5  xlate_output_action (ctx=ctx@entry=0x7fdf96dbb010, port=<optimized out>, max_len=<optimized out>, may_packet_in=may_packet_in@entry=true) at ofproto/ofproto-dpif-xlate.c:4857
+#6  0x0000000000444656 in do_xlate_actions (ofpacts=ofpacts@entry=0x199b068, ofpacts_len=ofpacts_len@entry=16, ctx=ctx@entry=0x7fdf96dbb010) at ofproto/ofproto-dpif-xlate.c:6192
+#7  0x0000000000448a8c in xlate_actions (xin=xin@entry=0x7fdf96dbba80, xout=xout@entry=0x7fdf96ddd6a0) at ofproto/ofproto-dpif-xlate.c:7098
+#8  0x000000000043a9d4 in upcall_xlate (wc=0x7fdf96ddd6f8, odp_actions=0x7fdf96ddd6b8, upcall=0x7fdf96ddd640, udpif=0x19696e0) at ofproto/ofproto-dpif-upcall.c:1153
+#9  process_upcall (udpif=udpif@entry=0x19696e0, upcall=upcall@entry=0x7fdf96ddd640, odp_actions=odp_actions@entry=0x7fdf96ddd6b8, wc=wc@entry=0x7fdf96ddd6f8) at ofproto/ofproto-dpif-upcall.c:1347
+
+#10 0x000000000043b6e3 in recv_upcalls (handler=<optimized out>, handler=<optimized out>) at ofproto/ofproto-dpif-upcall.c:824
+#11 0x000000000043bc72 in udpif_upcall_handler (arg=0x1967578) at ofproto/ofproto-dpif-upcall.c:746
+#12 0x00000000004dc2c4 in ovsthread_wrapper (aux_=<optimized out>) at lib/ovs-thread.c:348
+#13 0x00007fdf99577609 in start_thread () from /lib64/libpthread.so.0
+#14 0x00007fdf98d47e6f in clone () from /lib64/libc.so.6
+
+DPIF_UC_MISS
+MISS_UPCALL
+
+struct udpif_key
+
+put_op_init
+DPIF_OP_FLOW_PUT
+
+linux_get_ifindex
+
+nl_msg_put_flower_acts
+
+xlate_cache_clear_entry
+
+parse_tc_flower_to_match
+netdev_tc_flow_put
+
+ 0x7f4fab65e7e4 : sendmsg    +0x54/0xb0 [/usr/lib64/libpthread-2.26.so]
+ 0x525ab1 : nl_sock_transact_multiple__    +0x121/0x490 [/usr/sbin/ovs-vswitchd]
+ 0x525edc : nl_sock_transact_multiple.part.8    +0xbc/0x1a0 [/usr/sbin/ovs-vswitchd]
+ 0x526001 : nl_sock_transact    +0x41/0xc0 [/usr/sbin/ovs-vswitchd]
+ 0x526e30 : nl_transact    +0x40/0x60 [/usr/sbin/ovs-vswitchd]
+ 0x528a5e : tc_replace_flower    +0x26e/0xa90 [/usr/sbin/ovs-vswitchd]
+ 0x523668 : netdev_tc_flow_put    +0xaf8/0x1210 [/usr/sbin/ovs-vswitchd]
+ 0x517712 : dpif_netlink_operate   .part.29    +0x222/0x560 [/usr/sbin/ovs-vswitchd]
+ 0x46f438 : dpif_operate    +0xa8/0x260 [/usr/sbin/ovs-vswitchd]
+ 0x43ba5e : recv_upcalls.isra.22    +0x6ee/0x950 [/usr/sbin/ovs-vswitchd]
+ 0x43bd02 : udpif_upcall_handler    +0x42/0x70 [/usr/sbin/ovs-vswitchd]
+ 0x4dc5e4 : ovsthread_wrapper    +0x64/0x70 [/usr/sbin/ovs-vswitchd]
+ 0x7f4fab653609 : start_thread    +0xd9/0x3b0 [/usr/lib64/libpthread-2.26.so]
+ 0x7f4faae23e6f : clone    +0x3f/0x60 [/usr/lib64/libc-2.26.so]
+
+do_open
+	netdev_open
+	netdev_ports_insert
+
+miniflow_extract
+
+compose_output_action__
+
+OVS_ACTION_ATTR_OUTPUT
+
+dp_netdev_flow
+
+mirror_ingress_packet
+mirror_packet
+mirror_get
+
+struct ofbundle
+	aux is the pointer of struct port
+
+===skills===
+
+p *largv@5
+$22 = {0x6728c0 "qdisc", 0x6728c6 "add", 0x6728ca "dev", 0x6728ce "enp4s0f0", 0x6728d7 "ingress"}
+
+ptype struct xport
+
+set logging on
+show commands
+
+p &((struct xbundle*)0)->list_node
+$7 = (struct ovs_list *) 0x18
+
+p &((struct xport*)0)->bundle_node
+$34 = (struct ovs_list *) 0x30
+
+p/x (*(struct xlate_cfg*) xcfgp)->xports
+$11 = {
+  buckets = 0x1783890,
+  one = 0x0,
+  mask = 0x3,
+  n = 0x4
+}
+
+p/x (*(struct xlate_cfg*) xcfgp)->xbundles.buckets
+
+
+p (*(struct xlate_cfg*) xcfgp)->xbridges.one
+p (*(struct xbridge *) 0x177ce80 ).xbundles.prev
+set $node = 0x1722198
+p *(struct xbundle *) ($node - 0x18)
+p *(struct xbundle *) (($node = *$node) - 0x18)
+
+0x1785cd0
+0x177fd10
+0x173db90
+0x1784b90
+
+===struct xlate_cfg===
+
+
+p/x *(struct xlate_cfg*) xcfgp
+
+$11 = {
+  xbridges = {
+    buckets = 0x26d5208,
+    one = 0x26d35d0,
+    mask = 0x0,
+    n = 0x1
+  },
+  xbundles = {
+    buckets = 0x2719640,
+    one = 0x0,
+    mask = 0x3,
+    n = 0x4
+  },
+  xports = {
+    buckets = 0x26d6a70,
+    one = 0x0,
+    mask = 0x3,
+    n = 0x4
+  }
+}
+(gdb) x/12 0x26dd5c0
+0x26dd5c0:      0x02722f70      0x00000000      0x026c0040      0x00000000
+0x26dd5d0:      0x026d1750      0x00000000      0x026e6210      0x00000000
+0x26dd5e0:      0x026d6070      0x00000000      0x00000031      0x00000000
+(gdb) p *(struct xbundle *) 0x026c0040
+$5 = {
+  hmap_node = {
+    hash = 1643999145,
+    next = 0x0
+  },
+  ofbundle = 0x26e9650,
+  list_node = {
+    prev = 0x2722f88,
+    next = 0x26e6228
+  },
+  xbridge = 0x26bac40,
+  xports = {
+    prev = 0x26c2120,
+    next = 0x26c2120
+  },
+  name = 0x271e930 "enp4s0f0",
+  bond = 0x0,
+  lacp = 0x0,
+  vlan_mode = PORT_VLAN_TRUNK,
+  qinq_ethtype = 34984,
+  vlan = -1,
+  trunks = 0x0,
+  cvlans = 0x0,
+  use_priority_tags = false,
+  floodable = true,
+  protected = false
+}
+(gdb)  p *(struct ofbundle *) 0x26e9650
+$12 = {
+  hmap_node = {
+    hash = 2712193135,
+    next = 0x26e6b60
+  },
+  ofproto = 0x26df080,
+  aux = 0x26ec8b0,
+  name = 0x26d1e40 "enp4s0f0",
+  ports = {
+    prev = 0x26bfa60,
+    next = 0x26bfa60
+  },
+  vlan_mode = PORT_VLAN_TRUNK,
+  qinq_ethtype = 34984,
+  vlan = -1,
+  trunks = 0x0,
+  cvlans = 0x0,
+  lacp = 0x0,
+  bond = 0x0,
+  use_priority_tags = false,
+  protected = false,
+  floodable = true
+}
+(gdb) p *(struct ofproto_dpif *) 0x26df080
+$10 = {
+  all_ofproto_dpifs_node = {
+    hash = 24776443,
+    next = 0x0
+  },
+  up = {
+    hmap_node = {
+      hash = 24776443,
+      next = 0x0
+    },
+    ofproto_class = 0x5648e0 <ofproto_dpif_class>,
+    type = 0x26ea840 "system",
+    name = 0x26ea8e0 "br1",
+    fallback_dpid = 150874258214,
+    datapath_id = 40175250450378,
+    forward_bpdu = false,
+    mfr_desc = 0x0,
+    hw_desc = 0x0,
+    sw_desc = 0x0,
+    serial_desc = 0x0,
+    dp_desc = 0x0,
+    frag_handling = OFPUTIL_FRAG_NORMAL,
+    ports = {
+      buckets = 0x26bf870,
+      one = 0x0,
+      mask = 3,
+      n = 4
+    },
+    port_by_name = {
+      map = {
+        buckets = 0x26bf8d0,
+        one = 0x0,
+        mask = 3,
+        n = 4
+      }
+    },
+    ofp_requests = {
+      map = {
+        buckets = 0x26bf690,
+        one = 0x0,
+        mask = 3,
+        n = 4
+      }
+    },
+    alloc_port_no = 3,
+    max_ports = 65280,
+    ofport_usage = {
+      buckets = 0x26bf6f0,
+      one = 0x0,
+      mask = 3,
+      n = 3
+    },
+    change_seq = 654,
+    eviction_group_timer = 78586689,
+    tables = 0x26f0670,
+    n_tables = 255,
+    tables_version = 6,
+    cookies = {
+      buckets = 0x26df1b8,
+      one = 0x26be650,
+      mask = 0,
+      n_unique = 1
+    },
+    learned_cookies = {
+      buckets = 0x26df1d8,
+      one = 0x0,
+      mask = 0,
+      n = 0
+    },
+    expirable = {                                                                                                                                                                                                                     [143/1905]
+      prev = 0x26df1f0,
+---Type <return> to continue, or q <return> to quit---
+      next = 0x26df1f0
+    },
+    meter_features = {
+      max_meters = 0,
+      band_types = 0,
+      capabilities = 0,
+      max_bands = 0 '\000',
+      max_color = 0 '\000'
+    },
+    meters = {
+      buckets = 0x26df218,
+      one = 0x0,
+      mask = 0,
+      n = 0
+    },
+    slowpath_meter_id = 4294967295,
+    controller_meter_id = 4294967295,
+    connmgr = 0x26e5fe0,
+    min_mtu = 1500,
+    groups = {
+      impl = {
+        p = 0x831140 <empty_cmap>
+      }
+    },
+    n_groups = {0, 0, 0, 0},
+    ogf = {
+      types = 15,
+      capabilities = 7,
+      max_groups = {4294967040, 4294967040, 4294967040, 4294967040},
+      ofpacts = {36028797018963967, 36028797018963967, 36028797018963967, 36028797018963967}
+    },
+    metadata_tab = {
+      p = 0x26e0e60
+    },
+    vl_mff_map = {
+      cmap = {
+        impl = {
+          p = 0x831140 <empty_cmap>
+        }
+      },
+      mutex = {
+        lock = {
+          __data = {
+            __lock = 0,
+            __count = 0,
+            __owner = 0,
+            __nusers = 0,
+            __kind = 2,
+            __spins = 0,
+            __elision = 0,
+            __list = {
+              __prev = 0x0,
+              __next = 0x0
+            }
+          },
+          __size = '\000' <repeats 16 times>, "\002", '\000' <repeats 22 times>,
+          __align = 0
+        },
+        where = 0x55ea11 "<unlocked>"
+      }
+    }
+  },
+  backer = 0x26e1f40,
+  uuid = {
+    parts = {3278766937, 2189183717, 2613084806, 3041916598}
+  },
+  tables_version = 6,
+  dump_seq = 753723,
+  miss_rule = 0x26be5d0,
+  no_packet_in_rule = 0x26bec00,
+  drop_frags_rule = 0x26bedf0,
+---Type <return> to continue, or q <return> to quit---
+  netflow = 0x0,
+  sflow = 0x0,
+  ipfix = 0x0,
+  bundles = {
+    buckets = 0x26ea660,
+    one = 0x0,
+    mask = 3,
+    n = 4
+  },
+  ml = 0x26c43a0,
+  ms = 0x0,
+  has_bonded_bundles = false,
+  lacp_enabled = false,
+  mbridge = 0x26c4480,
+  stats_mutex = {
+    lock = {
+      __data = {
+        __lock = 0,
+        __count = 0,
+        __owner = 0,
+        __nusers = 0,
+        __kind = 3,
+        __spins = 0,
+        __elision = 0,
+        __list = {
+          __prev = 0x0,
+          __next = 0x0
+        }
+      },
+      __size = '\000' <repeats 16 times>, "\003", '\000' <repeats 22 times>,
+      __align = 0
+    },
+    where = 0x55ea11 "<unlocked>"
+  },
+  stats = {
+    rx_packets = 0,
+    tx_packets = 0,
+    rx_bytes = 0,
+    tx_bytes = 0,
+    rx_errors = 0,
+    tx_errors = 0,
+    rx_dropped = 0,
+    tx_dropped = 0,
+    multicast = 0,
+    collisions = 0,
+    rx_length_errors = 0,
+    rx_over_errors = 0,
+    rx_crc_errors = 0,
+    rx_frame_errors = 0,
+    rx_fifo_errors = 0,
+    rx_missed_errors = 0,
+    tx_aborted_errors = 0,
+    tx_carrier_errors = 0,
+    tx_fifo_errors = 0,
+    tx_heartbeat_errors = 0,
+    tx_window_errors = 0,
+    rx_1_to_64_packets = 0,
+    rx_65_to_127_packets = 0,
+    rx_128_to_255_packets = 0,
+    rx_256_to_511_packets = 0,
+    rx_512_to_1023_packets = 0,
+    rx_1024_to_1522_packets = 0,
+    rx_1523_to_max_packets = 0,
+    tx_1_to_64_packets = 0,
+    tx_65_to_127_packets = 0,
+    tx_128_to_255_packets = 0,
+    tx_256_to_511_packets = 0,
+    tx_512_to_1023_packets = 0,
+    tx_1024_to_1522_packets = 0,
+    tx_1523_to_max_packets = 0,
+    tx_multicast_packets = 0,
+---Type <return> to continue, or q <return> to quit---
+    rx_broadcast_packets = 0,
+    tx_broadcast_packets = 0,
+    rx_undersized_errors = 0,
+    rx_oversize_errors = 0,
+    rx_fragmented_errors = 0,
+    rx_jabber_errors = 0
+  },
+  stp = 0x0,
+  stp_last_tick = 0,
+  rstp = 0x0,
+  rstp_last_tick = 0,
+  ports = {
+    map = {
+      buckets = 0x26c45d0,
+      one = 0x0,
+      mask = 3,
+      n = 4
+    }
+  },
+  ghost_ports = {
+    map = {
+      buckets = 0x26df538,
+      one = 0x0,
+      mask = 0,
+      n = 0
+    }
+  },
+  port_poll_set = {
+    map = {
+      buckets = 0x26df558,
+      one = 0x0,
+      mask = 0,
+      n = 0
+    }
+  },
+  port_poll_errno = 0,
+  change_seq = 654,
+  ams = {
+    mutex = {
+      lock = {
+        __data = {
+          __lock = 0,
+          __count = 0,
+          __owner = 0,
+          __nusers = 0,
+          __kind = 2,
+          __spins = 0,
+          __elision = 0,
+          __list = {
+            __prev = 0x0,
+            __next = 0x0
+          }
+        },
+        __size = '\000' <repeats 16 times>, "\002", '\000' <repeats 22 times>,
+        __align = 0
+      },
+      where = 0x55ea11 "<unlocked>"
+    },
+    list = {
+      prev = 0x26df5b0,
+      next = 0x26df5b0
+    },
+    n = 0
+  },
+  ams_seq = 0x26bc830,
+  ams_seqno = 120
+}
+===port_to_netdev===
+
+(gdb) p port_to_netdev
+$1 = {
+  buckets = 0x26ea9d0,
+  one = 0x0,
+  mask = 3,
+  n = 3
+}
+(gdb) x/10 0x26ea9d0
+0x26ea9d0:      0x00000000      0x00000000      0x026bc440      0x00000000
+0x26ea9e0:      0x026e7820      0x00000000      0x026eccf0      0x00000000
+0x26ea9f0:      0x00000030      0x00000000
+(gdb) print/x *(struct port_to_netdev_data *) 0x026bc440
+$2 = {
+  node = {
+    hash = 0xfda052dd,
+    next = 0x0
+  },
+  netdev = 0x26bbd60,
+  dpif_port = {
+    name = 0x26e92f0,
+    type = 0x26e92a0,
+    port_no = 0x2
+  },
+  dpif_class = 0x597d80
+}
+(gdb) print/x *(struct port_to_netdev_data *) 0x026e7820
+$3 = {
+  node = {
+    hash = 0x3c461a7e,
+    next = 0x0
+  },
+  netdev = 0x26e5df0,
+  dpif_port = {
+    name = 0x26e7880,
+    type = 0x26e78a0,
+    port_no = 0x4
+  },
+  dpif_class = 0x597d80
+}
+(gdb) print/x *(struct port_to_netdev_data *) 0x026eccf0
+$4 = {
+  node = {
+    hash = 0x603a011f,
+    next = 0x0
+  },
+  netdev = 0x26de860,
+  dpif_port = {
+    name = 0x26e9170,
+    type = 0x26e9120,
+    port_no = 0x3
+  },
+  dpif_class = 0x597d80
+}
+(gdb) x/s 0x26e92f0
+0x26e92f0:      "enp4s0f0"
+(gdb) x/s 0x26e92a0
+0x26e92a0:      "system"
+(gdb) x/s 0x26e7880
+0x26e7880:      "enp4s0f0_0"
+(gdb) x/s 0x26e9170
+0x26e9170:      "enp4s0f0_1"
+(gdb) p/x *(struct netdev *) 0x26bbd60
+$6 = {
+  name = 0x26eaa20,
+  netdev_class = 0x59a620,
+  auto_classified = 0x1,
+  change_seq = 0x2,
+  reconfigure_seq = 0x26e9580,
+  last_reconfigure_seq = 0x16,
+  mtu_user_config = 0x0,
+  n_txq = 0x1,
+  n_rxq = 0x1,
+  ref_cnt = 0x5,
+  node = 0x26e9a50,
+  saved_flags_list = {
+    prev = 0x26bbda8,
+    next = 0x26bbda8
+  }
+}
+(gdb) p/s *( struct netdev_class *) 0x59a620
+$8 = {
+  type = 0x55fdbd "system",
+  is_pmd = false,
+  init = 0x0,
+  run = 0x51e810 <netdev_linux_run>,
+  wait = 0x51e6d0 <netdev_linux_wait>,
+  alloc = 0x519eb0 <netdev_linux_alloc>,
+  construct = 0x51d800 <netdev_linux_construct>,
+  destruct = 0x51bdd0 <netdev_linux_destruct>,
+  dealloc = 0x51b0d0 <netdev_linux_dealloc>,
+  get_config = 0x0,
+  set_config = 0x0,
+  get_tunnel_config = 0x0,
+  build_header = 0x0,
+  push_header = 0x0,
+  pop_header = 0x0,
+  get_numa_id = 0x0,
+  set_tx_multiq = 0x0,
+  send = 0x51da20 <netdev_linux_send>,
+  send_wait = 0x51a9e0 <netdev_linux_send_wait>,
+  set_etheraddr = 0x51bb90 <netdev_linux_set_etheraddr>,
+  get_etheraddr = 0x51b560 <netdev_linux_get_etheraddr>,
+  get_mtu = 0x51b3a0 <netdev_linux_get_mtu>,
+  set_mtu = 0x51b2d0 <netdev_linux_set_mtu>,
+  get_ifindex = 0x521710 <netdev_linux_get_ifindex>,
+  get_carrier = 0x51b250 <netdev_linux_get_carrier>,
+  get_carrier_resets = 0x51b200 <netdev_linux_get_carrier_resets>,
+  set_miimon_interval = 0x51bad0 <netdev_linux_set_miimon_interval>,
+  get_stats = 0x51e090 <netdev_linux_get_stats>,
+  get_features = 0x51c730 <netdev_linux_get_features>,
+  set_advertisements = 0x51b400 <netdev_linux_set_advertisements>,
+  get_pt_mode = 0x0,
+  set_policing = 0x521310 <netdev_linux_set_policing>,
+  get_qos_types = 0x51a980 <netdev_linux_get_qos_types>,
+  get_qos_capabilities = 0x51a550 <netdev_linux_get_qos_capabilities>,
+  get_qos = 0x51f9f0 <netdev_linux_get_qos>,
+  set_qos = 0x51fb20 <netdev_linux_set_qos>,
+  get_queue = 0x51f950 <netdev_linux_get_queue>,
+  set_queue = 0x51f8c0 <netdev_linux_set_queue>,
+  delete_queue = 0x51f820 <netdev_linux_delete_queue>,
+  get_queue_stats = 0x51f770 <netdev_linux_get_queue_stats>,
+  queue_dump_start = 0x51f630 <netdev_linux_queue_dump_start>,
+  queue_dump_next = 0x51e440 <netdev_linux_queue_dump_next>,
+  queue_dump_done = 0x519dc0 <netdev_linux_queue_dump_done>,
+  dump_queue_stats = 0x520ff0 <netdev_linux_dump_queue_stats>,
+  set_in4 = 0x51b170 <netdev_linux_set_in4>,
+  get_addr_list = 0x51b830 <netdev_linux_get_addr_list>,
+  add_router = 0x519f90 <netdev_linux_add_router>,
+  get_next_hop = 0x51a1d0 <netdev_linux_get_next_hop>,
+  get_status = 0x51b720 <netdev_linux_get_status>,
+  arp_lookup = 0x51a060 <netdev_linux_arp_lookup>,
+  update_flags = 0x51b100 <netdev_linux_update_flags>,
+  reconfigure = 0x0,
+  rxq_alloc = 0x519e90 <netdev_linux_rxq_alloc>,
+  rxq_construct = 0x51f120 <netdev_linux_rxq_construct>,
+  rxq_destruct = 0x51ace0 <netdev_linux_rxq_destruct>,
+  rxq_dealloc = 0x51acc0 <netdev_linux_rxq_dealloc>,
+  rxq_recv = 0x51c0a0 <netdev_linux_rxq_recv>,
+  rxq_wait = 0x51aca0 <netdev_linux_rxq_wait>,
+  rxq_drain = 0x51ac20 <netdev_linux_rxq_drain>,
+  flow_flush = 0x5222b0 <netdev_tc_flow_flush>,
+  flow_dump_create = 0x522320 <netdev_tc_flow_dump_create>,
+  flow_dump_destroy = 0x5223e0 <netdev_tc_flow_dump_destroy>,
+  flow_dump_next = 0x522410 <netdev_tc_flow_dump_next>,
+  flow_put = 0x522650 <netdev_tc_flow_put>,
+  flow_get = 0x5238a0 <netdev_tc_flow_get>,
+  flow_del = 0x523a80 <netdev_tc_flow_del>,
+  init_flow_api = 0x523b70 <netdev_tc_init_flow_api>
+}
+
+
+===flow===
+
+  subtables = {
+    impl = {
+      p = 0x914110
+    },
+    temp = 0x0
+  },
+  partitions = {
+    impl = {
+      p = 0x0
+    }
+  },
+  tries = {{
+      field = 0x574be0 <mf_fields+7616>,
+      root = {
+        p = 0x0
+      }
+    }, {
+      field = 0x574ba8 <mf_fields+7560>,
+      root = {
+        p = 0x0
+      }
+    }, {
+      field = 0x0,
+      root = {
+        p = 0x0
+      }
+    }},
+  n_tries = 2,
+  publish = true
+}
+struct subtable $48 = (struct pvector_impl *) 0x914110
+$49 = {
+  size = 0x2,
+  allocated = 0x5,
+  vector = 0x914120
+}
+(gdb) p/x *(struct pvector_entry*) 0x914120
+$51 = {
+  priority = 0x8000,
+  ptr = 0x8c31e0
+}
+(gdb) p/x *(struct cls_subtable*) 0x8c31e0
+$52 = {
+  cmap_node = {
+
+
+(gdb) x/100 0x1f4cba0
+0x1f4cba0:      0x00000000      0x0c400000      0x00000000      0x00000000
+0x1f4cbb0:      0x00000000      0x00000000      0x88078a24      0x25029a27
+0x1f4cbc0:      0x020113d0      0x00000000      0x00000000      0x0c400000
+0x1f4cbd0:      0x00000000      0x00000000      0x00000000      0xffffffff
+0x1f4cbe0:      0xffffffff      0xffffffff      0xffffffff      0x00000000
+0x1f4cbf0:      0x00000067      0x00000001      0x00000101      0x00000000
+0x1f4cc00:      0x01f4e0e0      0x00000000      0x00000111      0x00000000
+0x1f4cc10:      0x01f5c1b0      0x00000000      0x70616d22      0x5b5b2c22
+0x1f4cc20:      0x000000d0      0x00000000      0x000000d0      0x00000000
+0x1f4cc30:      0x00000000      0x00000000      0x01f4b1f0      0x00000000
+0x1f4cc40:      0x00000000      0x00000000      0x00000000      0x00000000
+0x1f4cc50:      0x00000000      0x00000000      0x00000000      0x00000000
+0x1f4cc60:      0x0000468a      0x00000000      0x01f44610      0x00000000
+0x1f4cc70:      0x00000000      0x00000000      0x00000041      0x00000000
+0x1f4cc80:      0x00000000      0x00000000      0x00000000      0x00000000
+0x1f4cc90:      0x00000000      0x00000000      0x72225b2c      0x72635f78
+0x1f4cca0:      0x00000000      0x00000000      0x31346134      0x5d226163
+0x1f4ccb0:      0x00000000      0x00000000      0x5f726576      0x22727265
+0x1f4ccc0:      0x00000000      0x00000000      0x00001c91      0x00000000
+0x1f4ccd0:      0x00000000      0x00000000      0x00000002      0xffffffff
+0x1f4cce0:      0x01f48c70      0x00000000      0x01f4b170      0x00000000
+0x1f4ccf0:      0x00000110      0x00000000      0x000000d1      0x00000000
+0x1f4cd00:      0x00000000      0x00000000      0x0000000a      0x00000001
+0x1f4cd10:      0x01f8f528      0x00000000      0x01f8f528      0x00000000
+0x1f4cd20:      0x00000001      0x00000000      0x00000000      0x00400000
+
+
+(gdb) p/x *(struct rule_actions *)0x1f42cd0
+$51 = {
+  has_meter = 0x0,
+  has_learn_with_delete = 0x0,
+  has_groups = 0x0,
+  ofpacts_len = 0x10,
+  ofpacts = 0x1f42cd8
+}
+(gdb) x/10 0x1f42cd8
+0x1f42cd8:      0x0010ff00      0x0000fffa      0x00000000      0x00000000
+0x1f42ce8:      0x00000031      0x00000000      0x01f97ab8      0x00000000
+0x1f42cf8:      0x01fa1588      0x00000000
+
+(gdb) p/x *(struct ofpact_output*) 0x1f42cd8
+$54 = {
+  ofpact = {
+    type = 0x0,
+    raw = 0xff,
+    len = 0x10
+  },
+  port = 0xfffa,
+  max_len = 0x0
+}
+
+#define OFPP_NORMAL     OFP_PORT_C(0xfffa) /* Process with normal L2/L3. */
+
+#define OFPP_LOCAL      OFP_PORT_C(0xfffe) /* Local openflow "port". */
+
+drop means no action, ofpacts_len is 0.
+
+#define OFPACTS                                                         \
+    /* Output. */                                                       \
+    OFPACT(OUTPUT,          ofpact_output,      ofpact, "output")       \
+    OFPACT(GROUP,           ofpact_group,       ofpact, "group")        \
+    OFPACT(CONTROLLER,      ofpact_controller,  userdata, "controller") \
+    OFPACT(ENQUEUE,         ofpact_enqueue,     ofpact, "enqueue")      \
+    OFPACT(OUTPUT_REG,      ofpact_output_reg,  ofpact, "output_reg")   \
+    OFPACT(BUNDLE,          ofpact_bundle,      slaves, "bundle")       \
+                                                                        \

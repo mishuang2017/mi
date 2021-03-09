@@ -1,0 +1,19 @@
+#!/usr/local/bin/stap -v
+
+global start
+function timestamp:long() { return gettimeofday_us() - start }
+probe begin { start = gettimeofday_us() }
+global n = 1;
+
+probe kernel.function("tcp_rcv_established")
+{
+	if ((execname() == "") || "" == "") {
+/* 		print_backtrace() */
+/* 		printf("parms: %s\n", $$parms); */
+/* 		printf("execname: %s\n", execname()); */
+/* 		printf("ts: %d, %d\n", timestamp()/1000000, n++); */
+/* 		print_ubacktrace() */
+		printf("max_files: %d\n", @var("files_stat@fs/file_table.c")->max_files);
+		printf("\n");
+	}
+}

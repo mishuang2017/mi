@@ -1,0 +1,103 @@
+From a40a2af8b10964037c673c7b1a7476592cd249f5 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Thu, 12 Dec 2019 18:04:52 +0800
+Subject: [PATCH 7/9] wq
+
+---
+ net/openvswitch/datapath.c     | 15 ++++++++++++++-
+ net/openvswitch/datapath.h     |  1 +
+ net/openvswitch/vport-netdev.c |  2 +-
+ 3 files changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index f9cfa1f26be3..238023505bb1 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -64,6 +64,7 @@ unsigned int ovs_net_id __read_mostly;
+ static struct genl_family dp_packet_genl_family;
+ static struct genl_family dp_flow_genl_family;
+ static struct genl_family dp_datapath_genl_family;
++struct workqueue_struct *ovs_wq;
+ 
+ static const struct nla_policy flow_policy[];
+ 
+@@ -1678,6 +1679,7 @@ static void __dp_destroy(struct datapath *dp)
+ 	 */
+ 	ovs_dp_detach_port(ovs_vport_ovsl(dp, OVSP_LOCAL));
+ 
++	flush_workqueue(ovs_wq);
+ 	/* RCU destroy the flow table */
+ 	call_rcu(&dp->rcu, destroy_dp_rcu);
+ }
+@@ -2401,9 +2403,15 @@ static int __init dp_init(void)
+ 
+ 	pr_info("Open vSwitch switching datapath\n");
+ 
++	ovs_wq = create_singlethread_workqueue("ovs_wq");
++	if (!ovs_wq) {
++		err = -ENOMEM;
++		goto error;
++	}
++
+ 	err = action_fifos_init();
+ 	if (err)
+-		goto error;
++		goto error_destroy_wq;
+ 
+ 	err = ovs_internal_dev_rtnl_link_register();
+ 	if (err)
+@@ -2433,6 +2441,7 @@ static int __init dp_init(void)
+ 	if (err < 0)
+ 		goto error_unreg_netdev;
+ 
++
+ 	return 0;
+ 
+ error_unreg_netdev:
+@@ -2449,7 +2458,10 @@ static int __init dp_init(void)
+ 	ovs_internal_dev_rtnl_link_unregister();
+ error_action_fifos_exit:
+ 	action_fifos_exit();
++error_destroy_wq:
++	destroy_workqueue(ovs_wq);
+ error:
++
+ 	return err;
+ }
+ 
+@@ -2464,6 +2476,7 @@ static void dp_cleanup(void)
+ 	ovs_flow_exit();
+ 	ovs_internal_dev_rtnl_link_unregister();
+ 	action_fifos_exit();
++	destroy_workqueue(ovs_wq);
+ }
+ 
+ module_init(dp_init);
+diff --git a/net/openvswitch/datapath.h b/net/openvswitch/datapath.h
+index c5f7be8f749f..eb2eea5b3ae9 100644
+--- a/net/openvswitch/datapath.h
++++ b/net/openvswitch/datapath.h
+@@ -154,6 +154,7 @@ struct ovs_net {
+ };
+ 
+ extern unsigned int ovs_net_id;
++extern struct workqueue_struct *ovs_wq;
+ void ovs_lock(void);
+ void ovs_unlock(void);
+ 
+diff --git a/net/openvswitch/vport-netdev.c b/net/openvswitch/vport-netdev.c
+index af882d2e8628..484e17477366 100644
+--- a/net/openvswitch/vport-netdev.c
++++ b/net/openvswitch/vport-netdev.c
+@@ -116,7 +116,7 @@ static int netdev_port_receive(struct sk_buff *skb)
+ 		ovs_work = kmalloc(sizeof(*ovs_work), GFP_KERNEL);
+ 		ovs_work->table = &vport->dp->table;
+ 		INIT_WORK(&ovs_work->work, ovs_netdev_down_event);
+-		schedule_work(&ovs_work->work);
++		queue_work(ovs_wq, &ovs_work->work);
+ 	}
+ 
+ 	return ret;
+-- 
+2.14.4
+

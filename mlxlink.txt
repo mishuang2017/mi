@@ -1,0 +1,100 @@
+[root@dev-r630-03 ~]# mlxlink  -m -d 04:00.0
+
+Operational Info
+----------------
+State                           : Active
+Physical state                  : LinkUp
+Speed                           : 100GbE
+Width                           : 4x
+FEC                             : Standard RS-FEC - RS(528,514)
+Loopback Mode                   : No Loopback
+Auto Negotiation                : ON
+
+Supported Info
+--------------
+Enabled Link Speed              : 0x6220a001 (100G,50G,40G,25G,10G,1G)
+Supported Cable Speed           : 0x2024a100 (100G,56G,50G,40G,25G,10G)
+
+Troubleshooting Info
+--------------------
+Status Opcode                   : 0
+Group Opcode                    : N/A
+Recommendation                  : No issue was observed.
+
+Module Info
+-----------
+Identifier                      : QSFP28
+Compliance                      : 100G AOC (Active Optical Cable) or 25GAUI C2M AOC. Providing a worst BER of 5 x 10^(-5)
+Cable Technology                : 850 nm VCSEL
+Cable Type                      : Active cable (active copper / optics)
+OUI                             : Mellanox
+Vendor Name                     : Mellanox
+Vendor Part Number              : MFA1A00-C003
+Vendor Serial Number            : MT1706FT02065
+Rev                             : AC
+Attenuation (5g,7g,12g) [dB]    : N/A
+FW Version                      : 75.0.64256
+Wavelength [nm]                 : 850
+Transfer Distance [m]           : 3
+Digital Diagnostic Monitoring   : Yes
+Power Class                     : 2.5 W max
+CDR RX                          : ON,ON,ON,ON
+CDR TX                          : ON,ON,ON,ON
+LOS Alarm                       : N/A
+Temperature [C]                 : 38 [-5..75]
+Voltage [mV]                    : 3275.9 [2970..3630]
+Bias Current [mA]               : 0,0,0,0 [0..0]
+Rx Power Current [dBm]          : 0,0,0,0 [-40..-40]
+Tx Power Current [dBm]          : -40,-40,-40,-40 [-40..-40]
+
+
+[root@dev-r630-03 ~]# mlxlink  -m -d 04:00.0
+
+Operational Info
+----------------
+State                           : Active
+Physical state                  : LinkUp
+Speed                           : 100GbE
+Width                           : 4x
+FEC                             : Standard RS-FEC - RS(528,514)
+Loopback Mode                   : No Loopback
+Auto Negotiation                : ON
+
+Supported Info
+--------------
+Enabled Link Speed              : 0x48101041 (100G,50G,40G,25G,10G,1G)
+Supported Cable Speed           : 0x48101165 (100G,56G,50G,40G,25G,20G,10G,1G)
+
+Troubleshooting Info
+--------------------
+Status Opcode                   : 0
+Group Opcode                    : N/A
+Recommendation                  : No issue was observed.
+
+Module Info
+-----------
+Identifier                      : QSFP+
+Compliance                      : 100GBASE-CR4 or 25GBASE-CR CA-L
+Cable Technology                : Copper cable unequalized
+Cable Type                      : Passive copper cable
+OUI                             : Mellanox
+Vendor Name                     : Mellanox
+Vendor Part Number              : MCP1600-E01A
+Vendor Serial Number            : MT1625VS03361
+Rev                             : A2
+Attenuation (5g,7g,12g) [dB]    : 5,7,11
+FW Version                      : N/A
+Wavelength [nm]                 : N/A
+Transfer Distance [m]           : 2
+Digital Diagnostic Monitoring   : No
+Power Class                     : 1.5 W max
+CDR RX                          : OFF,OFF,OFF,OFF
+CDR TX                          : OFF,OFF,OFF,OFF
+LOS Alarm                       : N/A
+Temperature [C]                 : 0 [0..0]
+Voltage [mV]                    : 0 [0..0]
+Bias Current [mA]               : 0,0,0,0 [0..0]
+Rx Power Current [dBm]          : 0,0,0,0 [0..0]
+Tx Power Current [dBm]          : 0,0,0,0 [0..0]
+
+

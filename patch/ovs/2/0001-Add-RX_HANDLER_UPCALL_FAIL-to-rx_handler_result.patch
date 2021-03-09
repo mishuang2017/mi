@@ -1,0 +1,39 @@
+From 8b3ca49b75a52ff542adce263489ac38eb329154 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Mon, 25 Nov 2019 15:26:21 +0800
+Subject: [PATCH 1/5] Add RX_HANDLER_UPCALL_FAIL to rx_handler_result.
+
+Change-Id: I6b8115d2f3b44410aedcda35ac4f7fecfd35e437
+---
+ include/linux/netdevice.h | 1 +
+ net/core/dev.c            | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 88292953aa6f..13beeb8f770f 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -414,6 +414,7 @@ enum rx_handler_result {
+ 	RX_HANDLER_ANOTHER,
+ 	RX_HANDLER_EXACT,
+ 	RX_HANDLER_PASS,
++	RX_HANDLER_UPCALL_FAIL,
+ };
+ typedef enum rx_handler_result rx_handler_result_t;
+ typedef rx_handler_result_t rx_handler_func_t(struct sk_buff **pskb);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 5156c0edebe8..30fc4b7db5cf 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4912,6 +4912,8 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 			deliver_exact = true;
+ 		case RX_HANDLER_PASS:
+ 			break;
++		case RX_HANDLER_UPCALL_FAIL:
++			break;
+ 		default:
+ 			BUG();
+ 		}
+-- 
+2.20.1
+

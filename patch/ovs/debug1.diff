@@ -1,0 +1,440 @@
+diff --git a/include/linux/netfilter.h b/include/linux/netfilter.h
+index 049aeb40fa35..a63d2959a04f 100644
+--- a/include/linux/netfilter.h
++++ b/include/linux/netfilter.h
+@@ -14,6 +14,7 @@
+ #include <linux/netfilter_defs.h>
+ #include <linux/netdevice.h>
+ #include <net/net_namespace.h>
++#include <net/ip.h>
+ 
+ #ifdef CONFIG_NETFILTER
+ static inline int NF_DROP_GETERR(int verdict)
+@@ -132,7 +133,20 @@ static inline int
+ nf_hook_entry_hookfn(const struct nf_hook_entry *entry, struct sk_buff *skb,
+ 		     struct nf_hook_state *state)
+ {
+-	return entry->hook(entry->priv, skb, state);
++	struct iphdr *iph;
++	int ret;
++
++	iph = ip_hdr(skb);
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1, csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
++	ret = entry->hook(entry->priv, skb, state);
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 2, csum_valid: %d, ip_summed: %d, csum: %x, nf_hook_entry %px\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum, entry);
++	}
++	return ret;
+ }
+ 
+ static inline void nf_hook_state_init(struct nf_hook_state *p,
+@@ -212,6 +226,7 @@ static inline int nf_hook(u_int8_t pf, unsigned int hook, struct net *net,
+ 			  int (*okfn)(struct net *, struct sock *, struct sk_buff *))
+ {
+ 	struct nf_hook_entries *hook_head = NULL;
++	const struct iphdr *iph;
+ 	int ret = 1;
+ 
+ #ifdef CONFIG_JUMP_LABEL
+@@ -220,6 +235,11 @@ static inline int nf_hook(u_int8_t pf, unsigned int hook, struct net *net,
+ 	    !static_key_false(&nf_hooks_needed[pf][hook]))
+ 		return 1;
+ #endif
++	iph = ip_hdr(skb);;
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 
+ 	rcu_read_lock();
+ 	switch (pf) {
+@@ -254,13 +274,30 @@ static inline int nf_hook(u_int8_t pf, unsigned int hook, struct net *net,
+ 	if (hook_head) {
+ 		struct nf_hook_state state;
+ 
++		if (iph->saddr == 0x2010101) {
++			pr_info("%s 2: csum_valid: %d, ip_summed: %d, csum: %x\n",
++				__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++		}
+ 		nf_hook_state_init(&state, hook, pf, indev, outdev,
+ 				   sk, net, okfn);
+ 
++		if (iph->saddr == 0x2010101) {
++			pr_info("%s 3: csum_valid: %d, ip_summed: %d, csum: %x\n",
++				__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++		}
+ 		ret = nf_hook_slow(skb, &state, hook_head, 0);
++
++		if (iph->saddr == 0x2010101) {
++			pr_info("%s 4: csum_valid: %d, ip_summed: %d, csum: %x\n",
++				__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++		}
+ 	}
+ 	rcu_read_unlock();
+ 
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 5: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	return ret;
+ }
+ 
+@@ -300,7 +337,19 @@ NF_HOOK(uint8_t pf, unsigned int hook, struct net *net, struct sock *sk, struct
+ 	struct net_device *in, struct net_device *out,
+ 	int (*okfn)(struct net *, struct sock *, struct sk_buff *))
+ {
+-	int ret = nf_hook(pf, hook, net, sk, skb, in, out, okfn);
++	struct iphdr *iph;
++	int ret;
++
++	iph = ip_hdr(skb);
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1, hook: %d: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, hook, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
++	ret = nf_hook(pf, hook, net, sk, skb, in, out, okfn);
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 2, hook: %d: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, hook, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	if (ret == 1)
+ 		ret = okfn(net, sk, skb);
+ 	return ret;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 09e819312820..a4b1230c3a7f 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4837,6 +4837,7 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 	bool deliver_exact = false;
+ 	int ret = NET_RX_DROP;
+ 	__be16 type;
++	struct iphdr *iph;
+ 
+ 	net_timestamp_check(!netdev_tstamp_prequeue, skb);
+ 
+@@ -4920,6 +4921,13 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 			goto out;
+ 	}
+ 
++	iph = ip_hdr(skb);
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 0: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++		pr_info("%s: iph->saddr: %x", __func__, iph->saddr);
++	}
++
+ 	rx_handler = rcu_dereference(skb->dev->rx_handler);
+ 	if (rx_handler) {
+ 		if (pt_prev) {
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index 4298aae74e0e..331f9dd2c3da 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -1021,8 +1021,13 @@ int icmp_rcv(struct sk_buff *skb)
+ 
+ 	__ICMP_INC_STATS(net, ICMP_MIB_INMSGS);
+ 
+-	if (skb_checksum_simple_validate(skb))
++	pr_info("%s 1: csum_valid: %d, ip_summed: %d, csum: %x\n",
++		__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	if (skb_checksum_simple_validate(skb)) {
++		pr_info("%s 2: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
+ 		goto csum_error;
++	}
+ 
+ 	if (!pskb_pull(skb, sizeof(*icmph)))
+ 		goto error;
+diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
+index 1e2392b7c64e..200fe6ce3625 100644
+--- a/net/ipv4/ip_input.c
++++ b/net/ipv4/ip_input.c
+@@ -243,12 +243,19 @@ int ip_local_deliver(struct sk_buff *skb)
+ 	 *	Reassemble IP fragments.
+ 	 */
+ 	struct net *net = dev_net(skb->dev);
++	struct iphdr *iph;
+ 
+ 	if (ip_is_fragment(ip_hdr(skb))) {
+ 		if (ip_defrag(net, skb, IP_DEFRAG_LOCAL_DELIVER))
+ 			return 0;
+ 	}
+ 
++	iph = ip_hdr(skb);;
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1, %px, csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
++
+ 	return NF_HOOK(NFPROTO_IPV4, NF_INET_LOCAL_IN,
+ 		       net, NULL, skb, skb->dev, NULL,
+ 		       ip_local_deliver_finish);
+@@ -312,6 +319,10 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
+ 	struct rtable *rt;
+ 	int err;
+ 
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	if (net->ipv4.sysctl_ip_early_demux &&
+ 	    !skb_dst(skb) &&
+ 	    !skb->sk &&
+@@ -399,8 +410,14 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
+ static int ip_rcv_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct net_device *dev = skb->dev;
++	struct iphdr *iph;
+ 	int ret;
+ 
++	iph = ip_hdr(skb);;
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1, %px, csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	/* if ingress device is enslaved to an L3 master device pass the
+ 	 * skb to its handler for processing
+ 	 */
+@@ -439,7 +456,11 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
+ 	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
+ 		goto inhdr_error;
+ 
+-	iph = ip_hdr(skb);
++	iph = ip_hdr(skb);;
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 
+ 	/*
+ 	 *	RFC1122: 3.2.1.2 MUST silently discard any IP frame that fails the checksum.
+@@ -477,6 +498,11 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
+ 	} else if (len < (iph->ihl*4))
+ 		goto inhdr_error;
+ 
++	iph = ip_hdr(skb);;
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 2: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	/* Our transport medium may have padded the buffer out. Now we know it
+ 	 * is IP we can trim to the true length of the frame.
+ 	 * Note this now means skb->len holds ntohs(iph->tot_len).
+@@ -485,8 +511,16 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
+ 		__IP_INC_STATS(net, IPSTATS_MIB_INDISCARDS);
+ 		goto drop;
+ 	}
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 3: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 
+ 	iph = ip_hdr(skb);
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 4, %px, csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	skb->transport_header = skb->network_header + iph->ihl*4;
+ 
+ 	/* Remove any debris in the socket control block */
+@@ -515,7 +549,13 @@ int ip_rcv(struct sk_buff *skb, struct net_device *dev, struct packet_type *pt,
+ 	   struct net_device *orig_dev)
+ {
+ 	struct net *net = dev_net(dev);
++	struct iphdr *iph;
+ 
++	iph = ip_hdr(skb);;
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	skb = ip_rcv_core(skb, net);
+ 	if (skb == NULL)
+ 		return NET_RX_DROP;
+diff --git a/net/ipv4/netfilter/nf_defrag_ipv4.c b/net/ipv4/netfilter/nf_defrag_ipv4.c
+index 8115611aa47d..49c4d8f3ab4c 100644
+--- a/net/ipv4/netfilter/nf_defrag_ipv4.c
++++ b/net/ipv4/netfilter/nf_defrag_ipv4.c
+@@ -63,6 +63,13 @@ static unsigned int ipv4_conntrack_defrag(void *priv,
+ 					  const struct nf_hook_state *state)
+ {
+ 	struct sock *sk = skb->sk;
++	const struct iphdr *iph;
++
++	iph = ip_hdr(skb);;
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 
+ 	if (sk && sk_fullsock(sk) && (sk->sk_family == PF_INET) &&
+ 	    inet_sk(sk)->nodefrag)
+@@ -86,6 +93,12 @@ static unsigned int ipv4_conntrack_defrag(void *priv,
+ 		if (nf_ct_ipv4_gather_frags(state->net, skb, user))
+ 			return NF_STOLEN;
+ 	}
++
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 2: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
++
+ 	return NF_ACCEPT;
+ }
+ 
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 81a8ef42b88d..d0f9717c9e5d 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -1671,10 +1671,16 @@ nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
+ {
+ 	enum ip_conntrack_info ctinfo;
+ 	struct nf_conn *ct, *tmpl;
++	struct iphdr *iph;
+ 	u_int8_t protonum;
+ 	int dataoff, ret;
+ 
++	iph = ip_hdr(skb);;
+ 	tmpl = nf_ct_get(skb, &ctinfo);
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	if (tmpl || ctinfo == IP_CT_UNTRACKED) {
+ 		/* Previously seen (loopback or untracked)?  Ignore. */
+ 		if ((tmpl && !nf_ct_is_template(tmpl)) ||
+@@ -1685,6 +1691,10 @@ nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
+ 		skb->_nfct = 0;
+ 	}
+ 
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 2: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	/* rcu_read_lock()ed by nf_hook_thresh */
+ 	dataoff = get_l4proto(skb, skb_network_offset(skb), state->pf, &protonum);
+ 	if (dataoff <= 0) {
+@@ -1695,6 +1705,10 @@ nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
+ 		goto out;
+ 	}
+ 
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 3: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	if (protonum == IPPROTO_ICMP || protonum == IPPROTO_ICMPV6) {
+ 		ret = nf_conntrack_handle_icmp(tmpl, skb, dataoff,
+ 					       protonum, state);
+@@ -1707,6 +1721,10 @@ nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
+ 			goto out;
+ 	}
+ repeat:
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 4: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	ret = resolve_normal_ct(tmpl, skb, dataoff,
+ 				protonum, state);
+ 	if (ret < 0) {
+@@ -1716,6 +1734,10 @@ nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
+ 		goto out;
+ 	}
+ 
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 5: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	ct = nf_ct_get(skb, &ctinfo);
+ 	if (!ct) {
+ 		/* Not valid part of a connection */
+@@ -1724,6 +1746,10 @@ nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
+ 		goto out;
+ 	}
+ 
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 6: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	ret = nf_conntrack_handle_packet(ct, skb, dataoff, ctinfo, state);
+ 	if (ret <= 0) {
+ 		/* Invalid: inverse of the return code tells
+@@ -1744,6 +1770,10 @@ nf_conntrack_in(struct sk_buff *skb, const struct nf_hook_state *state)
+ 		goto out;
+ 	}
+ 
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 7: csum_valid: %d, ip_summed: %d, csum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++	}
+ 	if (ctinfo == IP_CT_ESTABLISHED_REPLY &&
+ 	    !test_and_set_bit(IPS_SEEN_REPLY_BIT, &ct->status))
+ 		nf_conntrack_event_cache(IPCT_REPLY, ct);
+diff --git a/net/netfilter/utils.c b/net/netfilter/utils.c
+index 51b454d8fa9c..154230f180f5 100644
+--- a/net/netfilter/utils.c
++++ b/net/netfilter/utils.c
+@@ -13,6 +13,10 @@ __sum16 nf_ip_checksum(struct sk_buff *skb, unsigned int hook,
+ 	const struct iphdr *iph = ip_hdr(skb);
+ 	__sum16 csum = 0;
+ 
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 1: csum_valid: %d, ip_summed: %d, csum: %x, protocol: %d\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)skb->csum, protocol);
++	}
+ 	switch (skb->ip_summed) {
+ 	case CHECKSUM_COMPLETE:
+ 		if (hook != NF_INET_PRE_ROUTING && hook != NF_INET_LOCAL_IN)
+@@ -35,6 +39,13 @@ __sum16 nf_ip_checksum(struct sk_buff *skb, unsigned int hook,
+ 						       protocol, 0);
+ 		csum = __skb_checksum_complete(skb);
+ 	}
++
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 2: csum_valid: %d, ip_summed: %d, skb->csum: %x, "
++			"csum: %x, csum_complete_sw: %d\n", __func__,
++			skb->csum_valid, skb->ip_summed, (u32)skb->csum, (u32)csum,
++			skb->csum_complete_sw);
++	}
+ 	return csum;
+ }
+ EXPORT_SYMBOL(nf_ip_checksum);
+diff --git a/net/openvswitch/vport-netdev.c b/net/openvswitch/vport-netdev.c
+index d2fd37972587..a8c2aefb56de 100644
+--- a/net/openvswitch/vport-netdev.c
++++ b/net/openvswitch/vport-netdev.c
+@@ -31,6 +31,9 @@ static int netdev_port_receive(struct sk_buff *skb)
+ 	struct vport *vport;
+ 	int ret = 0;
+ 
++	pr_info("%s 1: csum_valid: %d, ip_summed: %d, csum: %x\n", __func__,
++		skb->csum_valid, skb->ip_summed, (u32)skb->csum);
++
+ 	vport = ovs_netdev_get_vport(skb->dev);
+ 	if (unlikely(!vport))
+ 		goto error;
+@@ -41,7 +44,9 @@ static int netdev_port_receive(struct sk_buff *skb)
+ 	/* Make our own copy of the packet.  Otherwise we will mangle the
+ 	 * packet for anyone who came before us (e.g. tcpdump via AF_PACKET).
+ 	 */
++	pr_info("%s: orig: %px, users: %d\n", __func__, skb, refcount_read(&skb->users));
+ 	skb = skb_share_check(skb, GFP_ATOMIC);
++	pr_info("%s: new : %px, users: %d\n", __func__, skb, refcount_read(&skb->users));
+ 	if (unlikely(!skb))
+ 		return ret;
+ 
+@@ -49,7 +54,11 @@ static int netdev_port_receive(struct sk_buff *skb)
+ 		skb_push(skb, ETH_HLEN);
+ 		skb_postpush_rcsum(skb, skb->data, ETH_HLEN);
+ 	}
++	pr_info("%s 2: csum_valid: %d, ip_summed: %d, csum: %x\n", __func__,
++		skb->csum_valid, skb->ip_summed, (u32)skb->csum);
+ 	ret = ovs_vport_receive(vport, skb, skb_tunnel_info(skb));
++	pr_info("%s 3: csum_valid: %d, ip_summed: %d, csum: %x\n", __func__,
++		skb->csum_valid, skb->ip_summed, (u32)skb->csum);
+ 	return ret;
+ error:
+ 	kfree_skb(skb);

@@ -1,0 +1,19 @@
+fib_table ffff8bc2fe87eb80
+ffff8bc2fe87ebb0					key: 0, pos: 32, bits: 0	
+	ffff8bc2f5e48820              			key: 0, pos: 29, bits: 3
+	1	ffff8bc2f72f3380
+	2	0000000000000000
+	3	0000000000000000
+	4	ffff8bc2fdb453e0
+			ffff8bc2fdb30d20       		key: 0x7f000000, pos: 0, bits: 1
+			1	ffff8bc2f5741320 	key: 0x7f000000, pos: 0, bits: 0
+			2	ffff8bc2f57412f0 	key: 0x7f000001, pos: 0, bits: 0
+	5	0000000000000000
+	6	ffff8bc2d74d2bc0			key: 0xa9fe0000, pos: 0, bits: 0
+			ffff8bc2f9bcee00		key: 0xa9fe0000, pos: 0, bits: 0
+	7	ffff8bc2dbf9d260			key: 0xc0a81f00, pos: 6, bits: 2
+			ffff8bc2dbf9d9e0		key: 0xc0a81f00, pos: 6, bits: 2
+			1	ffff8bc2f72f3350	key: 0xc0a81f00, pos: 2, bits: 2
+			2	0000000000000000
+			3	0000000000000000
+			4	ffff8bc2f72f32f0	key: 0xc0a81f0e, pos: 0, bits: 0

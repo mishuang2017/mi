@@ -1,0 +1,52 @@
+From c4a3aee373492a6612211c7501a752665709cce4 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Sat, 7 Dec 2019 16:48:20 +0800
+Subject: [PATCH 5/5] restore skb
+
+---
+ net/core/dev.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 09e819312820..ce140694493b 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4831,6 +4831,7 @@ static void netif_down_ovs_port_event(struct work_struct *dummy)
+ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 				    struct packet_type **ppt_prev)
+ {
++	const struct iphdr *iph = ip_hdr(skb);
+ 	struct packet_type *ptype, *pt_prev;
+ 	rx_handler_func_t *rx_handler;
+ 	struct net_device *orig_dev;
+@@ -4920,6 +4921,11 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 			goto out;
+ 	}
+ 
++	if (iph->saddr == 0x2010101 && iph->protocol == IPPROTO_ICMP) {
++		pr_info("%s: len 1: %d, data: %ld\n",
++			__func__, skb->len,
++			skb->data - skb->head);
++	}
+ 	rx_handler = rcu_dereference(skb->dev->rx_handler);
+ 	if (rx_handler) {
+ 		if (pt_prev) {
+@@ -4937,6 +4943,15 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 		case RX_HANDLER_PASS:
+ 			break;
+ 		case RX_HANDLER_UPCALL_FAIL:
++			if (skb->dev->type == ARPHRD_ETHER) {
++				skb->len -= ETH_HLEN;
++				skb->data += ETH_HLEN;
++			}
++			if (iph->saddr == 0x2010101 && iph->protocol == IPPROTO_ICMP) {
++				pr_info("%s: len 2: %d, data: %ld\n",
++					__func__, skb->len,
++					skb->data - skb->head);
++			}
+ 			mod_delayed_work(system_wq, &netif_down_ovs_port_work, 0);
+ 			break;
+ 		default:
+-- 
+2.20.1
+

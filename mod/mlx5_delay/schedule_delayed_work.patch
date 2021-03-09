@@ -1,0 +1,88 @@
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+index 50a543a..598865e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+@@ -1690,6 +1690,21 @@ void mlx5_eswitch_disable_sriov(struct mlx5_eswitch *esw)
+ 		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_IB);
+ }
+ 
++static void mlx5_flow_stats_work(struct work_struct *private_)
++{
++	struct mlx5_esw_offload *offloads =
++		container_of(private_, struct mlx5_esw_offload, dw.work);
++
++	pr_info("%s: %lx, %lx\n", __func__,
++	       atomic64_read(&offloads->add_flows),
++	       atomic64_read(&offloads->del_flows));
++
++	atomic64_set(&offloads->add_flows, 0);
++	atomic64_set(&offloads->del_flows, 0);
++
++	schedule_delayed_work(&offloads->dw, HZ);
++}
++
+ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
+ {
+ 	int total_vports = MLX5_TOTAL_VPORTS(dev);
+@@ -1718,6 +1733,9 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
+ 		goto abort;
+ 	}
+ 
++	INIT_DELAYED_WORK(&esw->offloads.dw, mlx5_flow_stats_work);
++	schedule_delayed_work(&esw->offloads.dw, HZ);
++
+ 	esw->vports = kcalloc(total_vports, sizeof(struct mlx5_vport),
+ 			      GFP_KERNEL);
+ 	if (!esw->vports) {
+@@ -1779,6 +1797,9 @@ void mlx5_eswitch_cleanup(struct mlx5_eswitch *esw)
+ 	esw_offloads_cleanup_reps(esw);
+ 	kfree(esw->vports);
+ 	kfree(esw);
++
++	flush_delayed_work(&esw->offloads.dw);
++	cancel_delayed_work(&esw->offloads.dw);
+ }
+ 
+ void mlx5_eswitch_vport_event(struct mlx5_eswitch *esw, struct mlx5_eqe *eqe)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
+index 94de559..6136d83 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
+@@ -156,6 +156,9 @@ struct mlx5_esw_offload {
+ 	struct mutex mode_lock;
+ 	u8 inline_mode;
+ 	atomic64_t num_flows;
++	atomic64_t add_flows;
++	atomic64_t del_flows;
++	struct delayed_work dw;
+ 	u8 encap;
+ };
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index 91ccb65..7a87fb2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -47,6 +47,7 @@ enum {
+ 
+ void mlx5_eswitch_inc_num_flows(struct mlx5_eswitch *esw)
+ {
++	atomic64_inc(&esw->offloads.add_flows);
+ 	if (!atomic64_add_unless(&esw->offloads.num_flows, 1, -1)) {
+ 		/* If mode change is in progress, take mode_lock to wait for it
+ 		 * to finish.
+@@ -62,6 +63,7 @@ void mlx5_eswitch_inc_num_flows(struct mlx5_eswitch *esw)
+ void mlx5_eswitch_dec_num_flows(struct mlx5_eswitch *esw)
+ {
+ 	atomic64_dec(&esw->offloads.num_flows);
++	atomic64_inc(&esw->offloads.del_flows);
+ }
+ 
+ struct mlx5_flow_handle *
+@@ -213,6 +215,7 @@ mlx5_eswitch_del_offloaded_rule(struct mlx5_eswitch *esw,
+ 				struct mlx5_esw_flow_attr *attr)
+ {
+ 	mlx5_del_flow_rules(rule);
++	atomic64_inc(&esw->offloads.del_flows);
+ 	atomic64_dec(&esw->offloads.num_flows);
+ }
+ 

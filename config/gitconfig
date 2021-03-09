@@ -1,0 +1,46 @@
+[user]
+	name = Chris Mi
+	email = chrism@mellanox.com
+
+[color]
+	diff = auto
+	status = auto
+	branch = auto
+	interactive = auto
+	ui = auto
+
+[core]
+	pager = less -R
+	preloadindex = true
+	autocrlf = input
+
+[sendemail]
+	confirm = always
+
+[alias]
+	graph = log --graph --pretty=format:'%C(red)%h%Creset%C(red bold)%d%Creset %s%Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --all
+	wdiff = diff --word-diff=color --ignore-all-space
+	slog = log --oneline --decorate
+	review = git-review
+
+[log]
+	decorate=true
+
+[slog]
+	decorate=true
+
+[color "decorate"]
+	tag = blue
+
+[color "branch"]
+	current = yellow reverse
+	local = yellow
+	remote = green
+	tag = blue
+
+[sendemail]
+	smtpserver = labmailer.lab.mtl.com
+	smtpserverport = 25
+	aliasesfile = ~/.gitaliases
+	aliasfiletype = mutt
+	confirm = always

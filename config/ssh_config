@@ -1,0 +1,10 @@
+cat ~/.ssh/config
+
+Host *
+ServerAliveInterval 300
+ServerAliveCountMax 2
+
+ls -l ~/.ssh/config
+-rw------- 1 chrism chrism 53 Apr  4 17:22 config
+ls -ld ~/.ssh
+drwx------ 1 chrism chrism 4096 Apr  4 17:22 /home/chrism/.ssh
