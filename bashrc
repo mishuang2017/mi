@@ -2292,6 +2292,10 @@ set -x
 set +x
 }
 
+alias tc_nat.sh="sudo ~cmi/bin/tc_nat.sh"
+alias br_nat.sh="sudo ~cmi/bin/br_nat.sh"
+alias tc_ct.sh="sudo ~cmi/bin/tc_ct.sh"
+
 function tc_nat1
 {
 	TC=/images/cmi/iproute2/tc/tc
@@ -2310,9 +2314,6 @@ set -x
 		action ct pipe action goto chain 2
 set +x
 }
-
-alias tc_nat.sh="sudo ~cmi/bin/tc_nat.sh"
-alias tc_ct.sh="sudo ~cmi/bin/tc_ct.sh"
 
 function tc_pf
 {
