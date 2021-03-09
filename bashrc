@@ -15,8 +15,8 @@ numvfs=17
 numvfs=1
 numvfs=3
 
-# alias virc="vi /images/cmi/sm/bashrc"
-# alias rc=". /images/cmi/sm/bashrc"
+# alias virc="vi /images/cmi/mi/bashrc"
+# alias rc=". /images/cmi/mi/bashrc"
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
 
@@ -535,7 +535,7 @@ alias clone-systemtap='git clone git://sourceware.org/git/systemtap.git'
 alias clone-systemd='git clone git@github.com:systemd/systemd.git'
 alias clone-crash-upstream='git clone git@github.com:crash-utility/crash.git'
 alias clone-crash='git clone https://github.com/mishuang2017/crash.git'
-alias clone-sm='git clone https://github.com/mishuang2017/sm'
+alias clone-mi='git clone https://github.com/mishuang2017/mi'
 alias clone-bin='git clone https://github.com/mishuang2017/bin.git'
 alias clone-c='git clone https://github.com/mishuang2017/c.git'
 alias clone-rpmbuild='git clone git@github.com:mishuang2017/rpmbuild.git'
@@ -667,14 +667,14 @@ alias chown1="sudo chown -R cmi.mtl ."
 alias sb='tmux save-buffer'
 
 alias sm="cd /$images/cmi"
-alias sms="cd /$images/cmi/sm"
+alias sms="cd /$images/cmi/mi"
 alias smip="cd /$images/cmi/iproute2"
 alias smipu="cd /$images/cmi/iproute2-upstream"
 alias smb2="cd /$images/cmi/bcc/tools"
 alias smb="cd /$images/cmi/bcc/examples/tracing"
-alias smk="cd /$images/cmi/sm/drgn"
-alias smdo="cd ~cmi/sm/drgn/ovs"
-alias d-ovs="sudo ~cmi/sm/drgn/ovs/ovs.py"
+alias smk="cd /$images/cmi/mi/drgn"
+alias smdo="cd ~cmi/mi/drgn/ovs"
+alias d-ovs="sudo ~cmi/mi/drgn/ovs/ovs.py"
 alias sk="cd /swgwork/cmi"
 
 alias softirq="/$images/cmi/bcc/tools/softirqs.py 1"
@@ -1011,11 +1011,11 @@ alias bd2="sudo ~cmi/bin/single-port2.sh; enable-ovs-debug"	# dnat
 alias bd3="sudo ~cmi/bin/single-port3.sh; enable-ovs-debug"
 
 corrupt_dir=corrupt_lat_linux
-alias cd-corrupt="cd /labhome/cmi/sm/prg/c/$corrupt_dir"
-alias cd-netlink="cd /labhome/cmi/sm/prg/c/my_netlink2"
+alias cd-corrupt="cd /labhome/cmi/mi/prg/c/$corrupt_dir"
+alias cd-netlink="cd /labhome/cmi/mi/prg/c/my_netlink2"
 alias cd-mnl="cd /labhome/cmi/prg/sm/c/libmnl_genl2"
-alias vi-corrupt="cd /labhome/cmi/sm/prg/c/$corrupt_dir; vi corrupt.c"
-alias corrupt="/labhome/cmi/sm/prg/c/$corrupt_dir/corrupt"
+alias vi-corrupt="cd /labhome/cmi/mi/prg/c/$corrupt_dir; vi corrupt.c"
+alias corrupt="/labhome/cmi/mi/prg/c/$corrupt_dir/corrupt"
 
 [[ $UID == 0 ]] && echo 2 > /proc/sys/fs/suid_dumpable
 
@@ -1147,7 +1147,7 @@ function ln-profile
 function create-images
 {
 	mkdir -p /images/cmi
-	ln -s cmi/sm /images/cmi/sm
+	ln -s cmi/mi /images/cmi/mi
 	chown -R cmi.nvu /images/cmi
 }
 
@@ -3849,7 +3849,7 @@ set +x
 }
 
 
-alias tun0="sudo ~cmi/sm/prg/c/tun/tun -i tun0 -s -d"
+alias tun0="sudo ~cmi/mi/prg/c/tun/tun -i tun0 -s -d"
 
 function tc-tap
 {
@@ -10543,13 +10543,13 @@ alias extra='/bin/rm -rf /lib/modules/4.19.36+/extra; depmod -a'
 alias reboot='echo reboot; read; reboot'
 
 # two way traffic
-alias udp-server-2=/labhome/cmi/sm/prg/c/udp-server/udp-server-2
-alias udp-client-2=/labhome/cmi/sm/prg/c/udp-client/udp-client-2
+alias udp-server-2=/labhome/cmi/mi/prg/c/udp-server/udp-server-2
+alias udp-client-2=/labhome/cmi/mi/prg/c/udp-client/udp-client-2
 
 # one way traffic
-alias udp-server=/labhome/cmi/sm/prg/c/udp-server/udp-server
-alias udp-client=/labhome/cmi/sm/prg/c/udp-client/udp-client
-alias udp-client-example="/labhome/cmi/sm/prg/c/udp-client/udp-client -c 192.168.1.$rhost_num -i 1 -t 10000"
+alias udp-server=/labhome/cmi/mi/prg/c/udp-server/udp-server
+alias udp-client=/labhome/cmi/mi/prg/c/udp-client/udp-client
+alias udp-client-example="/labhome/cmi/mi/prg/c/udp-client/udp-client -c 192.168.1.$rhost_num -i 1 -t 10000"
 
 function udp1
 {
@@ -11283,7 +11283,7 @@ function kmsg() {
 	fi
 }
 
-drgn_dir=~cmi/sm/drgn
+drgn_dir=~cmi/mi/drgn
 
 function _flowtable
 {
@@ -12358,8 +12358,8 @@ function tc-5t
 function github_push
 {
 	git remote rm origin
-	git remote add origin git@github.com:mishuang2017/sm.git
-# 	git remote add origin https://github.com/mishuang2017/sm.git
+	git remote add origin git@github.com:mishuang2017/mi.git
+# 	git remote add origin https://github.com/mishuang2017/mi.git
 	git push -u origin master
 }
 
