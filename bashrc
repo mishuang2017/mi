@@ -33,6 +33,7 @@ alias rc='. ~/.bashrc'
 [[ "$(hostname -s)" == "c-236-148-240-245" ]] && host_num=45
 [[ "$(hostname -s)" == "c-235-13-1-007" ]] && host_num=7
 [[ "$(hostname -s)" == "c-235-13-1-008" ]] && host_num=8
+[[ "$(hostname -s)" == "c-141-18-1-009" ]] && host_num=9
 
 [[ "$(hostname -s)" == "qa-h-vrt-074" ]] && host_num=74
 
@@ -197,13 +198,13 @@ elif (( host_num == 84 )); then
 elif (( host_num == 45 )); then
 	machine_num=1
 	cloud=1
-elif (( host_num == 8 )); then
-	link_mac=04:3f:72:d2:af:4e
+elif (( host_num == 9 )); then
+	link_mac=0c:42:a1:60:62:94
 	machine_num=1
 	cloud=1
-elif (( host_num == 7 )); then
+elif (( host_num == 10 )); then
 	machine_num=2
-	link_mac=04:3f:72:d2:af:62
+	link_mac=0c:42:a1:60:62:9c
 	cloud=1
 elif (( host_num == 74 )); then
 	link=ens4f0
