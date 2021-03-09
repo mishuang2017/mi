@@ -2297,6 +2297,7 @@ set +x
 }
 
 alias tc_nat.sh="sudo ~cmi/bin/tc_nat.sh"
+alias tc_nat_sample.sh="sudo ~cmi/bin/tc_nat_sample.sh"
 alias br_nat.sh="sudo ~cmi/bin/br_nat.sh"
 alias tc_ct.sh="sudo ~cmi/bin/tc_ct.sh"
 
