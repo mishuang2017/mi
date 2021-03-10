@@ -49,29 +49,29 @@ flow_table("ct_priv.post_ct", ct_priv.post_ct)
 
 fte_ids = ct_priv.fte_ids
 
-# print("=== mlx5e_rep_priv.uplink_priv.ct_priv.fte_ids ===")
-# for node in radix_tree_for_each(fte_ids.idr_rt):
-#     mlx5_ct_flow = Object(prog, 'struct mlx5_ct_flow', address=node[1].value_())
+print("=== mlx5e_rep_priv.uplink_priv.ct_priv.fte_ids ===")
+for node in radix_tree_for_each(fte_ids.idr_rt):
+    mlx5_ct_flow = Object(prog, 'struct mlx5_ct_flow', address=node[1].value_())
 #     print(mlx5_ct_flow)
-#     print("mlx5_ct_flow %lx" % mlx5_ct_flow.address_of_())
-#     print("\tfte_id: %d" % mlx5_ct_flow.fte_id, end='\t')
-#     print("chain_mapping: %d" % mlx5_ct_flow.chain_mapping, end='\t')
-#     print('')
-# 
-#     print("\tmlx5_ct_flow.pre_ct_attr")
+    print("mlx5_ct_flow %lx" % mlx5_ct_flow.address_of_())
+    print("\tfte_id: %d" % mlx5_ct_flow.fte_id, end='\t')
+    print("chain_mapping: %d" % mlx5_ct_flow.chain_mapping, end='\t')
+    print('')
+
+    print("\tmlx5_ct_flow.pre_ct_attr")
 #     print(mlx5_ct_flow.pre_ct_attr)
-#     print_mlx5_esw_flow_attr(mlx5_ct_flow.pre_ct_attr)
-# 
-#     print("\tmlx5_ct_flow.post_ct_attr")
+    print_mlx5_esw_flow_attr(mlx5_ct_flow.pre_ct_attr)
+
+    print("\tmlx5_ct_flow.post_ct_attr")
 #     print(mlx5_ct_flow.post_ct_attr)
-#     print_mlx5_esw_flow_attr(mlx5_ct_flow.post_ct_attr)
-# 
-#     print("\tmlx5_ct_flow.pre_ct_rule")
-#     print_mlx5_flow_handle(mlx5_ct_flow.pre_ct_rule)
-# 
-#     print("\tmlx5_ct_flow.post_ct_rule")
-#     print_mlx5_flow_handle(mlx5_ct_flow.post_ct_rule)
-# 
+    print_mlx5_esw_flow_attr(mlx5_ct_flow.post_ct_attr)
+
+    print("\tmlx5_ct_flow.pre_ct_rule")
+    print_mlx5_flow_handle(mlx5_ct_flow.pre_ct_rule)
+
+    print("\tmlx5_ct_flow.post_ct_rule")
+    print_mlx5_flow_handle(mlx5_ct_flow.post_ct_rule)
+
 ###############################
 
 tuple_ids = ct_priv.tuple_ids
