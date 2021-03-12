@@ -36,6 +36,8 @@ alias rc='. ~/.bashrc'
 [[ "$(hostname -s)" == "c-141-18-1-009" ]] && host_num=9
 [[ "$(hostname -s)" == "c-141-18-1-010" ]] && host_num=10
 
+[[ "$(hostname -s)" == "c-237-153-220-225" ]] && host_num=25
+
 [[ "$(hostname -s)" == "qa-h-vrt-074" ]] && host_num=74
 
 function get_vf
@@ -196,6 +198,9 @@ elif (( host_num == 84 )); then
 	remote_mac=0c:42:a1:d1:d0:e4
 	cloud=1
 
+elif (( host_num == 25 )); then
+	machine_num=1
+	cloud=1
 elif (( host_num == 45 )); then
 	machine_num=1
 	cloud=1
@@ -845,7 +850,7 @@ alias virca='vi ~/.bashrc*'
 alias visc='vi ~/.screenrc'
 alias vv='vi ~/.vimrc'
 alias vis='vi ~/.ssh/known_hosts'
-alias vin='vi ~/sm/notes.txt'
+alias vin='vi ~/mi/notes.txt'
 alias vij='vi ~/Documents/jd.txt'
 alias vi1='vi ~/Documents/ovs.txt'
 alias vi2='vi ~/Documents/mirror.txt'
@@ -7048,7 +7053,7 @@ function git_ofed_reset
 function git_ofed_reset_all
 {
 	for i in backports/*; do
-		if echo $i | egrep "0240-BACKPORT-drivers-net-ethernet-mellanox-mlx5-core-min.patch" > /dev/null 2>&1; then
+		if echo $i | egrep "0196-BACKPORT-drivers-net-ethernet-mellanox-mlx5-core-en_.patch" > /dev/null 2>&1; then
 			echo "ignore $i"
 			continue
 		fi
