@@ -203,11 +203,14 @@ elif (( host_num == 9 )); then
 	link_mac=0c:42:a1:60:62:94
 	remote_mac=0c:42:a1:60:62:9c
 	machine_num=1
+	rhost_num=10
+	link_remote_ip=192.168.1.$rhost_num
 	cloud=1
 elif (( host_num == 10 )); then
 	machine_num=2
 	link_mac=0c:42:a1:60:62:9c
 	remote_mac=0c:42:a1:60:62:94
+	rhost_num=9
 	cloud=1
 elif (( host_num == 74 )); then
 	link=ens4f0
@@ -8284,7 +8287,7 @@ function ofed-unload
 function force-stop
 {
 set -x
-	sudo /etc/init.d/openibd stop
+	sudo /etc/init.d/openibd force-stop
 set +x
 }
 
@@ -8292,7 +8295,7 @@ function force-start
 {
 set -x
 # 	ofed-unload
-	sudo /etc/init.d/openibd start
+	sudo /etc/init.d/openibd force-start
 # 	sudo systemctl restart systemd-udevd.service
 set +x
 }
