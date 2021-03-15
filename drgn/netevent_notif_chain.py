@@ -22,7 +22,9 @@ while True:
     mlx5e_neigh_update_table = container_of(notifier_block, "struct mlx5e_neigh_update_table", "netevent_nb")
 #     print(mlx5e_neigh_update_table)
     mlx5e_rep_priv = container_of(mlx5e_neigh_update_table, "struct mlx5e_rep_priv", "neigh_update")
-    print("net_device %x" % mlx5e_rep_priv.netdev.value_())
+    netdev = mlx5e_rep_priv.netdev.value_()
+    if netdev:
+        print("net_device %x, name: %s" % (mlx5e_rep_priv.netdev.value_(), mlx5e_rep_priv.netdev.name.string_().decode()))
     print(address_to_name(hex(notifier_block.notifier_call.value_())))
     notifier_block = notifier_block.next
     print('')

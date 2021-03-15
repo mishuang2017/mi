@@ -91,6 +91,7 @@ if (( host_num == 13 )); then
 	fi
 	link_name=1
 	link=enp4s0f0
+	link2=enp4s0f1
 
 	rhost_num=14
 	link_remote_ip=192.168.1.$rhost_num
