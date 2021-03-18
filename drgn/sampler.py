@@ -21,7 +21,7 @@ tunnel_mapping = mlx5e_rep_priv.uplink_priv.tunnel_mapping
 print('\n=== mlx5_esw_psample ===\n')
 print("mlx5_esw_psample %x" % sample_priv)
 # print(sample_priv)
-ct = 0
+ct = 1
 
 # sys.exit(0)
 

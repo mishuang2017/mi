@@ -63,7 +63,7 @@ for node in radix_tree_for_each(fte_ids.idr_rt):
     print_mlx5_esw_flow_attr(mlx5_ct_flow.pre_ct_attr)
 
     print("\tmlx5_ct_flow.post_ct_attr")
-#     print(mlx5_ct_flow.post_ct_attr)
+    print(mlx5_ct_flow.post_ct_attr)
     print_mlx5_esw_flow_attr(mlx5_ct_flow.post_ct_attr)
 
     print("\tmlx5_ct_flow.pre_ct_rule")
