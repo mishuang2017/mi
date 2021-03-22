@@ -121,7 +121,8 @@ if (( host_num == 13 )); then
 		done
 	fi
 
-	if [[ "$USER" == "root" ]]; then
+	test -f /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
+	if [[ $? == 0 && "$USER" == "root" ]]; then
 		echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal;
 		echo 2000000 > /proc/sys/net/netfilter/nf_conntrack_max
 	fi
@@ -180,7 +181,8 @@ elif (( host_num == 14 )); then
 
 # 	modprobe aer-inject
 
-	if [[ "$USER" == "root" ]]; then
+	test -f /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
+	if [[ $? == 0 && "$USER" == "root" ]]; then
 		echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal;
 		echo 5000000 > /proc/sys/net/netfilter/nf_conntrack_max
 	fi
@@ -12760,12 +12762,18 @@ function systemd_yum
 
 function rsync_sflow
 {
-	rsync -tvr /labhome/cmi/sflow/saeed vnc14:~/sflow
-	rsync -tvr /labhome/cmi/sflow/ct vnc14:~/sflow
-	rsync -tvr /labhome/cmi/sflow/ofproto vnc14:~/sflow
+# 	rsync -tvr /labhome/cmi/sflow/saeed vnc14:~/sflow
+# 	rsync -tvr /labhome/cmi/sflow/ct vnc14:~/sflow
+# 	rsync -tvr /labhome/cmi/sflow/ofproto vnc14:~/sflow
+	rsync -tvr /labhome/cmi/sflow/ct1 bc-vnc02:~/sflow
 }
 
 function rsync1
+{
+	rsync -tvr $1 vnc14:~
+}
+
+function rsync2
 {
 	rsync -tvr $1 vnc14:~
 }
