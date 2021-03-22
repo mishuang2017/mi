@@ -23,6 +23,7 @@ for x, dev in enumerate(lib.get_netdevs()):
 
     ppriv = mlx5e_priv.ppriv
     if ppriv:
+        print("ppriv %lx" % ppriv.value_())
         mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=ppriv.value_())
         dl_port = mlx5e_rep_priv.dl_port
         mlx5_eswitch_rep = mlx5e_rep_priv.rep

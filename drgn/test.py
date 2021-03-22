@@ -17,3 +17,9 @@ print(mlx5e_priv.fs.ttc.ft.t)
 
 priv2 = get_mlx5_pf1()
 esw2 = priv2.mdev.priv.eswitch
+
+NETDEV_CHANGELOWERSTATE = prog['NETDEV_CHANGELOWERSTATE']
+NETDEV_CHANGEUPPER = prog['NETDEV_CHANGEUPPER']
+
+print("NETDEV_CHANGEUPPER: %d" % NETDEV_CHANGEUPPER)
+print("NETDEV_CHANGELOWERSTATE: %d" % NETDEV_CHANGELOWERSTATE)

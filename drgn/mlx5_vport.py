@@ -36,3 +36,6 @@ for i in range(enabled_vports):
     print_vport(vports[i])
 
 print_vport(vports[total_vports - 1])
+
+uplink_vport = vports[1]
+print(uplink_vport.egress.offloads.fwd_rule)

@@ -226,6 +226,13 @@ def get_netdevs():
         devs.append(dev)
     return devs
 
+def get_bond0():
+    devs = []
+    dev_base_head = prog['init_net'].dev_base_head.address_of_()
+    for dev in list_for_each_entry('struct net_device', dev_base_head, 'dev_list'):
+        if dev.name.string_().decode() == "bond0":
+            return dev
+
 def get_veth(veth_name):
     veths = []
     for x, dev in enumerate(get_netdevs()):
