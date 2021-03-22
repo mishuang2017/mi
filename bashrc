@@ -31,8 +31,8 @@ alias rc='. ~/.bashrc'
 [[ "$(hostname -s)" == "c-236-149-180-184" ]] && host_num=84
 
 [[ "$(hostname -s)" == "c-236-148-240-245" ]] && host_num=45
-[[ "$(hostname -s)" == "c-235-13-1-007" ]] && host_num=7
-[[ "$(hostname -s)" == "c-235-13-1-008" ]] && host_num=8
+[[ "$(hostname -s)" == "c-235-14-1-007" ]] && host_num=7
+[[ "$(hostname -s)" == "c-235-14-1-008" ]] && host_num=8
 [[ "$(hostname -s)" == "c-141-18-1-009" ]] && host_num=9
 [[ "$(hostname -s)" == "c-141-18-1-010" ]] && host_num=10
 
@@ -205,18 +205,18 @@ elif (( host_num == 25 )); then
 elif (( host_num == 45 )); then
 	machine_num=1
 	cloud=1
-elif (( host_num == 9 )); then
-	link_mac=0c:42:a1:60:62:94
-	remote_mac=0c:42:a1:60:62:9c
+elif (( host_num == 7 )); then
+	link_mac=0c:42:a1:60:62:80
+	remote_mac=0c:42:a1:60:62:78
 	machine_num=1
-	rhost_num=10
+	rhost_num=8
 	link_remote_ip=192.168.1.$rhost_num
 	cloud=1
-elif (( host_num == 10 )); then
+elif (( host_num == 8 )); then
 	machine_num=2
-	link_mac=0c:42:a1:60:62:9c
-	remote_mac=0c:42:a1:60:62:94
-	rhost_num=9
+	link_mac=0c:42:a1:60:62:78
+	remote_mac=0c:42:a1:60:62:80
+	rhost_num=7
 	cloud=1
 elif (( host_num == 74 )); then
 	link=ens4f0
@@ -689,6 +689,7 @@ alias smk="cd /$images/cmi/mi/drgn"
 alias smdo="cd ~cmi/mi/drgn/ovs"
 alias d-ovs="sudo ~cmi/mi/drgn/ovs/ovs.py"
 alias sk="cd /swgwork/cmi"
+alias 1.sh="smk; cd ct; ./1.sh"
 
 alias softirq="/$images/cmi/bcc/tools/softirqs.py 1"
 alias hardirq="/$images/cmi/bcc/tools/hardirqs.py 5"
@@ -1028,6 +1029,8 @@ alias cd-netlink="cd /labhome/cmi/mi/prg/c/my_netlink2"
 alias cd-mnl="cd /labhome/cmi/prg/sm/c/libmnl_genl2"
 alias vi-corrupt="cd /labhome/cmi/mi/prg/c/$corrupt_dir; vi corrupt.c"
 alias corrupt="/labhome/cmi/mi/prg/c/$corrupt_dir/corrupt"
+alias n2_corrupt="n2 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s -l 100"
+alias n1_corrupt="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -c"
 
 [[ $UID == 0 ]] && echo 2 > /proc/sys/fs/suid_dumpable
 
