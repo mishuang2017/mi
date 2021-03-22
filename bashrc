@@ -3621,6 +3621,7 @@ set -x
 
 	TC=tc
 	redirect=$rep2
+	rate=1
 
 	ip1
 	ip link del $vx > /dev/null 2>&1
@@ -3671,6 +3672,7 @@ set -x
 		src_mac $local_vm_mac	\
 		dst_mac $remote_vm_mac	\
 		ct_state -trk		\
+		action sample rate $rate group 5 \
 		action ct pipe		\
 		action goto chain 1
 	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 2 flower $offload \
@@ -3703,6 +3705,7 @@ set -x
 		enc_dst_port $vxlan_port	\
 		enc_key_id $vni			\
 		ct_state -trk			\
+		action sample rate $rate group 6 \
 		action ct pipe			\
 		action goto chain 1
 	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 2 flower $offload	\
@@ -12684,8 +12687,8 @@ set -x
 # 		ovs-vsctl -- --id=@sflow create sflow agent=$link target=\"192.168.1.13:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 set +x
 	fi
-	if (( host_num == 9 )); then
-		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.141.18.10:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+	if (( host_num == 7 )); then
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.235.14.8:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 	fi
 }
 
