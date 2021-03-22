@@ -9455,7 +9455,7 @@ alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_te
 
 alias vi-test="vi ~cmi/asap_dev_reg/$test1"
 alias vi-test2="vi /workspace/asap_dev_test/$test1"
-alias psample=/labhome/cmi/asap_dev_reg/psample/psample
+alias psample=/images/cmi/asap_dev_reg/psample/psample
 alias cloud_tools_asap_dev="/workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering"
 
 function get-diff
