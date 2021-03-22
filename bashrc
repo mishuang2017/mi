@@ -9890,10 +9890,10 @@ set -x
 	mac1=02:25:d0:$host_num:01:02
 	mac2=$remote_mac
 	echo "add arp rules"
-	$TC filter add dev $rep2 ingress protocol arp prio 1 flower $offload \
+	$TC filter add dev $rep2 ingress protocol arp prio 1 flower skip_hw \
 		action mirred egress redirect dev $link
 
-	$TC filter add dev $link ingress protocol arp prio 1 flower $offload \
+	$TC filter add dev $link ingress protocol arp prio 1 flower skip_hw \
 		action mirred egress redirect dev $rep2
 
 	echo "add ct rules"
@@ -10021,10 +10021,10 @@ set -x
 	mac2=$remote_mac
 	if (( full == 1 )); then
 		echo "add arp rules"
-		$TC filter add dev $rep2 ingress protocol arp prio 1 flower $offload \
+		$TC filter add dev $rep2 ingress protocol arp prio 1 flower skip_hw \
 			action mirred egress redirect dev $link
 
-		$TC filter add dev $link ingress protocol arp prio 1 flower $offload \
+		$TC filter add dev $link ingress protocol arp prio 1 flower skip_hw \
 			action mirred egress redirect dev $rep2
 
 		echo "add ct rules"
