@@ -10030,6 +10030,7 @@ set -x
 		echo "add ct rules"
 		$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
 			dst_mac $mac2 ct_state -trk \
+			action sample rate $rate group 5 trunc 60 \
 			action ct pipe action goto chain 1
 
 		$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
@@ -10044,7 +10045,7 @@ set -x
 
 	$TC filter add dev $link ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac1 ct_state -trk \
-		action sample rate $rate group 5 trunc 60 \
+		action sample rate $rate group 6 trunc 60 \
 		action ct pipe action goto chain 1
 
 	if (( full == 1 )); then
@@ -10084,16 +10085,16 @@ set -x
 	mac1=02:25:d0:$host_num:01:02
 	mac2=02:25:d0:$host_num:01:03
 	echo "add arp rules"
-	$TC filter add dev $rep2 ingress protocol arp prio 1 flower $offload \
+	$TC filter add dev $rep2 ingress protocol arp prio 1 flower skip_hw \
 		action mirred egress redirect dev $rep3
 
-	$TC filter add dev $rep3 ingress protocol arp prio 1 flower $offload \
+	$TC filter add dev $rep3 ingress protocol arp prio 1 flower skip_hw \
 		action mirred egress redirect dev $rep2
 
 	echo "add ct rules"
+# 		action sample rate $rate group 5 trunc 60 \
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac2 ct_state -trk \
-		action sample rate $rate group 5 trunc 60 \
 		action ct pipe action goto chain 1
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
