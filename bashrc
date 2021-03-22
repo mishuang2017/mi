@@ -9996,7 +9996,7 @@ set -x
 set +x
 }
 
-alias s3=tc_ct_pf_sample
+alias spf=tc_ct_pf_sample
 function tc_ct_pf_sample
 {
 	rate=1
@@ -10062,11 +10062,12 @@ set -x
 set +x
 }
 
-alias s4=tc_ct_vf_sample
+alias svf=tc_ct_vf_sample
 function tc_ct_vf_sample
 {
 	rate=1
 	offload=""
+	sample=1
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
@@ -10092,10 +10093,16 @@ set -x
 		action mirred egress redirect dev $rep2
 
 	echo "add ct rules"
-# 		action sample rate $rate group 5 trunc 60 \
-	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
-		dst_mac $mac2 ct_state -trk \
-		action ct pipe action goto chain 1
+	if (( sample == 1 )); then
+		$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
+			dst_mac $mac2 ct_state -trk \
+			action sample rate $rate group 5 trunc 60 \
+			action ct pipe action goto chain 1
+	else
+		$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
+			dst_mac $mac2 ct_state -trk \
+			action ct pipe action goto chain 1
+	fi
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \
@@ -10573,6 +10580,9 @@ alias udp-client-2=/labhome/cmi/mi/prg/c/udp-client/udp-client-2
 alias udp-server=/labhome/cmi/mi/prg/c/udp-server/udp-server
 alias udp-client=/labhome/cmi/mi/prg/c/udp-client/udp-client
 alias udp-client-example="/labhome/cmi/mi/prg/c/udp-client/udp-client -c 192.168.1.$rhost_num -i 1 -t 10000"
+
+alias n2_udp_server="ip netns exec n12 /labhome/cmi/mi/prg/c/udp-server/udp-server"
+alias n1_udp_client="ip netns exec n11 /labhome/cmi/mi/prg/c/udp-client/udp-client -t 10000 -c"
 
 function udp1
 {

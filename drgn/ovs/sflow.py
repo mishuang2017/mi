@@ -21,6 +21,9 @@ ofproto_dpif = get_ofproto_dpif("br")
 # in set_sflow()
 #   ofproto->sflow = dpif_sflow_create();
 sflow = ofproto_dpif.sflow
+if sflow.value_() == 0:
+    print("no sFlow")
+    exit(0)
 print(sflow)
 
 sflow_ports = print_hmap(sflow.ports.address_of_(), "dpif_sflow_port", "hmap_node")
