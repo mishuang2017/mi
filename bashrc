@@ -587,6 +587,7 @@ alias dmesg='dmesg -T'
 # evolution, default value 1500=1.5s
 alias evolution_mark_read='gsettings set org.gnome.evolution.mail mark-seen-timeout 1'
 
+alias contains="git tag --contains"
 alias git-log='git log --tags --source'
 alias v4.14='git checkout v4.14; git checkout -b 4.14'
 alias v4.20='git checkout v4.20; git checkout -b 4.20'
