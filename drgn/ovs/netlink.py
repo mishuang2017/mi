@@ -14,6 +14,8 @@ import time
 sys.path.append("..")
 from lib import *
 
+print("sk_protocol 16: NETLINK_GENERIC\n")
+
 null_fops = prog['null_fops'].address_of_().value_()
 xfs_file_operations = prog['xfs_file_operations'].address_of_().value_()
 shmem_file_operations = prog['shmem_file_operations'].address_of_().value_()
