@@ -12802,12 +12802,14 @@ function systemd_yum
 	sudo yum install -y meson gperf libcap-devel libmount-devel
 }
 
-function rsync_sflow
+function rsync_sflow1
 {
-# 	rsync -tvr /labhome/cmi/sflow/saeed vnc14:~/sflow
-# 	rsync -tvr /labhome/cmi/sflow/ct vnc14:~/sflow
-# 	rsync -tvr /labhome/cmi/sflow/ofproto vnc14:~/sflow
-	rsync -tvr /labhome/cmi/sflow/ct1 bc-vnc02:~/sflow
+	rsync -tvr /labhome/cmi/sflow/* vnc14:~/sflow
+}
+
+function rsync_sflow2
+{
+	rsync -tvr /labhome/cmi/sflow/* bc-vnc02:~/sflow
 }
 
 function rsync1
@@ -12817,7 +12819,7 @@ function rsync1
 
 function rsync2
 {
-	rsync -tvr $1 vnc14:~
+	rsync -tvr $1 bc-vnc02:~
 }
 
 function load_unload_test
