@@ -26,6 +26,15 @@ socket_file_ops = prog['socket_file_ops'].address_of_().value_()
 netlink_ops = prog['netlink_ops'].address_of_().value_()
 inet_dgram_ops = prog['inet_dgram_ops'].address_of_().value_()
 
+def print_udp_sock(sk):
+    inet_sock = cast('struct inet_sock *', sk)
+    dest_ip = sk.__sk_common.skc_daddr
+    src_ip = sk.__sk_common.skc_rcv_saddr
+    dest_port = ntohs(sk.__sk_common.skc_dport)
+    src_port = ntohs(inet_sock.inet_sport)
+    print("udp socket: dest_ip: %s, src_ip: %s, dest_port: %d, src_port: %d" % \
+                (ipv4(ntohl(dest_ip.value_())), ipv4(ntohl(src_ip.value_())), dest_port, src_port))
+
 def print_netlink_sock(sock):
     print("sock.sk_protocol: %d" % sock.sk.sk_protocol, end='')
     print("\tportid: %10x, %20d" % (sock.portid, sock.portid), end='')
@@ -54,11 +63,10 @@ def print_files(files, n):
         elif file.f_op.value_() == socket_file_ops:
             sock = Object(prog, "struct socket", address=file.private_data)
             sk = sock.sk
-            # only print netlink socket
-            if netlink_ops == sock.ops.value_():
+            if sock.ops.value_() == netlink_ops:
                 netlink_sock = cast('struct netlink_sock *', sk)
                 print_netlink_sock(netlink_sock)
-            elif inet_dgram_ops == sock.ops.value_():
+            elif sock.ops.value_() == inet_dgram_ops:
                 print_udp_sock(sk)
             else:
                 print('')

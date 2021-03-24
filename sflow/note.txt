@@ -516,6 +516,8 @@ parse_tc_flower_to_match
 
 ===ovs===
 
+udpif_upcall_handler
+
 group_alloc_id_ctx
 udpif_sflow_handler
 

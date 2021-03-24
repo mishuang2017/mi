@@ -848,15 +848,6 @@ def print_match(fte):
 
     print(" action: %4x" % fte.action.action.value_())
 
-def print_udp_sock(sk):
-    inet_sock = cast('struct inet_sock *', sk)
-    dest_ip = inet_sock.sk.__sk_common.skc_daddr
-    src_ip = inet_sock.sk.__sk_common.skc_rcv_saddr
-    dest_port = ntohs(inet_sock.sk.__sk_common.skc_dport)
-    src_port = ntohs(inet_sock.inet_sport)
-    print("dest_ip: %s, src_ip: %s, dest_port: %d, src_port: %d" % \
-                (ipv4(ntohl(dest_ip.value_())), ipv4(ntohl(src_ip.value_())), dest_port, src_port))
-
 
 ### CT ###
 
