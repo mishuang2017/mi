@@ -1175,6 +1175,7 @@ function cloud_setup
 {
 	mkdir -p /images/cmi
 	chown cmi.nvu /images/cmi
+	ln -s ~cmi/mi /images/cmi
 
 	yum install -y cscope tmux ctags rsync grubby iperf3 htop pciutils vim
 
@@ -1191,8 +1192,14 @@ function cloud_setup
 	yum_bcc
 }
 
-function cloud_install
+function cloud_setup2
 {
+	sm
+	cp /swgwork/cmi/linux.tar.gz .
+	tar zxf linux.tar.gz
+	cd linux
+	/bin/cp -f ~cmi/sm/config.ofed .config
+
 	sm
 	clone-drgn
 	cd drgn
@@ -1202,6 +1209,27 @@ function cloud_install
 	sm
 	git clone https://github.com/iovisor/bcc.git
 	install_bcc
+
+	sm
+	clone-iproute
+	cd iproute2
+	make-usr
+
+	sm
+	clone-asap
+	cd asap_dev_reg/psample
+	make
+
+	sm
+	clone-ovs
+	smo
+	./boot.sh
+	install-ovs
+
+	sm
+	clone-crash
+	cd crash
+	make lzo -j 4
 }
 
 function cloud_ofed_cp
