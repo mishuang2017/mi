@@ -12731,8 +12731,8 @@ set -x
 # 		ovs-vsctl -- --id=@sflow create sflow agent=$link target=\"192.168.1.13:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 set +x
 	fi
-	if (( host_num == 7 )); then
-		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.235.14.8:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+	if (( host_num == 41 )); then
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.236.147.242:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 	fi
 }
 
