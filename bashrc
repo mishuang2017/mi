@@ -12450,7 +12450,7 @@ function install_libkdumpfile
 
 # sflow
 
-alias vi-sflow='vi ~/sm/sflow/note.txt'
+alias vi-sflow='vi ~/mi/sflow/note.txt'
 
 function tc_sample
 {
