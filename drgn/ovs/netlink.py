@@ -53,6 +53,9 @@ def print_eventpoll(file):
 #     print(epoll)
     for node in rbtree_inorder_for_each_entry("struct epitem", rb_root, "rbn"):
         print("%d" % node.ffd.fd.value_(), end=' ')
+        print(node.ffd.file.f_op.poll)
+        sock = Object(prog, "struct socket", address=node.ffd.file.private_data)
+        print(sock.ops.poll)
     print('')
 
 def print_files(files, n):

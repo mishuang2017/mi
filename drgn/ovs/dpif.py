@@ -49,10 +49,11 @@ handlers = dpif_netlink.handlers
 for i in range(n_handlers):
     print("handlers[%d]: epoll_fd: %d" % (i, handlers[i].epoll_fd))
 
-#     print(handlers[i])
-#     for j in range(uc_array_size):
-#         print(handlers[i].epoll_events[j])
-#     print('===============')
+    print(handlers[i])
+    for j in range(uc_array_size):
+        print(handlers[i].epoll_events[j])
+    print('===============')
+    exit(0)
 
 print('')
 

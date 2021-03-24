@@ -514,7 +514,90 @@ format_odp_userspace_action
 
 parse_tc_flower_to_match
 
+===poll===
+
+vport_add_channel
+	event.events = EPOLLIN | EPOLLEXCLUSIVE;
+	event.data.u32 = port_idx
+	epoll_ctl (handler->epoll_fd, EPOLL_CTL_ADD, nl_sock_fd(sock), &event))
+
+PID: 85622  TASK: ffff88bdca2c2580  CPU: 15  COMMAND: "handler34"
+ #0 [ffffb10c0983f940] __schedule at ffffffff8cb1ef32
+ #1 [ffffb10c0983f9d0] schedule at ffffffff8cb1f418
+ #2 [ffffb10c0983f9f0] schedule_hrtimeout_range_clock at ffffffff8cb24959
+ #3 [ffffb10c0983fa78] schedule_hrtimeout_range at ffffffff8cb24aa3
+ #4 [ffffb10c0983fa88] do_poll.constprop.0 at ffffffff8c350afb
+ #5 [ffffb10c0983fb30] do_sys_poll at ffffffff8c350e23
+ #6 [ffffb10c0983ff00] __x64_sys_poll at ffffffff8c3516b5
+ #7 [ffffb10c0983ff38] do_syscall_64 at ffffffff8cb13b68
+ #8 [ffffb10c0983ff50] entry_SYSCALL_64_after_hwframe at ffffffff8cc0007c
+    RIP: 00007fc53380caaf  RSP: 00007fc5336daa40  RFLAGS: 00000293
+    RAX: ffffffffffffffda  RBX: 7fffffffffffffff  RCX: 00007fc53380caaf
+    RDX: 000000007fffffff  RSI: 0000000000000003  RDI: 00007fc504006960
+    RBP: 00007fc5336daa90   R8: 0000000000000000   R9: 0000000000000011
+    R10: 00007ffe703de080  R11: 0000000000000293  R12: 431bde82d7b634db
+    R13: 000000007fffffff  R14: 00007fc504006960  R15: 0000000000000003
+    ORIG_RAX: 0000000000000007  CS: 0033  SS: 002b
+
+ep_insert
+	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc)
+
+ep_ptable_queue_proc
+	init_waitqueue_func_entry(&pwq->wait, ep_poll_callback);
+
+27.13857 85533   85533   ovs-vswitchd    ep_ptable_queue_proc
+        ep_ptable_queue_proc
+        sock_poll
+        ep_item_poll
+        ep_insert
+        b'do_epoll_ctl+0x32d [kernel]'
+        b'__x64_sys_epoll_ctl+0x61 [kernel]'
+        b'do_syscall_64+0x38 [kernel]'
+        b'entry_SYSCALL_64_after_hwframe+0x44 [kernel]'
+
+25.46674 85533   89774   handler38       ep_poll_callback
+        ep_poll_callback
+        __wake_up_common_lock
+        __wake_up_sync_key
+        sock_def_readable
+        netlink_unicast
+        b'queue_userspace_packet+0x4a2 [openvswitch]'
+        b'ovs_dp_upcall+0x40 [openvswitch]'
+        b'output_userspace.isra.0+0x15f [openvswitch]'
+        b'do_execute_actions+0x3fb [openvswitch]'
+        b'ovs_execute_actions+0x48 [openvswitch]'
+        b'ovs_dp_process_packet+0xad [openvswitch]'
+        b'ovs_vport_receive+0x77 [openvswitch]'
+        b'netdev_port_receive+0xc5 [openvswitch]'
+        b'netdev_frame_hook+0x1f [openvswitch]'
+        b'__netif_receive_skb_core+0x2ba [kernel]'
+        b'__netif_receive_skb_list_core+0x12a [kernel]'
+        b'__netif_receive_skb_list+0x102 [kernel]'
+        b'netif_receive_skb_list_internal+0x138 [kernel]'
+        b'napi_complete_done+0x7a [kernel]'
+        b'mlx5e_napi_poll+0x1b2 [mlx5_core]'
+        b'__napi_poll+0x31 [kernel]'
+        b'net_rx_action+0x27b [kernel]'
+        b'__softirqentry_text_start+0xc6 [kernel]'
+        b'__irq_exit_rcu+0xcf [kernel]'
+        b'irq_exit_rcu+0xe [kernel]'
+        b'common_interrupt+0x4f [kernel]'
+        b'asm_common_interrupt+0x1e [kernel]'
+
+do_poll
+	do_pollfd
+		vfs_poll
+			file->f_op->poll (eventpoll_fops->poll ep_eventpoll_poll)
+				ep_eventpoll_poll
+					__ep_eventpoll_poll
+						list_for_each_entry_safe(eventpoll->rdllink)
+							ep_item_poll
+								vfs_poll
+									file->f_op->poll (netlink_ops->poll datagram_poll)
+
 ===ovs===
+
+kernel poll function: do_pollfd
 
 udpif_upcall_handler
 
@@ -639,8 +722,6 @@ udpif_revalidator
 user_action_cookie was composed in ovs and send to kernel.
 kernel sends back exactly the same user_action_cookie.
 So kernel needn't to know what is USER_ACTION_COOKIE_SFLOW.
-
-epoll_ctl (handler->epoll_fd, EPOLL_CTL_ADD, nl_sock_fd(sock), &event))
 
 udpif_upcall_handler
 	recv_upcalls
