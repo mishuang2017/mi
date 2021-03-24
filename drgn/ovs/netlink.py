@@ -33,10 +33,11 @@ def print_udp_sock(sk):
     dest_port = ntohs(sk.__sk_common.skc_dport)
     src_port = ntohs(inet_sock.inet_sport)
     print("udp socket: dest_ip: %s, src_ip: %s, dest_port: %d, src_port: %d" % \
-                (ipv4(ntohl(dest_ip.value_())), ipv4(ntohl(src_ip.value_())), dest_port, src_port))
+                (ipv4(ntohl(dest_ip.value_())), ipv4(ntohl(src_ip.value_())), \
+                 dest_port, src_port))
 
 def print_netlink_sock(sock):
-    print("sock.sk_protocol: %d" % sock.sk.sk_protocol, end='')
+    print("netlink socket: sock.sk_protocol: %d" % sock.sk.sk_protocol, end='')
     print("\tportid: %10x, %20d" % (sock.portid, sock.portid), end='')
     print("\tdst_portid: %x" % sock.dst_portid, end='')
     print("\tflags: %x" % sock.flags)
@@ -57,7 +58,6 @@ def print_files(files, n):
         file = files[i]
 
         print("%2d" % i, end='\t')
-        # only print socket file
         if file.f_op.value_() == eventpoll_fops:
             print_eventpoll(file)
         elif file.f_op.value_() == socket_file_ops:
@@ -81,7 +81,6 @@ def print_files(files, n):
         else:
             print(file.f_op)
 
-#         print("%2d" % i, end='\t')
 def find_task(name):
     print('PID        COMM')
     for task in for_each_task(prog):
