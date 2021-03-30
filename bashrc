@@ -8448,7 +8448,9 @@ function tcs
 {
 	[[ $# != 1 ]] && return
 	TC=tc
-	TC=/images/cmi/iproute2/tc/tc
+	test -f /images/cmi/iproute2/tc/tc && TC=/images/cmi/iproute2/tc/tc
+	test -f /opt/mellanox/iproute2/sbin/tc && TC=/opt/mellanox/iproute2/sbin/tc
+	echo $TC
 	$TC -s filter show dev $1 root
 }
 
