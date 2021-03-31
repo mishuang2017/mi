@@ -1034,7 +1034,7 @@ alias cd-mnl="cd /labhome/cmi/prg/sm/c/libmnl_genl2"
 alias vi-corrupt="cd /labhome/cmi/mi/prg/c/$corrupt_dir; vi corrupt.c"
 alias corrupt="/labhome/cmi/mi/prg/c/$corrupt_dir/corrupt"
 alias n2_corrupt="n2 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s -l 100"
-alias n1_corrupt="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -c"
+alias n1_corrupt="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -t 100000 -c"
 
 [[ $UID == 0 ]] && echo 2 > /proc/sys/fs/suid_dumpable
 
