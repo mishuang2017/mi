@@ -10260,8 +10260,8 @@ set -x
 	ovs-vsctl add-port $br $rep2
 	ovs-vsctl add-port $br $rep3
 
-	mac=98:03:9b:13:f4:48
-	ovs-ofctl del-flows $br 
+# 	mac=98:03:9b:13:f4:48
+	ovs-ofctl del-flows $br
 	ovs-ofctl add-flow $br "arp,action=normal"
 	ovs-ofctl add-flow $br "table=0,in_port=$rep2,ip,udp,action=ct(table=1)"
 	ovs-ofctl add-flow $br "table=0,in_port=$link,ip,udp,action=ct(table=1)"
@@ -10275,7 +10275,35 @@ set -x
 	ovs-ofctl add-flow $br "table=1,in_port=$rep2,ip,tcp,ct_state=+trk+new,ip,tcp,action=ct(commit),$link"
 	ovs-ofctl add-flow $br "table=1,in_port=$rep2,ip,tcp,ct_state=+trk+est,ip,tcp,action=$link"
 	ovs-ofctl add-flow $br "table=1,in_port=$link,ip,tcp,ct_state=+trk+new,ip,tcp,action=ct(commit),$rep2"
-	ovs-ofctl add-flow $br "table=1,in_port=$link,ip,tcp,tp_src=0x1389/0xf000,ct_state=+trk+est,ip,tcp,action=$rep2"
+# 	ovs-ofctl add-flow $br "table=1,in_port=$link,ip,tcp,tp_src=0x1389/0xf000,ct_state=+trk+est,ip,tcp,action=$rep2"
+set +x
+}
+
+function br_qa_ct_zone
+{
+set -x
+	zone=300
+	del-br
+	ovs-vsctl add-br $br
+	ovs-vsctl add-port $br $link
+	ovs-vsctl add-port $br $rep2
+	ovs-vsctl add-port $br $rep3
+
+	ovs-ofctl del-flows $br
+	ovs-ofctl add-flow $br "arp,action=normal"
+	ovs-ofctl add-flow $br "table=0,in_port=$rep2,ip,udp,action=ct(table=1,zone=$zone)"
+	ovs-ofctl add-flow $br "table=0,in_port=$link,ip,udp,action=ct(table=1,zone=$zone)"
+	ovs-ofctl add-flow $br "table=1,in_port=$rep2,ip,udp,ct_state=+trk+new,ip,udp,action=ct(commit,zone=$zone),$link"
+	ovs-ofctl add-flow $br "table=1,in_port=$rep2,ip,udp,ct_state=+trk+est,ip,udp,action=$link"
+	ovs-ofctl add-flow $br "table=1,in_port=$link,ip,udp,ct_state=+trk+new,ip,udp,action=ct(commit,zone=$zone),$rep2"
+	ovs-ofctl add-flow $br "table=1,in_port=$link,ip,udp,ct_state=+trk+est,ip,udp,action=$rep2"
+
+	ovs-ofctl add-flow $br "table=0,in_port=$rep2,ip,tcp,action=ct(table=1,zone=1)"
+	ovs-ofctl add-flow $br "table=0,in_port=$link,ip,tcp,action=ct(table=1,zone=1)"
+	ovs-ofctl add-flow $br "table=1,in_port=$rep2,ip,tcp,ct_state=+trk+new,ip,tcp,action=ct(commit,zone=$zone),$link"
+	ovs-ofctl add-flow $br "table=1,in_port=$rep2,ip,tcp,ct_state=+trk+est,ip,tcp,action=$link"
+	ovs-ofctl add-flow $br "table=1,in_port=$link,ip,tcp,ct_state=+trk+new,ip,tcp,action=ct(commit,zone=$zone),$rep2"
+# 	ovs-ofctl add-flow $br "table=1,in_port=$link,ip,tcp,tp_src=0x1389/0xf000,ct_state=+trk+est,ip,tcp,action=$rep2"
 set +x
 }
 
@@ -10317,7 +10345,7 @@ set -x
 	ovs-vsctl add-port $br $rep2
 	ovs-vsctl add-port $br $rep3
 
-# 	ovs-ofctl del-flows $br 
+# 	ovs-ofctl del-flows $br
 # 	ovs-ofctl add-flow $br "arp,action=normal"
 	ovs-ofctl add-flow $br "table=0,in_port=$rep2,ip,udp,action=ct(table=1,zone=1)"
 	ovs-ofctl add-flow $br "table=0,in_port=$link,ip,udp,action=ct(table=1,zone=1)"
