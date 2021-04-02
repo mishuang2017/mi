@@ -3653,6 +3653,124 @@ set -x
 
 	TC=tc
 	redirect=$rep2
+
+	ip1
+	ip link del $vx > /dev/null 2>&1
+	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx #udp6zerocsumtx udp6zerocsumrx
+	ip link set $vx up
+
+	$TC qdisc del dev $link ingress > /dev/null 2>&1
+	$TC qdisc del dev $redirect ingress > /dev/null 2>&1
+	$TC qdisc del dev $vx ingress > /dev/null 2>&1
+
+	ethtool -K $link hw-tc-offload on
+	ethtool -K $redirect  hw-tc-offload on
+
+	$TC qdisc add dev $link ingress
+	$TC qdisc add dev $redirect ingress
+	$TC qdisc add dev $vx ingress
+#	$TC qdisc add dev $link clsact
+#	$TC qdisc add dev $redirect clsact
+#	$TC qdisc add dev $vx clsact
+
+	ip link set $link promisc on
+	ip link set $redirect promisc on
+	ip link set $vx promisc on
+
+	local_vm_mac=02:25:d0:$host_num:01:02
+	remote_vm_mac=$vxlan_mac
+
+	# arp
+	$TC filter add dev $redirect protocol arp parent ffff: prio 1 flower skip_hw	\
+		src_mac $local_vm_mac	\
+		action tunnel_key set	\
+		src_ip $link_ip		\
+		dst_ip $link_remote_ip	\
+		dst_port $vxlan_port	\
+		id $vni			\
+		action mirred egress redirect dev $vx
+	$TC filter add dev $vx protocol arp parent ffff: prio 1 flower skip_hw	\
+		src_mac $remote_vm_mac \
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $redirect
+
+
+	$TC filter add dev $redirect protocol ip  parent ffff: chain 0 prio 2 flower $offload \
+		src_mac $local_vm_mac	\
+		dst_mac $remote_vm_mac	\
+		ct_state -trk		\
+		action ct pipe		\
+		action goto chain 1
+	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 2 flower $offload \
+		src_mac $local_vm_mac	\
+		dst_mac $remote_vm_mac	\
+		ct_state +trk+new	\
+		action ct commit	\
+		action tunnel_key set	\
+		src_ip $link_ip		\
+		dst_ip $link_remote_ip	\
+		dst_port $vxlan_port	\
+		id $vni			\
+		action mirred egress redirect dev $vx
+	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 2 flower $offload \
+		src_mac $local_vm_mac	\
+		dst_mac $remote_vm_mac	\
+		ct_state +trk+est	\
+		action tunnel_key set	\
+		src_ip $link_ip		\
+		dst_ip $link_remote_ip	\
+		dst_port $vxlan_port	\
+		id $vni			\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
+		src_mac $remote_vm_mac	\
+		dst_mac $local_vm_mac	\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		ct_state -trk			\
+		action ct pipe			\
+		action goto chain 1
+	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 2 flower $offload	\
+		src_mac $remote_vm_mac	\
+		dst_mac $local_vm_mac	\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		ct_state +trk+new		\
+		action ct commit		\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $redirect
+	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 2 flower $offload	\
+		src_mac $remote_vm_mac	\
+		dst_mac $local_vm_mac	\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		ct_state +trk+est		\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $redirect
+
+set +x
+}
+
+function tc_vxlan_ct_sample
+{
+set -x
+	offload=""
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+
+	TC=tc
+	redirect=$rep2
 	rate=1
 
 	ip1
