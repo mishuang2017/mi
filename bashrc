@@ -7066,7 +7066,9 @@ function syndrome
 
 	local ver=$(echo $1 | sed 's/\./_/g')
 	local type
-	if echo $ver | grep ^22; then
+	if echo $ver | grep ^26; then
+		type=4127
+	elif echo $ver | grep ^22; then
 		type=4125
 	elif echo $ver | grep ^16; then
 		type=4119
@@ -7082,7 +7084,7 @@ function syndrome
 }
 
 alias syn='syndrome 16.25.6000'
-alias syn6='syndrome 22.28.2006'
+alias syn6='syndrome 26.29.2002'
 
 # mlxfwup
 
