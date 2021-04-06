@@ -208,11 +208,13 @@ elif (( host_num == 9 )); then
 	cloud=1
 	link_mac=0c:42:a1:16:07:1c
 	remote_mac=0c:42:a1:16:08:cc
+	rhost_num=10
 elif (( host_num == 10 )); then
 	machine_num=2
 	cloud=1
 	link_mac=0c:42:a1:16:08:cc
 	remote_mac=0c:42:a1:16:07:1c
+	rhost_num=9
 elif (( host_num == 41 )); then
 	link_mac=0c:42:a1:a9:83:9e
 	remote_mac=0c:42:a1:a9:83:f2
