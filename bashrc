@@ -33,8 +33,8 @@ alias rc='. ~/.bashrc'
 [[ "$(hostname -s)" == "c-236-148-240-245" ]] && host_num=45
 [[ "$(hostname -s)" == "c-235-14-1-007" ]] && host_num=7
 [[ "$(hostname -s)" == "c-235-14-1-008" ]] && host_num=8
-[[ "$(hostname -s)" == "c-141-18-1-009" ]] && host_num=9
-[[ "$(hostname -s)" == "c-141-18-1-010" ]] && host_num=10
+[[ "$(hostname -s)" == "c-235-251-1-009" ]] && host_num=9
+[[ "$(hostname -s)" == "c-235-251-1-010" ]] && host_num=10
 [[ "$(hostname -s)" == "c-236-147-240-241" ]] && host_num=41
 [[ "$(hostname -s)" == "c-236-147-240-242" ]] && host_num=42
 
@@ -203,12 +203,16 @@ elif (( host_num == 84 )); then
 	remote_mac=0c:42:a1:d1:d0:e4
 	cloud=1
 
-elif (( host_num == 25 )); then
+elif (( host_num == 9 )); then
 	machine_num=1
 	cloud=1
-elif (( host_num == 45 )); then
-	machine_num=1
+	link_mac=0c:42:a1:16:07:1c
+	remote_mac=0c:42:a1:16:08:cc
+elif (( host_num == 10 )); then
+	machine_num=2
 	cloud=1
+	link_mac=0c:42:a1:16:08:cc
+	remote_mac=0c:42:a1:16:07:1c
 elif (( host_num == 41 )); then
 	link_mac=0c:42:a1:a9:83:9e
 	remote_mac=0c:42:a1:a9:83:f2
@@ -12882,6 +12886,9 @@ set +x
 	fi
 	if (( host_num == 41 )); then
 		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.236.147.242:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+	fi
+	if (( host_num == 9 )); then
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.235.251.10:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 	fi
 }
 
