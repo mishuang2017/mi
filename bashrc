@@ -19,6 +19,7 @@ numvfs=3
 # alias rc=". /images/cmi/mi/bashrc"
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
+alias rc1='. ~cmi/.bashrc'
 
 [[ "$(hostname -s)" == "dev-r630-03" ]] && host_num=13
 [[ "$(hostname -s)" == "dev-r630-04" ]] && host_num=14
@@ -27,8 +28,8 @@ alias rc='. ~/.bashrc'
 # [[ "$(hostname -s)" == "dev-chrism-vm3" ]] && host_num=17
 # [[ "$(hostname -s)" == "dev-chrism-vm4" ]] && host_num=18
 
-[[ "$(hostname -s)" == "c-236-149-180-183" ]] && host_num=83
-[[ "$(hostname -s)" == "c-236-149-180-184" ]] && host_num=84
+[[ "$(hostname -s)" == "c-236-0-180-183" ]] && host_num=83
+[[ "$(hostname -s)" == "c-236-0-180-184" ]] && host_num=84
 
 [[ "$(hostname -s)" == "c-236-148-240-245" ]] && host_num=45
 [[ "$(hostname -s)" == "c-235-14-1-007" ]] && host_num=7
