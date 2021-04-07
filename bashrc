@@ -7165,6 +7165,8 @@ alias checkpatch="./scripts/checkpatch.pl --strict --show-types -g HEAD"
 alias git_fixes="git log -1 --pretty=fixes"
 alias gf1="git format-patch -o ~/tmp -1"
 alias sample_cover_letter='git commit --allow-empty -F ~/sflow/cover-letter/sample.txt'
+# to regenerate the change-id for cover letter
+# git commit --amend --allow-empty
 
 function gt
 {
@@ -9605,13 +9607,11 @@ alias test-tc='./test-all.py -g "test-tc-*"'
 
 export CONFIG=config_chrism_cx5.sh
 
-test1=test-tc-sample.sh
-test1=test-tc-vxlan-sample.sh
-test1=test-ethtool-steering.sh
+test1=test-ovs-ct-vxlan.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
-alias vi-test="vi ~cmi/asap_dev_reg/$test1"
+alias vi-test="vi /images/cmi/asap_dev_reg/$test1"
 alias vi-test2="vi /workspace/asap_dev_test/$test1"
 alias psample=/images/cmi/asap_dev_reg/psample/psample
 alias cloud_tools_asap_dev="/workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering"

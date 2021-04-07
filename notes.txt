@@ -1705,7 +1705,7 @@ git push origin HEAD:refs/for/ct-one-table-2.13.0/fix_tracked_enum
 
 git push origin HEAD:refs/for/net-next-mlx5/sflow-driver-decap-fix
 
-git push origin HEAD:refs/for/net-next-mlx5/sflow-driver
+git push origin HEAD:refs/for/net-next-mlx5/sflow-driver-new
 
 git push origin HEAD:refs/for/master/test-ovs-tc-rules-checker.sh
 
