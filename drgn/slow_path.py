@@ -35,3 +35,4 @@ for x, dev in enumerate(get_netdevs()):
             mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=ppriv.value_())
             print("mlx5_flow_table %lx" % mlx5e_rep_priv.root_ft.value_())
             print_dest(mlx5e_rep_priv.vport_rx_rule.rule[0])
+#             flow_table(name, mlx5e_rep_priv.vport_rx_rule.rule[0].dest_attr.ft)

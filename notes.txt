@@ -1703,7 +1703,7 @@ git push origin HEAD:refs/for/mlnx_ofed_5_0_2/PRIO_CHAIN_SUPPORT
 
 git push origin HEAD:refs/for/ct-one-table-2.13.0/fix_tracked_enum
 
-git push origin HEAD:refs/for/net-next-mlx5/sflow-driver-decap-fix
+git push origin HEAD:refs/for/net-next-mlx5/sflow-driver-decap-fix-new
 
 git push origin HEAD:refs/for/net-next-mlx5/sflow-driver-new
 
@@ -12019,10 +12019,30 @@ TIME     PID     TID     COMM            FUNC
         do_syscall_64+0x5b [kernel]
         entry_SYSCALL_64_after_hwframe+0x44 [kernel]
 
-===end===
+===sf===
 
-alias cx6='ssh root@10.236.0.241'
-alias cx6-2='ssh root@10.236.0.242'
+yum install -y openvswitch
+systemctl start openvswitch
+ovs-vsctl add-br test_br
+ovs-vsctl add-port test_br <pf_physical_netdev>
+ovs-vsctl add-port test_br <sf_rep_netdev_of_sf_port>
+ifconfig sf_rep_netdev_of_sf_port up
+ifconfig pf_physica_netdev up
+assign ip to the netdev of SF (virtual port you see in devlink port show)
 
-alias 183='ssh root@10.236.149.183'
-alias 184='ssh root@10.236.149.184'
+[root@c-236-0-180-183 iproute2]# ./mlxdevm/mlxdevm port show
+pci/0000:08:00.0/32768: type eth netdev eth3 flavour pcisf controller 0 pfnum 0 sfnum 88
+  function:
+    hw_addr 00:00:00:00:00:00 state active opstate attached
+
+
+/netao/iproute2/mlxdevm/mlxdevm port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 88
+/netao/iproute2/mlxdevm/mlxdevm port function set pci/0000:08:00.0/32768 hw_addr 00:00:00:00:88:88 state active
+
+    and then to change hw_addr and state - 
+
+
+32768 is the number you get after doing the "add" command
+
+/netao/iproute2/mlxdevm/mlxdevm port del eth3
+
