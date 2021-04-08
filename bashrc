@@ -12067,7 +12067,7 @@ set +x
 function dmfs
 {
 	if (( ofed_mlx5 == 1 )); then
-		test -f /sys/class/net/enp4s0f0/compat/devlink/steering_mode || return
+		test -f /sys/class/net/$link/compat/devlink/steering_mode || return
 set -x
 		echo dmfs > /sys/class/net/$link/compat/devlink/steering_mode 
 set +x
@@ -12084,7 +12084,7 @@ set +x
 function smfs
 {
 	if (( ofed_mlx5 == 1 )); then
-		test -f /sys/class/net/enp4s0f0/compat/devlink/steering_mode || return
+		test -f /sys/class/net/$link/compat/devlink/steering_mode || return
 set -x
 		echo smfs > /sys/class/net/$link/compat/devlink/steering_mode
 set +x
