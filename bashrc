@@ -1270,6 +1270,7 @@ set +x
 
 # alias on-sriov1="echo $numvfs > /sys/devices/pci0000:00/0000:00:02.0/0000:04:00.0/sriov_numvfs"
 # alias on-sriov2="echo $numvfs > /sys/devices/pci0000:00/0000:00:02.0/0000:04:00.1/sriov_numvfs"
+alias on-sriov1="echo 1 > /sys/class/net/$link/device/sriov_numvfs"
 alias on-sriov="echo $numvfs > /sys/class/net/$link/device/sriov_numvfs"
 alias on-sriov2="echo $numvfs > /sys/class/net/$link2/device/sriov_numvfs"
 alias on1='on-sriov; set_mac 1; un; ip link set $link vf 0 spoofchk on'

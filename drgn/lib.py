@@ -770,6 +770,10 @@ def print_match(fte):
     if source_sqn:
         print(" source_sqn: %6x" % source_sqn, end='')
 
+    source_port = ntohl(val[17].value_())
+    if source_port:
+        print(" source_port: %6x" % source_port, end='')
+
     reg_c5 = ntohl(val[54].value_())
     if reg_c5:
         print(" reg_c5 (fteid): %4x" % reg_c5, end='')
