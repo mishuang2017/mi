@@ -25,12 +25,6 @@ for x, dev in enumerate(lib.get_netdevs()):
     if ppriv:
         print("ppriv %lx" % ppriv.value_())
         mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=ppriv.value_())
-        dl_port = mlx5e_rep_priv.dl_port
-        mlx5_eswitch_rep = mlx5e_rep_priv.rep
-        print("\tvport: %x" % mlx5_eswitch_rep.vport)
-    else:
-        dl_port = mlx5e_priv.dl_port
 
     print('\t', end='')
-    print(dl_port.attrs.flavour)
     print('')
