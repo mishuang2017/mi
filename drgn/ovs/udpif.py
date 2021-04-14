@@ -35,8 +35,8 @@ def print_handlers():
     rev = udpif.revalidators
 
     for i in range(n1):
-    #     print("udpif.handler_id: %d" % udpif.handlers[i].handler_id)
-        print(udpif.handlers[i])
+        print("udpif.handler_id: %d" % udpif.handlers[i].handler_id)
+#         print(udpif.handlers[i])
 
     for i in range(n2):
         print(rev[i])
@@ -56,7 +56,7 @@ print("n_revalidators: %d" %n_revalidators)
 n_handlers = prog['n_handlers']
 print("n_handlers: %d" % n_handlers)
 
-# print_handlers()
+print_handlers()
 
 flow_limit = udpif.flow_limit
 print("flow_limit: %d" % flow_limit)

@@ -19,7 +19,7 @@ dpif = xbridge.dpif
 
 print(dpif)
 
-# print(dpif.dpif_class)
+print(dpif.dpif_class)
 # print(prog['dpif_netlink_class'])
 
 print("\n===dpif_netlink_class===")

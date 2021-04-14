@@ -9916,6 +9916,7 @@ set +x
 }
 
 alias gdb-kcore="/usr/bin/gdb $linux_dir/vmlinux /proc/kcore"
+alias gdb_ovs='gdb /usr/sbin/ovs-vswitchd'
 
 function add-symbol-file
 {

@@ -1,3 +1,8 @@
+
+===upstream===
+
+sFlow was merge in kernel 5.12
+
  git clone https://github.com/mishuang2017/linux.git --branch=5.4-ct
  git clone https://github.com/mishuang2017/ovs.git --branch=2.13.0-ct
 

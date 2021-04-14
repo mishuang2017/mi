@@ -30,11 +30,13 @@ def print_hex_dump(buf, len):
     print('\n')
 
 for i, id in enumerate(ids):
-    len = id.sflow.sflow.nla_len
-    attr = id.sflow.sflow
-    print("id: %d, len: %d, ref: %d, hash: %x, sflow_attr: %x" % (id.id, len, id.refcount.count, id.hash, id.sflow.address_of_()))
-    print(id.sflow)
-    print(id.sflow.sflow)
+    len = id.sflow.action.nla_len
+    attr = id.sflow.action
+#     print(id)
+    print("id: %d, len: %d, ref: %d, hash: %x, sflow_attr: %x, userdata(cookie): %x" % \
+        (id.id, len, id.refcount.count, id.hash, id.sflow.address_of_(), id.sflow.userdata))
+    print(id.sflow.ufid)
+#     print(id.sflow.action)
     p = Object(prog, 'unsigned char *', address=attr.address_of_())
 #     print(id)
     if id.sflow.tunnel:

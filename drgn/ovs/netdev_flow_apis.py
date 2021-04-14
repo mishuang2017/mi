@@ -21,4 +21,5 @@ for i, id in enumerate(ids):
     print(id)
 
 netdev_offload_tc = prog['netdev_offload_tc']
+print("netdev_offload_tc: %x" % netdev_offload_tc.address_of_())
 print(netdev_offload_tc)

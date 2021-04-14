@@ -22,4 +22,4 @@ def print_ufid_tc_data(data):
 
 ufid_tc_datas = print_hmap(prog['tc_to_ufid'], "ufid_tc_data", "tc_to_ufid_node")
 for i, ufid_tc_data in enumerate(ufid_tc_datas):
-    print(ufid_tc_data)
+    print(ufid_tc_data.ufid)
