@@ -12,8 +12,8 @@ ofed_mlx5=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
 
 numvfs=17
-numvfs=3
 numvfs=1
+numvfs=3
 
 # alias virc="vi /images/cmi/mi/bashrc"
 # alias rc=". /images/cmi/mi/bashrc"
@@ -40,6 +40,8 @@ alias rc1='. ~cmi/.bashrc'
 [[ "$(hostname -s)" == "c-236-147-240-242" ]] && host_num=42
 
 [[ "$(hostname -s)" == "c-237-153-220-225" ]] && host_num=25
+[[ "$(hostname -s)" == "c-141-18-1-005" ]] && host_num=5
+[[ "$(hostname -s)" == "c-141-18-1-006" ]] && host_num=6
 
 [[ "$(hostname -s)" == "qa-h-vrt-074" ]] && host_num=74
 
@@ -216,18 +218,14 @@ elif (( host_num == 10 )); then
 	link_mac=0c:42:a1:16:08:cc
 	remote_mac=0c:42:a1:16:07:1c
 	rhost_num=9
-elif (( host_num == 41 )); then
-	link_mac=0c:42:a1:a9:83:9e
-	remote_mac=0c:42:a1:a9:83:f2
+elif (( host_num == 5 )); then
 	machine_num=1
-	rhost_num=42
+	rhost_num=6
 	link_remote_ip=192.168.1.$rhost_num
 	cloud=1
-elif (( host_num == 42 )); then
+elif (( host_num == 6 )); then
 	machine_num=2
-	link_mac=0c:42:a1:a9:83:f2
-	remote_mac=0c:42:a1:a9:83:9e
-	rhost_num=41
+	rhost_num=5
 	cloud=1
 elif (( host_num == 74 )); then
 	link=ens4f0
@@ -9613,7 +9611,7 @@ alias test-tc='./test-all.py -g "test-tc-*"'
 
 export CONFIG=config_chrism_cx5.sh
 
-test1=test-ovs-ct-vxlan.sh
+test1=test-vf-vf-ping-legacy-vport-match.sh 
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
