@@ -1704,6 +1704,7 @@ git push origin HEAD:refs/for/mlnx_ofed_5_0_2/PRIO_CHAIN_SUPPORT
 git push origin HEAD:refs/for/ct-one-table-2.13.0/fix_tracked_enum
 
 git push origin HEAD:refs/for/net-next-mlx5/sflow-driver-decap-fix-new
+git push origin HEAD:refs/for/master/sflow-ovs
 
 git push origin HEAD:refs/for/net-next-mlx5/sflow-ct
 

@@ -7168,6 +7168,7 @@ alias checkpatch="./scripts/checkpatch.pl --strict --show-types -g HEAD"
 alias git_fixes="git log -1 --pretty=fixes"
 alias gf1="git format-patch -o ~/tmp -1"
 alias sample_cover_letter='git commit --allow-empty -F ~/sflow/cover-letter/sample.txt'
+alias ovs_cover_letter='git commit --allow-empty -F /labhome/cmi/sflow/ovs/0000-cover-letter.patch'
 # to regenerate the change-id for cover letter
 # git commit --amend --allow-empty
 
@@ -7381,8 +7382,10 @@ function git-format-patch
 #	git format-patch --cover-letter --subject-prefix="patch iproute2 v10" -o $patch_dir -$n
 #	git format-patch --cover-letter --subject-prefix="ovs-dev" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v12" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
+
+# 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v12" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
 #
