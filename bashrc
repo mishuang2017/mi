@@ -12,8 +12,8 @@ ofed_mlx5=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
 
 numvfs=17
-numvfs=1
 numvfs=3
+numvfs=1
 
 # alias virc="vi /images/cmi/mi/bashrc"
 # alias rc=". /images/cmi/mi/bashrc"
