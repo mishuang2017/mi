@@ -13011,6 +13011,27 @@ function loop
 	done
 }
 
+function vport_match_mode_get
+{
+	cat /sys/class/net/$link/compat/devlink/vport_match_mode
+}
+
+function vport_match_mode_legacy
+{
+	cat /sys/class/net/$link/compat/devlink/vport_match_mode
+	echo legacy > /sys/class/net/$link/compat/devlink/vport_match_mode
+	echo $?
+	cat /sys/class/net/$link/compat/devlink/vport_match_mode
+}
+
+function vport_match_mode_metadata
+{
+	cat /sys/class/net/$link/compat/devlink/vport_match_mode
+	echo metadata > /sys/class/net/$link/compat/devlink/vport_match_mode
+	echo $?
+	cat /sys/class/net/$link/compat/devlink/vport_match_mode
+}
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
