@@ -9611,6 +9611,7 @@ alias test-tc='./test-all.py -g "test-tc-*"'
 
 export CONFIG=config_chrism_cx5.sh
 
+test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 test1=test-vf-vf-ping-legacy-vport-match.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
