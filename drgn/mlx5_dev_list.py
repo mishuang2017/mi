@@ -12,6 +12,7 @@ sys.path.append(libpath)
 import lib
 
 mlx5_dev_list = prog['mlx5_dev_list']
-for priv in list_for_each_entry('struct mlx5_priv', mlx5_dev_list.address_of_(), 'dev_list'):
-    dev = container_of(priv, "struct mlx5_core_dev", "priv")
-    print(dev.device.kobj.name)
+print(mlx5_dev_list)
+# for priv in list_for_each_entry('struct mlx5_priv', mlx5_dev_list.address_of_(), 'dev_list'):
+#     dev = container_of(priv, "struct mlx5_core_dev", "priv")
+#     print(dev.device.kobj.name)
