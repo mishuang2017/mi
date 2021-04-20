@@ -21,7 +21,7 @@ set -x
 
 	yum -y install virt-manager fence-agents-virsh
 	sleep 1
-	yum -y install ctags tmux screen ncurses-devel openssl-devel readline-devel snappy-devel wget tcl tcl-devel tk tk-devel git-email bc sysstat libglvnd-glx gcc-c++ bison flex make
+	yum -y install ctags tmux screen ncurses-devel openssl-devel readline-devel snappy-devel wget tcl tcl-devel tk tk-devel git-email bc sysstat libglvnd-glx gcc-c++ bison flex make gdb
 	# lzo elf ?
 	yum -y install elfutils-libelf-devel
 
@@ -114,6 +114,8 @@ function install-trex
 	yum -y install python-devel
 	yum -y install tkinter
 	pip install matplotlib
+
+	pip install pyyaml	# for asap test
 }
 
 # qalc
