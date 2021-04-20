@@ -153,7 +153,7 @@ EOF
 
 	home=/images/$username
 	mkdir -p $home
-	chown chrism.mtl $home
+	chown cmi.mtl $home
 	sleep 1
 set +x
 }
