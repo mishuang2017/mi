@@ -1,7 +1,5 @@
 #!/bin/bash
 
-usernamce=chrism
-
 function install-packages
 {
 set -x
