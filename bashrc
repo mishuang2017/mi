@@ -9611,8 +9611,8 @@ alias test-tc='./test-all.py -g "test-tc-*"'
 
 export CONFIG=config_chrism_cx5.sh
 
-test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 test1=test-vf-vf-ping-legacy-vport-match.sh
+test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
@@ -13016,7 +13016,6 @@ function vport_match_mode_get
 {
 	cat /sys/class/net/$link/compat/devlink/vport_match_mode
 }
-
 function vport_match_mode_legacy
 {
 	cat /sys/class/net/$link/compat/devlink/vport_match_mode
@@ -13024,13 +13023,29 @@ function vport_match_mode_legacy
 	echo $?
 	cat /sys/class/net/$link/compat/devlink/vport_match_mode
 }
-
 function vport_match_mode_metadata
 {
 	cat /sys/class/net/$link/compat/devlink/vport_match_mode
 	echo metadata > /sys/class/net/$link/compat/devlink/vport_match_mode
 	echo $?
 	cat /sys/class/net/$link/compat/devlink/vport_match_mode
+}
+
+function vport_match_mode_get_devlink
+{
+	devlink dev param show pci/$pci name esw_port_metadata
+}
+function vport_match_mode_metadata_devlink
+{
+	devlink dev param show pci/$pci name esw_port_metadata
+	devlink dev param set pci/$pci name esw_port_metadata value true cmode runtime
+	devlink dev param show pci/$pci name esw_port_metadata
+}
+function vport_match_mode_legacy_devlink
+{
+	devlink dev param show pci/$pci name esw_port_metadata
+	devlink dev param set pci/$pci name esw_port_metadata value false cmode runtime
+	devlink dev param show pci/$pci name esw_port_metadata
 }
 
 ######## uuu #######
