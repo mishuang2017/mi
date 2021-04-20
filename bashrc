@@ -541,7 +541,7 @@ alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
 alias clone-ofed='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git'
-alias clone-ofed5_0='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_0'
+alias clone-ofed5_4='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_4'
 alias clone-ofed5_1='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_1'
 alias clone-ofed5_2='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_2'
 alias clone-ofed='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_0_2'
