@@ -32,10 +32,16 @@ def print_vport(vport):
     print("vport: %4x, metadata: %x" % (vport.vport, vport.metadata), end=' ')
     print_mac(vport.info.mac)
 
+def print_devlink_port(port):
+    print(port.index)
+
 for i in range(enabled_vports):
     print_vport(vports[i])
+#     print_devlink_port(vports[i].dl_port)
+    print(vports[i].dl_port)
 
 print_vport(vports[total_vports - 1])
 
 uplink_vport = vports[1]
-print(uplink_vport.egress.offloads.fwd_rule)
+print_devlink_port(uplink_vport.dl_port)
+# print(uplink_vport.egress.offloads.fwd_rule)
