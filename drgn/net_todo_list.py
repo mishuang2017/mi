@@ -13,5 +13,5 @@ from lib import *
 
 net_todo_list = prog['net_todo_list']
 print(net_todo_list)
-for dev in list_for_each_entry('struct net_device', net_todo_list, 'todo_list'):
-    print(dev.name)
+for dev in list_for_each_entry('struct net_device', net_todo_list.address_of_(), 'todo_list'):
+    print(dev)

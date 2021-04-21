@@ -13,7 +13,7 @@ sys.path.append(libpath)
 import lib
 
 def print_mac(mac):
-    print("mac: %02x:%02x:%02x:%02x:%02x:%02x" % (mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]))
+    print("mac: %02x:%02x:%02x:%02x:%02x:%02x" % (mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]), end='')
 
 mlx5e_priv = lib.get_mlx5_pf0()
 mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
@@ -25,23 +25,21 @@ print("total_vports: %d" % total_vports)
 print("enabled_vports: %d" % enabled_vports)
 
 uplink_idx = total_vports - 1
-print("vport: %x" % vports[uplink_idx].vport)
-print_mac(vports[uplink_idx].info.mac)
+uplink_vport = vports[uplink_idx]
 
 def print_vport(vport):
-    print("vport: %4x, metadata: %x" % (vport.vport, vport.metadata), end=' ')
+    print("mlx5_vport %x" % vport.address_of_(), end=' ')
+    print("vport: %4x, metadata: %4x" % (vport.vport, vport.metadata), end=' ')
     print_mac(vport.info.mac)
-
-def print_devlink_port(port):
-    print(port.index)
+    print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
+    print("vport: %5x" % vport.vport, end=' ')
+    print("enabled: %x" % vport.enabled, end=' ')
+    print('')
 
 for i in range(enabled_vports):
     print_vport(vports[i])
-#     print_devlink_port(vports[i].dl_port)
-    print(vports[i].dl_port)
 
-print_vport(vports[total_vports - 1])
+print_vport(uplink_vport)
 
-uplink_vport = vports[1]
-print_devlink_port(uplink_vport.dl_port)
-# print(uplink_vport.egress.offloads.fwd_rule)
+uplink_devlink_port = mlx5e_priv.mdev.mlx5e_res.dl_port
+print("uplink devlink_port: %x" % uplink_devlink_port.address_of_())
