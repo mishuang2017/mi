@@ -820,6 +820,8 @@ alias s2='su - mi'
 alias s0="[[ $UID == 0 ]] && su cmi"
 alias e=exit
 alias vnc2="ssh cmi@10.7.2.14"
+# Unable to negotiate with 10.7.2.14 port 22: no matching key exchange method found. Their offer: diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
+alias vnc3="ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 cmi@10.7.2.14"
 alias vnc="ssh cmi@10.75.68.111"
 alias netstat1='netstat -ntlp'
 

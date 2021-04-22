@@ -10,8 +10,8 @@ import subprocess
 import drgn
 import socket
 
-prog = drgn.program_from_kernel()
-# prog = drgn.program_from_core_dump("/var/crash/vmcore.2")
+# prog = drgn.program_from_kernel()
+prog = drgn.program_from_core_dump("/var/crash/vmcore.4")
 
 def kernel(name):
     b = os.popen('uname -r')

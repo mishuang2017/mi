@@ -39,7 +39,7 @@ def print_vport(vport):
 for i in range(enabled_vports):
     print_vport(vports[i])
 
-print_vport(uplink_vport)
-
 uplink_devlink_port = mlx5e_priv.mdev.mlx5e_res.dl_port
-print("uplink devlink_port: %x" % uplink_devlink_port.address_of_())
+print("uplink:\n\tdevlink_port %x" % uplink_devlink_port.address_of_())
+print_vport(uplink_vport)
+# print(mlx5e_priv.mdev.mlx5e_res)
