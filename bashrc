@@ -1201,12 +1201,15 @@ function cloud_setup
 
 function cloud_setup2
 {
-	sm
-	cp /swgwork/cmi/linux.tar.gz .
-	tar zxf linux.tar.gz
-	cd linux
-	/bin/cp -f ~cmi/sm/config.ofed .config
+	if (( cloud == 1 )); then
+		sm
+		cp /swgwork/cmi/linux.tar.gz .
+		tar zxf linux.tar.gz
+		cd linux
+		/bin/cp -f ~cmi/mi/config.cloud .config
+	fi
 
+	install_libkdumpfile
 	sm
 	clone-drgn
 	cd drgn
