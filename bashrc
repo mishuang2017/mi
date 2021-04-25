@@ -1037,6 +1037,7 @@ alias bd3="sudo ~cmi/bin/single-port3.sh; enable-ovs-debug"
 
 corrupt_dir=corrupt_lat_linux
 alias cd-corrupt="cd /labhome/cmi/mi/prg/c/$corrupt_dir"
+alias cd_asap="cd /images/cmi/asap_dev_reg"
 alias cd-netlink="cd /labhome/cmi/mi/prg/c/my_netlink2"
 alias cd-mnl="cd /labhome/cmi/prg/sm/c/libmnl_genl2"
 alias vi-corrupt="cd /labhome/cmi/mi/prg/c/$corrupt_dir; vi corrupt.c"
@@ -9616,8 +9617,8 @@ alias test-tc='./test-all.py -g "test-tc-*"'
 
 export CONFIG=config_chrism_cx5.sh
 
-test1=test-vf-vf-ping-legacy-vport-match.sh
 test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
+test1=test-tc-vf-remote-mirror.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 

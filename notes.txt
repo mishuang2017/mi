@@ -1725,7 +1725,7 @@ git push origin HEAD:refs/for/mlnx_ofed_4_6_3_bd_fix/fix-DPIX-panic
 
 git push origin HEAD:refs/for/mlnx_ofed_4_9_3/fix-flow-indr-block-issue
 
-git push origin HEAD:refs/for/mlnx_ofed_5_4/devlink-metadata
+git push origin HEAD:refs/for/mlnx_ofed_5_4/uplink_rep_fix
 
 ===git===
 
