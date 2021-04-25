@@ -5961,14 +5961,13 @@ function set_mac
 	done
 }
 
+alias ip_netns_delete="ip -all netns delete"
 alias exe='ip netns exec'
 alias n0='exe n0'
 alias n1='exe n1'
 alias n2='exe n2'
 alias n3='exe n3'
 alias n4='exe n4'
-
-alias n='exe link2 bash'
 
 alias n0='exe n10'
 alias n1='exe n11'
