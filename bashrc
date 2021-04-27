@@ -43,6 +43,9 @@ alias rc1='. ~cmi/.bashrc'
 [[ "$(hostname -s)" == "c-141-18-1-005" ]] && host_num=5
 [[ "$(hostname -s)" == "c-141-18-1-006" ]] && host_num=6
 
+[[ "$(hostname -s)" == "c-141-34-1-007" ]] && host_num=17
+[[ "$(hostname -s)" == "c-141-34-1-008" ]] && host_num=18
+
 [[ "$(hostname -s)" == "qa-h-vrt-074" ]] && host_num=74
 
 function get_vf
@@ -210,6 +213,12 @@ elif (( host_num == 7 )); then
 	machine_num=1
 	cloud=1
 elif (( host_num == 8 )); then
+	machine_num=1
+	cloud=1
+elif (( host_num == 17 )); then
+	machine_num=1
+	cloud=1
+elif (( host_num == 18 )); then
 	machine_num=1
 	cloud=1
 elif (( host_num == 5 )); then

@@ -60,6 +60,9 @@ set -x
 
 	# nginx
 	yum -y install pcre-devel
+
+	# build rhel 8.3 kernel
+	dnf install dwarves
 set +x
 }
 
