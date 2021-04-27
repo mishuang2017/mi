@@ -32,8 +32,8 @@ alias rc1='. ~cmi/.bashrc'
 [[ "$(hostname -s)" == "c-236-0-180-184" ]] && host_num=84
 
 [[ "$(hostname -s)" == "c-236-148-240-245" ]] && host_num=45
-[[ "$(hostname -s)" == "c-235-14-1-007" ]] && host_num=7
-[[ "$(hostname -s)" == "c-235-14-1-008" ]] && host_num=8
+[[ "$(hostname -s)" == "c-235-253-1-007" ]] && host_num=7
+[[ "$(hostname -s)" == "c-235-253-1-008" ]] && host_num=8
 [[ "$(hostname -s)" == "c-235-251-1-009" ]] && host_num=9
 [[ "$(hostname -s)" == "c-235-251-1-010" ]] && host_num=10
 [[ "$(hostname -s)" == "c-236-147-240-241" ]] && host_num=41
@@ -206,18 +206,12 @@ elif (( host_num == 84 )); then
 	remote_mac=0c:42:a1:d1:d0:e4
 	cloud=1
 
-elif (( host_num == 9 )); then
+elif (( host_num == 7 )); then
 	machine_num=1
 	cloud=1
-	link_mac=0c:42:a1:16:07:1c
-	remote_mac=0c:42:a1:16:08:cc
-	rhost_num=10
-elif (( host_num == 10 )); then
-	machine_num=2
+elif (( host_num == 8 )); then
+	machine_num=1
 	cloud=1
-	link_mac=0c:42:a1:16:08:cc
-	remote_mac=0c:42:a1:16:07:1c
-	rhost_num=9
 elif (( host_num == 5 )); then
 	machine_num=1
 	rhost_num=6
@@ -9618,6 +9612,7 @@ export CONFIG=config_chrism_cx5.sh
 
 test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 test1=test-tc-vf-remote-mirror.sh
+test1=test-ovs-ct-vf-tunnel.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
