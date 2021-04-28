@@ -8514,7 +8514,7 @@ fi
 alias restart-udev='sudo systemctl restart systemd-udevd.service'
 
 alias ofed-configure-memtrack='./configure --with-mlx5-core-and-en-mod --with-memtrack -j'
-alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod -j $cpu_num2"
+alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack -j $cpu_num2"
 alias ofed-configure="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2"
 
 alias ofed-configure-5.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.3 "
@@ -9622,6 +9622,7 @@ export CONFIG=config_chrism_cx5.sh
 test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 test1=test-tc-vf-remote-mirror.sh
 test1=test-ovs-ct-vf-tunnel.sh
+test1=test-ct-nic-tcp.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
