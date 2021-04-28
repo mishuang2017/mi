@@ -589,7 +589,6 @@ alias clone-ubuntu='git clone git://kernel.ubuntu.com/ubuntu/ubuntu-bionic.git'
 # http://archive.ubuntu.com/ubuntu/pool/main/l/linux/linux_4.4.0-145.171.diff.gz
 
 alias git-net='git remote add net git://git.kernel.org/pub/scm/linux/kernel/git/davem/net.git'
-alias git-net-next='git remote add net-next git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git'
 alias gg='git grep -n'
 
 alias dmesg='dmesg -T'
@@ -635,6 +634,7 @@ alias gityossi='git log --tags --source --author="yossiku@mellanox.com"'
 alias gitelib='git log --tags --source --author="elibr@mellanox.com"'
 alias git-linux-origin="git remote set-url origin ssh://cmi@l-gerrit.lab.mtl.com:29418/upstream/linux"
 alias git-linus='git remote add linus git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git; git fetch --tags linus'
+alias git-net-next='git remote add net-next git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git'
 alias git-net-next='git remote add net-next git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git; fetch net-next master'
 # alias git-vlad='git remote add vlad git@github.com:vbuslov/linux.git'
 alias git-vlad-v5.4='git log --author=vladbu@mellanox.com --oneline v5.4..'

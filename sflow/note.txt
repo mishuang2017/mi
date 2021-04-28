@@ -1,4 +1,8 @@
 
+GA的版本XX.29.0158以上开始支持
+all GA after GA_2020_Dec_from_29_0614应该都支持了
+XX.29.0614
+
 ===upstream===
 
 sFlow was merge in kernel 5.12

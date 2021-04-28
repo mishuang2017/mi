@@ -1692,7 +1692,7 @@ git push origin HEAD:refs/for/mlnx_ofed_6_2/update-rep-state
 
 git push origin HEAD:refs/for/master/stats-update
 
-git push origin HEAD:refs/for/net-mlx5/fix-ppcnt-syndrome-issue
+git push origin HEAD:refs/for/net-mlx5/fix-change-profile
 
 If commit was abandoned, don't reuse the change-id. Otherwise, will fail to push
 
@@ -1725,7 +1725,7 @@ git push origin HEAD:refs/for/mlnx_ofed_4_6_3_bd_fix/fix-DPIX-panic
 
 git push origin HEAD:refs/for/mlnx_ofed_4_9_3/fix-flow-indr-block-issue
 
-git push origin HEAD:refs/for/mlnx_ofed_5_4/uplink_rep_fix
+git push origin HEAD:refs/for/mlnx_ofed_5_4/fix-nat-memleak
 
 ===git===
 

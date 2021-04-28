@@ -140,16 +140,18 @@ EOF
 
 	yptest | head -n 20
 
+set -x
 	for file in .bashrc .vim .vimrc .screenrc .tmux.conf; do
 		/bin/rm ~/$file
-		ln -s ~$username/$file .
+		ln -s ~cmi/$file .
 		sleep 1
 	done
+set +x
 
-	cp ~$username/.crash .
+	cp ~cmi/.crash .
 	sleep 1
 
-	home=/images/$username
+	home=/images/cmi
 	mkdir -p $home
 	chown cmi.mtl $home
 	sleep 1
