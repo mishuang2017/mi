@@ -1707,6 +1707,8 @@ git push origin HEAD:refs/for/net-next-mlx5/sflow-driver-decap-fix-new
 git push origin HEAD:refs/for/master/sflow-ovs-new
 
 git push origin HEAD:refs/for/net-next-mlx5/sflow-ct
+git push origin HEAD:refs/for/net-next-mlx5/fix-u32-chain
+git push origin HEAD:refs/for/net-next-mlx5/fix-get-devilnk-port
 
 git push origin HEAD:refs/for/master/test-ovs-tc-rules-checker.sh
 
