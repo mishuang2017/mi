@@ -5445,7 +5445,8 @@ set -x
 		local rep=$(get_rep $i)
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
-	vxlan1
+	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan \
+		options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit
 
 	ovs-ofctl del-flows $br
 	ovs-ofctl add-flow $br arp,actions=NORMAL 
@@ -12905,8 +12906,8 @@ set +x
 	if (( host_num == 41 )); then
 		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.236.147.242:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 	fi
-	if (( host_num == 9 )); then
-		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.235.251.10:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+	if (( host_num == 5 )); then
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.141.18.6:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 	fi
 }
 
