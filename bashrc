@@ -5404,6 +5404,31 @@ set -x
 set +x
 }
 
+function brx_stack_devices
+{
+set -x
+	del-br
+	vs add-br $br
+	for (( i = 0; i < numvfs; i++)); do
+#	for (( i = 1; i < 2; i++)); do
+		local rep=$(get_rep $i)
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+	vs add-port $br $link
+
+	ip addr flush $link
+	ip addr flush $vf1
+	ip addr add dev $vf1 $link_ip/24
+	ip addr add $link_ipv6/64 dev $vf1
+	ip link set $vf1 up
+
+	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan \
+		options:remote_ip=$link_remote_ip \
+		options:key=$vni \
+		options:dst_port=$vxlan_port
+set +x
+}
+
 function brx6
 {
 set -x
