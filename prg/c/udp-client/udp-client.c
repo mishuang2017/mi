@@ -7,6 +7,7 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
+#include <linux/ip.h>
 
 #define PORT	 8080 
 #define MAXLINE 1024 
@@ -24,6 +25,7 @@ int main(int argc, char *argv[])
 	int i, t = 1;
 	int interval = 1;
 	int verbose = 0;
+	unsigned char  service_type = 0xe0 | IPTOS_LOWDELAY | IPTOS_RELIABILITY;
 
 	while ((c = getopt(argc, argv, "c:t:i:v")) != -1) {
                 switch (c) {
@@ -47,6 +49,10 @@ int main(int argc, char *argv[])
 		perror("socket creation failed"); 
 		exit(EXIT_FAILURE); 
 	} 
+
+	if (setsockopt(sockfd, SOL_IP/*IPPROTO_IP*/, IP_TOS,
+		       (void *)&service_type, sizeof(service_type)) < 0)
+		perror("setsockopt(IP_TOS) failed:");
 
 	memset(&servaddr, 0, sizeof(servaddr)); 
 
