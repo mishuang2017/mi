@@ -104,12 +104,12 @@ for i, mlx5_ct_ft in enumerate(hash(zone_ht, 'struct mlx5_ct_ft', 'node')):
             print("\tmlx5_ct_entry.zone_rules[%d]" % k)
             print("\tmlx5_ct_zone_rule %lx" % mlx5_ct_zone_rule.address_of_())
             print("\tmlx5_esw_flow_attr %lx" % mlx5_ct_zone_rule.attr.address_of_())
-            print_mlx5_esw_flow_attr(mlx5_ct_zone_rule.attr)
-            mlx5_flow_handle = mlx5_ct_zone_rule.rule
-            nat = mlx5_ct_zone_rule.nat
-            print("\tmlx5_ct_entry.zone_rules[%d].rule: nat: %d(tupleid is unique for mlx5_ct_entry.mlx5_ct_zone_rule[nat], it is used to restore ctinfo)" % (k, nat))
-            print("\t\tmlx5_ct_zone_rule.rule")
-            print_mlx5_flow_handle(mlx5_flow_handle)
+#             print_mlx6_esw_flow_attr(mlx5_ct_zone_rule.attr)
+#             mlx5_flow_handle = mlx5_ct_zone_rule.rule
+#             nat = mlx5_ct_zone_rule.nat
+#             print("\tmlx5_ct_entry.zone_rules[%d].rule: nat: %d(tupleid is unique for mlx5_ct_entry.mlx5_ct_zone_rule[nat], it is used to restore ctinfo)" % (k, nat))
+#             print("\t\tmlx5_ct_zone_rule.rule")
+#             print_mlx5_flow_handle(mlx5_flow_handle)
         print('')
 
     flow_table("mlx5_ct_ft.pre_ct.ft", mlx5_ct_ft.pre_ct.ft)

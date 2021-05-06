@@ -25,7 +25,8 @@ print("total_vports: %d" % total_vports)
 print("enabled_vports: %d" % enabled_vports)
 
 uplink_idx = total_vports - 1
-uplink_vport = vports[uplink_idx]
+# uplink_vport = vports[uplink_idx]
+# print(vports)
 
 def print_vport(vport):
     print("mlx5_vport %x" % vport.address_of_(), end=' ')
@@ -36,10 +37,14 @@ def print_vport(vport):
     print("enabled: %x" % vport.enabled, end=' ')
     print('')
 
-for i in range(enabled_vports):
-    print_vport(vports[i])
+# for i in range(enabled_vports):
+#     print_vport(vports[i])
 
-uplink_devlink_port = mlx5e_priv.mdev.mlx5e_res.dl_port
-print("uplink:\n\tdevlink_port %x" % uplink_devlink_port.address_of_())
-print_vport(uplink_vport)
+# uplink_devlink_port = mlx5e_priv.mdev.mlx5e_res.dl_port
+# print("uplink:\n\tdevlink_port %x" % uplink_devlink_port.address_of_())
+# print_vport(uplink_vport)
 # print(mlx5e_priv.mdev.mlx5e_res)
+
+for node in radix_tree_for_each(vports):
+    mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())
+    print_vport(mlx5_vport)
