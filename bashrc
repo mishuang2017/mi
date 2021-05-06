@@ -43,8 +43,8 @@ alias rc1='. ~cmi/.bashrc'
 [[ "$(hostname -s)" == "c-141-18-1-005" ]] && host_num=5
 [[ "$(hostname -s)" == "c-141-18-1-006" ]] && host_num=6
 
-[[ "$(hostname -s)" == "c-141-34-1-007" ]] && host_num=17
-[[ "$(hostname -s)" == "c-141-34-1-008" ]] && host_num=18
+[[ "$(hostname -s)" == "c-236-5-60-061" ]] && host_num=61
+[[ "$(hostname -s)" == "c-236-5-60-062" ]] && host_num=62
 
 [[ "$(hostname -s)" == "qa-h-vrt-074" ]] && host_num=74
 
@@ -215,7 +215,10 @@ elif (( host_num == 7 )); then
 elif (( host_num == 8 )); then
 	machine_num=1
 	cloud=1
-elif (( host_num == 17 )); then
+elif (( host_num == 61 )); then
+	machine_num=1
+	cloud=1
+elif (( host_num == 62 )); then
 	machine_num=1
 	cloud=1
 elif (( host_num == 18 )); then
@@ -7124,7 +7127,7 @@ function syndrome
 	grep -i $2 $file
 }
 
-alias syn='syndrome 16.25.6000'
+alias syn='syndrome 16.30.1004'
 alias syn6='syndrome 26.29.2002'
 
 # mlxfwup
@@ -9644,11 +9647,13 @@ alias test-tc='./test-all.py -g "test-tc-*" -e test-tc-hairpin-disable-sriov.sh 
 alias test-tc='./test-all.py -g "test-tc-*"'
 
 export CONFIG=config_chrism_cx5.sh
+export CONFIG=/workspace/dev_reg_conf.sh
 
 test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 test1=test-tc-vf-remote-mirror.sh
 test1=test-ct-nic-tcp.sh
 test1=test-ovs-ct-vf-tunnel.sh
+test1=./test-ovs-ct-vxlan-vf-lag.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
