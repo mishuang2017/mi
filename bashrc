@@ -13043,9 +13043,9 @@ function systemd_yum
 	sudo yum install -y meson gperf libcap-devel libmount-devel
 }
 
-function rsync_sflow1
+function rsync_sflow
 {
-	rsync -tvr /labhome/cmi/sflow/* vnc14:~/sflow
+	rsync -tvr /labhome/cmi/sflow/* 10.141.18.5:~/sflow
 }
 
 function rsync_sflow2
