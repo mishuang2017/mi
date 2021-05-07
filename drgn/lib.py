@@ -481,7 +481,7 @@ def parse_ct_status(status):
     IPS_OFFLOAD = prog['IPS_OFFLOAD'].value_()
     IPS_HW_OFFLOAD = prog['IPS_HW_OFFLOAD'].value_()
 
-    print("status: %4x" % status, end=' ')
+    print("\tstatus: %4x" % status, end=' ')
     if status & IPS_EXPECTED:
         print("IPS_EXPECTED", end=" | ")
     if status & IPS_SEEN_REPLY:
@@ -575,7 +575,7 @@ def print_tuple(tuple, ct):
 #     print("nf_conntrack_tuple %lx" % tuple.value_())
 
     if protonum == IPPROTO_TCP and dir == IP_CT_DIR_ORIGINAL:
-        print("src ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.src.u3.ip.value_())), sport), end=' ')
+        print("\tsrc ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.src.u3.ip.value_())), sport), end=' ')
         print("dst ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.dst.u3.ip.value_())), dport), end=' ')
         print("protonum: %3d" % protonum, end=' ')
         print("dir: %3d" % dir, end=' ')
