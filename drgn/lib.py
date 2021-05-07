@@ -479,6 +479,7 @@ def parse_ct_status(status):
     IPS_UNTRACKED = prog['IPS_UNTRACKED'].value_()
     IPS_HELPER = prog['IPS_HELPER'].value_()
     IPS_OFFLOAD = prog['IPS_OFFLOAD'].value_()
+    IPS_HW_OFFLOAD = prog['IPS_HW_OFFLOAD'].value_()
 
     print("status: %4x" % status, end=' ')
     if status & IPS_EXPECTED:
@@ -511,6 +512,8 @@ def parse_ct_status(status):
         print("IPS_HELPER", end=" | ")
     if status & IPS_OFFLOAD:
         print("IPS_OFFLOAD", end=" | ")
+    if status & IPS_HW_OFFLOAD:
+        print("IPS_HW_OFFLOAD", end=" | ")
 
     print("")
 
@@ -565,7 +568,7 @@ def print_tuple(tuple, ct):
     if protonum == IPPROTO_UDP:
         dport = ntohs(tuple.tuple.dst.u.udp.port.value_())
         sport = ntohs(tuple.tuple.src.u.udp.port.value_())
-    if dport != 4000:
+    if dport != 5001:
         return
 
     print("nf_conn %lx" % ct.value_())
