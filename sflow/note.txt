@@ -193,11 +193,14 @@ flow_offload_queue_work
 tcf_ct_act
 	tcf_ct_flow_table_process_conn
 		tcf_ct_flow_table_add
+			test_and_set_bit( IPS_OFFLOAD_BIT , &ct->status)
 			struct flow_offload *flow = flow_offload_alloc
 				flow_offload_fill_dir(FLOW_OFFLOAD_DIR_ORIGINAL)
 					set flow_offload_tuple which is mlx5_ct_entry.cookie
 				flow_offload_fill_dir(FLOW_OFFLOAD_DIR_REPLY)
 			flow_offload_add
+				rhashtable_insert_fast
+				rhashtable_insert_fast
 				__set_bit(NF_FLOW_HW, &flow->flags);
 				nf_flow_offload_add
 					flow_offload_queue_work
@@ -205,6 +208,13 @@ tcf_ct_act
 							flow_offload_work_handler
 								flow_offload_work_stats
 								flow_offload_work_del
+									clear_bit (IPS_HW_OFFLOAD_BIT, &offload->flow->ct->status);
+									flow_offload_tuple_del (offload, FLOW_OFFLOAD_DIR_ORIGINAL);
+										nf_flow_offload_tuple
+											mlx5_tc_ct_block_flow_offload (FLOW_CLS_DESTROY)
+												mlx5_tc_ct_block_flow_offload_del
+									flow_offload_tuple_del (offload, FLOW_OFFLOAD_DIR_REPLY);
+									set_bit( NF_FLOW_HW_DEAD , &offload->flow->flags);
 								flow_offload_work_add
 									nf_flow_offload_alloc
 										nf_flow_offload_rule_alloc (FLOW_OFFLOAD_DIR_ORIGINAL) alloc nf_flow_rule
@@ -222,18 +232,19 @@ tcf_ct_act
 										flow_offload_tuple_add
 											nf_flow_offload_tuple
 												nf_flow_offload_init init flow_cls_offload
-												mlx5_tc_ct_block_flow_offload
-													mlx5_tc_ct_block_flow_offload_stats
-													mlx5_tc_ct_block_flow_offload_del
-													mlx5_tc_ct_block_flow_offload_add
-														alloc mlx5_ct_entry
-														mlx5_tc_ct_entry_add_rules
-															mlx5_tc_ct_entry_add_rule
-																xa_alloc(&tupleid)
-																mlx5_eswitch_add_offloaded_rule
-															mlx5_tc_ct_entry_add_rule(nat)
-																xa_alloc(&tupleid)
-																mlx5_eswitch_add_offloaded_rule
+												list_for_each_entry(block_cb, block_cb_list, list)
+													mlx5_tc_ct_block_flow_offload
+														mlx5_tc_ct_block_flow_offload_stats
+														mlx5_tc_ct_block_flow_offload_add
+															alloc mlx5_ct_entry
+															mlx5_tc_ct_entry_add_rules
+																mlx5_tc_ct_entry_add_rule
+																	xa_alloc(&tupleid)
+																	mlx5_eswitch_add_offloaded_rule
+																mlx5_tc_ct_entry_add_rule(nat)
+																	xa_alloc(&tupleid)
+																	mlx5_eswitch_add_offloaded_rule
+										set_bit(IPS_HW_OFFLOAD_BIT, &offload->flow->ct->status)
 									nf_flow_offload_destroy
 
 
@@ -241,23 +252,22 @@ tcf_ct_act
 					nf_flow_offload_tuple
 						nf_flow_offload_init
 							cls_flow->cookie
+mlx5_tc_ct_flow_offload
+	__mlx5_tc_ct_flow_offload
+		mlx5_tc_ct_add_ft_cb
+			nf_flow_table_offload_add_cb
 
-flow_offload_work_handler(FLOW_CLS_REPLACE)
-	flow_offload_work_add
-		flow_offload_rule_add
-			flow_offload_tuple_add
-			flow_offload_tuple_add
+mlx5e_tc_unoffload_fdb_rules
+	mlx5_tc_ct_delete_flow
+		__mlx5_tc_ct_delete_flow
+			mlx5_tc_ct_del_ft_cb
+				nf_flow_table_offload_del_cb
+					list_del(&block_cb->list)
 
-6.494420 15108   15108   kworker/13:1    mlx5_eswitch_add_offloaded_rule
-        mlx5_eswitch_add_offloaded_rule
-        mlx5_tc_ct_block_flow_offload
-        nf_flow_offload_tuple
-        flow_offload_work_handler
-        process_one_work+0x240 [kernel]
-        worker_thread+0x50 [kernel]
-        kthread+0x109 [kernel]
-        ret_from_fork+0x35 [kernel]
-
+flow_offload_del
+	rhashtable_remove_fast
+	rhashtable_remove_fast
+	clear_bit( IPS_OFFLOAD_BIT , &flow->ct->status)
 
 nf_flow_offload_del is called because test_bit(NF_FLOW_TEARDOWN, &flow->flags)
 NF_FLOW_TEARDOWN is set because of FIN is received in
