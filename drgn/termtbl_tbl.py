@@ -28,13 +28,3 @@ for i in range(256):
         termtbl = mlx5_termtbl_handle.termtbl
         flow_table("termtbl", termtbl)
         node = node.next
-
-sampler_termtbl_handle = offloads.sampler_termtbl_handle
-sampler_default_tbl = offloads.sampler_default_tbl
-print("=== offloads.sampler_termtbl_handle ===")
-print(sampler_termtbl_handle)
-print("=== offloads.sampler_default_tbl ===")
-# print(sampler_default_tbl)
-
-print("=== offloads.sampler_termtbl_handle.rule ===")
-print_mlx5_flow_handle(sampler_termtbl_handle.rule)

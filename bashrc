@@ -211,9 +211,11 @@ elif (( host_num == 84 )); then
 
 elif (( host_num == 7 )); then
 	machine_num=1
+	rhost_num=8
 	cloud=1
 elif (( host_num == 8 )); then
-	machine_num=1
+	machine_num=2
+	rhost_num=7
 	cloud=1
 elif (( host_num == 61 )); then
 	machine_num=1
@@ -258,14 +260,15 @@ if (( cloud == 1 )); then
 	link_remote_ip=192.168.1.$rhost_num
 fi
 
-vni=200
 vni=100
+vni2=200
 vid=5
 svid=1000
 vid2=6
 vxlan_port=4000
 vxlan_port=4789
-vxlan_mac=24:25:d0:e2:00:00
+vxlan_mac=24:25:d0:e1:00:00
+vxlan_mac2=24:25:d0:e2:00:00
 ecmp=0
 ports=2
 ports=1
@@ -362,8 +365,9 @@ link2_ipv6=2::$host_num
 
 br=br
 br2=br2
-vx=vxlan0
-vx2=vxlan1
+vx=vxlan1
+vx2=vxlan2
+vx_tunnel=vxlan_tunnel
 bond=bond0
 macvlan=macvlan1
 
@@ -1505,6 +1509,8 @@ elif (( debian == 1 )); then
 	stap_str="$stap_str_common -d /lib/x86_64-linux-gnu/libc-2.27.so -d /lib/x86_64-linux-gnu/libpthread-2.27.so"
 	STAP="/usr/local/bin/stap -v"
 fi
+STAP="/usr/local/bin/stap -v"
+stap_str="--all-modules -d /usr/sbin/ovs-vswitchd -d /usr/sbin/tc -d /usr/bin/ping -d /usr/sbin/ip -d /sbin/udevadm -d kernel -d /usr/lib64/libpthread-2.26.so"
 
 # stap_str="-d /usr/lib64/libpthread-2.17.so -d //lib/modules/3.10.0-862.2.3.el7.x86_64.debug/extra/mlnx-ofa_kernel/drivers/infiniband/hw/mlx5/mlx5_ib.ko -d /usr/lib64/libibverbs.so.1.1.16.0	-d /usr/lib64/libmlx5.so.1.3.16.0  -d /images/cmi/dpdk-18.05/build/app/testpmd"
 
@@ -5402,6 +5408,36 @@ set -x
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	vxlan1
+# 	ifconfig $vf1 1.1.1.1/24 up
+# 	sflow_create
+set +x
+}
+
+function brx_remote_mirror
+{
+set -x
+	del-br
+	vs add-br $br
+#   	for (( i = 0; i < numvfs; i++)); do
+	if (( machine_num == 1 )); then
+		start=1
+	fi
+	if (( machine_num == 2 )); then
+		start=0
+	fi
+	for (( i = start; i < 2; i++)); do
+		local rep=$(get_rep $i)
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port
+	ovs-vsctl add-port $br $vx_tunnel -- set interface $vx_tunnel type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni2 options:dst_port=$vxlan_port
+	if (( machine_num == 1 )); then
+		ovs-ofctl add-flow $br in_port=$vx,actions=output:$rep2
+		ovs-vsctl -- --id=@p1 get port $vx_tunnel -- --id=@p2 get port $rep2 -- --id=@m create mirror name=m0 select-dst-port=@p2 output-port=@p1 -- set bridge $br mirrors=@m
+	fi
+	if (( machine_num == 2 )); then
+		ovs-ofctl add-flow $br in_port=$vx_tunnel,actions=output:$rep1
+	fi
 # 	ifconfig $vf1 1.1.1.1/24 up
 # 	sflow_create
 set +x
@@ -13087,6 +13123,55 @@ function vport_match_mode_legacy_devlink
 	devlink dev param show pci/$pci name esw_port_metadata
 	devlink dev param set pci/$pci name esw_port_metadata value false cmode runtime
 	devlink dev param show pci/$pci name esw_port_metadata
+}
+
+function term_rule
+{
+	ip link del $vx > /dev/null 2>&1
+	ip link add name $vx type vxlan id $vni dev $link  remote $link_remote_ip dstport $vxlan_port
+	ip addr add $link_ip_vxlan/16 brd + dev $vx
+	ip addr add $link_ipv6_vxlan/64 dev $vx
+	ip link set dev $vx up
+	ip link set $vx address $vxlan_mac
+
+	ip link del $vx2 > /dev/null 2>&1
+	ip link add name $vx2 type vxlan id $vni2 dev $link  remote $link_remote_ip dstport $vxlan_port
+	ip addr add $link_ip_vxlan/16 brd + dev $vx2
+	ip addr add $link_ipv6_vxlan/64 dev $vx2
+	ip link set dev $vx2 up
+	ip link set $vx2 address $vxlan_mac2
+
+# /opt/mellanox/iproute2/sbin/tc filter add dev enp8s0f0_0 protocol 802.1Q parent ffff: \
+#                         flower vlan_ethtype ipv4 vlan_id 10  indev enp8s0f0_0  \
+#                         action tunnel_key set  src_ip 0.0.0.0  dst_ip 10.25.1.250 id 40 dst_port 4789 nocsum pipe \
+#                         action vlan pop pipe \
+#                         action mirred egress mirror dev vxlan1 pipe \
+#                         action tunnel_key set  src_ip 0.0.0.0  dst_ip 1.1.1.2 id 50 dst_port 4789 nocsum pipe \
+#                         action pedit ex munge eth src set 06:a6:6d:fe:97:43 munge eth dst set  00:00:0a:19:01:fa munge ip ttl set 63 pipe \
+#                         action csum ip pipe \
+#                         action mirred egress redirec
+
+	tc-setup vxlan1
+	tc-setup enp8s0f0
+	tc-setup enp8s0f0_0
+
+# 	/opt/mellanox/iproute2/sbin/tc filter add dev vxlan1 protocol ip  parent ffff: flower  dst_mac e4:11:22:33:24:50  src_mac e4:bc:11:08:00:02            \
+# 		enc_src_ip 192.168.1.7          \
+# 		enc_dst_ip 192.168.1.8          \
+# 		enc_dst_port 4789          \
+# 		enc_key_id 100             \
+# 		action tunnel_key unset  pipe\
+# 		action pedit ex munge eth src set 06:a6:6d:fe:97:43 munge eth dst set  00:00:0a:19:01:fa  munge ip ttl set 63 pipe \
+# 		action csum ip  pipe \
+# 		action vlan push id 10  pipe \
+# 		action mirred egress redirect dev enp8s0f0_0
+
+	/opt/mellanox/iproute2/sbin/tc filter add dev enp8s0f0 protocol ip parent ffff: \
+                        flower indev enp8s0f0  \
+                        action tunnel_key set  src_ip 192.168.1.7 dst_ip 192.168.1.8 id 40 dst_port 4789 nocsum pipe \
+                        action mirred egress mirror dev vxlan1 pipe \
+                        action tunnel_key set  src_ip 192.168.1.7  dst_ip 192.168.1.8 id 50 dst_port 4789 nocsum pipe \
+                        action mirred egress redirect dev vxlan2
 }
 
 ######## uuu #######

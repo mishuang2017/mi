@@ -47,6 +47,7 @@ pf1_name = "enp4s0f1"
 
 if hostname.find("c-") == 0:
     pf0_name = "enp8s0f0"
+    pf1_name = "enp8s0f1"
 
 print(pf0_name)
 
