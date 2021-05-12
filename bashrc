@@ -9681,7 +9681,8 @@ test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 test1=test-tc-vf-remote-mirror.sh
 test1=test-ct-nic-tcp.sh
 test1=test-ovs-ct-vf-tunnel.sh
-test1=./test-ovs-ct-vxlan-vf-lag.sh
+test1=test-ovs-ct-vxlan-vf-lag.sh
+test1=test-tc-par-add-del-vxlan.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
