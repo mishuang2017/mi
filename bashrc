@@ -253,9 +253,9 @@ if (( cloud == 1 )); then
 		eval rep$((i+1))_2=${link2}_$i
 	done
 
-	vf1=enp8s0f2
-	vf2=enp8s0f3
-	vf3=enp8s0f4
+# 	vf1=enp8s0f2
+# 	vf2=enp8s0f3
+# 	vf3=enp8s0f4
 
 	link_remote_ip=192.168.1.$rhost_num
 fi
@@ -899,6 +899,7 @@ alias      vi_cts="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c drivers
 alias  vi_mod_hdr='vi drivers/net/ethernet/mellanox/mlx5/core/en/mod_hdr.c '
 alias    vi_vport="vi drivers/net/ethernet/mellanox/mlx5/core/esw/vporttbl.c "
 alias vi_offloads="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c "
+alias     vi_term="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c"
 alias      vi_esw="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch.h "
 alias  vi_mapping='vi drivers/net/ethernet/mellanox/mlx5/core/en/mapping.c drivers/net/ethernet/mellanox/mlx5/core/en/mapping.h '
 alias   vi_chains="vi drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.h "
@@ -5413,19 +5414,12 @@ set -x
 set +x
 }
 
-function brx_remote_mirror
+function br_remote_mirror
 {
 set -x
 	del-br
 	vs add-br $br
-#   	for (( i = 0; i < numvfs; i++)); do
-	if (( machine_num == 1 )); then
-		start=1
-	fi
-	if (( machine_num == 2 )); then
-		start=0
-	fi
-	for (( i = start; i < 2; i++)); do
+	for (( i = 0; i < numvfs; i++)); do
 		local rep=$(get_rep $i)
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
@@ -5438,8 +5432,6 @@ set -x
 	if (( machine_num == 2 )); then
 		ovs-ofctl add-flow $br in_port=$vx_tunnel,actions=output:$rep1
 	fi
-# 	ifconfig $vf1 1.1.1.1/24 up
-# 	sflow_create
 set +x
 }
 
