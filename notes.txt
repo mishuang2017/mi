@@ -1727,11 +1727,9 @@ git push origin HEAD:refs/for/mlnx_ofed_4_6_3_bd_fix/fix-DPIX-panic
 
 git push origin HEAD:refs/for/mlnx_ofed_4_9_3/fix-flow-indr-block-issue
 
-git push origin HEAD:refs/for/mlnx_ofed_5_4/backport-upstream-fixes
+git push origin HEAD:refs/for/mlnx_ofed_5_4/sw_ignore_flow_level
 git push origin HEAD:refs/for/net-mlx5/fix-sample-memleak
 git push origin HEAD:refs/for/net-next-mlx5/sflow-decap-fix
-
-git push origin HEAD:refs/for/net-next-mlx5/fix-ct-vf-lag-offload
 
 ===git===
 
