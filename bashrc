@@ -381,7 +381,9 @@ gre=gre1
 
 link_ip_vlan=1.1.1.100
 link_ip_vxlan=1.1.1.200
+link_ip_vxlan2=1.1.1.201
 link_ipv6_vxlan=1::200
+link_ipv6_vxlan2=1::201
 
 brd_mac=ff:ff:ff:ff:ff:ff
 
@@ -5444,7 +5446,9 @@ set -x
 	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port
 	ovs-vsctl add-port $br $vx_tunnel -- set interface $vx_tunnel type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni2 options:dst_port=$vxlan_port
 	if (( machine_num == 1 )); then
-		ovs-ofctl add-flow $br in_port=$vx,actions=output:$rep2
+		ovs-ofctl del-flows $br
+		ovs-ofctl add-flow $br priority=2,in_port=$vx,actions=output:$rep2
+		ovs-ofctl add-flow $br priority=3,in_port=$rep2,actions=output:$vx
 		ovs-vsctl -- --id=@p1 get port $vx_tunnel -- --id=@p2 get port $rep2 -- --id=@m create mirror name=m0 select-dst-port=@p2 output-port=@p1 -- set bridge $br mirrors=@m
 	fi
 	if (( machine_num == 2 )); then
@@ -13166,8 +13170,8 @@ function term_rule
 
 	ip link del $vx2 > /dev/null 2>&1
 	ip link add name $vx2 type vxlan id $vni2 dev $link  remote $link_remote_ip dstport $vxlan_port
-	ip addr add $link_ip_vxlan/16 brd + dev $vx2
-	ip addr add $link_ipv6_vxlan/64 dev $vx2
+	ip addr add $link_ip_vxlan2/16 brd + dev $vx2
+	ip addr add $link_ipv6_vxlan2/64 dev $vx2
 	ip link set dev $vx2 up
 	ip link set $vx2 address $vxlan_mac2
 
@@ -13182,26 +13186,26 @@ function term_rule
 #                         action mirred egress redirec
 
 	tc-setup vxlan1
+	tc-setup vxlan2
 	tc-setup enp8s0f0
 	tc-setup enp8s0f0_0
 
-# 	/opt/mellanox/iproute2/sbin/tc filter add dev vxlan1 protocol ip  parent ffff: flower  dst_mac e4:11:22:33:24:50  src_mac e4:bc:11:08:00:02            \
-# 		enc_src_ip 192.168.1.7          \
-# 		enc_dst_ip 192.168.1.8          \
-# 		enc_dst_port 4789          \
-# 		enc_key_id 100             \
-# 		action tunnel_key unset  pipe\
-# 		action pedit ex munge eth src set 06:a6:6d:fe:97:43 munge eth dst set  00:00:0a:19:01:fa  munge ip ttl set 63 pipe \
-# 		action csum ip  pipe \
-# 		action vlan push id 10  pipe \
-# 		action mirred egress redirect dev enp8s0f0_0
+	/opt/mellanox/iproute2/sbin/tc filter add dev $vx protocol ip  parent ffff: flower dst_mac 02:25:d0:07:01:02  src_mac 02:25:d0:08:01:02           \
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset  pipe	\
+                action mirred egress redirect dev $rep2 \
+		action tunnel_key set src_ip $link_ip dst_ip $link_remote_ip id $vni2 dst_port $vxlan_port nocsum pipe \
+		action mirred egress redirect dev $vx2
 
-	/opt/mellanox/iproute2/sbin/tc filter add dev enp8s0f0 protocol ip parent ffff: \
-                        flower indev enp8s0f0  \
-                        action tunnel_key set  src_ip 192.168.1.7 dst_ip 192.168.1.8 id 40 dst_port 4789 nocsum pipe \
-                        action mirred egress mirror dev vxlan1 pipe \
-                        action tunnel_key set  src_ip 192.168.1.7  dst_ip 192.168.1.8 id 50 dst_port 4789 nocsum pipe \
-                        action mirred egress redirect dev vxlan2
+# 	/opt/mellanox/iproute2/sbin/tc filter add dev enp8s0f0 protocol ip parent ffff: \
+#                         flower indev enp8s0f0  \
+#                         action tunnel_key set  src_ip 192.168.1.7 dst_ip 192.168.1.8 id 40 dst_port 4789 nocsum pipe \
+#                         action mirred egress mirror dev vxlan1 pipe \
+#                         action tunnel_key set  src_ip 192.168.1.7  dst_ip 192.168.1.8 id 50 dst_port 4789 nocsum pipe \
+#                         action mirred egress redirect dev vxlan2
 }
 
 ######## uuu #######
