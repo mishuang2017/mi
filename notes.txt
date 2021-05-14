@@ -1730,8 +1730,11 @@ git push origin HEAD:refs/for/mlnx_ofed_4_9_3/fix-flow-indr-block-issue
 git push origin HEAD:refs/for/mlnx_ofed_5_4/sw_ignore_flow_level
 git push origin HEAD:refs/for/net-mlx5/fix-sample-memleak
 git push origin HEAD:refs/for/net-next-mlx5/sflow-decap-fix
+git push origin HEAD:refs/for/net-next-mlx5/sw_ignore_flow_level-upstream
 
 ===git===
+
+git cherry-pick --abort
 
 git commit --allow-empty -F ~/sflow/cover-letter/sample.txt
 

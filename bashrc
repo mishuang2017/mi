@@ -108,7 +108,7 @@ if (( host_num == 13 )); then
 
 	link_mac=b8:59:9f:bb:31:66
 	remote_mac=b8:59:9f:bb:31:82
-	machine_num=1
+	machine_num=2
 
 	if (( link_name == 2 )); then
 		for (( i = 0; i < numvfs; i++)); do
@@ -162,7 +162,7 @@ elif (( host_num == 14 )); then
 
 	link_mac=b8:59:9f:bb:31:82
 	remote_mac=b8:59:9f:bb:31:66
-	machine_num=2
+	machine_num=1
 
 	vf1=enp4s0f2
 	vf2=enp4s0f3
@@ -260,8 +260,8 @@ if (( cloud == 1 )); then
 	link_remote_ip=192.168.1.$rhost_num
 fi
 
-vni=100
-vni2=200
+vni=4
+vni2=5
 vid=5
 svid=1000
 vid2=6
@@ -370,6 +370,7 @@ vx2=vxlan2
 vx_tunnel=vxlan_tunnel
 bond=bond0
 macvlan=macvlan1
+gre=gre1
 
 # if [[ "$USER" == "root" ]]; then
 #	if [[ "$(virt-what)" == "" && $centos72 != 1 ]]; then
@@ -5414,6 +5415,23 @@ set -x
 set +x
 }
 
+function br_gre
+{
+set -x
+	del-br
+	ip1
+	vs add-br $br
+#   	for (( i = 0; i < numvfs; i++)); do
+	for (( i = 1; i < 2; i++)); do
+		local rep=$(get_rep $i)
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+	ovs-vsctl add-port $br $gre -- set interface $gre type=gre \
+		options:remote_ip=$link_remote_ip  options:key=$vni
+# 	sflow_create
+set +x
+}
+
 function br_remote_mirror
 {
 set -x
@@ -7638,6 +7656,24 @@ set -x
 set +x
 }
 
+function peer_gre
+{
+set -x
+	ip1
+	ip link del $gre > /dev/null 2>&1
+# 	ip link add name $vx type vxlan id $vni dev $link  remote $link_remote_ip dstport $vxlan_port
+	ip link add name $gre type gretap dev $link remote $link_remote_ip nocsum key $vni
+	ip addr add $link_ip_vxlan/16 brd + dev $gre
+	ip addr add $link_ipv6_vxlan/64 dev $gre
+	ip link set dev $gre up
+	ip link set $gre address $vxlan_mac
+
+#	ip link set vxlan0 up
+#	ip addr add 1.1.1.2/16 dev vxlan0
+#	ip addr add fc00:0:0:0::2/64 dev vxlan0
+set +x
+}
+
 function peer8
 {
 set -x
@@ -9674,8 +9710,8 @@ alias test-all='./test-all.py -e "test-all-dev.py" -e "*-ct-*" -e "*-ecmp-*" '
 alias test-tc='./test-all.py -g "test-tc-*" -e test-tc-hairpin-disable-sriov.sh -e test-tc-hairpin-rules.sh'
 alias test-tc='./test-all.py -g "test-tc-*"'
 
-export CONFIG=config_chrism_cx5.sh
 export CONFIG=/workspace/dev_reg_conf.sh
+export CONFIG=config_chrism_cx5.sh
 
 test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 test1=test-tc-vf-remote-mirror.sh
@@ -9683,6 +9719,7 @@ test1=test-ct-nic-tcp.sh
 test1=test-ovs-ct-vf-tunnel.sh
 test1=test-ovs-ct-vxlan-vf-lag.sh
 test1=test-tc-par-add-del-vxlan.sh
+test1=test-ovs-gre-in-ns.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
