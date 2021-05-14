@@ -13009,6 +13009,9 @@ set +x
 	if (( host_num == 5 )); then
 		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.141.18.6:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 	fi
+	if (( host_num == 7 )); then
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.235.253.8:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+	fi
 }
 
 function sflow_create_vxlan
