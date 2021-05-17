@@ -7,6 +7,7 @@
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
+#include <linux/ip.h>
 
 #define PORT	 8080 
 #define MAXLINE 1024 
@@ -17,12 +18,17 @@ int main() {
 	char buffer[MAXLINE]; 
 	char *hello = "Hello from server\0"; 
 	struct sockaddr_in servaddr, cliaddr; 
+	unsigned char  service_type = 0xe0 | IPTOS_LOWDELAY | IPTOS_RELIABILITY;
 
 	// Creating socket file descriptor 
 	if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { 
 		perror("socket creation failed"); 
 		exit(EXIT_FAILURE); 
 	} 
+
+	if (setsockopt(sockfd, SOL_IP/*IPPROTO_IP*/, IP_TOS,
+		       (void *)&service_type, sizeof(service_type)) < 0)
+		perror("setsockopt(IP_TOS) failed:");
 
 	memset(&servaddr, 0, sizeof(servaddr)); 
 	memset(&cliaddr, 0, sizeof(cliaddr)); 

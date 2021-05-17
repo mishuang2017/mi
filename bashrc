@@ -424,7 +424,7 @@ alias mac1="ip l show $link | grep ether; ip link set dev $link address $link_ma
 alias mac2="ip l show $link | grep ether; ip link set dev $link address $link_mac2; ip l show $link | grep ether"
 
 alias vxlan6="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ipv6  options:key=$vni options:dst_port=$vxlan_port"
-alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port"
+alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit"
 alias vxlan4000="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4000"
 alias vxlan4789="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4789"
 alias vxlan1-2="ovs-vsctl add-port $br2 $vx2 -- set interface $vx2 type=vxlan options:remote_ip=$link_remote_ip2  options:key=$vni options:dst_port=$vxlan_port"
