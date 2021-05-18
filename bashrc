@@ -5482,6 +5482,43 @@ set -x
 set +x
 }
 
+function br_stack_devices_ct
+{
+set -x
+	del-br
+	vs add-br $br
+	for (( i = 0; i < numvfs; i++)); do
+#	for (( i = 1; i < 2; i++)); do
+		local rep=$(get_rep $i)
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+	vs add-port $br $link
+
+	ip addr flush $link
+	ip addr flush $vf1
+	ip addr add dev $vf1 $link_ip/24
+	ip addr add $link_ipv6/64 dev $vf1
+	ip link set $vf1 up
+
+	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan \
+		options:remote_ip=$link_remote_ip \
+		options:key=$vni \
+		options:dst_port=$vxlan_port
+
+	ovs-ofctl del-flows $br
+	ovs-ofctl add-flow $br arp,actions=NORMAL 
+	ovs-ofctl add-flow $br icmp,actions=NORMAL 
+
+	ovs-ofctl add-flow $br "table=0,udp,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+est actions=normal"
+
+	ovs-ofctl add-flow $br "table=0,tcp,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+est actions=normal"
+set +x
+}
+
 function brx6
 {
 set -x

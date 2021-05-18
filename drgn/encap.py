@@ -22,7 +22,7 @@ from lib import *
 #         node = node.next
 
 mlx5e_rep_priv = get_mlx5e_rep_priv()
-addr = mlx6e_rep_priv.neigh_update.neigh_list.address_of_()
+addr = mlx5e_rep_priv.neigh_update.neigh_list.address_of_()
 for nhe in list_for_each_entry('struct mlx5e_neigh_hash_entry', addr, 'neigh_list'):
     print(nhe)
 #     print("mlx5e_neigh_hash_entry %lx" % nhe.value_())
