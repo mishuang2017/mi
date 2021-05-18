@@ -5457,7 +5457,7 @@ set -x
 set +x
 }
 
-function brx_stack_devices
+function br_stack_devices
 {
 set -x
 	del-br
