@@ -907,6 +907,7 @@ def get_pcpu_refcnt(dev):
     return count
 
 def print_vxlan_udphdr(x):
+    print("\n=== vxlan udp header start ===")
     print("dest mac          : %x:%x:%x:%x:%x:%x" % (x[0], x[1], x[2], x[3], x[4], x[5]))
     print("src mac           : %x:%x:%x:%x:%x:%x" % (x[6], x[7], x[8], x[9], x[10], x[11]))
     print("ethertype         : 0x%02x%02x" % (x[12], x[13]))
@@ -927,15 +928,17 @@ def print_vxlan_udphdr(x):
     print("vxlan(VNI present): %02x%02x%02x%02x" % (x[42], x[43], x[44], x[45]))
     print("vxlan(VNI)        : %d" % (x[46] << 16 | x[47] << 8 | x[48]))
     print("vxlan(reserved)   : %d" % (x[49]))
+    print("=== vxlan udp header end ===\n")
 
 def print_mlx5e_encap_entry(e):
 #     print(e)
-    print(e.encap_header)
+    print("out_dev: %s" % e.out_dev.name.string_().decode())
+    print("route_dev: %s" % e.route_dev.name.string_().decode())
+#     print(e.encap_header)
     x = Object(prog, 'unsigned char *', address=e.encap_header.address_of_())
     print_vxlan_udphdr(x)
     print("encap_size: %d" % e.encap_size)
 #     for i in range(e.encap_size):
 #         print("%#x " % e.encap_header[i])
     print("mlx5e_encap_entry %lx" % e.value_())
-    print(e.m_neigh)
     print_tun(e.tun_info)

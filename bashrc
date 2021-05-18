@@ -368,6 +368,7 @@ br2=br2
 vx=vxlan1
 vx2=vxlan2
 vx_tunnel=vxlan_tunnel
+gre_tunnel=gre_tunnel
 bond=bond0
 macvlan=macvlan1
 gre=gre1
@@ -5434,6 +5435,29 @@ set -x
 set +x
 }
 
+function br_remote_mirror_gre
+{
+set -x
+	del-br
+	vs add-br $br
+	for (( i = 0; i < numvfs; i++)); do
+		local rep=$(get_rep $i)
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port
+	ovs-vsctl add-port $br $gre_tunnel -- set interface $gre_tunnel type=gre options:remote_ip=$link_remote_ip  options:key=$vni2
+	if (( machine_num == 1 )); then
+		ovs-ofctl del-flows $br
+		ovs-ofctl add-flow $br priority=2,in_port=$vx,actions=output:$rep2
+		ovs-ofctl add-flow $br priority=3,in_port=$rep2,actions=output:$vx
+		ovs-vsctl -- --id=@p1 get port $gre_tunnel -- --id=@p2 get port $rep2 -- --id=@m create mirror name=m0 select-dst-port=@p2 output-port=@p1 -- set bridge $br mirrors=@m
+	fi
+	if (( machine_num == 2 )); then
+		ovs-ofctl add-flow $br in_port=$gre_tunnel,actions=output:$rep1
+	fi
+set +x
+}
+
 function br_remote_mirror
 {
 set -x
@@ -9762,6 +9786,7 @@ test1=test-ovs-ct-vxlan-vf-lag.sh
 test1=test-tc-par-add-del-vxlan.sh
 test1=test-ovs-gre-in-ns.sh
 test1=test-ct-nat-tcp.sh
+test1=test-tc-insert-rules-vxlan-vf-tunnel-with-mirror.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 
