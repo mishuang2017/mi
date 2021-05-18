@@ -18,7 +18,8 @@ print(dev.coredev_type)
 
 priv = dev.priv
 steering = priv.steering
-# print(steering)
+print("esw->dev->priv.steering->mode: ", end='')
+print(steering.mode)
 
 root_ns = steering.root_ns
 print(root_ns.mode)

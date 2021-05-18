@@ -9714,8 +9714,8 @@ alias test-all='./test-all.py -e "test-all-dev.py" -e "*-ct-*" -e "*-ecmp-*" '
 alias test-tc='./test-all.py -g "test-tc-*" -e test-tc-hairpin-disable-sriov.sh -e test-tc-hairpin-rules.sh'
 alias test-tc='./test-all.py -g "test-tc-*"'
 
-export CONFIG=/workspace/dev_reg_conf.sh
 export CONFIG=config_chrism_cx5.sh
+export CONFIG=/workspace/dev_reg_conf.sh
 
 test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 test1=test-tc-vf-remote-mirror.sh
@@ -9724,8 +9724,9 @@ test1=test-ovs-ct-vf-tunnel.sh
 test1=test-ovs-ct-vxlan-vf-lag.sh
 test1=test-tc-par-add-del-vxlan.sh
 test1=test-ovs-gre-in-ns.sh
+test1=test-ct-nat-tcp.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
-alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
+alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 
 alias vi-test="vi /images/cmi/asap_dev_reg/$test1"
 alias vi-test2="vi /workspace/asap_dev_test/$test1"

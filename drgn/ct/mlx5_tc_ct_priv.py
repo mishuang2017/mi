@@ -13,7 +13,7 @@ from lib_pedit import *
 mlx5e_rep_priv = get_mlx5e_rep_priv()
 ct_priv = mlx5e_rep_priv.uplink_priv.ct_priv
 tunnel_mapping = mlx5e_rep_priv.uplink_priv.tunnel_mapping
-labels_mapping = ct_priv.labels_mapping
+# labels_mapping = ct_priv.labels_mapping
 zone_mapping = ct_priv.zone_mapping
 
 print("=== mlx5e_rep_priv.uplink_priv.ct_priv.mod_hdr_tbl ===")
@@ -25,14 +25,13 @@ for i in range(256):
         print("\tmlx5e_mod_hdr_handle.refcnt: %d" % mh.refcnt.refs.counter)
         print_mod_hdr_key(mh.key)
 
-print('\n=== labels_mapping ===\n')
-ht = labels_mapping.ht
-print("mapping_ctx %lx" % labels_mapping)
-for i in range(256):
-    for item in hlist_for_each_entry('struct mapping_item', ht[i], 'node'):
-#         print(item)
-        ct_labels_id = Object(prog, 'u32 *', address=item.data.address_of_())
-        print("cnt: %d, id: %d, data: %d" % (item.cnt, item.id, ct_labels_id))
+# print('\n=== labels_mapping ===\n')
+# ht = labels_mapping.ht
+# print("mapping_ctx %lx" % labels_mapping)
+# for i in range(256):
+#     for item in hlist_for_each_entry('struct mapping_item', ht[i], 'node'):
+#         ct_labels_id = Object(prog, 'u32 *', address=item.data.address_of_())
+#         print("cnt: %d, id: %d, data: %d" % (item.cnt, item.id, ct_labels_id))
 
 print("=== mlx5e_rep_priv.uplink_priv.ct_priv.ct ===")
 # print("mlx5_flow_table %lx" % ct_priv.ct)
