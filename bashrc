@@ -13274,6 +13274,59 @@ function term_rule
 #                         action mirred egress redirect dev vxlan2
 }
 
+# test-tc-insert-rules-vxlan-vf-tunnel-with-mirror.sh
+function term2
+{
+	ip link del $vx > /dev/null 2>&1
+	ip link add name $vx type vxlan id $vni dev $link  remote $link_remote_ip dstport $vxlan_port
+	ip addr add $link_ip_vxlan/16 brd + dev $vx
+	ip addr add $link_ipv6_vxlan/64 dev $vx
+	ip link set dev $vx up
+	ip link set $vx address $vxlan_mac
+
+	tc-setup vxlan1
+	tc-setup enp8s0f0
+	tc-setup enp8s0f0_0
+
+set -x
+
+	ip addr flush dev $link
+	ip addr flush dev $vf1
+	# fail
+	if [[ $# == 0 ]]; then
+		ip addr add $link_ip/16 dev $vf1
+		ip neigh replace $link_remote_ip lladdr e4:11:22:11:55:55 dev $vf1
+		ifconfig $link up
+	# success
+	else
+		ip1
+	fi
+	ifconfig $vf1 up
+	ifconfig $link up
+
+	src_mac=02:25:d0:$host_num:01:01
+	dst_mac=02:25:d0:$host_num:01:02
+	/opt/mellanox/iproute2/sbin/tc filter add dev $rep1 protocol 0x806 parent ffff: prio 1 \
+                      flower \
+                          dst_mac $src_mac \
+                          src_mac $dst_mac \
+                      action mirred egress mirror dev $rep2 \
+                      action tunnel_key set \
+                          src_ip $link_ip \
+                          dst_ip $link_remote_ip \
+                          dst_port $vxlan_port \
+                          id $vni \
+                      action mirred egress redirect dev $vx
+
+	tcs $rep1
+
+# 	tc2
+# 	ip neigh del $link lladdr e4:11:22:11:55:55 dev $VF1
+# 	ip addr flush dev $VF1
+# 	ip link del $vx
+set +x
+}
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
