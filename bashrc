@@ -43,8 +43,8 @@ alias rc1='. ~cmi/.bashrc'
 [[ "$(hostname -s)" == "c-141-18-1-005" ]] && host_num=5
 [[ "$(hostname -s)" == "c-141-18-1-006" ]] && host_num=6
 
-[[ "$(hostname -s)" == "c-236-5-60-061" ]] && host_num=61
-[[ "$(hostname -s)" == "c-236-5-60-062" ]] && host_num=62
+[[ "$(hostname -s)" == "c-237-16-60-065" ]] && host_num=65
+[[ "$(hostname -s)" == "c-237-16-60-066" ]] && host_num=66
 
 [[ "$(hostname -s)" == "qa-h-vrt-074" ]] && host_num=74
 
@@ -217,10 +217,10 @@ elif (( host_num == 8 )); then
 	machine_num=2
 	rhost_num=7
 	cloud=1
-elif (( host_num == 61 )); then
+elif (( host_num == 65 )); then
 	machine_num=1
 	cloud=1
-elif (( host_num == 62 )); then
+elif (( host_num == 66 )); then
 	machine_num=1
 	cloud=1
 elif (( host_num == 18 )); then
