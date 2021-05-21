@@ -9787,6 +9787,7 @@ test1=test-tc-par-add-del-vxlan.sh
 test1=test-ovs-gre-in-ns.sh
 test1=test-ct-nat-tcp.sh
 test1=test-tc-insert-rules-vxlan-vf-tunnel-with-mirror.sh
+test1=test-ovs-vf-tunnel-route-change.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 
