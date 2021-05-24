@@ -164,9 +164,9 @@ elif (( host_num == 14 )); then
 	remote_mac=b8:59:9f:bb:31:66
 	machine_num=1
 
-	vf1=enp4s0f2
-	vf2=enp4s0f3
-	vf3=enp4s0f4
+# 	vf1=enp4s0f2
+# 	vf2=enp4s0f3
+# 	vf3=enp4s0f4
 
 	for (( i = 0; i < numvfs; i++)); do
 		eval vf$((i+1))=${link}v$i
@@ -231,6 +231,11 @@ elif (( host_num == 5 )); then
 	rhost_num=6
 	link_remote_ip=192.168.1.$rhost_num
 	cloud=1
+
+# 	vf1=enp8s0f2
+# 	vf2=enp8s0f3
+# 	vf3=enp8s0f4
+
 elif (( host_num == 6 )); then
 	machine_num=2
 	rhost_num=5
@@ -253,9 +258,6 @@ if (( cloud == 1 )); then
 		eval rep$((i+1))_2=${link2}_$i
 	done
 
-# 	vf1=enp8s0f2
-# 	vf2=enp8s0f3
-# 	vf3=enp8s0f4
 
 	link_remote_ip=192.168.1.$rhost_num
 fi
@@ -1236,10 +1238,10 @@ function cloud_setup2
 	git clone https://github.com/iovisor/bcc.git
 	install_bcc
 
-	sm
-	clone-iproute
-	cd iproute2
-	make-usr
+# 	sm
+# 	clone-iproute
+# 	cd iproute2
+# 	make-usr
 
 	sm
 	clone-asap
@@ -5495,6 +5497,7 @@ set -x
 
 	ip addr flush $link
 	ip addr flush $vf1
+	ip addr flush $vf3
 	ip addr add dev $vf1 $link_ip/24
 	ip addr add $link_ipv6/64 dev $vf1
 	ip link set $vf1 up
@@ -5503,6 +5506,28 @@ set -x
 		options:remote_ip=$link_remote_ip \
 		options:key=$vni \
 		options:dst_port=$vxlan_port
+set +x
+}
+
+function vf3_ip
+{
+set -x
+	ip addr flush $vf1
+	ip netns del n12
+	sleep 1
+	ip link set $vf3 up
+	ip addr add dev $vf3 $link_ip/24
+set +x
+}
+
+function vf1_ip
+{
+set -x
+	ip addr flush $vf3
+	ip netns del n12
+	sleep 1
+	ip link set $vf1 up
+	ip addr add dev $vf1 $link_ip/24
 set +x
 }
 
@@ -8859,8 +8884,9 @@ function get_vf_ns
 	ip netns exec $ns ls /sys/class/net | grep en
 }
 
-# vf1=$(get_vf $host_num 1 1)
-# vf2=$(get_vf $host_num 1 2)
+vf1=$(get_vf $host_num 1 1)
+vf2=$(get_vf $host_num 1 2)
+vf3=$(get_vf $host_num 1 3)
 
 # vf1_2=$(get_vf $host_num 2 1)
 # vf2_2=$(get_vf $host_num 2 2)
