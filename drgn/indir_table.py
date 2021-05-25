@@ -23,5 +23,9 @@ for i in range(256):
     node = table[i].first
     while node.value_():
         obj = container_of(node, "struct mlx5_esw_indir_table_entry", "hlist")
-        print(obj)
+#         print(obj)
+        vport = obj.vport
+        print(" ========= %d =========" % vport)
+        ft = obj.ft
+        flow_table("", ft)
         node = node.next

@@ -231,6 +231,7 @@ elif (( host_num == 5 )); then
 	rhost_num=6
 	link_remote_ip=192.168.1.$rhost_num
 	cloud=1
+	remote_mac=0c:42:a1:60:62:ac
 
 # 	vf1=enp8s0f2
 # 	vf2=enp8s0f3
@@ -4309,7 +4310,6 @@ set -x
 		action mirred egress redirect dev $redirect
 set +x
 }
-
 
 # outer v6, inner v4
 function tc_vxlan64
