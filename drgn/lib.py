@@ -933,7 +933,8 @@ def print_vxlan_udphdr(x):
 def print_mlx5e_encap_entry(e):
 #     print(e)
     print("out_dev: %s" % e.out_dev.name.string_().decode())
-    print("route_dev: %s" % e.route_dev.name.string_().decode())
+#     print("route_dev: %s" % e.route_dev.name.string_().decode())
+    print("route_dev_ifindex: %s" % e.route_dev_ifindex)
 #     print(e.encap_header)
     x = Object(prog, 'unsigned char *', address=e.encap_header.address_of_())
     print_vxlan_udphdr(x)
