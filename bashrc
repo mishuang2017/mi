@@ -9958,6 +9958,8 @@ function veth-flow
 }
 alias iperf1='iperf3 -c 1.1.1.34 --cport 6000 -B 1.1.1.122 -P 10'
 
+# /usr/share/bcc/tools/trace -T -I 'linux/icmp.h' '::icmp_echo(struct sk_buff*skb) "type=%d,code=%d,sq=%x,id=%x", (((struct icmphdr *)(skb->head+skb->transport_header))->type),(((struct icmphdr *)(skb->head+skb->transport_header))->code),(((struct icmphdr *)(skb->head+skb->transport_header))->un.echo.sequence),(((struct icmphdr *)(skb->head+skb->transport_header))->un.echo.id)'
+
 alias cd-trace='cd /sys/kernel/debug/tracing'
 function trace1
 {
