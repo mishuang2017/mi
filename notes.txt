@@ -1732,7 +1732,7 @@ git push origin HEAD:refs/for/net-mlx5/fix-sample-memleak
 git push origin HEAD:refs/for/net-next-mlx5/sflow-decap-fix
 git push origin HEAD:refs/for/net-next-mlx5/sw_ignore_flow_level-upstream
 
-git push origin HEAD:refs/for/mlnx_ofed_5_4/fix-ct-nat-memleak-again
+git push origin HEAD:refs/for/mlnx_ofed_5_4/ofed-5.5-update-metadata
 
 ===git===
 
