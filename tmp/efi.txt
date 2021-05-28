@@ -1,0 +1,10 @@
+[root@dev-r630-03 linux]# efibootmgr -v
+BootCurrent: 0007
+BootOrder: 0002,0000,0007,000C,0001,000A,000B
+Boot0000* centos        HD(1,GPT,4004c230-3cf3-4a82-be89-ec16eb03b8ee,0x800,0x200000)/File(\EFI\centos\grubx64.efi)
+Boot0001* EFI DVD/CDROM 1       PciRoot(0x0)/Pci(0x1f,0x2)/Sata(5,0,0)
+Boot0002* debian        HD(1,GPT,4004c230-3cf3-4a82-be89-ec16eb03b8ee,0x800,0x200000)/File(\EFI\debian\grubx64.efi)
+Boot0007* fedora_33     HD(5,GPT,96fffc1e-bf0b-4dd8-8f11-c947cafb9b1c,0x8c04800,0x200000)/File(\EFI\fedora\grubx64.efi)
+Boot000A* EFI Fixed Disk Boot Device 4  PciRoot(0x0)/Pci(0x1,0x0)/Pci(0x0,0x0)/Ctrl(0x0)/SCSI(0,0)/HD(10,GPT,355a9883-4efb-4a22-ac35-3a327f73d98d,0x2ea1a000,0x200000)
+Boot000B* Integrated NIC 1 Port 1 Partition 1   VenHw(3a191845-5f86-4e78-8fce-c4cff59f9daa)
+Boot000C* fedora_33_ofed        HD(8,GPT,db5e8aca-a3c5-44a9-a7c3-11f977c256b4,0x4dc5f800,0x200000)/File(\EFI\fedora\grubx64.efi)
