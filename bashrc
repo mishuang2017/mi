@@ -241,8 +241,14 @@ elif (( host_num == 6 )); then
 	machine_num=2
 	rhost_num=5
 	cloud=1
-elif (( host_num == 74 )); then
-	link=ens4f0
+elif (( host_num == 15 )); then
+	machine_num=1
+	rhost_num=16
+	cloud=1
+elif (( host_num == 16 )); then
+	machine_num=2
+	rhost_num=15
+	cloud=1
 fi
 
 if (( cloud == 1 )); then
