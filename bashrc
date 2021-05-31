@@ -6107,6 +6107,10 @@ function start_vm_all
 	done
 }
 
+# while in legacy mode, link state can be set
+# ip link set dev $link vf 0 state disable
+# commit 1d8faf48c74b8329a0322dc4b2a2030ae5003c86
+
 function set_mac
 {
 	local port=1
