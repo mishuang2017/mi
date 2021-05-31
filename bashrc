@@ -250,8 +250,8 @@ elif (( host_num == 16 )); then
 	rhost_num=15
 	cloud=1
 elif (( host_num == 41 )); then
-	machine_num=42
-	rhost_num=16
+	machine_num=1
+	rhost_num=42
 	cloud=1
 elif (( host_num == 42 )); then
 	machine_num=2
