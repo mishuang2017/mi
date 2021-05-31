@@ -36,15 +36,15 @@ alias rc1='. ~cmi/.bashrc'
 [[ "$(hostname -s)" == "c-235-253-1-008" ]] && host_num=8
 [[ "$(hostname -s)" == "c-235-251-1-009" ]] && host_num=9
 [[ "$(hostname -s)" == "c-235-251-1-010" ]] && host_num=10
-[[ "$(hostname -s)" == "c-236-147-240-241" ]] && host_num=41
-[[ "$(hostname -s)" == "c-236-147-240-242" ]] && host_num=42
+[[ "$(hostname -s)" == "c-237-153-140-141" ]] && host_num=41
+[[ "$(hostname -s)" == "c-237-153-140-142" ]] && host_num=42
 
 [[ "$(hostname -s)" == "c-237-153-220-225" ]] && host_num=25
 [[ "$(hostname -s)" == "c-141-18-1-005" ]] && host_num=5
 [[ "$(hostname -s)" == "c-141-18-1-006" ]] && host_num=6
 
-[[ "$(hostname -s)" == "c-237-16-60-065" ]] && host_num=65
-[[ "$(hostname -s)" == "c-237-16-60-066" ]] && host_num=66
+[[ "$(hostname -s)" == "c-237-224-1-005" ]] && host_num=15
+[[ "$(hostname -s)" == "c-237-224-1-006" ]] && host_num=16
 
 [[ "$(hostname -s)" == "qa-h-vrt-074" ]] && host_num=74
 
@@ -279,8 +279,8 @@ vxlan_port=4789
 vxlan_mac=24:25:d0:e1:00:00
 vxlan_mac2=24:25:d0:e2:00:00
 ecmp=0
-ports=2
 ports=1
+ports=2
 
 base_baud=115200
 base_baud=9600
