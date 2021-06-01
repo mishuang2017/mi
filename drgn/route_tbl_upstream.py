@@ -38,14 +38,17 @@ for i in range(256):
         print(obj)
         print("valid: %d" % obj.flags)
         print(ipv4(ntohl((obj.key.endpoint_ip.v4.value_()))))
-        head = obj.decap_flows.address_of_()
-        print("=== decap_flows ===")
-        for mlx5e_tc_flow in list_for_each_entry('struct mlx5e_tc_flow', head, 'decap_routes'):
-            print_mlx5e_tc_flow(mlx5e_tc_flow)
-        print("=== encap entries ===")
+
+        print("=== mlx5e_route_entry.encap_entries ===")
         head = obj.encap_entries.address_of_()
         for mlx5e_encap_entry in list_for_each_entry('struct mlx5e_encap_entry', head, 'route_list'):
 #             print(mlx5e_encap_entry)
             print_mlx5e_encap_entry(mlx5e_encap_entry)
+
+        print("=== mlx5e_route_entrys.decap_flows ===")
+        head = obj.decap_flows.address_of_()
+        for mlx5e_tc_flow in list_for_each_entry('struct mlx5e_tc_flow', head, 'decap_routes'):
+            print_mlx5e_tc_flow(mlx5e_tc_flow)
+
         node = node.next
         n = n + 1

@@ -5542,23 +5542,21 @@ set -x
 	vf3_mac=02:25:d0:$host_num:01:03
 
 	$TC filter add dev $rep1 prio 1 protocol ip   parent ffff: flower $offload src_mac $vf1_mac dst_mac $remote_mac action mirred egress redirect dev $link
-	$TC filter add dev $rep1 prio 2 protocol arp  parent ffff: flower $offload src_mac $vf1_mac dst_mac $remote_mac action mirred egress redirect dev $link
-	$TC filter add dev $rep1 prio 3 protocol arp  parent ffff: flower $offload src_mac $vf1_mac dst_mac $brd_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep1 prio 2 protocol arp  parent ffff: flower skip_hw src_mac $vf1_mac dst_mac $remote_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep1 prio 3 protocol arp  parent ffff: flower skip_hw src_mac $vf1_mac dst_mac $brd_mac action mirred egress redirect dev $link
 
 	$TC filter add dev $link prio 1 protocol ip   parent ffff: flower $offload src_mac $remote_mac dst_mac $vf1_mac action mirred egress redirect dev $rep1
-	$TC filter add dev $link prio 2 protocol arp  parent ffff: flower $offload src_mac $remote_mac dst_mac $vf1_mac action mirred egress redirect dev $rep1
-	$TC filter add dev $link prio 3 protocol arp  parent ffff: flower $offload src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep1
+	$TC filter add dev $link prio 2 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $vf1_mac action mirred egress redirect dev $rep1
+	$TC filter add dev $link prio 3 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep1
 
 
 	$TC filter add dev $rep3 prio 1 protocol ip   parent ffff: flower $offload src_mac $vf3_mac dst_mac $remote_mac action mirred egress redirect dev $link
-	$TC filter add dev $rep3 prio 2 protocol arp  parent ffff: flower $offload src_mac $vf3_mac dst_mac $remote_mac action mirred egress redirect dev $link
-	$TC filter add dev $rep3 prio 3 protocol arp  parent ffff: flower $offload src_mac $vf3_mac dst_mac $brd_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep3 prio 2 protocol arp  parent ffff: flower skip_hw src_mac $vf3_mac dst_mac $remote_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep3 prio 3 protocol arp  parent ffff: flower skip_hw src_mac $vf3_mac dst_mac $brd_mac action mirred egress redirect dev $link
 
 	$TC filter add dev $link prio 4 protocol ip   parent ffff: flower $offload src_mac $remote_mac dst_mac $vf3_mac action mirred egress redirect dev $rep3
-	$TC filter add dev $link prio 5 protocol arp  parent ffff: flower $offload src_mac $remote_mac dst_mac $vf3_mac action mirred egress redirect dev $rep3
-	$TC filter add dev $link prio 6 protocol arp  parent ffff: flower $offload src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
-
-
+	$TC filter add dev $link prio 5 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $vf3_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $link prio 6 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 
 	ip link del $vx > /dev/null 2>&1
 	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx

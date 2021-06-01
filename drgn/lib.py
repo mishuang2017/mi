@@ -908,8 +908,8 @@ def get_pcpu_refcnt(dev):
 
 def print_vxlan_udphdr(x):
     print("\n=== vxlan udp header start ===")
-    print("dest mac          : %x:%x:%x:%x:%x:%x" % (x[0], x[1], x[2], x[3], x[4], x[5]))
-    print("src mac           : %x:%x:%x:%x:%x:%x" % (x[6], x[7], x[8], x[9], x[10], x[11]))
+    print("dest mac          : %02x:%02x:%02x:%02x:%02x:%02x" % (x[0], x[1], x[2], x[3], x[4], x[5]))
+    print("src mac           : %02x:%02x:%02x:%02x:%02x:%02x" % (x[6], x[7], x[8], x[9], x[10], x[11]))
     print("ethertype         : 0x%02x%02x" % (x[12], x[13]))
     print("version|IHL       : 0x%02x" % (x[14]))
     print("DSCP|ECN          : 0x%02x" % (x[15]))
