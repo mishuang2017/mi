@@ -46,7 +46,9 @@ alias rc1='. ~cmi/.bashrc'
 [[ "$(hostname -s)" == "c-237-224-1-005" ]] && host_num=15
 [[ "$(hostname -s)" == "c-237-224-1-006" ]] && host_num=16
 
-[[ "$(hostname -s)" == "qa-h-vrt-074" ]] && host_num=74
+[[ "$(hostname -s)" == "c-237-224-1-005" ]] && host_num=15
+
+[[ "$(hostname -s)" == "c-237-153-120-123" ]] && host_num=23
 
 function get_vf
 {
@@ -256,6 +258,9 @@ elif (( host_num == 41 )); then
 elif (( host_num == 42 )); then
 	machine_num=2
 	rhost_num=41
+	cloud=1
+elif (( host_num == 23 )); then
+	machine_num=1
 	cloud=1
 fi
 
@@ -5498,6 +5503,97 @@ set -x
 set +x
 }
 
+function tc_stack_devices
+{
+set -x
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+	$TC qdisc del dev $rep1 ingress
+	$TC qdisc del dev $rep2 ingress
+	$TC qdisc del dev $rep3 ingress
+	$TC qdisc del dev $link ingress
+
+	ethtool -K $rep1 hw-tc-offload on
+	ethtool -K $rep2 hw-tc-offload on
+	ethtool -K $rep3 hw-tc-offload on
+	ethtool -K $link hw-tc-offload on
+
+	$TC qdisc add dev $rep1 ingress
+	$TC qdisc add dev $rep2 ingress
+	$TC qdisc add dev $rep3 ingress
+	$TC qdisc add dev $link ingress
+
+	TC=tc
+	TC=/images/cmi/iproute2/tc/tc
+
+	del-br
+
+	ip addr flush $link
+	ip addr flush $vf1
+	ip addr flush $vf3
+	ip addr add dev $vf1 $link_ip/24
+	ip addr add $link_ipv6/64 dev $vf1
+	ip link set $vf1 up
+
+	vf1_mac=02:25:d0:$host_num:01:01
+	vf2_mac=02:25:d0:$host_num:01:02
+
+	$TC filter add dev $rep1 prio 1 protocol ip   parent ffff: flower $offload src_mac $vf1_mac dst_mac $remote_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep1 prio 2 protocol arp  parent ffff: flower $offload src_mac $vf1_mac dst_mac $remote_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep1 prio 2 protocol arp  parent ffff: flower $offload src_mac $vf1_mac dst_mac $brd_mac action mirred egress redirect dev $link
+
+	$TC filter add dev $link prio 1 protocol ip   parent ffff: flower $offload src_mac $remote_mac dst_mac $vf1_mac action mirred egress redirect dev $rep1
+	$TC filter add dev $link prio 2 protocol arp  parent ffff: flower $offload src_mac $remote_mac dst_mac $vf1_mac action mirred egress redirect dev $rep1
+	$TC filter add dev $link prio 2 protocol arp  parent ffff: flower $offload src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep1
+
+	ip link del $vx > /dev/null 2>&1
+	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
+	ip link set $vx up
+	$TC qdisc add dev $vx ingress
+
+	local_vm_mac=$vf2_mac
+	remote_vm_mac=$vxlan_mac
+	$TC filter add dev $rep2 protocol ip  parent ffff: prio 1 flower $offload \
+		src_mac $local_vm_mac		\
+		dst_mac $remote_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $rep2 protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $local_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $vx protocol ip  parent ffff: prio 1 flower $offload	\
+		src_mac $remote_vm_mac		\
+		dst_mac $local_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $rep2
+	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $remote_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $rep2
+set +x
+}
+
 function br_stack_devices
 {
 set -x
@@ -9832,8 +9928,8 @@ test1=test-tc-par-add-del-vxlan.sh
 test1=test-ovs-gre-in-ns.sh
 test1=test-ct-nat-tcp.sh
 test1=test-tc-insert-rules-vxlan-vf-tunnel-with-mirror.sh
-test1=test-ovs-vf-tunnel-route-change.sh
 test1=test-ovs-vf-remote-mirror.sh
+test1=test-ovs-vf-tunnel-route-change.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 
@@ -9978,6 +10074,8 @@ function veth-flow
 alias iperf1='iperf3 -c 1.1.1.34 --cport 6000 -B 1.1.1.122 -P 10'
 
 # /usr/share/bcc/tools/trace -T -I 'linux/icmp.h' '::icmp_echo(struct sk_buff*skb) "type=%d,code=%d,sq=%x,id=%x", (((struct icmphdr *)(skb->head+skb->transport_header))->type),(((struct icmphdr *)(skb->head+skb->transport_header))->code),(((struct icmphdr *)(skb->head+skb->transport_header))->un.echo.sequence),(((struct icmphdr *)(skb->head+skb->transport_header))->un.echo.id)'
+# /usr/share/bcc/tools/trace -T '::mlx5e_tc_query_route_vport(struct net_device *out_dev, struct net_device *route_dev, u16 *vport) "name=%s", (((struct net_device*)route_dev)->name)'
+#  /usr/share/bcc/tools/trace -T '::mlx5e_tc_query_route_vport(struct net_device *out_dev, struct net_device *route_dev, u16 *vport) "out_dev=%s, route_dev=%s", (((struct net_device*)out_dev)->name),  (((struct net_device*)route_dev)->name) '
 
 alias cd-trace='cd /sys/kernel/debug/tracing'
 function trace1
