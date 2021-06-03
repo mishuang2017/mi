@@ -49,7 +49,10 @@ flow_table("ct_priv.post_ct", ct_priv.post_ct)
 fte_ids = ct_priv.fte_ids
 
 print("=== mlx5e_rep_priv.uplink_priv.ct_priv.fte_ids ===")
-for node in radix_tree_for_each(fte_ids.idr_rt):
+# idr
+# for node in radix_tree_for_each(fte_ids.idr_rt):
+# xarray
+for node in radix_tree_for_each(fte_ids):
     mlx5_ct_flow = Object(prog, 'struct mlx5_ct_flow', address=node[1].value_())
     print("mlx5_ct_flow %lx" % mlx5_ct_flow.address_of_())
     print("\tfte_id: %d" % mlx5_ct_flow.fte_id, end='\t')

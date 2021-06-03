@@ -4,7 +4,6 @@ if [ -f /etc/bashrc ]; then
 fi
 
 debian=0
-cloud=0
 username=cmi
 test -f /usr/bin/lsb_release && debian=1
 
@@ -21,34 +20,33 @@ alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
 alias rc1='. ~cmi/.bashrc'
 
-[[ "$(hostname -s)" == "dev-r630-03" ]] && host_num=13
-[[ "$(hostname -s)" == "dev-r630-04" ]] && host_num=14
 # [[ "$(hostname -s)" == "dev-chrism-vm1" ]] && host_num=15
 # [[ "$(hostname -s)" == "dev-chrism-vm2" ]] && host_num=16
 # [[ "$(hostname -s)" == "dev-chrism-vm3" ]] && host_num=17
 # [[ "$(hostname -s)" == "dev-chrism-vm4" ]] && host_num=18
 
-[[ "$(hostname -s)" == "c-236-0-180-183" ]] && host_num=83
-[[ "$(hostname -s)" == "c-236-0-180-184" ]] && host_num=84
+host_num=$(hostname | cut -d '-' -f 5 | sed 's/0*//')
+cloud=1
+[[ -z $host_num ]] && host_num=1
+if [[ "$(hostname -s)" == "dev-r630-03" ]]; then
+	host_num=13
+	cloud=0
+fi
+if [[ "$(hostname -s)" == "dev-r630-04" ]]; then
+	host_num=14
+	cloud=0
+fi
 
-[[ "$(hostname -s)" == "c-236-148-240-245" ]] && host_num=45
-[[ "$(hostname -s)" == "c-235-253-1-007" ]] && host_num=7
-[[ "$(hostname -s)" == "c-235-253-1-008" ]] && host_num=8
-[[ "$(hostname -s)" == "c-235-251-1-009" ]] && host_num=9
-[[ "$(hostname -s)" == "c-235-251-1-010" ]] && host_num=10
-[[ "$(hostname -s)" == "c-237-153-140-141" ]] && host_num=41
-[[ "$(hostname -s)" == "c-237-153-140-142" ]] && host_num=42
-
-[[ "$(hostname -s)" == "c-237-153-220-225" ]] && host_num=25
-[[ "$(hostname -s)" == "c-141-18-1-005" ]] && host_num=5
-[[ "$(hostname -s)" == "c-141-18-1-006" ]] && host_num=6
-
-[[ "$(hostname -s)" == "c-237-224-1-005" ]] && host_num=15
-[[ "$(hostname -s)" == "c-237-224-1-006" ]] && host_num=16
-
-[[ "$(hostname -s)" == "c-237-224-1-005" ]] && host_num=15
-
-[[ "$(hostname -s)" == "c-237-153-120-123" ]] && host_num=23
+if (( host_num % 2 == 0 )); then
+	rhost_num=$((host_num-1))
+	machine_num=2
+else
+	rhost_num=$((host_num+1))
+	machine_num=1
+fi
+# echo $host_num
+# echo $rhost_num
+# echo $machine_num
 
 function get_vf
 {
@@ -103,14 +101,12 @@ if (( host_num == 13 )); then
 	link=enp4s0f0
 	link2=enp4s0f1
 
-	rhost_num=14
 	link_remote_ip=192.168.1.$rhost_num
 	link_remote_ip2=192.168.2.$rhost_num
 	link_remote_ipv6=1::$rhost_num
 
 	link_mac=b8:59:9f:bb:31:66
 	remote_mac=b8:59:9f:bb:31:82
-	machine_num=2
 
 	if (( link_name == 2 )); then
 		for (( i = 0; i < numvfs; i++)); do
@@ -157,18 +153,12 @@ elif (( host_num == 14 )); then
  	link=enp4s0f0
  	link2=enp4s0f1
 
-	rhost_num=13
 	link_remote_ip=192.168.1.$rhost_num
 	link_remote_ip2=192.168.2.$rhost_num
 	link_remote_ipv6=1::$rhost_num
 
 	link_mac=b8:59:9f:bb:31:82
 	remote_mac=b8:59:9f:bb:31:66
-	machine_num=1
-
-# 	vf1=enp4s0f2
-# 	vf2=enp4s0f3
-# 	vf3=enp4s0f4
 
 	for (( i = 0; i < numvfs; i++)); do
 		eval vf$((i+1))=${link}v$i
@@ -197,71 +187,8 @@ elif (( host_num == 14 )); then
 		echo 5000000 > /proc/sys/net/netfilter/nf_conntrack_max
 	fi
 
-elif (( host_num == 83 )); then
-	machine_num=1
-	rhost_num=84
-	link_mac=0c:42:a1:d1:d0:e4
-	remote_mac=0c:42:a1:d1:d0:e0
-	cloud=1
-
-elif (( host_num == 84 )); then
-	machine_num=2
-	rhost_num=83
-	link_mac=0c:42:a1:d1:d0:e0
-	remote_mac=0c:42:a1:d1:d0:e4
-	cloud=1
-
-elif (( host_num == 7 )); then
-	machine_num=1
-	rhost_num=8
-	cloud=1
-elif (( host_num == 8 )); then
-	machine_num=2
-	rhost_num=7
-	cloud=1
-elif (( host_num == 65 )); then
-	machine_num=1
-	cloud=1
-elif (( host_num == 66 )); then
-	machine_num=1
-	cloud=1
-elif (( host_num == 18 )); then
-	machine_num=1
-	cloud=1
 elif (( host_num == 5 )); then
-	machine_num=1
-	rhost_num=6
-	link_remote_ip=192.168.1.$rhost_num
-	cloud=1
 	remote_mac=0c:42:a1:60:62:ac
-
-# 	vf1=enp8s0f2
-# 	vf2=enp8s0f3
-# 	vf3=enp8s0f4
-
-elif (( host_num == 6 )); then
-	machine_num=2
-	rhost_num=5
-	cloud=1
-elif (( host_num == 15 )); then
-	machine_num=1
-	rhost_num=16
-	cloud=1
-elif (( host_num == 16 )); then
-	machine_num=2
-	rhost_num=15
-	cloud=1
-elif (( host_num == 41 )); then
-	machine_num=1
-	rhost_num=42
-	cloud=1
-elif (( host_num == 42 )); then
-	machine_num=2
-	rhost_num=41
-	cloud=1
-elif (( host_num == 23 )); then
-	machine_num=1
-	cloud=1
 fi
 
 if (( cloud == 1 )); then
@@ -277,7 +204,6 @@ if (( cloud == 1 )); then
 		eval vf$((i+1))_2=$(get_vf $host_num 2 $((i+1)))
 		eval rep$((i+1))_2=${link2}_$i
 	done
-
 
 	link_remote_ip=192.168.1.$rhost_num
 fi
@@ -930,6 +856,7 @@ alias     vi_term="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_t
 alias      vi_esw="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch.h "
 alias  vi_mapping='vi drivers/net/ethernet/mellanox/mlx5/core/en/mapping.c drivers/net/ethernet/mellanox/mlx5/core/en/mapping.h '
 alias   vi_chains="vi drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.h "
+alias     vi_post="vi drivers/net/ethernet/mellanox/mlx5/core/lib/post_action.c drivers/net/ethernet/mellanox/mlx5/core/lib/post_action.h "
 alias    vi_en_tc="vi drivers/net/ethernet/mellanox/mlx5/core/en_tc.c "
 
 alias r12="vi /labhome/cmi/sflow/ofproto/0/r12/*"
@@ -9940,6 +9867,8 @@ test1=test-ct-nat-tcp.sh
 test1=test-tc-insert-rules-vxlan-vf-tunnel-with-mirror.sh
 test1=test-ovs-vf-remote-mirror.sh
 test1=test-ovs-vf-tunnel-route-change.sh
+test1=test-ct-nic-tcp.sh
+test1=test-ct-nic-tcp-vf-legacy.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 
