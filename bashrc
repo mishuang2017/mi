@@ -1167,7 +1167,7 @@ function cloud_setup
 
 function cloud_setup2
 {
-	if (( cloud == 1 )); then
+	if (( cloud == 1 && $# == 0 )); then
 		sm
 		cp /swgwork/cmi/linux.tar.gz .
 		tar zxf linux.tar.gz
@@ -8749,8 +8749,8 @@ fi
 alias restart-udev='sudo systemctl restart systemd-udevd.service'
 
 alias ofed-configure-memtrack='./configure --with-mlx5-core-and-en-mod --with-memtrack -j'
-alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack -j $cpu_num2"
 alias ofed-configure="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2"
+alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod -j $cpu_num2"
 
 alias ofed-configure-5.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.3 "
 alias ofed-configure-5.0="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.0 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.0 "
@@ -8759,6 +8759,7 @@ alias ofed-configure-5.9="./configure --with-mlx5-core-and-ib-and-en-mod --with-
 alias ofed-configure-4.14.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.14.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.14.3 "
 alias ofed-configure-693="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-693.el7.x86_64 "
 alias ofed-configure-4.12="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.12 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.12-rc6 "
+
 
 function ofed_configure
 {
