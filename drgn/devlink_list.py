@@ -10,10 +10,11 @@ import drgn
 
 libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
+from lib import *
 # import lib
 
 # prog = drgn.program_from_core_dump("/var/crash/vmcore.4")
-prog = drgn.program_from_kernel()
+# prog = drgn.program_from_kernel()
 devlink_list = prog['devlink_list']
 print("devlink_list %x" % devlink_list.address_of_())
 for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(), 'list'):
@@ -23,7 +24,64 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
 #     print(devlink)
 #     if pci_name != "0000:04:00.0":
 #         continue
-    print(pci_name)
+
+# devlink ffff91b683000000
+# devlink.dev.kobj.name: mlx5_core.sf.2
+#         auxiliary_device.name: sf
+#         auxiliary_device.id: 2
+# mlx5_sf_dev_probe
+# mlx5_sf_dev_remove
+# mlx5_sf_dev_shutdown
+# mlx5_core_dev ffff91b683000140
+#         port index: a0000
+# 
+# devlink ffff91b647200000
+# devlink.dev.kobj.name: mlx5_core.sf.3
+#         auxiliary_device.name: sf
+#         auxiliary_device.id: 3
+# mlx5_sf_dev_probe
+# mlx5_sf_dev_remove
+# mlx5_sf_dev_shutdown
+# mlx5_core_dev ffff91b647200140
+#         port index: b0000
+# 
+
+# [root@c-141-27-1-009 ~]# trace mlx5_sf_dev_remove -K
+# TIME     PID     TID     COMM            FUNC
+# 7.963407 200234  200234  kworker/u16:3   mlx5_sf_dev_remove
+#         mlx5_sf_dev_remove+0x1 [mlx5_core]
+#         auxiliary_bus_remove +0x1c [auxiliary]
+#         device_release_driver_internal +0xf1 [kernel]
+#         bus_remove_device+0xf4 [kernel]
+#         device_del+0x16f [kernel]
+#         mlx5_sf_dev_state_change_handler +0x268 [mlx5_core]
+#         notifier_call_chain+0x45 [kernel]
+#         blocking_notifier_call_chain+0x3e [kernel]
+#         mlx5_vhca_state_work_handler+0xc5 [mlx5_core]
+#         process_one_work+0x1a2 [kernel]
+#         worker_thread+0x30 [kernel]
+#         kthread+0x110 [kernel]
+#         ret_from_fork+0x1f [kernel]
+ 
+    print("devlink.dev.kobj.name: %s" % pci_name)
+    if pci_name.find("mlx5_core.sf") == 0:
+        auxiliary_device = container_of(devlink.dev, 'struct auxiliary_device', "dev")
+        print("\tauxiliary_device.name: %s" % auxiliary_device.name.string_().decode())
+        print("\tauxiliary_device.id: %d" % auxiliary_device.id)
+
+#         print(devlink.dev.driver)
+        auxiliary_driver = container_of(devlink.dev.driver, "struct auxiliary_driver", "driver")
+#         print(auxiliary_driver)
+
+        probe = auxiliary_driver.probe
+        print(address_to_name(hex(probe)))
+
+        remove = auxiliary_driver.remove
+        print(address_to_name(hex(remove)))
+
+        shutdown = auxiliary_driver.shutdown
+        print(address_to_name(hex(shutdown)))
+
 #     print(devlink._net)
 #     print(devlink.ops.reload_down)
 #     print(devlink.ops.reload_up)
