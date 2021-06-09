@@ -978,7 +978,7 @@ def print_mlx5e_tc_flow(flow):
     print("mlx5_flow_spec %lx" % parse_attr.spec.address_of_())
     print("action: %x" % flow_attr.action)
     print(esw_attr.sample)
-    print(esw_attr.rx_tun_attr)
+#     print(esw_attr.rx_tun_attr)
 #     if flow.flags.value_() & 1 << prog['MLX5E_TC_FLOW_FLAG_SAMPLE']:
 #         print(esw_attr)
 #         print("mlx5_esw_flow_attr %lx" % esw_attr.address_of_())

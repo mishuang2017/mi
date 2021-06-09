@@ -11,8 +11,8 @@ ofed_mlx5=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
 
 numvfs=17
-numvfs=1
 numvfs=3
+numvfs=2
 
 # alias virc="vi /images/cmi/mi/bashrc"
 # alias rc=". /images/cmi/mi/bashrc"
@@ -2255,6 +2255,7 @@ function make-all
 }
 alias m=make-all
 alias mm='sudo make modules_install -j; sudo make install; headers_install'
+alias mm='sudo make modules_install -j; sudo make install'
 
 function mi
 {
@@ -6418,6 +6419,63 @@ function start-switchdev
 	set_combined 4
 
 	return
+}
+
+function sf
+{
+	n=1
+        [[ $# == 1 ]] && n=$1
+
+	for (( i = 1; i <= n; i++ )); do
+		mlxdevm port add pci/$pci flavour pcisf pfnum 0 sfnum $i
+		mac=02:25:00:$host_num:01:$i
+		mlxdevm port function set pci/$pci/32768 hw_addr $mac state active
+	done
+}
+
+function sf_ns
+{
+	netns n11 eth2 1.1.1.1
+	netns n12 eth3 1.1.1.2
+}
+
+function sf2
+{
+	mlxdevm port del enp8s0f0npf0sf1
+	mlxdevm port del enp8s0f0npf0sf2
+}
+
+function tc_sf
+{
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+	TC=/images/cmi/iproute2/tc/tc
+	TC=tc
+
+	local rep2=enp8s0f0npf0sf1
+	local rep3=enp8s0f0npf0sf2
+	$TC qdisc del dev $rep2 ingress
+	$TC qdisc del dev $rep3 ingress
+
+	ethtool -K $rep2 hw-tc-offload on 
+	ethtool -K $rep3 hw-tc-offload on 
+
+	$TC qdisc add dev $rep2 ingress 
+	$TC qdisc add dev $rep3 ingress 
+
+	src_mac=02:25:00:$host_num:01:01
+	dst_mac=02:25:00:$host_num:01:02
+	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
+	src_mac=02:25:00:$host_num:01:02
+	dst_mac=02:25:00:$host_num:01:01
+	$TC filter add dev $rep3 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
+set +x
 }
 
 function init_vf_ns

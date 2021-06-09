@@ -62,6 +62,51 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
 #         worker_thread+0x30 [kernel]
 #         kthread+0x110 [kernel]
 #         ret_from_fork+0x1f [kernel]
+
+#
+# mlxdevm port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 88
+#
+# TIME     PID     TID     COMM            FUNC
+# 10.95109 484113  484113  mlxdevm         register_netdev
+#         register_netdev+0x1 [kernel]
+#         mlx5e_vport_rep_load +0x274 [mlx5_core]
+#         mlx5_esw_offloads_rep_load +0x66 [mlx5_core]
+#         mlx5_esw_offloads_sf_vport_enable +0x93 [mlx5_core]
+#         mlx5_devlink_sf_port_new +0x296 [mlx5_core]
+#         mlx5_devm_sf_port_new +0x76 [mlx5_core]
+#         mlxdevm_nl_cmd_port_new_doit+0x104 [mlxdevm]
+#         genl_family_rcv_msg+0x1cf [kernel]
+#         genl_rcv_msg+0x47 [kernel]
+#         netlink_rcv_skb+0x49 [kernel]
+#         genl_rcv+0x24 [kernel]
+#         netlink_unicast+0x198 [kernel]
+#         netlink_sendmsg+0x204 [kernel]
+#         sock_sendmsg+0x30 [kernel]
+#         __sys_sendto+0xee [kernel]
+#         __x64_sys_sendto+0x24 [kernel]
+#         do_syscall_64+0x55 [kernel]
+#         entry_SYSCALL_64_after_hwframe+0x65 [kernel]
+
+# [root@c-141-27-1-009 ~]# mlxdevm port del eth2
+# [root@c-141-27-1-009 ~]# trace unregister_netdev -K
+# TIME     PID     TID     COMM            FUNC
+# 6.294196 484430  484430  mlxdevm         unregister_netdev
+#         unregister_netdev+0x1 [kernel]
+#         mlx5e_vport_rep_unload+0x6d [mlx5_core]
+#         mlx5_esw_offloads_sf_vport_disable +0x14 [mlx5_core]
+#         mlx5_devlink_sf_port_del +0x68 [mlx5_core]
+#         mlxdevm_nl_cmd_port_del_doit+0x54 [mlxdevm]
+#         genl_family_rcv_msg+0x1cf [kernel]
+#         genl_rcv_msg+0x47 [kernel]
+#         netlink_rcv_skb+0x49 [kernel]
+#         genl_rcv+0x24 [kernel]
+#         netlink_unicast+0x198 [kernel]
+#         netlink_sendmsg+0x204 [kernel]
+#         sock_sendmsg+0x30 [kernel]
+#         __sys_sendto+0xee [kernel]
+#         __x64_sys_sendto+0x24 [kernel]
+#         do_syscall_64+0x55 [kernel]
+#         entry_SYSCALL_64_after_hwframe+0x65 [kernel]
  
     print("devlink.dev.kobj.name: %s" % pci_name)
     if pci_name.find("mlx5_core.sf") == 0:
