@@ -11,8 +11,8 @@ ofed_mlx5=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
 
 numvfs=17
-numvfs=3
 numvfs=2
+numvfs=3
 
 # alias virc="vi /images/cmi/mi/bashrc"
 # alias rc=". /images/cmi/mi/bashrc"
@@ -6426,11 +6426,15 @@ function sf
 	n=1
         [[ $# == 1 ]] && n=$1
 
+set -x
 	for (( i = 1; i <= n; i++ )); do
 		mlxdevm port add pci/$pci flavour pcisf pfnum 0 sfnum $i
 		mac=02:25:00:$host_num:01:$i
-		mlxdevm port function set pci/$pci/32768 hw_addr $mac state active
+		local start=32768
+		local num=$((start+i-1))
+		mlxdevm port function set pci/$pci/$num hw_addr $mac state active
 	done
+set +x
 }
 
 function sf_ns
@@ -6443,6 +6447,18 @@ function sf2
 {
 	mlxdevm port del enp8s0f0npf0sf1
 	mlxdevm port del enp8s0f0npf0sf2
+}
+
+function br_sf
+{
+	set -x;
+	del-br;
+	sudo ovs-vsctl add-br $br;
+	ifconfig enp8s0f0npf0sf1 up
+	ifconfig enp8s0f0npf0sf2 up
+	sudo ovs-vsctl add-port $br enp8s0f0npf0sf1
+	sudo ovs-vsctl add-port $br enp8s0f0npf0sf2
+	set +x
 }
 
 function tc_sf
