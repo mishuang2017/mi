@@ -199,6 +199,7 @@ if (( cloud == 1 )); then
 	for (( i = 0; i < numvfs; i++)); do
 		eval vf$((i+1))=$(get_vf $host_num 1 $((i+1)))
 		eval rep$((i+1))=${link}_$i
+		eval sf$((i+1))=${link}npf0sf$((i+1))
 	done
 	for (( i = 0; i < numvfs; i++)); do
 		eval vf$((i+1))_2=$(get_vf $host_num 2 $((i+1)))
@@ -6423,7 +6424,7 @@ function start-switchdev
 
 function sf
 {
-	n=1
+	n=2
         [[ $# == 1 ]] && n=$1
 
 set -x
@@ -6459,6 +6460,43 @@ function br_sf
 	sudo ovs-vsctl add-port $br enp8s0f0npf0sf1
 	sudo ovs-vsctl add-port $br enp8s0f0npf0sf2
 	set +x
+}
+
+function br_sf_vxlan_ct
+{
+	set -x;
+	SF1=$sf1
+	SF2=$sf2
+	del-br;
+	sudo ovs-vsctl add-br $br;
+	ifconfig $SF1 up
+	ifconfig $SF2 up
+	sudo ovs-vsctl add-port $br $SF1
+	sudo ovs-vsctl add-port $br $SF2
+	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port
+
+	ovs-ofctl del-flows $br
+	ovs-ofctl add-flow $br arp,actions=NORMAL 
+	ovs-ofctl add-flow $br icmp,actions=NORMAL 
+
+	ovs-ofctl add-flow $br "table=0,udp,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+est actions=normal"
+
+	ovs-ofctl add-flow $br "table=0,tcp,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+est actions=normal"
+
+	set +x
+}
+
+function sf_test
+{
+	restart
+	sf
+	sleep 1
+	sf_ns
+	br_sf_vxlan_ct
 }
 
 function tc_sf
@@ -7872,6 +7910,19 @@ set -x
 set +x
 }
 
+function peer
+{
+set -x
+	ip1
+	ip link del $vx > /dev/null 2>&1
+	ip link add name $vx type vxlan id $vni dev $link  remote $link_remote_ip dstport $vxlan_port
+#	ifconfig $vx $link_ip_vxlan/24 up
+	ip addr add $link_ip_vxlan/16 brd + dev $vx
+	ip addr add $link_ipv6_vxlan/64 dev $vx
+	ip link set dev $vx up
+	ip link set $vx address $vxlan_mac
+}
+
 function peer_gre
 {
 set -x
@@ -8028,7 +8079,8 @@ function pktgen1
 	sml
 	cd ./samples/pktgen
 	export SRC_MAC_COUNT=$mac_count
-	./pktgen_sample02_multiqueue.sh -i $link -s 1 -m 02:25:d0:$rhost_num:01:02 -d 1.1.1.22 -t 16 -n 0
+# 	./pktgen_sample02_multiqueue.sh -i $link -s 1 -m 02:25:d0:$rhost_num:01:02 -d 1.1.1.1 -t 16 -n 0
+	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:d0:$rhost_num:01:02 -d 1.1.1.1 -t 16 -n 0
 }
 
 function pktgen2
@@ -9637,7 +9689,7 @@ function addflow_tcp_port
 	bru
 	restart-ovs
 	max_ip=1
-	for(( src = 42300; src < 43400; src++)); do
+	for(( src = 50000; src < 65536; src++)); do
 		echo "table=0,priority=1,tcp,tp_src=$src,in_port=$rep2,action=output:$link"
 	done >> $file
 
