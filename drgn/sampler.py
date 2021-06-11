@@ -21,7 +21,6 @@ tunnel_mapping = mlx5e_rep_priv.uplink_priv.tunnel_mapping
 print('\n=== mlx5_esw_psample ===\n')
 print("mlx5_esw_psample %x" % sample_priv)
 # print(sample_priv)
-ct = 1
 
 # sys.exit(0)
 
@@ -125,8 +124,7 @@ for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
     print("action: %x" % flow_attr.action)
     if esw_attr.sample.value_() != 0:
         sample_flow = esw_attr.sample.sample_flow
-        if ct:
-            print(sample_flow.pre_attr)
+        print(sample_flow.pre_attr)
         print("mlx5_sample_flow %x" % sample_flow)
 #         print(sample_flow)
         print("sample_flow.restore.obj_id: 0x%x" % sample_flow.restore.obj_id)
