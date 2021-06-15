@@ -11,6 +11,7 @@ sys.path.append(libpath)
 from lib import *
 
 mlx5e_rep_priv = get_mlx5e_rep_priv()
+print(mlx5e_rep_priv)
 
 # if kernel("4.20.16+"):
 #     tc_ht = mlx5e_rep_priv.uplink_priv.tc_ht

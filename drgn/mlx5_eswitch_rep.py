@@ -24,8 +24,11 @@ print("esw mode: %d" % mlx5_eswitch.mode)
 print("total_vports: %d" % total_vports)
 print("enabled_vports: %d" % enabled_vports)
 
-vport_reps = mlx5e_priv.mdev.priv.eswitch.offloads.vport_reps
-for i in range(3):
-    print(vport_reps[i])
+# vport_reps = mlx5e_priv.mdev.priv.eswitch.offloads.vport_reps
+# for i in range(3):
+#     print(vport_reps[i])
+# print(vport_reps[total_vports - 1])
 
-print(vport_reps[total_vports - 1])
+for node in radix_tree_for_each(vports):
+    mlx5_eswitch_rep = Object(prog, 'struct mlx5_eswitch_rep', address=node[1].value_())
+    print(mlx5_eswitch_rep)

@@ -2271,6 +2271,7 @@ alias make-usr='./configure --prefix=/usr; make -j; sudo make install'
 
 function tc2
 {
+set -x
 	local l
 #	for link in p2p1 $rep1 $rep2 $vx_rep; do
 	for l in $link $rep1 $rep2 $rep3 bond0; do
@@ -2300,6 +2301,7 @@ function tc2
 	done
 
 	sudo modprobe -r act_ct
+set +x
 }
 
 function block
@@ -6475,17 +6477,17 @@ function br_sf_vxlan_ct
 	sudo ovs-vsctl add-port $br $SF2
 	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port
 
-	ovs-ofctl del-flows $br
-	ovs-ofctl add-flow $br arp,actions=NORMAL 
-	ovs-ofctl add-flow $br icmp,actions=NORMAL 
-
-	ovs-ofctl add-flow $br "table=0,udp,ct_state=-trk actions=ct(table=1)"
-	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+new actions=ct(commit),normal"
-	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+est actions=normal"
-
-	ovs-ofctl add-flow $br "table=0,tcp,ct_state=-trk actions=ct(table=1)"
-	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+new actions=ct(commit),normal"
-	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+est actions=normal"
+# 	ovs-ofctl del-flows $br
+# 	ovs-ofctl add-flow $br arp,actions=NORMAL 
+# 	ovs-ofctl add-flow $br icmp,actions=NORMAL 
+# 
+# 	ovs-ofctl add-flow $br "table=0,udp,ct_state=-trk actions=ct(table=1)"
+# 	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+new actions=ct(commit),normal"
+# 	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+est actions=normal"
+# 
+# 	ovs-ofctl add-flow $br "table=0,tcp,ct_state=-trk actions=ct(table=1)"
+# 	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+new actions=ct(commit),normal"
+# 	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+est actions=normal"
 
 	set +x
 }
@@ -8074,13 +8076,14 @@ function pktgen0
 
 function pktgen1
 {
-	mac_count=1
+	mac_count=50
 	[[ $# == 1 ]] && mac_count=$1
-	sml
+# 	sml
+	cd /swgwork/cmi/linux-4.18.0-240.el8/
 	cd ./samples/pktgen
 	export SRC_MAC_COUNT=$mac_count
 # 	./pktgen_sample02_multiqueue.sh -i $link -s 1 -m 02:25:d0:$rhost_num:01:02 -d 1.1.1.1 -t 16 -n 0
-	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:d0:$rhost_num:01:02 -d 1.1.1.1 -t 16 -n 0
+	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:00:09:01:02 -d 1.1.1.1 -t 1 -n 0
 }
 
 function pktgen2
