@@ -8076,6 +8076,7 @@ function pktgen0
 
 function pktgen1
 {
+	local num=$(printf "%02x" $rhost_num)
 	mac_count=50
 	[[ $# == 1 ]] && mac_count=$1
 # 	sml
@@ -8083,7 +8084,8 @@ function pktgen1
 	cd ./samples/pktgen
 	export SRC_MAC_COUNT=$mac_count
 # 	./pktgen_sample02_multiqueue.sh -i $link -s 1 -m 02:25:d0:$rhost_num:01:02 -d 1.1.1.1 -t 16 -n 0
-	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:00:09:01:02 -d 1.1.1.1 -t 1 -n 0
+# 	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:00:09:01:02 -d 1.1.1.1 -t 1 -n 0
+	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:d0:$num:01:02 -d 1.1.1.1 -t 1 -n 0
 }
 
 function pktgen2
