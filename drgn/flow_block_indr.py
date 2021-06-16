@@ -72,7 +72,7 @@ for flow_indr_dev in list_for_each_entry('struct flow_indr_dev', flow_block_indr
     print(flow_indr_dev)
     cb_priv = flow_indr_dev.cb_priv
     mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=cb_priv.value_())
-    print("flow_indr_dev.cb_priv:\nmlx5e_rep_priv %x" % cb_priv)
+    print("flow_indr_dev.cb_priv:\n\tmlx5e_rep_priv %x" % cb_priv)
 
 print("=== flow_block_indr_list ===")
 flow_block_indr_list = prog['flow_block_indr_list']
@@ -88,14 +88,16 @@ for flow_block_cb in list_for_each_entry('struct flow_block_cb', flow_block_indr
     print(flow_block_cb)
     i = i + 1
 
-print("=== mlx5e_rep_priv.uplink_priv.tc_indr_block_priv_list ===")
-tc_indr_block_priv_list = mlx5e_rep_priv.uplink_priv.tc_indr_block_priv_list
-for mlx5e_rep_indr_block_priv in list_for_each_entry('struct mlx5e_rep_indr_block_priv', tc_indr_block_priv_list.address_of_(), 'list'):
-    print(mlx5e_rep_indr_block_priv)
-    print(mlx5e_rep_indr_block_priv.netdev.name)
+if mlx5e_rep_priv.value_():
+    print("=== mlx5e_rep_priv.uplink_priv.tc_indr_block_priv_list ===")
+    tc_indr_block_priv_list = mlx5e_rep_priv.uplink_priv.tc_indr_block_priv_list
+    for mlx5e_rep_indr_block_priv in list_for_each_entry('struct mlx5e_rep_indr_block_priv', tc_indr_block_priv_list.address_of_(), 'list'):
+        print(mlx5e_rep_indr_block_priv)
+        print(mlx5e_rep_indr_block_priv.netdev.name)
 
-# mlx5e_block_cb_list = prog['mlx5e_block_cb_list']
-# print(mlx5e_block_cb_list)
-# for flow_block_cb in list_for_each_entry('struct flow_block_cb', mlx5e_block_cb_list.address_of_(), 'driver_list'):
-#     print(flow_block_cb)
-#     i = i + 1
+print("=== mlx5e_block_cb_list ===")
+mlx5e_block_cb_list = prog['mlx5e_block_cb_list']
+print(mlx5e_block_cb_list)
+for flow_block_cb in list_for_each_entry('struct flow_block_cb', mlx5e_block_cb_list.address_of_(), 'driver_list'):
+    print(flow_block_cb)
+    i = i + 1

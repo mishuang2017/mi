@@ -569,6 +569,7 @@ alias v5.4='git checkout v5.4; git checkout -b 5.4'
 alias v5.5='git checkout v5.5; git checkout -b 5.5'
 alias v5.9='git checkout v5.9; git checkout -b 5.9'
 alias v5.10='git checkout v5.10; git checkout -b 5.10'
+alias v5.12='git checkout v5.12; git checkout -b 5.12'
 alias v4.10='git checkout v4.10; git checkout -b 4.10'
 alias v4.8='git checkout v4.8; git checkout -b 4.8'
 alias v4.8-rc4='git checkout v4.8-rc4; git checkout -b 4.8-rc4'
@@ -8084,8 +8085,8 @@ function pktgen1
 	cd ./samples/pktgen
 	export SRC_MAC_COUNT=$mac_count
 # 	./pktgen_sample02_multiqueue.sh -i $link -s 1 -m 02:25:d0:$rhost_num:01:02 -d 1.1.1.1 -t 16 -n 0
-# 	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:00:09:01:02 -d 1.1.1.1 -t 1 -n 0
-	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:d0:$num:01:02 -d 1.1.1.1 -t 1 -n 0
+# 	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:d0:$num:01:02 -d 1.1.1.1 -t 1 -n 0		# vf
+	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:00:$num:01:02 -d 1.1.1.1 -t 1 -n 0		# sf
 }
 
 function pktgen2
