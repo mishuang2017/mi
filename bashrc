@@ -1737,7 +1737,7 @@ set -x;
 	cd $linux_dir;
 	make M=$driver_dir -j $cpu_num2 W=1 || {
 # 	make M=$driver_dir -j C=2 || {
-		make M=$driver_dir -j $cpu_num2 W=1 > /tmp/1.txt 2>& 1
+# 		make M=$driver_dir -j $cpu_num2 W=1 > /tmp/1.txt 2>& 1
 		set +x
 		return
 	}
@@ -2272,7 +2272,6 @@ alias make-usr='./configure --prefix=/usr; make -j; sudo make install'
 
 function tc2
 {
-set -x
 	local l
 #	for link in p2p1 $rep1 $rep2 $vx_rep; do
 	for l in $link $rep1 $rep2 $rep3 bond0; do
@@ -2302,7 +2301,6 @@ set -x
 	done
 
 	sudo modprobe -r act_ct
-set +x
 }
 
 function block
@@ -13028,19 +13026,23 @@ set -x
 
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
-	$TC filter add dev $rep2 ingress protocol ip  prio 2 flower $offload src_mac $src_mac dst_mac $dst_mac \
+	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
 		action sample rate $rate group 5 trunc 80 \
 		action mirred egress redirect dev $rep3
-	$TC filter add dev $rep2 ingress protocol arp prio 1 flower $offload \
-		action mirred egress redirect dev $rep3
+# 	$TC filter add dev $rep2 ingress protocol arp prio 2 flower $offload \
+# 		action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 
 	src_mac=02:25:d0:$host_num:01:03
 	dst_mac=02:25:d0:$host_num:01:02
-	$TC filter add dev $rep3 ingress protocol ip  prio 2 flower $offload src_mac $src_mac dst_mac $dst_mac \
+	$TC filter add dev $rep3 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
 		action sample rate $rate group 6 trunc 80 \
 		action mirred egress redirect dev $rep2
-	$TC filter add dev $rep3 ingress protocol arp prio 1 flower $offload \
-		action mirred egress redirect dev $rep2
+# 	$TC filter add dev $rep3 ingress protocol arp prio 2 flower $offload \
+# 		action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 set +x
 }
 
