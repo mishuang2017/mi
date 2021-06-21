@@ -1708,6 +1708,7 @@ git push origin HEAD:refs/for/master/sflow-ovs-new
 
 git push origin HEAD:refs/for/net-next-mlx5/sflow-ct
 git push origin HEAD:refs/for/net-next-mlx5/fix-u32-chain
+git push origin HEAD:refs/for/net-mlx5/fix-u32-chain
 git push origin HEAD:refs/for/net-next-mlx5/fix-get-devilnk-port
 
 git push origin HEAD:refs/for/master/test-ovs-tc-rules-checker.sh
@@ -1729,10 +1730,11 @@ git push origin HEAD:refs/for/mlnx_ofed_4_9_3/fix-flow-indr-block-issue
 
 git push origin HEAD:refs/for/mlnx_ofed_5_4/sw_ignore_flow_level
 git push origin HEAD:refs/for/net-mlx5/fix-sample-memleak
-git push origin HEAD:refs/for/net-next-mlx5/sflow-decap-fix
 git push origin HEAD:refs/for/net-next-mlx5/sw_ignore_flow_level-upstream
 
 git push origin HEAD:refs/for/mlnx_ofed_5_4/ofed-5.5-update-metadata
+
+git push origin HEAD:refs/for/net-next-mlx5/sflow-decap-fix
 
 ===git===
 
