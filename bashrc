@@ -858,7 +858,8 @@ alias     vi_term="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_t
 alias      vi_esw="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch.h "
 alias  vi_mapping='vi drivers/net/ethernet/mellanox/mlx5/core/en/mapping.c drivers/net/ethernet/mellanox/mlx5/core/en/mapping.h '
 alias   vi_chains="vi drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.h "
-alias     vi_post="vi drivers/net/ethernet/mellanox/mlx5/core/lib/post_action.c drivers/net/ethernet/mellanox/mlx5/core/lib/post_action.h "
+alias     vi_post="vi drivers/net/ethernet/mellanox/mlx5/core/en/post_action.c drivers/net/ethernet/mellanox/mlx5/core/en/post_action.h "
+alias    vi_post2="vi drivers/net/ethernet/mellanox/mlx5/core/lib/post_action.c drivers/net/ethernet/mellanox/mlx5/core/lib/post_action.h "
 alias    vi_en_tc="vi drivers/net/ethernet/mellanox/mlx5/core/en_tc.c "
 
 alias r12="vi /labhome/cmi/sflow/ofproto/0/r12/*"
