@@ -9985,8 +9985,11 @@ alias test-all='./test-all.py -e "test-all-dev.py" -e "*-ct-*" -e "*-ecmp-*" '
 alias test-tc='./test-all.py -g "test-tc-*" -e test-tc-hairpin-disable-sriov.sh -e test-tc-hairpin-rules.sh'
 alias test-tc='./test-all.py -g "test-tc-*"'
 
-export CONFIG=config_chrism_cx5.sh
-export CONFIG=/workspace/dev_reg_conf.sh
+if (( host_num == 13 || host_num == 14 )); then
+	export CONFIG=config_chrism_cx5.sh
+else
+	export CONFIG=/workspace/dev_reg_conf.sh
+fi
 
 test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
 test1=test-tc-vf-remote-mirror.sh
