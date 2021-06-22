@@ -1194,10 +1194,10 @@ function cloud_setup2
 # 	cd iproute2
 # 	make-usr
 
-	sm
-	clone-asap
-	cd asap_dev_reg/psample
-	make
+# 	sm
+# 	clone-asap
+# 	cd asap_dev_reg/psample
+# 	make
 
 	sm
 	clone-ovs
