@@ -37,6 +37,18 @@ if [[ "$(hostname -s)" == "dev-r630-04" ]]; then
 	cloud=0
 fi
 
+if [[ "$(hostname -s)" == "qa-h-vrt-029" ]]; then
+	host_num=29
+	link=enp139s0f0
+	cloud=0
+	link_name=1
+fi
+if [[ "$(hostname -s)" == "qa-h-vrt-030" ]]; then
+	host_num=30
+	cloud=0
+	link_name=1
+fi
+
 if (( host_num % 2 == 0 )); then
 	rhost_num=$((host_num-1))
 	machine_num=2
@@ -153,10 +165,6 @@ elif (( host_num == 14 )); then
  	link=enp4s0f0
  	link2=enp4s0f1
 
-	link_remote_ip=192.168.1.$rhost_num
-	link_remote_ip2=192.168.2.$rhost_num
-	link_remote_ipv6=1::$rhost_num
-
 	link_mac=b8:59:9f:bb:31:82
 	remote_mac=b8:59:9f:bb:31:66
 
@@ -172,13 +180,6 @@ elif (( host_num == 14 )); then
 		eval rep$((i+1))_2=${link2_pre}pf1vf$i
 	done
 
-	if (( link_name == 1 )); then
-		for (( i = 0; i < numvfs; i++)); do
-			eval vf$((i+1))=${link}v$i
-			eval rep$((i+1))=${link}_$i
-		done
-	fi
-
 # 	modprobe aer-inject
 
 	test -f /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
@@ -189,6 +190,17 @@ elif (( host_num == 14 )); then
 
 elif (( host_num == 5 )); then
 	remote_mac=0c:42:a1:60:62:ac
+fi
+
+link_remote_ip=192.168.1.$rhost_num
+link_remote_ip2=192.168.2.$rhost_num
+link_remote_ipv6=1::$rhost_num
+
+if (( link_name == 1 )); then
+	for (( i = 0; i < numvfs; i++)); do
+		eval vf$((i+1))=${link}v$i
+		eval rep$((i+1))=${link}_$i
+	done
 fi
 
 if (( cloud == 1 )); then
@@ -515,7 +527,7 @@ alias clone-ofed-4.7='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_ke
 alias clone-ofed-4.6='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_4_6_3'
 alias clone-asap='git clone ssh://l-gerrit.mtl.labs.mlnx:29418/asap_dev_reg; cp ~/config_chrism_cx5.sh asap_dev_reg'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
-alias clone-iproute='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/iproute2'
+alias clone-iproute='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/iproute2 --branch=mlnx_ofed_5_4'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
 alias clone-systemtap='git clone git://sourceware.org/git/systemtap.git'
 alias clone-systemd='git clone git@github.com:systemd/systemd.git'
@@ -4155,33 +4167,42 @@ set -x
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 
 	TC=tc
+	redirect=$rep2
 	ip1
 	ip link del $vx > /dev/null 2>&1
 	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
 	ip link set $vx up
-	$TC qdisc del dev $vx ingress > /dev/null 2>&1
-	$TC qdisc add dev $vx ingress
-	$TC qdisc show dev $vx
-set +x
-}
 
-function tc_vxlan2
-{
-set -x
-	offload=""
-	[[ "$1" == "hw" ]] && offload="skip_sw"
-	[[ "$1" == "sw" ]] && offload="skip_hw"
-
-	local vx=vxlan1
-	local vxlan_port=4000
-	TC=tc
-	ip1
-	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
-	ip link set $vx up
+	$TC qdisc del dev $link ingress > /dev/null 2>&1
+	$TC qdisc del dev $redirect ingress > /dev/null 2>&1
 	$TC qdisc del dev $vx ingress > /dev/null 2>&1
+
+	ethtool -K $link hw-tc-offload on
+	ethtool -K $redirect  hw-tc-offload on
+
+	$TC qdisc add dev $link ingress
+	$TC qdisc add dev $redirect ingress
 	$TC qdisc add dev $vx ingress
-	$TC qdisc show dev $vx
+#	$TC qdisc add dev $link clsact
+#	$TC qdisc add dev $redirect clsact
+#	$TC qdisc add dev $vx clsact
+
+	ip link set $link promisc on
+	ip link set $redirect promisc on
+	ip link set $vx promisc on
+
+	local_vm_mac=02:25:d0:$host_num:01:02
+	remote_vm_mac=$vxlan_mac
+
+	$TC filter add dev $vx protocol ip  parent ffff: prio 1 flower $offload	\
+		src_mac $remote_vm_mac		\
+		dst_mac $local_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $redirect
 set +x
 }
 
