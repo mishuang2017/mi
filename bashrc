@@ -1961,6 +1961,10 @@ set +x
 function unload
 {
 set -x
+	sudo modprobe -r mlx5_vdpa
+	sudo modprobe -r psample
+	sudo modprobe -r mlxfw
+
 	sudo modprobe -r mlx5_ib
 	sudo modprobe -r mlx5_core
 set +x
@@ -10411,19 +10415,16 @@ set -x
 	mac1=02:25:d0:$host_num:01:02
 	mac2=02:25:d0:$host_num:01:03
 	echo "add arp rules"
-# 	$TC filter add dev $rep2 ingress protocol arp prio 1 flower skip_hw \
-# 		action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 ingress protocol arp prio 1 flower skip_hw \
+		action mirred egress redirect dev $rep3
 
-# 	$TC filter add dev $rep3 ingress protocol arp prio 1 flower skip_hw \
-# 		action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 ingress protocol arp prio 1 flower skip_hw \
+		action mirred egress redirect dev $rep2
 
 	echo "add ct rules"
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac2 ct_state -trk \
 		action ct pipe action goto chain 1
-
-set +x
-	return
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \

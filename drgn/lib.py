@@ -672,11 +672,15 @@ def flow_table(name, table):
     group_addr = fs_node.children.address_of_()
 #     print(group_addr)
     for group in list_for_each_entry('struct fs_node', group_addr, 'list'):
-        print("mlx5_flow_group %lx" % group)
+        mlx5_flow_group = Object(prog, 'struct mlx5_flow_group', address=group.value_())
+#         print(mlx5_flow_group)
+        match_criteria_enable = mlx5_flow_group.mask.match_criteria_enable
+        mask = mlx5_flow_group.mask.match_criteria
+        print("mlx5_flow_group %lx, match_criteria_enable: 0x%x" % (group, match_criteria_enable))
         fte_addr = group.children.address_of_()
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
-            print_match(fs_fte)
+            print_match(fs_fte, mask)
             if fs_fte.action.action & 0x40:
                 print("modify_hdr id: %x" % fs_fte.action.modify_hdr.id)
             dest_addr = fte.children.address_of_()
@@ -691,7 +695,7 @@ def print_mac(mac):
         if i < 5:
             print(":", end='')
 
-def print_match(fte):
+def print_match(fte, mask):
     print("fs_fte %lx" % fte.address_of_().value_())
     val = fte.val
 #     print(val)
@@ -705,16 +709,32 @@ def print_match(fte):
     smac_47_16 <<= 16
     smac_15_0 >>= 16
     smac = smac_47_16 | smac_15_0
-    print(" s: ", end='')
-    print_mac(smac)
+
+    smac_47_16_mask = ntohl(mask[0].value_())
+    smac_15_0_mask = ntohl(mask[1].value_() & 0xffff)
+    smac_47_16_mask <<= 16
+    smac_15_0_mask >>= 16
+    smac_mask = smac_47_16_mask | smac_15_0_mask
+
+    if smac_mask:
+        print(" s: ", end='')
+        print_mac(smac)
 
     dmac_47_16 = ntohl(val[2].value_())
     dmac_15_0 = ntohl(val[3].value_() & 0xffff)
     dmac_47_16 <<= 16
     dmac_15_0 >>= 16
     dmac = dmac_47_16 | dmac_15_0
-    print(" d: ", end='')
-    print_mac(dmac)
+
+    dmac_47_16_mask = ntohl(mask[2].value_())
+    dmac_15_0_mask = ntohl(mask[3].value_() & 0xffff)
+    dmac_47_16_mask <<= 16
+    dmac_15_0_mask >>= 16
+    dmac_mask = dmac_47_16_mask | dmac_15_0_mask
+
+    if smac_mask:
+        print(" d: ", end='')
+        print_mac(dmac)
 
     ethertype = ntohl(val[1].value_() & 0xffff0000)
     if ethertype:
@@ -775,7 +795,8 @@ def print_match(fte):
         print(" source_sqn: %6x" % source_sqn, end='')
 
     source_port = ntohl(val[17].value_())
-    if source_port:
+    source_port_mask = ntohl(mask[17].value_())
+    if source_port_mask:
         print(" source_port: %6x" % source_port, end='')
 
     reg_c5 = ntohl(val[54].value_())
@@ -957,9 +978,9 @@ def print_mlx5e_tc_flow_flags():
     print("MLX5E_TC_FLOW_FLAG_TUN_RX         %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_TUN_RX'].value_()))
 
     print('')
-#     print("MLX5_MATCH_OUTER_HEADERS          %10x" % prog['MLX5_MATCH_OUTER_HEADERS'].value_())
-#     print("MLX5_MATCH_MISC_PARAMETERS        %10x" % prog['MLX5_MATCH_MISC_PARAMETERS'].value_())
-#     print("MLX5_MATCH_MISC_PARAMETERS_2      %10x" % prog['MLX5_MATCH_MISC_PARAMETERS_2'].value_())
+    print("MLX5_MATCH_OUTER_HEADERS          %10x" % prog['MLX5_MATCH_OUTER_HEADERS'].value_())
+    print("MLX5_MATCH_MISC_PARAMETERS        %10x" % prog['MLX5_MATCH_MISC_PARAMETERS'].value_())
+    print("MLX5_MATCH_MISC_PARAMETERS_2      %10x" % prog['MLX5_MATCH_MISC_PARAMETERS_2'].value_())
 
 def print_mlx5e_tc_flow(flow):
     name = flow.priv.netdev.name.string_().decode()
