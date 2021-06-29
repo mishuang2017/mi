@@ -696,7 +696,7 @@ def print_mac(mac):
             print(":", end='')
 
 def print_match(fte, mask):
-    print("fs_fte %lx" % fte.address_of_().value_())
+    print("fs_fte %lx\tflow_source: %x" % (fte.address_of_().value_(), fte.flow_context.flow_source))
     val = fte.val
 #     print(val)
 #     smac = str(ntohl(hex(val[0])))
