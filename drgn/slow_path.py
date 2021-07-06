@@ -21,7 +21,7 @@ mlx5_eswitch_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table
 slow_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.slow_fdb
 flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.slow_fdb", slow_fdb)
 
-sys.exit(0)
+# sys.exit(0)
 vport_to_tir = mlx5e_priv.mdev.priv.eswitch.offloads.ft_offloads
 flow_table("mlx5e_priv.mdev.priv.eswitch.offloads.ft_offloads", vport_to_tir)
 

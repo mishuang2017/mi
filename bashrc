@@ -879,14 +879,14 @@ alias r12="vi /labhome/cmi/sflow/ofproto/0/r12/*"
 alias vi_esw2="vi include/linux/mlx5/eswitch.h "
 
 alias vi_netdev-offload-tc="vi lib/netdev-offload-tc.c"
-alias vi-tc="vi lib/netdev-offload-tc.c"
-alias vi-dpdk="vi lib/netdev-offload-dpdk.c"
-alias vi_netdev-offload="vi lib/netdev-offload.c"
-alias vi_dpif-netlink="vi lib/dpif-netlink.c"
-alias vi_ovs_in='vi utilities/ovs-kmod-ctl.in'
+alias                vi-tc="vi lib/netdev-offload-tc.c"
+alias              vi-dpdk="vi lib/netdev-offload-dpdk.c"
+alias    vi_netdev-offload="vi lib/netdev-offload.c"
+alias      vi_dpif-netlink="vi lib/dpif-netlink.c"
+alias           vi_offload='vi lib/dpif-offload-provider.c lib/dpif-offload-provider.h lib/netdev-offload-tc.c'
+alias            vi_ovs_in='vi utilities/ovs-kmod-ctl.in'
 
 alias vi_errno='vi include/uapi/asm-generic/errno.h '
-
 alias vi_act_ct='vi net/sched/act_ct.c '
 
 
@@ -10425,6 +10425,9 @@ set -x
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac2 ct_state -trk \
 		action ct pipe action goto chain 1
+
+# set +x
+# 	return
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \

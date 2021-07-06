@@ -52,5 +52,5 @@ def print_mlx5_vport(priv):
 
 mlx5e_priv = lib.get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)
-# mlx5e_priv = lib.get_mlx5_pf1()
-# print_mlx5_vport(mlx5e_priv)
+mlx5e_priv = lib.get_mlx5_pf1()
+print_mlx5_vport(mlx5e_priv)
