@@ -128,7 +128,6 @@ for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
         print("mlx5_sample_flow %x" % sample_flow)
 #         print(sample_flow)
         print("sample_flow.restore.obj_id: 0x%x" % sample_flow.restore.obj_id)
-        print("sample_flow.restore.fte_id: 0x%x" % sample_flow.restore.fte_id)
 #         print(flow_attr)
 #     print("match_criteria_enable: %x" % flow.esw_attr[0].parse_attr.spec.match_criteria_enable)
 #     print(flow.esw_attr[0].parse_attr)

@@ -26,6 +26,7 @@ alias rc1='. ~cmi/.bashrc'
 # [[ "$(hostname -s)" == "dev-chrism-vm4" ]] && host_num=18
 
 host_num=$(hostname | cut -d '-' -f 5 | sed 's/0*//')
+host_num=$((host_num % 100))
 cloud=1
 [[ -z $host_num ]] && host_num=1
 if [[ "$(hostname -s)" == "dev-r630-03" ]]; then
@@ -883,7 +884,7 @@ alias                vi-tc="vi lib/netdev-offload-tc.c"
 alias              vi-dpdk="vi lib/netdev-offload-dpdk.c"
 alias    vi_netdev-offload="vi lib/netdev-offload.c"
 alias      vi_dpif-netlink="vi lib/dpif-netlink.c"
-alias           vi_offload='vi lib/dpif-offload-provider.c lib/dpif-offload-provider.h lib/netdev-offload-tc.c'
+alias           vi_offload='vi lib/dpif-offload-provider.h lib/dpif-offload.c lib/dpif-offload-netlink.c lib/netdev-offload-tc.c'
 alias            vi_ovs_in='vi utilities/ovs-kmod-ctl.in'
 
 alias vi_errno='vi include/uapi/asm-generic/errno.h '
@@ -7746,8 +7747,8 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-# 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v12" -o $patch_dir -$n
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v14" -o $patch_dir -$n
+# 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
 #
