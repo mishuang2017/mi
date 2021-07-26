@@ -736,8 +736,9 @@ def print_match(fte, mask):
         print(" d: ", end='')
         print_mac(dmac)
 
+    ethertype_mask = ntohl(mask[1].value_() & 0xffff0000)
     ethertype = ntohl(val[1].value_() & 0xffff0000)
-    if ethertype:
+    if ethertype_mask:
         print(" et: %x" % ethertype, end='')
 
 #     vport = ntohl(val[17].value_() & 0xffff0000)
@@ -758,9 +759,13 @@ def print_match(fte, mask):
     if tcp_flags:
         print(" tflags: %2x" % tcp_flags, end='')
 
-    ip_version = (val[4].value_() & 0xff0000) >> 17
+    ip_version = (val[4].value_() & 0x1f0000) >> 17
     if ip_version:
         print(" ipv: %-2x" % ip_version, end='')
+
+    cvlan = (val[4].value_() & 0xe00000) >> 23
+    if cvlan:
+        print(" cvlan: %-2x" % cvlan, end='')
 
     tcp_sport = ntohs(val[5].value_() & 0xffff)
     if tcp_sport:
@@ -832,8 +837,10 @@ def print_match(fte, mask):
         print(" d: ", end='')
         print_mac(dmac)
 
+        ethertype_mask = ntohl(mask[33].value_() & 0xffff0000)
         ethertype = ntohl(val[33].value_() & 0xffff0000)
-        print(" et: %x" % ethertype, end='')
+        if ethertype_mask:
+            print(" et: %x" % ethertype, end='')
 
         ip_protocol = val[36].value_() & 0xff
         if ip_protocol:

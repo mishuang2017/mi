@@ -21,3 +21,11 @@ print(int_vports)
 
 for port in list_for_each_entry('struct mlx5_esw_int_vport', int_vports.address_of_(), 'list'):
     print(port)
+
+# vport_metadata_ida = offloads.vport_metadata_ida
+# print(vport_metadata_ida)
+
+# for node in radix_tree_for_each(vport_metadata_ida.xa):
+#     print(node)
+#     port = Object(prog, 'u32', address=node[1].value_())
+#     print("port: %x" % port)
