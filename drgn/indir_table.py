@@ -22,8 +22,8 @@ table = indir.table
 for i in range(256):
     node = table[i].first
     while node.value_():
-#         obj = container_of(node, "struct mlx5_esw_indir_table_entry", "hlist")
-        obj = container_of(node, "struct esw_indir_tbl_entry", "hlist")
+        obj = container_of(node, "struct mlx5_esw_indir_table_entry", "hlist")
+#         obj = container_of(node, "struct esw_indir_tbl_entry", "hlist")
 #         print(obj)
         vport = obj.vport
         print(" ======== vport: %d =========" % vport)

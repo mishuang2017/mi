@@ -17,10 +17,14 @@ mlx5e_priv = get_mlx5_pf0()
 offloads = mlx5e_priv.mdev.priv.eswitch.offloads
 
 int_vports = offloads.int_vports
-print(int_vports)
+# print(int_vports)
 
 for port in list_for_each_entry('struct mlx5_esw_int_vport', int_vports.address_of_(), 'list'):
-    print(port)
+    print("int_vport %x" % port.value_(), end='\t')
+    print("ifindex: %d" % port.ifindex, end='\t')
+    print("mapping: %x" % port.mapping, end='\t')
+    print("match_metadata: %x" % port.match_metadata, end='\t')
+    print(port.type)
 
 # vport_metadata_ida = offloads.vport_metadata_ida
 # print(vport_metadata_ida)

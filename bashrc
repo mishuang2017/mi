@@ -10,8 +10,7 @@ test -f /usr/bin/lsb_release && debian=1
 ofed_mlx5=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
 
-numvfs=17
-numvfs=2
+numvfs=4
 numvfs=3
 
 # alias virc="vi /images/cmi/mi/bashrc"
@@ -633,6 +632,10 @@ alias t1="tcpdump -enn -v -i $link"
 alias t2="tcpdump -enn -vv -i $link"
 alias t4="tcpdump -enn -vvvv -i $link"
 alias ti='sudo tcpdump -enn -i'
+function ti1
+{
+	sudo tcpdump -enn -vvv -i $1 -c 100
+}
 alias mount-mswg='sudo mkdir -p /mswg; sudo mount 10.4.0.102:/vol/mswg/mswg /mswg/'
 alias mount-swgwork='sudo mkdir -p /swgwork; sudo mount l1:/vol/swgwork /swgwork'
 
@@ -8985,7 +8988,10 @@ function tcs
 	test -f /images/cmi/iproute2/tc/tc && TC=/images/cmi/iproute2/tc/tc
 	test -f /opt/mellanox/iproute2/sbin/tc && TC=/opt/mellanox/iproute2/sbin/tc
 	echo $TC
-	$TC -s filter show dev $1 root
+	echo "=== ingress ==="
+	$TC -s filter show dev $1 ingress
+	echo "=== egress ==="
+	$TC -s filter show dev $1 egress
 }
 
 function tcs0
