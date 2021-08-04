@@ -11,6 +11,7 @@ ofed_mlx5=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
 
 numvfs=4
+numvfs=16
 numvfs=3
 
 # alias virc="vi /images/cmi/mi/bashrc"
@@ -2854,6 +2855,19 @@ set -x
 	dst_mac=02:25:d0:$host_num:01:03
 	$TC filter add dev $redirect prio 1 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac	\
 		action mirred egress mirror dev $mirror \
+		action mirred egress mirror dev $rep4 \
+		action mirred egress mirror dev $rep5 \
+		action mirred egress mirror dev $rep6 \
+		action mirred egress mirror dev $rep7 \
+		action mirred egress mirror dev $rep8 \
+		action mirred egress mirror dev $rep9 \
+		action mirred egress mirror dev $rep10 \
+		action mirred egress mirror dev $rep11 \
+		action mirred egress mirror dev $rep12 \
+		action mirred egress mirror dev $rep13 \
+		action mirred egress mirror dev $rep14 \
+		action mirred egress mirror dev $rep15 \
+		action mirred egress mirror dev $rep16 \
 		action mirred egress redirect dev $dest
 	$TC filter add dev $redirect prio 2 protocol arp parent ffff: flower skip_hw src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $dest
 	$TC filter add dev $redirect prio 3 protocol arp parent ffff: flower skip_hw src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $dest
@@ -3547,6 +3561,19 @@ set -x
 		src_mac $local_vm_mac	\
 		dst_mac $remote_vm_mac	\
 		action mirred egress mirror dev $mirror	\
+		action mirred egress mirror dev $rep4	\
+		action mirred egress mirror dev $rep5	\
+		action mirred egress mirror dev $rep6	\
+		action mirred egress mirror dev $rep7	\
+		action mirred egress mirror dev $rep8	\
+		action mirred egress mirror dev $rep9	\
+		action mirred egress mirror dev $rep10	\
+		action mirred egress mirror dev $rep11	\
+		action mirred egress mirror dev $rep12	\
+		action mirred egress mirror dev $rep13	\
+		action mirred egress mirror dev $rep14	\
+		action mirred egress mirror dev $rep15	\
+		action mirred egress mirror dev $rep16	\
 		action tunnel_key set	\
 		src_ip $link_ip		\
 		dst_ip $link_remote_ip	\
@@ -3562,6 +3589,19 @@ set -x
 		enc_key_id $vni			\
 		action tunnel_key unset		\
 		action mirred egress mirror dev $mirror	\
+		action mirred egress mirror dev $rep4	\
+		action mirred egress mirror dev $rep5	\
+		action mirred egress mirror dev $rep6	\
+		action mirred egress mirror dev $rep7	\
+		action mirred egress mirror dev $rep8	\
+		action mirred egress mirror dev $rep9	\
+		action mirred egress mirror dev $rep10	\
+		action mirred egress mirror dev $rep11	\
+		action mirred egress mirror dev $rep12	\
+		action mirred egress mirror dev $rep13	\
+		action mirred egress mirror dev $rep14	\
+		action mirred egress mirror dev $rep15	\
+		action mirred egress mirror dev $rep16	\
 		action mirred egress redirect dev $redirect
 set +x
 }
@@ -8983,15 +9023,17 @@ function rebase
 
 function tcs
 {
-	[[ $# != 1 ]] && return
+	(( $# < 1 )) && return
 	TC=tc
 	test -f /images/cmi/iproute2/tc/tc && TC=/images/cmi/iproute2/tc/tc
 	test -f /opt/mellanox/iproute2/sbin/tc && TC=/opt/mellanox/iproute2/sbin/tc
 	echo $TC
 	echo "=== ingress ==="
 	$TC -s filter show dev $1 ingress
-	echo "=== egress ==="
-	$TC -s filter show dev $1 egress
+	if (( $# == 2 )); then
+		echo "=== egress ==="
+		$TC -s filter show dev $1 egress
+	fi
 }
 
 function tcs0
