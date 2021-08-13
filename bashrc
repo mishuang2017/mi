@@ -1171,7 +1171,7 @@ function cloud_setup
 	chown cmi.nvu /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-	yum install -y cscope tmux ctags rsync grubby iperf3 htop pciutils vim
+	yum install -y cscope tmux ctags rsync grubby iperf3 htop pciutils vim diffstat
 
 	if ! test -f ~/.tmux.conf; then
 		mv ~/.bashrc bashrc.orig
@@ -8983,11 +8983,11 @@ alias ofed-configure-5.11="./configure --with-mlx5-core-and-ib-and-en-mod --with
 alias ofed-configure-5.12="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.12 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.12 "
 alias ofed-configure-4.17="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.17-rc1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.17-rc1 "
 alias ofed-configure-4.14.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.14.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.14.3 "
-alias ofed-configure-693="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-693.el7.x86_64 "
-alias ofed-configure-862="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-862.el7.x86_64 "
-alias ofed-configure-957="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-957.el7.x86_64 "
-alias ofed-configure-1060="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-1060.el7 "
-alias ofed-configure-1127="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-1127.el7 "
+alias ofed-configure-693="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10.0-693 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-693.el7.x86_64 "
+alias ofed-configure-862="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10-862 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-862.el7.x86_64 "
+alias ofed-configure-957="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10-957 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-957.el7.x86_64 "
+alias ofed-configure-1060="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10-1060 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-1060.el7 "
+alias ofed-configure-1127="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 3.10-1127 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-1127.el7 "
 
 function ofed_configure
 {
