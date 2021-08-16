@@ -26,7 +26,7 @@ def get_kind(dev):
         kind = dev.rtnl_link_ops.kind.string_().decode()
         return kind
     return ""
-    
+
 
 for x, dev in enumerate(get_netdevs()):
 #     addr = 0xffff93e6b7e00000
@@ -47,6 +47,19 @@ for x, dev in enumerate(get_netdevs()):
     print("")
     vxlan_dev_addr = addr + prog.type('struct net_device').size
     vxlan_dev = Object(prog, 'struct vxlan_dev', address=vxlan_dev_addr)
-    print(vxlan_dev.cfg)
+#     print(vxlan_dev)
+#     print(vxlan_dev.cfg)
+    #
+    # ip link add name $vx type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
+    # vxlan_dev.cfg.remote_ifindex is the ifindex of $link
+    # if don't specify, it is 0
+    #
+    print("vxlan_dev.cfg.remote_ifindex: %d" % vxlan_dev.cfg.remote_ifindex)
 
+#     vxlan_rdst = vxlan_dev.default_dst
+#     print(vxlan_rdst)
 
+#     fdb_head = vxlan_dev.fdb_head
+#     for i in range(1<<8):
+#         for vxlan_fdb in hlist_for_each_entry('struct vxlan_fdb', fdb_head[i], 'hlist'):
+#             print(vxlan_fdb)

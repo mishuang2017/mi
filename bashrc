@@ -7969,30 +7969,14 @@ function peer
 set -x
 	ip1
 	ip link del $vx > /dev/null 2>&1
-	ip link add name $vx type vxlan id $vni dev $link  remote $link_remote_ip dstport $vxlan_port
+	ip link add name $vx type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
+# 	ip link add name $vx type vxlan id $vni remote $link_remote_ip dstport $vxlan_port
 #	ifconfig $vx $link_ip_vxlan/24 up
 	ip addr add $link_ip_vxlan/16 brd + dev $vx
 	ip addr add $link_ipv6_vxlan/64 dev $vx
 	ip link set dev $vx up
 	ip link set $vx address $vxlan_mac
-
-#	ip link set vxlan0 up
-#	ip addr add 1.1.1.2/16 dev vxlan0
-#	ip addr add fc00:0:0:0::2/64 dev vxlan0
 set +x
-}
-
-function peer
-{
-set -x
-	ip1
-	ip link del $vx > /dev/null 2>&1
-	ip link add name $vx type vxlan id $vni dev $link  remote $link_remote_ip dstport $vxlan_port
-#	ifconfig $vx $link_ip_vxlan/24 up
-	ip addr add $link_ip_vxlan/16 brd + dev $vx
-	ip addr add $link_ipv6_vxlan/64 dev $vx
-	ip link set dev $vx up
-	ip link set $vx address $vxlan_mac
 }
 
 function peer_gre

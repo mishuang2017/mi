@@ -1740,6 +1740,7 @@ git push origin HEAD:refs/for/net-next-mlx5/sflow-decap-fix
 
 git push origin HEAD:refs/for/mlnx_ofed_5_5/internal-port-fix
 git push origin HEAD:refs/for/mlnx_ofed_5_5_0_1_backports/cross-compilation
+git push origin HEAD:refs/for/mlnx_ofed_5_5_0_1_backports/cls_act
 
 git push origin HEAD:refs/for/master/dpif-offload-provider
 
