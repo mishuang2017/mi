@@ -46,7 +46,7 @@ flow_table("ct_priv.ct_nat", ct_priv.ct_nat)
 
 ###############################
 
-fte_ids = ct_priv.fte_ids
+# fte_ids = ct_priv.fte_ids
 
 print("=== mlx5e_rep_priv.uplink_priv.ct_priv.fte_ids ===")
 # idr
