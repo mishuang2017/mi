@@ -989,10 +989,26 @@ def print_mlx5e_tc_flow_flags():
     print("MLX5_MATCH_MISC_PARAMETERS        %10x" % prog['MLX5_MATCH_MISC_PARAMETERS'].value_())
     print("MLX5_MATCH_MISC_PARAMETERS_2      %10x" % prog['MLX5_MATCH_MISC_PARAMETERS_2'].value_())
 
+def print_mlx5e_tc_flow_parse_attr(parse_attr):
+    tun_info = parse_attr.tun_info[0]
+    if tun_info.value_():
+        print("parse_attr.tun_info[0]")
+        print_tun(tun_info)
+
+    filter_dev = parse_attr.filter_dev
+    print("filter_dev name: %s" % filter_dev.name.string_().decode())
+
+def print_mlx5_rx_tun_attr(tun_attr):
+    print(tun_attr)
+#     print("\tmlx5_rx_tun_attr: src_ip: %s, dst_ip: %s" % \
+#         (ipv4(ntohl(tun_attr.src_ip.v4)), ipv4(ntohl(tun_attr.dst_ip.v4))))
+
 def print_mlx5e_tc_flow(flow):
+    print("===============================")
     name = flow.priv.netdev.name.string_().decode()
 #     print(flow.rule[0])
     flow_attr = flow.attr
+#     print(flow_attr)
     esw_attr = flow_attr.esw_attr[0]
 #     print(esw_attr)
     parse_attr = flow_attr.parse_attr
@@ -1004,9 +1020,32 @@ def print_mlx5e_tc_flow(flow):
     print("dest_ft: %x" % flow_attr.dest_ft, end='\t')
     print("ct_state: %x/%x" % (parse_attr.spec.match_value[57] >> 8, parse_attr.spec.match_criteria[57] >> 8))
     print("mlx5_flow_spec %lx" % parse_attr.spec.address_of_())
-    print("action: %x" % flow_attr.action)
-    print(esw_attr.sample)
-#     print(esw_attr.rx_tun_attr)
+
+    MLX5_FLOW_CONTEXT_ACTION_DECAP = prog['MLX5_FLOW_CONTEXT_ACTION_DECAP']
+    MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT = prog['MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT']
+    print("action: %x" % flow_attr.action, end='\t')
+    if flow_attr.action & MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT:
+        print("MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT")
+    elif flow_attr.action & MLX5_FLOW_CONTEXT_ACTION_DECAP:
+        print("MLX5_FLOW_CONTEXT_ACTION_DECAP")
+    else:
+        print("")
+
+    print(flow_attr.sample_attr)
+
+    MLX5_ESW_DEST_ENCAP = prog['MLX5_ESW_DEST_ENCAP']
+    MLX5_ESW_DEST_ENCAP_VALID = prog['MLX5_ESW_DEST_ENCAP_VALID']
+    MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE = prog['MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE']
+    print("esw_attr.dests[0].flags: %x" % esw_attr.dests[0].flags)
+    if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP:
+        print(MLX5_ESW_DEST_ENCAP)
+    if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP_VALID:
+        print(MLX5_ESW_DEST_ENCAP_VALID)
+    if esw_attr.dests[0].flags & MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE:
+        print(MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE)
+
+    print_mlx5_rx_tun_attr(esw_attr.rx_tun_attr)
+
 #     if flow.flags.value_() & 1 << prog['MLX5E_TC_FLOW_FLAG_SAMPLE']:
 #         print(esw_attr)
 #         print("mlx5_esw_flow_attr %lx" % esw_attr.address_of_())
@@ -1017,11 +1056,9 @@ def print_mlx5e_tc_flow(flow):
 #     print(flow_attr.parse_attr)
 #     print(flow_attr.parse_attr.mod_hdr_acts)
     print("tunnel_id: %x" % flow.tunnel_id)
-    print("")
 
-    tun_info = parse_attr.tun_info[0]
-    if tun_info.value_():
-        print_tun(tun_info)
+    print_mlx5e_tc_flow_parse_attr(parse_attr)
+    print("")
 
     return
 #     print(flow.miniflow_list)

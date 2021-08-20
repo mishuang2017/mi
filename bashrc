@@ -866,6 +866,7 @@ alias vigdb='vi ~/.gdbinit'
 alias vi_update_skb='vi -t mlx5e_rep_tc_update_skb'
 alias  vi_psample="vi net/psample/psample.c include/net/psample.h"
 alias   vi_sample="vi drivers/net/ethernet/mellanox/mlx5/core/esw/sample.c drivers/net/ethernet/mellanox/mlx5/core/esw/sample.h "
+alias   vi_sample="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.c drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.h "
 alias       vi_ct="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h "
 alias      vi_cts="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c drivers/net/ethernet/mellanox/mlx5/core/esw/sample.c \
 	              drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h drivers/net/ethernet/mellanox/mlx5/core/esw/sample.h"
@@ -7574,7 +7575,7 @@ set +x
 alias checkpatch="./scripts/checkpatch.pl --strict --show-types -g HEAD"
 alias git_fixes="git log -1 --pretty=fixes"
 alias gf1="git format-patch -o ~/tmp -1"
-alias sample_cover_letter='git commit --allow-empty -F ~/sflow/cover-letter/sample.txt'
+alias sample_cover_letter='git commit --allow-empty -F ~/sflow/cover-letter/sflow_tunnel.txt'
 alias ovs_cover_letter='git commit --allow-empty -F /labhome/cmi/sflow/ovs/10/0000-cover-letter.patch'
 # to regenerate the change-id for cover letter
 # git commit --amend --allow-empty

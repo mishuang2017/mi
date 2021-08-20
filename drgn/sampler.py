@@ -14,12 +14,12 @@ from lib import *
 mlx5e_priv = get_mlx5_pf0()
 mlx5e_rep_priv = get_mlx5e_rep_priv()
 uplink_priv = mlx5e_rep_priv.uplink_priv
-sample_priv = uplink_priv.esw_psample
+sample_priv = uplink_priv.tc_psample
 
 tunnel_mapping = mlx5e_rep_priv.uplink_priv.tunnel_mapping
 
-print('\n=== mlx5_esw_psample ===\n')
-print("mlx5_esw_psample %x" % sample_priv)
+print('\n=== mlx5_tc_psample ===\n')
+print("mlx5_tc_psample %x" % sample_priv)
 # print(sample_priv)
 
 # sys.exit(0)
@@ -27,7 +27,7 @@ print("mlx5_esw_psample %x" % sample_priv)
 # struct mlx5_esw_offload
 offloads = mlx5e_priv.mdev.priv.eswitch.offloads
 
-def print_mlx5_sampler(handle):
+def print_mlx5e_sampler(handle):
     print("sampler_id: %d, sample_ratio: %d, sample_table_id: %x, default_table_id: %x, count: %d" % \
             (handle.sampler_id, handle.sample_ratio, handle.sample_table_id, handle.default_table_id, handle.count))
 
@@ -35,7 +35,7 @@ print('\n=== sampler_termtbl ===')
 
 # termtbl_list = prog['termtbl_list'].address_of_()
 # print(termtbl_list)
-# for handle in list_for_each_entry('struct mlx5_sampler_termtbl_handle', termtbl_list, 'list'):
+# for handle in list_for_each_entry('struct mlx5e_sampler_termtbl_handle', termtbl_list, 'list'):
 #     print(handle)
 
 # print(sample_priv.termtbl)
@@ -48,10 +48,10 @@ hashtbl = sample_priv.hashtbl
 for i in range(256):
     node = hashtbl[i].first
     while node.value_():
-        obj = container_of(node, "struct mlx5_sampler", "hlist")
-#         print("mlx5_sampler %lx" % obj.value_())
-        mlx5_sampler = Object(prog, 'struct mlx5_sampler', address=obj.value_())
-        print_mlx5_sampler(mlx5_sampler)
+        obj = container_of(node, "struct mlx5e_sampler", "hlist")
+#         print("mlx5e_sampler %lx" % obj.value_())
+        mlx5e_sampler = Object(prog, 'struct mlx5e_sampler', address=obj.value_())
+        print_mlx5e_sampler(mlx5e_sampler)
         node = node.next
 
 print('\n=== offloads.num_flows.counter ===\n')
@@ -63,11 +63,11 @@ restore_hashtbl = sample_priv.restore_hashtbl
 for i in range(256):
     node = restore_hashtbl[i].first
     while node.value_():
-        obj = container_of(node, "struct mlx5_sample_restore", "hlist")
-        print("mlx5_sample_restore %lx" % obj.value_())
-        mlx5_sample_restore = Object(prog, 'struct mlx5_sample_restore', address=obj.value_())
-        print("mlx5_sample_restore.obj_id: %d" % (mlx5_sample_restore.obj_id))
-        print(mlx5_sample_restore)
+        obj = container_of(node, "struct mlx5e_sample_restore", "hlist")
+        print("mlx5e_sample_restore %lx" % obj.value_())
+        mlx5e_sample_restore = Object(prog, 'struct mlx5e_sample_restore', address=obj.value_())
+        print("mlx5e_sample_restore.obj_id: %d" % (mlx5e_sample_restore.obj_id))
+        print(mlx5e_sample_restore)
         node = node.next
 
 
@@ -122,11 +122,11 @@ for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
     print("ct_state: %x/%x" % (parse_attr.spec.match_value[57] >> 8, parse_attr.spec.match_criteria[57] >> 8))
     print("mlx5_flow_spec %lx" % parse_attr.spec.address_of_())
     print("action: %x" % flow_attr.action)
-    if esw_attr.sample.value_() != 0:
-        sample_flow = esw_attr.sample.sample_flow
+    if flow_attr.sample_attr.value_() != 0:
+        sample_flow = flow_attr.sample_attr.sample_flow
         print(sample_flow.pre_attr)
         print("mlx5_sample_flow %x" % sample_flow)
-#         print(sample_flow)
+        print(sample_flow)
         print("sample_flow.restore.obj_id: 0x%x" % sample_flow.restore.obj_id)
 #         print(flow_attr)
 #     print("match_criteria_enable: %x" % flow.esw_attr[0].parse_attr.spec.match_criteria_enable)
@@ -151,7 +151,3 @@ print("mapping_ctx %lx" % tunnel_mapping)
 for i in range(256):
     for item in hlist_for_each_entry('struct mapping_item', ht[i], 'node'):
         print_tunnel_mapping(item)
-
-
-post_action = offloads.post_action
-flow_table("post_action", post_action.ft)

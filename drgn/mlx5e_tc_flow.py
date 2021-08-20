@@ -30,5 +30,5 @@ except LookupError as x:
 
 print_mlx5e_tc_flow_flags()
 for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
-    print(flow.attr.esw_attr[0])
+#     print(flow.attr.esw_attr[0])
     print_mlx5e_tc_flow(flow)

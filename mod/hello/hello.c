@@ -1,18 +1,15 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/rcu_node_tree.h>
-#include <net/ip6_fib.h>
+#include <net/flow_offload.h>
 
 MODULE_LICENSE("Dual BSD/GPL");
 
 static int hello_init(void)
 {
-	struct fib6_entry_notifier_info info;
-	struct fib6_info rt;
+	struct flow_action action;
 
-	info.rt = &rt;
-	info.rt->fib6_dst.plen = 0;
-
+	flow_offload_has_one_action(&action);
 	return 0;
 }
 
