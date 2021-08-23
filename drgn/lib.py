@@ -340,40 +340,6 @@ def get_mlx5e_rep_priv2(port):
     mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=priv.value_())
     return mlx5e_rep_priv
 
-def get_mlx5_ib_dev():
-    mlx5e_priv = get_mlx5_pf0()
-
-    # struct mlx5_esw_offload
-    offloads = mlx5e_priv.mdev.priv.eswitch.offloads
-
-    total_vports = mlx5e_priv.mdev.priv.eswitch.total_vports.value_()
-
-#     print("total_vports: %d" % total_vports)
-
-    # struct mlx5_eswitch_rep
-
-    if kernel("4.20.16+") or kernel("4.20.0-rc1+"):
-        mlx5_eswitch_rep = offloads.vport_reps[0]
-    else:
-        mlx5_eswitch_rep = offloads.vport_reps[total_vports - 1]
-
-#     print(mlx5_eswitch_rep)
-
-#     for i in range(total_vports):
-#         print("%lx" % offloads.vport_reps[i].address_of_())
-#     print("%lx" % vport.address_of_())
-
-    # struct mlx5_eswitch_rep_if
-    rep_if = mlx5_eswitch_rep.rep_if
-
-    # struct mlx5e_rep_priv
-    priv = rep_if[prog['REP_IB']].priv
-
-#     print("priv: %lx" % priv.value_())
-
-    mlx5_ib_dev = Object(prog, 'struct mlx5_ib_dev', address=priv.value_())
-    return mlx5_ib_dev
-
 def struct_exist(name):
     try:
         prog.type(name)

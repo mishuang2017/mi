@@ -20,3 +20,4 @@ for i in devs.keys():
     print(dev.coredev_type)
     print("mlx5_core_dev %lx" % dev.address_of_())
     print("")
+    print(dev.device)
