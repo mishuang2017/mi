@@ -20,3 +20,6 @@ for i in devs.keys():
     print(dev.coredev_type)
     print("mlx5_core_dev %lx" % dev.address_of_())
     print("")
+#     print(dev.device)
+    mlx5_ib_dev = Object(prog, 'struct mlx5_ib_dev', address=dev.device.driver_data)
+    print(mlx5_ib_dev.num_ports)

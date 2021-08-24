@@ -227,8 +227,8 @@ vni2=5
 vid=5
 svid=1000
 vid2=6
-vxlan_port=4000
 vxlan_port=4789
+vxlan_port=4000
 vxlan_mac=24:25:d0:e1:00:00
 vxlan_mac2=24:25:d0:e2:00:00
 ecmp=0
@@ -10095,6 +10095,7 @@ test1=test-ovs-vf-remote-mirror.sh
 test1=test-ovs-vf-tunnel-route-change.sh
 test1=test-ct-nic-tcp.sh
 test1=test-ovs-vxlan-over-vlan-int-port.sh
+test1=test-tc-insert-rules.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
