@@ -865,7 +865,7 @@ alias vigdb='vi ~/.gdbinit'
 
 alias vi_update_skb='vi -t mlx5e_rep_tc_update_skb'
 alias  vi_psample="vi net/psample/psample.c include/net/psample.h"
-alias   vi_sample="vi drivers/net/ethernet/mellanox/mlx5/core/esw/sample.c drivers/net/ethernet/mellanox/mlx5/core/esw/sample.h "
+alias  vi_sample2="vi drivers/net/ethernet/mellanox/mlx5/core/esw/sample.c drivers/net/ethernet/mellanox/mlx5/core/esw/sample.h "
 alias   vi_sample="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.c drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.h "
 alias       vi_ct="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h "
 alias      vi_cts="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c drivers/net/ethernet/mellanox/mlx5/core/esw/sample.c \
@@ -1331,6 +1331,7 @@ function off_all
 #	if (( ofed == 1)); then
 #		echo legacy > /sys/kernel/debug/mlx5/$pci/compat/mode 2 > /dev/null || echo "legacy"
 #	fi
+	modprobe -r bonding
 }
 
 alias off=off_all
@@ -11133,6 +11134,7 @@ function bond_cleanup
 	dev off
 	dev2 off
 	off
+	modprobe -r bonding
 }
 
 function bond_switchdev
@@ -11237,13 +11239,11 @@ function bond_setup
 	bond_create
 
 	ifconfig bond0 0
-	bi
-	sleep 1
-	bi2
-	sleep 1
-	set_netns_all 1
+# 	bi
+# 	bi2
+# 	set_netns_all 1
 
-	bond_br
+# 	bond_br
 }
 
 alias cd-scapy="cd /labhome/cmi/prg/python/scapy"
