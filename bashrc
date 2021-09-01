@@ -1163,13 +1163,13 @@ function create-images
 {
 	mkdir -p /images/cmi
 	ln -s cmi/mi /images/cmi/mi
-	chown -R cmi.nvu /images/cmi
+	chown -R cmi.mtl /images/cmi
 }
 
 function cloud_setup
 {
 	mkdir -p /images/cmi
-	chown cmi.nvu /images/cmi
+	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
 	yum install -y cscope tmux ctags rsync grubby iperf3 htop pciutils vim diffstat
