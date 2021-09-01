@@ -25,7 +25,17 @@ print(steering.mode)
 root_ns = steering.fdb_root_ns.ns
 mlx5_flow_root_namespace = Object(prog, 'struct mlx5_flow_root_namespace', address=root_ns.address_of_())
 # print(root_ns)
-print(mlx5_flow_root_namespace)
 fs_dr_domain = mlx5_flow_root_namespace.fs_dr_domain
 # print(fs_dr_domain.dr_domain.refcount)
 print(fs_dr_domain.dr_domain.type)
+
+# print(fs_dr_domain)
+
+mlx5dr_domain = fs_dr_domain.dr_domain
+# print(mlx5dr_domain)
+
+mlx5dr_icm_pool = mlx5dr_domain.ste_icm_pool
+# print(mlx5dr_icm_pool)
+
+mlx5dr_ste_ctx = mlx5dr_domain.ste_ctx
+print(mlx5dr_ste_ctx)

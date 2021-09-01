@@ -618,7 +618,10 @@ def flow_table2(name, table):
                 rule = Object(prog, 'struct mlx5_flow_rule', address=dest.value_())
                 print_dest(rule)
 
-
+def print_mlx5_flow_group_dr(group):
+    mlx5_fs_dr_matcher =  group.fs_dr_matcher
+    print("========================== mlx5_fs_dr_matcher ========================")
+    print(mlx5_fs_dr_matcher.dr_matcher)
 
 def flow_table(name, table):
     print("\nflow table name: %s\nflow table id: %x table_level: %x, \
@@ -640,6 +643,7 @@ def flow_table(name, table):
     for group in list_for_each_entry('struct fs_node', group_addr, 'list'):
         mlx5_flow_group = Object(prog, 'struct mlx5_flow_group', address=group.value_())
 #         print(mlx5_flow_group)
+#         print_mlx5_flow_group_dr(mlx5_flow_group)
         match_criteria_enable = mlx5_flow_group.mask.match_criteria_enable
         mask = mlx5_flow_group.mask.match_criteria
         print("mlx5_flow_group %lx, match_criteria_enable: 0x%x" % (group, match_criteria_enable))
@@ -661,7 +665,24 @@ def print_mac(mac):
         if i < 5:
             print(":", end='')
 
+def print_fs_dr_rule(fte):
+    print(fte.fs_dr_rule)
+    dr_rule = fte.fs_dr_rule.dr_rule
+    print(dr_rule)
+    print(dr_rule.matcher)
+#     print(dr_rule.tx.nic_matcher.s_htbl.ste_arr)
+#     print(dr_rule.rx.nic_matcher.s_htbl.ste_arr)
+
+#     rule_actions_list = fte.fs_dr_rule.dr_rule.rule_actions_list
+#     print(rule_actions_list)
+#     for mlx5dr_rule_action_member in list_for_each_entry('struct mlx5dr_rule_action_member', rule_actions_list.address_of_(), 'list'):
+#         print(mlx5dr_rule_action_member.action)
+
+#     print(fte.fs_dr_rule.dr_actions[0])
+#     print(fte.fs_dr_rule.dr_actions[1])
+
 def print_match(fte, mask):
+#     print_fs_dr_rule(fte)
     print("fs_fte %lx\tflow_source: %x" % (fte.address_of_().value_(), fte.flow_context.flow_source))
     val = fte.val
 #     print(val)
