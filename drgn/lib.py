@@ -719,7 +719,7 @@ def print_match(fte, mask):
     dmac_15_0_mask >>= 16
     dmac_mask = dmac_47_16_mask | dmac_15_0_mask
 
-    if smac_mask:
+    if dmac_mask:
         print(" d: ", end='')
         print_mac(dmac)
 
