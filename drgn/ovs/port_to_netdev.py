@@ -18,8 +18,8 @@ for i, port in enumerate(port_to_netdev_datas):
     print("ifindex: %d, name: %15s, type: %10s, port_no: %d" % \
         (port.ifindex, port.dpif_port.name.string_().decode(), \
         port.dpif_port.type.string_().decode(), port.dpif_port.port_no))
-    print(port.netdev)
-    print_seq(port.netdev.reconfigure_seq)
+#     print(port.netdev)
+#     print_seq(port.netdev.reconfigure_seq)
 
 # connectivity_seq = prog['connectivity_seq']
 # print_seq(connectivity_seq)

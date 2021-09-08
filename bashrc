@@ -10182,6 +10182,19 @@ function veths
 	done
 }
 
+function br_veths
+{
+	del-br
+	restart-ovs
+	veths_delete 2
+	veths 2
+	vs add-br $br
+	for (( i = 1; i <= 2; i++)); do
+		local rep=veth_rep$i
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+}
+
 function veths_delete
 {
 	local n=1
@@ -13370,6 +13383,18 @@ function sflow_list
 	ovs-vsctl list sflow
 }
 
+function sflow_create_lo
+{
+	local rate=1
+
+	[[ $# == 1 ]] && rate=$1
+
+	local header=60
+	local polling=1000
+# 	ovs-vsctl -- --id=@sflow create sflow agent=lo target=\"127.0.0.1:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+	ovs-vsctl -- --id=@sflow create sflow agent=lo target=\"127.0.0.1\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+}
+
 function sflow_create
 {
 	local rate=1
@@ -13378,6 +13403,7 @@ function sflow_create
 
 	local header=60
 	local polling=1000
+
 	if (( host_num == 13 )); then
 		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.75.205.14:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 	fi
@@ -13389,6 +13415,9 @@ set +x
 	fi
 	if (( host_num == 9 )); then
 		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.141.46.10:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+	fi
+	if (( host_num == 10 )); then
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.141.46.9:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
 	fi
 }
 
