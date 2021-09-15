@@ -16,8 +16,8 @@ from lib_ovs import *
 ufid_to_tc = prog['ufid_to_tc']
 # print(ufid_to_tc)
 
-next_group_id = prog['next_group_id']
-print("next_group_id: %d" % next_group_id)
+# next_group_id = prog['next_group_id']
+# print("next_group_id: %d" % next_group_id)
 
 def print_ufid_tc_data(data):
     print("name: %s" % data.netdev.name.string_().decode(), end='\t')

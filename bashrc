@@ -2057,6 +2057,9 @@ set +x
 function my_start_ovs
 {
 set -x
+	mkdir -p /usr/local/etc/openvswitch
+	ovsdb-tool create /usr/local/etc/openvswitch/conf.db vswitchd/vswitch.ovsschema 
+
 	ovsdb-tool create /usr/local/etc/openvswitch/conf.db \
 	    vswitchd/vswitch.ovsschema
 	ovsdb-server --remote=punix:/usr/local/var/run/openvswitch/db.sock \
@@ -8968,6 +8971,7 @@ alias ofed-configure-5.9="./configure --with-mlx5-core-and-ib-and-en-mod --with-
 alias ofed-configure-5.10="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.10-rc2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.10-rc2 "
 alias ofed-configure-5.11="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.11 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.11 "
 alias ofed-configure-5.12="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.12 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.12 "
+alias ofed-configure-5.14="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.14 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.14 "
 alias ofed-configure-4.17="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.17-rc1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.17-rc1 "
 alias ofed-configure-4.14.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.14.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.14.3 "
 alias ofed-configure-693="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod --with-memtrack -j $cpu_num2 --kernel-version linux-3.10.0-693.el7.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-693.el7.x86_64 "
@@ -9083,6 +9087,7 @@ set -x
 	sudo ovs-appctl vlog/set ofproto_dpif_upcall:file:DBG
 
 	sudo ovs-appctl vlog/set dpif_netdev:file:DBG
+	sudo ovs-appctl vlog/set dpif_offload_netlink:file:DBG
 set +x
 }
 
@@ -10193,6 +10198,11 @@ function br_veths
 		local rep=veth_rep$i
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
+	sflow_create_lo
+	ovs-ofctl del-flows $br
+	ovs-ofctl add-flow $br "ipv6,action=drop"
+	ovs-ofctl add-flow $br "arp,action=normal"
+	ovs-ofctl add-flow $br "ip,action=normal"
 }
 
 function veths_delete

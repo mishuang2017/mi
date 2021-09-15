@@ -22,6 +22,7 @@ def ovs_pid():
     return int(output)
 
 prog = drgn.program_from_pid(ovs_pid())
+# prog = drgn.program_from_core_dump("/tmp/cores/core.revalidator12.1459650.c-141-46-1-010.1631675996");
 
 def print_hmap(hmap_addr, struct_name, member):
     objs = []
