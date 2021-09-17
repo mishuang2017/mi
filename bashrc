@@ -1041,7 +1041,7 @@ function ip1
 {
 	local l=$link
 	ip addr flush $l
-	ip addr add dev $l $link_ip/24
+	ip addr add dev $l $link_ip/16
 	ip addr add $link_ipv6/64 dev $l
 	ip link set $l up
 }
@@ -1067,7 +1067,7 @@ function ip2
 {
 	local l=$link2
 	ip addr flush $l
-	ip addr add dev $l $link2_ip/24
+	ip addr add dev $l $link2_ip/16
 	ip addr add $link2_ipv6/64 dev $l
 	ip link set $l up
 }
@@ -7978,6 +7978,48 @@ set -x
 	ip link add name $vx type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
 # 	ip link add name $vx type vxlan id $vni remote $link_remote_ip dstport $vxlan_port
 #	ifconfig $vx $link_ip_vxlan/24 up
+	ip addr add $link_ip_vxlan/16 brd + dev $vx
+	ip addr add $link_ipv6_vxlan/64 dev $vx
+	ip link set dev $vx up
+	ip link set $vx address $vxlan_mac
+set +x
+}
+
+function peer_ns
+{
+set -x
+	local ns=peer_ns
+
+	ip netns del $ns 2>/dev/null
+	sleep 1
+	ip netns add $ns
+	ip link set dev $link2 netns $ns
+
+	ip netns exec $ns ip link set mtu 1450 dev $link2
+	ip netns exec $ns ip link set dev $link2 up
+	ip netns exec $ns ip addr add $link_remote_ip/16 brd + dev $link2
+
+	ip netns exec $ns ip link del $vx > /dev/null 2>&1
+	ip netns exec $ns ip link add name $vx type vxlan id $vni dev $link2 remote $link_remote_ip dstport $vxlan_port
+	ip netns exec $ns ip addr add $link_ip_vxlan/16 brd + dev $vx
+	ip netns exec $ns ip addr add $link_ipv6_vxlan/64 dev $vx
+	ip netns exec $ns ip link set dev $vx up
+	ip netns exec $ns ip link set $vx address $vxlan_mac
+set +x
+}
+
+function peer_link2
+{
+set -x
+	local ns=peer_ns
+
+	ip link set mtu 1450 dev $link2
+	ip link set dev $link2 up
+	ifconfig $link2 0
+	ip addr add $link_remote_ip/16 brd + dev $link2
+
+	ip link del $vx > /dev/null 2>&1
+	ip link add name $vx type vxlan id $vni dev $link2 remote $link_remote_ip dstport $vxlan_port
 	ip addr add $link_ip_vxlan/16 brd + dev $vx
 	ip addr add $link_ipv6_vxlan/64 dev $vx
 	ip link set dev $vx up
