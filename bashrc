@@ -410,6 +410,7 @@ alias vsconfig-sw='ovs-vsctl set Open_vSwitch . other_config:hw-offload="false"'
 alias vsconfig-skip_sw='ovs-vsctl set Open_vSwitch . other_config:tc-policy=skip_sw'
 alias vsconfig-skip_hw='ovs-vsctl set Open_vSwitch . other_config:tc-policy=skip_hw'
 alias ovs-log='sudo tail -f  /var/log/openvswitch/ovs-vswitchd.log'
+alias ovs-test-log="vi tests/system-offloads-testsuite.log"
 alias ovs2-log=' tail -f /var/log/openvswitch/ovsdb-server.log'
 
 alias p23="ping 1.1.1.23"
@@ -7796,7 +7797,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v14" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v15" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
@@ -10202,7 +10203,7 @@ function br_veths
 	ovs-ofctl del-flows $br
 	ovs-ofctl add-flow $br "ipv6,action=drop"
 	ovs-ofctl add-flow $br "arp,action=normal"
-	ovs-ofctl add-flow $br "ip,action=normal"
+	ovs-ofctl add-flow $br "ipv4,action=normal"
 }
 
 function veths_delete
