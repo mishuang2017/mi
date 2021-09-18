@@ -948,9 +948,10 @@ def print_vxlan_udphdr(x):
     print("=== vxlan udp header end ===\n")
 
 def print_mlx5e_encap_entry(e):
+    print("--- mlx5e_encap_entry ---")
 #     print(e)
+    print("remote_ifindex: %d" % e.remote_ifindex)
     print("out_dev: %s" % e.out_dev.name.string_().decode())
-#     print("route_dev: %s" % e.route_dev.name.string_().decode())
     print("route_dev_ifindex: %s" % e.route_dev_ifindex)
 #     print(e.encap_header)
     x = Object(prog, 'unsigned char *', address=e.encap_header.address_of_())
@@ -960,6 +961,7 @@ def print_mlx5e_encap_entry(e):
 #         print("%#x " % e.encap_header[i])
     print("mlx5e_encap_entry %lx" % e.value_())
     print_tun(e.tun_info)
+    print("--- end ---")
 
 def print_mlx5e_tc_flow_flags():
     print("MLX5E_TC_FLOW_FLAG_INGRESS        %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_INGRESS'].value_()))
@@ -979,6 +981,9 @@ def print_mlx5e_tc_flow_flags():
     print("MLX5_MATCH_MISC_PARAMETERS_2      %10x" % prog['MLX5_MATCH_MISC_PARAMETERS_2'].value_())
 
 def print_mlx5e_tc_flow_parse_attr(parse_attr):
+    print("--- mlx5e_tc_flow_parse_attr---")
+    print("parse_attr.mirred_ifindex[0]: %d" % parse_attr.mirred_ifindex[0])
+    print("parse_attr.mirred_ifindex[1]: %d" % parse_attr.mirred_ifindex[1])
     tun_info = parse_attr.tun_info[0]
     if tun_info.value_():
         print("parse_attr.tun_info[0]")
@@ -986,6 +991,7 @@ def print_mlx5e_tc_flow_parse_attr(parse_attr):
 
     filter_dev = parse_attr.filter_dev
     print("filter_dev name: %s" % filter_dev.name.string_().decode())
+    print("---end---")
 
 def print_mlx5_rx_tun_attr(tun_attr):
     print(tun_attr)
@@ -995,6 +1001,7 @@ def print_mlx5_rx_tun_attr(tun_attr):
 def print_mlx5e_tc_flow(flow):
     print("===============================")
     name = flow.priv.netdev.name.string_().decode()
+    print(flow.decap_route)
 #     print(flow.rule[0])
     flow_attr = flow.attr
 #     print(flow_attr)

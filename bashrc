@@ -227,8 +227,8 @@ vni2=5
 vid=5
 svid=1000
 vid2=6
-vxlan_port=4789
 vxlan_port=4000
+vxlan_port=4789
 vxlan_mac=24:25:d0:e1:00:00
 vxlan_mac2=24:25:d0:e2:00:00
 ecmp=0
@@ -1757,7 +1757,8 @@ set -x;
 	module=mlx5_core;
 	driver_dir=drivers/net/ethernet/mellanox/mlx5/core
 	cd $linux_dir;
-	make M=$driver_dir -j $cpu_num2 W=1 || {
+	make M=$driver_dir -j $cpu_num2 || {
+# 	make M=$driver_dir -j $cpu_num2 W=1 || {
 # 	make M=$driver_dir -j C=2 || {
 # 		make M=$driver_dir -j $cpu_num2 W=1 > /tmp/1.txt 2>& 1
 		set +x
@@ -4274,7 +4275,8 @@ set -x
 
 	ip1
 	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
+	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
+# 	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
@@ -13142,7 +13144,8 @@ function github_push
 	git remote rm origin
 	git remote add origin git@github.com:mishuang2017/mi.git
 # 	git remote add origin https://github.com/mishuang2017/mi.git
-	git push -u origin master
+# 	git push -u origin master
+	git push --set-upstream origin main
 }
 
 function modules
