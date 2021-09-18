@@ -4275,8 +4275,8 @@ set -x
 
 	ip1
 	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
-# 	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
+# 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
+	ip link add name vxlan1 type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
@@ -4336,6 +4336,14 @@ set -x
 		enc_key_id $vni			\
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
+
+	# for testing local and remote VTEPs in the same server
+# 	ifconfig $link 0
+# 	ifconfig $link2 0
+# 	ifconfig $link $link_ip/16 up
+# 	ifconfig $link2 $link_remote_ip/16 up
+# 	arp -i $link -s $link_remote_ip b8:59:9f:bb:31:67
+# 	ip netns exe n11 arp -i enp4s0f0v1 -s 1.1.1.200 $vxlan_mac
 set +x
 }
 

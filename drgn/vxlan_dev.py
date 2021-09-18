@@ -54,7 +54,8 @@ for x, dev in enumerate(get_netdevs()):
     # vxlan_dev.cfg.remote_ifindex is the ifindex of $link
     # if don't specify, it is 0
     #
-    print("vxlan_dev.cfg.remote_ifindex: %d" % vxlan_dev.cfg.remote_ifindex)
+    print("vxlan_dev.cfg.remote_ifindex: %d" % vxlan_dev.cfg.remote_ifindex, end='\t')
+    print("vxlan_dev.cfg.vni: %x" % vxlan_dev.cfg.vni)
 
 #     vxlan_rdst = vxlan_dev.default_dst
 #     print(vxlan_rdst)
