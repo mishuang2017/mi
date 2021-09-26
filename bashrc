@@ -7995,6 +7995,21 @@ set -x
 set +x
 }
 
+function peer2
+{
+set -x
+	ip1
+	ip link del $vx > /dev/null 2>&1
+	ip link add name $vx type vxlan id $vni dev $link2 remote $link_remote_ip dstport $vxlan_port
+# 	ip link add name $vx type vxlan id $vni remote $link_remote_ip dstport $vxlan_port
+#	ifconfig $vx $link_ip_vxlan/24 up
+	ip addr add $link_ip_vxlan/16 brd + dev $vx
+	ip addr add $link_ipv6_vxlan/64 dev $vx
+	ip link set dev $vx up
+	ip link set $vx address $vxlan_mac
+set +x
+}
+
 function peer_ns
 {
 set -x
@@ -8151,16 +8166,6 @@ set -x
 #	ip addr add fc00:0:0:0::2/64 dev vxlan0
 set +x
 }
-
-function peer2
-{
-set -x
-	ip netns exec link2 ip link set $link2 netns 1
-#	ip link del $vx > /dev/null 2>&1
-set +x
-}
-
-
 
 alias e1="enable-tcp-offload $link"
 alias d1="disable-tcp-offload $link"
@@ -10063,10 +10068,12 @@ function va
 
 function vt
 {
+set -x
 	[[ $# != 1 ]] && return
-	echo \"${1}\"
+	echo $1
 	local name=$(echo "$1" | cut -d \( -f 1)
-	echo $name
+	vi -t $name
+set +x
 }
 
 function test_basic_L3
@@ -11938,14 +11945,6 @@ function rule
 	on-sriov
 	tc-setup $link
 	tc filter add dev $link parent ffff: prio 1 flower skip_sw action drop
-}
-
-function vt
-{
-	[[ $# != 1 ]] && return
-	local f=$(echo \"$1\" | cut -d "(" -f 1)
-	echo $f
-#	vi -t $f
 }
 
 function install-tools
