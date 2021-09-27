@@ -118,7 +118,6 @@ if (( host_num == 13 )); then
 	link_remote_ip2=192.168.2.$rhost_num
 	link_remote_ipv6=1::$rhost_num
 
-	link_mac=b8:59:9f:bb:31:66
 	remote_mac=b8:59:9f:bb:31:82
 
 	if (( link_name == 2 )); then
@@ -166,7 +165,6 @@ elif (( host_num == 14 )); then
  	link=enp4s0f0
  	link2=enp4s0f1
 
-	link_mac=b8:59:9f:bb:31:82
 	remote_mac=b8:59:9f:bb:31:66
 
 	for (( i = 0; i < numvfs; i++)); do
@@ -221,6 +219,9 @@ if (( cloud == 1 )); then
 
 	link_remote_ip=192.168.1.$rhost_num
 fi
+
+link_mac=$(cat /sys/class/net/$link/address)
+link2_mac=$(cat /sys/class/net/$link2/address)
 
 vni=4
 vni2=5
@@ -4336,16 +4337,94 @@ set -x
 		enc_key_id $vni			\
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
-
-	# for testing local and remote VTEPs in the same server
-# 	ifconfig $link 0
-# 	ifconfig $link2 0
-# 	ifconfig $link $link_ip/16 up
-# 	ifconfig $link2 $link_remote_ip/16 up
-# 	arp -i $link -s $link_remote_ip b8:59:9f:bb:31:67
-# 	ip netns exe n11 arp -i enp4s0f0v1 -s 1.1.1.200 $vxlan_mac
 set +x
 }
+
+# outer v4, inner v4
+function tc_vxlan_alibaba_vtep
+{
+set -x
+	offload=""
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+
+	TC=tc
+	redirect=$rep2
+
+	# for testing local and remote VTEPs in the same server
+	ifconfig $link 0
+	ifconfig $link2 0
+	ifconfig $link $link_ip/16 up
+	ifconfig $link2 $link_remote_ip/16 up
+	arp -i $link -s $link_remote_ip $link2_mac
+	ip netns exe n11 arp -i enp4s0f0v1 -s 1.1.1.200 $vxlan_mac
+
+	ip link del $vx > /dev/null 2>&1
+# 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
+	ip link add name vxlan1 type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
+	ip link set $vx up
+
+	$TC qdisc del dev $link ingress > /dev/null 2>&1
+	$TC qdisc del dev $redirect ingress > /dev/null 2>&1
+	$TC qdisc del dev $vx ingress > /dev/null 2>&1
+
+	ethtool -K $link hw-tc-offload on 
+	ethtool -K $redirect  hw-tc-offload on 
+
+	$TC qdisc add dev $link ingress 
+	$TC qdisc add dev $redirect ingress 
+	$TC qdisc add dev $vx ingress 
+#	$TC qdisc add dev $link clsact
+#	$TC qdisc add dev $redirect clsact
+#	$TC qdisc add dev $vx clsact
+
+	ip link set $link promisc on
+	ip link set $redirect promisc on
+	ip link set $vx promisc on
+
+	local_vm_mac=02:25:d0:$host_num:01:02
+	remote_vm_mac=$vxlan_mac
+
+	$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \
+		src_mac $local_vm_mac		\
+		dst_mac $remote_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $local_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $vx protocol ip  parent ffff: prio 1 flower $offload	\
+		src_mac $remote_vm_mac		\
+		dst_mac $local_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $redirect
+	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $remote_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $redirect
+set +x
+}
+
+alias ali=tc_vxlan_alibaba_vtep
 
 # outer v6, inner v4
 function tc_vxlan64
@@ -13188,8 +13267,8 @@ set -x
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
-	TC=tc
 	TC=/images/cmi/iproute2/tc/tc
+	TC=tc
 
 	$TC qdisc del dev $rep2 ingress
 	$TC qdisc del dev $rep3 ingress
