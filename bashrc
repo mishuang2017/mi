@@ -220,8 +220,8 @@ if (( cloud == 1 )); then
 	link_remote_ip=192.168.1.$rhost_num
 fi
 
-link_mac=$(cat /sys/class/net/$link/address)
-link2_mac=$(cat /sys/class/net/$link2/address)
+test -f /sys/class/net/$link/address && link_mac=$(cat /sys/class/net/$link/address)
+test -f /sys/class/net/$link2/address && link_mac2=$(cat /sys/class/net/$link3/address)
 
 vni=4
 vni2=5
@@ -8077,15 +8077,13 @@ set +x
 function peer2
 {
 set -x
-	ip1
-	ip link del $vx > /dev/null 2>&1
-	ip link add name $vx type vxlan id $vni dev $link2 remote $link_remote_ip dstport $vxlan_port
-# 	ip link add name $vx type vxlan id $vni remote $link_remote_ip dstport $vxlan_port
-#	ifconfig $vx $link_ip_vxlan/24 up
-	ip addr add $link_ip_vxlan/16 brd + dev $vx
-	ip addr add $link_ipv6_vxlan/64 dev $vx
-	ip link set dev $vx up
-	ip link set $vx address $vxlan_mac
+	vxlan=vxlan2
+	ip link del $vxlan > /dev/null 2>&1
+	ip link add name $vxlan type vxlan id $vni dev $link2 remote $link_ip dstport $vxlan_port
+	ip addr add $link_ip_vxlan/16 brd + dev $vxlan
+	ip addr add $link_ipv6_vxlan/64 dev $vxlan
+	ip link set dev $vxlan up
+	ip link set $vxlan address $vxlan_mac
 set +x
 }
 
