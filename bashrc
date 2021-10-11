@@ -4361,7 +4361,7 @@ set -x
 
 	ip link del $vx > /dev/null 2>&1
 # 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
-	ip link add name vxlan1 type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
+	ip link add name vxlan1 type vxlan dev $link remote $link_remote_ip dstport $vxlan_port
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
@@ -4426,6 +4426,92 @@ set +x
 
 alias ali=tc_vxlan_alibaba_vtep
 
+alias ali6=tc_vxlan64_alibaba
+function tc_vxlan64_alibaba
+{
+set -x
+	offload=""
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+
+	TC=tc
+	redirect=$rep2
+
+	ip1
+	ip link del $vx > /dev/null 2>&1
+	ip link add $vx type vxlan dev $link dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
+	ip link set $vx up
+
+	ip addr flush $link2
+	ip addr add dev $link2 $link_remote_ip/16
+	ip addr add $link_remote_ipv6/64 dev $link2
+	ip link set $link2 up
+	arp -i $link -s $link_remote_ip $link2_mac
+	arp -i $link -s $link_remote_ipv6 $link2_mac
+	ip netns exe n11 arp -i enp4s0f0v1 -s 1.1.1.200 $vxlan_mac
+
+	$TC qdisc del dev $link ingress > /dev/null 2>&1
+	$TC qdisc del dev $redirect ingress > /dev/null 2>&1
+	$TC qdisc del dev $vx ingress > /dev/null 2>&1
+
+	ethtool -K $link hw-tc-offload on 
+	ethtool -K $redirect  hw-tc-offload on 
+
+	$TC qdisc add dev $link ingress 
+	$TC qdisc add dev $redirect ingress 
+	$TC qdisc add dev $vx ingress 
+#	$TC qdisc add dev $link clsact
+#	$TC qdisc add dev $redirect clsact
+#	$TC qdisc add dev $vx clsact
+
+	ip link set $link promisc on
+	ip link set $redirect promisc on
+	ip link set $vx promisc on
+
+	local_vm_mac=02:25:d0:$host_num:01:02
+	remote_vm_mac=$vxlan_mac
+
+	$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \
+		src_mac $local_vm_mac		\
+		dst_mac $remote_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_ipv6		\
+		dst_ip $link_remote_ipv6	\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $local_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_ipv6		\
+		dst_ip $link_remote_ipv6	\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $vx protocol ip  parent ffff: prio 1 flower $offload	\
+		src_mac $remote_vm_mac		\
+		dst_mac $local_vm_mac		\
+		enc_src_ip $link_remote_ipv6	\
+		enc_dst_ip $link_ipv6		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $redirect
+	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $remote_vm_mac		\
+		enc_src_ip $link_remote_ipv6	\
+		enc_dst_ip $link_ipv6		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $redirect
+set +x
+}
+
+
+
 # outer v6, inner v4
 function tc_vxlan64
 {
@@ -4439,7 +4525,7 @@ set -x
 
 	ip1
 	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
+	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
@@ -8079,7 +8165,8 @@ function peer2
 set -x
 	vxlan=vxlan2
 	ip link del $vxlan > /dev/null 2>&1
-	ip link add name $vxlan type vxlan id $vni dev $link2 remote $link_ip dstport $vxlan_port
+# 	ip link add name $vxlan type vxlan dev $link2 remote $link_ip dstport $vxlan_port
+	ip link add name $vxlan type vxlan dstport 4789 dev $link2 external udp6zerocsumrx udp6zerocsumtx
 	ip addr add $link_ip_vxlan/16 brd + dev $vxlan
 	ip addr add $link_ipv6_vxlan/64 dev $vxlan
 	ip link set dev $vxlan up
@@ -8100,6 +8187,7 @@ set -x
 	ip netns exec $ns ip link set mtu 1450 dev $link2
 	ip netns exec $ns ip link set dev $link2 up
 	ip netns exec $ns ip addr add $link_remote_ip/16 brd + dev $link2
+	ip netns exec $ns ip addr add $link_remote_ipv6/64 dev $link2
 
 	ip netns exec $ns ip link del $vx > /dev/null 2>&1
 	ip netns exec $ns ip link add name $vx type vxlan id $vni dev $link2 remote $link_remote_ip dstport $vxlan_port

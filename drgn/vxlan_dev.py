@@ -47,6 +47,7 @@ for x, dev in enumerate(get_netdevs()):
     print("")
     vxlan_dev_addr = addr + prog.type('struct net_device').size
     vxlan_dev = Object(prog, 'struct vxlan_dev', address=vxlan_dev_addr)
+    print("vxlan_dev: %x" % vxlan_dev.address_of_())
 #     print(vxlan_dev)
 #     print(vxlan_dev.cfg)
     #
@@ -57,6 +58,16 @@ for x, dev in enumerate(get_netdevs()):
     print("vxlan_dev.cfg.remote_ifindex: %d" % vxlan_dev.cfg.remote_ifindex, end='\t')
     print("vxlan_dev.cfg.vni: %x" % vxlan_dev.cfg.vni)
 
+    vxlan_sock = vxlan_dev.vn4_sock
+    print("")
+    print("#define VXLAN_F_UDP_ZERO_CSUM6_RX       0x100")
+    print("#define VXLAN_F_COLLECT_METADATA        0x2000")
+    print("vxlan_sock flags: %x" % vxlan_sock.flags)
+#     print(vxlan_sock)
+    for i in range(1<<10):
+        for vxlan_dev_node in hlist_for_each_entry('struct vxlan_dev_node', vxlan_sock.vni_list[i], 'hlist'):
+            print("vxlan_sock vni: %d" % vxlan_dev_node.vxlan.default_dst.remote_vni.value_())
+
 #     vxlan_rdst = vxlan_dev.default_dst
 #     print(vxlan_rdst)
 
@@ -64,3 +75,17 @@ for x, dev in enumerate(get_netdevs()):
 #     for i in range(1<<8):
 #         for vxlan_fdb in hlist_for_each_entry('struct vxlan_fdb', fdb_head[i], 'hlist'):
 #             print(vxlan_fdb)
+
+print("")
+gen = prog['init_net'].gen
+id = prog['vxlan_net_id']
+print("vxlan_id: %d" % id)
+ptr = gen.ptr[id]
+vxlan_net = Object(prog, 'struct vxlan_net', address=ptr.value_())
+# print(vxlan_net)
+for i in range(1<<8):
+    for vxlan_sock in hlist_for_each_entry('struct vxlan_sock', vxlan_net.sock_list[i], 'hlist'):
+        print("vxlan_sock flags: %x" % vxlan_sock.flags)
+
+for vxlan_dev in list_for_each_entry('struct vxlan_dev', vxlan_net.vxlan_list.address_of_(), 'next'):
+    print("vxlan_dev: %x" % vxlan_dev)
