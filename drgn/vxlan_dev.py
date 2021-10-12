@@ -39,11 +39,11 @@ for x, dev in enumerate(get_netdevs()):
     kind = get_kind(dev)
     if kind != "vxlan":
         continue
-    print("%5i%20s%20x\t" % (dev.ifindex, name, addr), end="")
+    print("%-20s, ifindex: %5i%20x\t" % (name, dev.ifindex, addr), end="")
     print_ip_address(dev)
-    print("%10x\t" % dev.priv_flags, end='\t')
+    print("dev.priv_flags: %10x\t" % dev.priv_flags, end='\t')
     count = get_pcpu_refcnt(dev)
-    print("%10d" % count, end='')
+    print("refcnt: %10d" % count, end='')
     print("")
     vxlan_dev_addr = addr + prog.type('struct net_device').size
     vxlan_dev = Object(prog, 'struct vxlan_dev', address=vxlan_dev_addr)
@@ -61,7 +61,7 @@ for x, dev in enumerate(get_netdevs()):
     vxlan_sock = vxlan_dev.vn4_sock
     print("")
     print("#define VXLAN_F_UDP_ZERO_CSUM6_RX       0x100")
-    print("#define VXLAN_F_COLLECT_METADATA        0x2000")
+    print("#define VXLAN_F_COLLECT_METADATA        0x2000 (external)")
     print("vxlan_sock flags: %x" % vxlan_sock.flags)
 #     print(vxlan_sock)
     for i in range(1<<10):
