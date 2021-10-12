@@ -184,6 +184,8 @@ def print_exts(e):
                 print("\tsrc ip: %s" % ipv4(ntohl(ip_tunnel_key.u.ipv4.src.value_())))
                 print("\tdst ip: %s" % ipv4(ntohl(ip_tunnel_key.u.ipv4.dst.value_())))
                 print("\ttp_dst: %d" % ntohs(ip_tunnel_key.tp_dst.value_()))
+            elif tun.params.tcft_action == 2:
+                print("\tTCA_TUNNEL_KEY_ACT_RELEASE")
         if kind == "sample":
             tcf_sample = Object(prog, 'struct tcf_sample', address=a.value_())
 #             print(tcf_sample)
