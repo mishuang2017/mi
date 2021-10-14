@@ -4276,8 +4276,8 @@ set -x
 
 	ip1
 	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
-# 	ip link add name vxlan1 type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
+# 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
+	ip link add name vxlan1 type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
@@ -7972,7 +7972,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v15" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v16" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
