@@ -4353,16 +4353,16 @@ set -x
 	redirect=$rep2
 
 	# for testing local and remote VTEPs in the same server
-	ifconfig $link 0
-	ifconfig $link2 0
-	ifconfig $link $link_ip/16 up
-	ifconfig $link2 $link_remote_ip/16 up
-	arp -i $link -s $link_remote_ip $link2_mac
-	ip netns exe n11 arp -i enp4s0f0v1 -s 1.1.1.200 $vxlan_mac
+# 	ifconfig $link 0
+# 	ifconfig $link2 0
+# 	ifconfig $link $link_ip/16 up
+# 	ifconfig $link2 $link_remote_ip/16 up
+# 	arp -i $link -s $link_remote_ip $link2_mac
+# 	ip netns exe n11 arp -i enp4s0f0v1 -s 1.1.1.200 $vxlan_mac
 
 	ip link del $vx > /dev/null 2>&1
-# 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
-	ip link add name vxlan1 type vxlan dev $link remote $link_remote_ip dstport $vxlan_port
+	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
+# 	ip link add name vxlan1 type vxlan dev $link remote $link_remote_ip vni $vni dstport $vxlan_port
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
@@ -7973,7 +7973,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v16" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v17" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
@@ -8191,7 +8191,9 @@ set -x
 	ip netns exec $ns ip addr add $link_remote_ipv6/64 dev $link2
 
 	ip netns exec $ns ip link del $vx > /dev/null 2>&1
-	ip netns exec $ns ip link add name $vx type vxlan id $vni dev $link2 remote $link_remote_ip dstport $vxlan_port
+	ip netns exec $ns ip link add name $vx type vxlan id $vni dev $link2 remote $link_ip dstport $vxlan_port
+# 	ip netns exec $ns ip link add name $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
+# 	ip netns exec $ns ip link add name $vx type vxlan id $vni dev $link2 remote $link_ip dstport $vxlan_port
 	ip netns exec $ns ip addr add $link_ip_vxlan/16 brd + dev $vx
 	ip netns exec $ns ip addr add $link_ipv6_vxlan/64 dev $vx
 	ip netns exec $ns ip link set dev $vx up
