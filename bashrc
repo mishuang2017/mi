@@ -1206,9 +1206,10 @@ function cloud_setup2
 	sudo ./setup.py build
 	sudo ./setup.py install
 
-	sm
-	git clone https://github.com/iovisor/bcc.git
-	install_bcc
+# 	sm
+# 	git clone https://github.com/iovisor/bcc.git
+# 	install_bcc
+	yum install -y bcc-tools
 
 # 	sm
 # 	clone-iproute
@@ -7680,8 +7681,8 @@ function syndrome
 	grep -i $2 $file
 }
 
-alias syn='syndrome 16.30.1004'
-alias syn6='syndrome 26.29.2002'
+alias syn5='syndrome 16.30.1004'
+alias syn='syndrome 26.29.2002'
 
 # mlxfwup
 
