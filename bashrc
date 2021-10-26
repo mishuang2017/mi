@@ -136,6 +136,9 @@ if (( host_num == 13 )); then
 		for (( i = 0; i < numvfs; i++)); do
 			eval vf$((i+1))=${link}v$i
 			eval rep$((i+1))=${link}_$i
+
+			eval vf$((i+1))_2=${link2}v$i
+			eval rep$((i+1))_2=${link2}_$i
 		done
 	fi
 
@@ -221,7 +224,7 @@ if (( cloud == 1 )); then
 fi
 
 test -f /sys/class/net/$link/address && link_mac=$(cat /sys/class/net/$link/address)
-test -f /sys/class/net/$link2/address && link_mac2=$(cat /sys/class/net/$link2/address)
+test -f /sys/class/net/$link2/address && link2_mac=$(cat /sys/class/net/$link2/address)
 
 vni=4
 vni2=5
@@ -233,8 +236,8 @@ vxlan_port=4789
 vxlan_mac=24:25:d0:e1:00:00
 vxlan_mac2=24:25:d0:e2:00:00
 ecmp=0
-ports=2
 ports=1
+ports=2
 
 base_baud=115200
 base_baud=9600
@@ -4353,16 +4356,19 @@ set -x
 	redirect=$rep2
 
 	# for testing local and remote VTEPs in the same server
-# 	ifconfig $link 0
-# 	ifconfig $link2 0
-# 	ifconfig $link $link_ip/16 up
-# 	ifconfig $link2 $link_remote_ip/16 up
-# 	arp -i $link -s $link_remote_ip $link2_mac
+	ifconfig $link 0
+	ifconfig $link2 0
+	ifconfig $link $link_ip/16 up
+	ifconfig $link2 $link_remote_ip/16 up
+
+	arp -i $link -s $link_remote_ip $link2_mac
+	arp -i $link2 -s $link_ip $link_mac
 # 	ip netns exe n11 arp -i enp4s0f0v1 -s 1.1.1.200 $vxlan_mac
 
 	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
-# 	ip link add name vxlan1 type vxlan dev $link remote $link_remote_ip vni $vni dstport $vxlan_port
+	ip link del $vx2 > /dev/null 2>&1
+# 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
+	ip link add name $vx type vxlan dev $link remote $link_remote_ip vni $vni dstport $vxlan_port
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
@@ -4384,7 +4390,7 @@ set -x
 	ip link set $vx promisc on
 
 	local_vm_mac=02:25:d0:$host_num:01:02
-	remote_vm_mac=$vxlan_mac
+	remote_vm_mac=02:25:d0:$host_num:02:02
 
 	$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \
 		src_mac $local_vm_mac		\
@@ -4396,7 +4402,7 @@ set -x
 		id $vni				\
 		action mirred egress redirect dev $vx
 
-	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower skip_hw	\
+	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower $offload	\
 		src_mac $local_vm_mac		\
 		action tunnel_key set		\
 		src_ip $link_ip			\
@@ -4414,7 +4420,7 @@ set -x
 		enc_key_id $vni			\
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
-	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
+	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower $offload	\
 		src_mac $remote_vm_mac		\
 		enc_src_ip $link_remote_ip	\
 		enc_dst_ip $link_ip		\
@@ -4422,6 +4428,66 @@ set -x
 		enc_key_id $vni			\
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
+
+
+	ip link add name $vx2 type vxlan dev $link2 remote $link_ip vni $vni2 dstport $vxlan_port
+	ip link set $vx2 up
+	$TC qdisc del dev $vx2 ingress > /dev/null 2>&1
+	$TC qdisc add dev $vx2 ingress 
+	ip link set $vx2 promisc on
+
+	$TC qdisc del dev $link2 ingress > /dev/null 2>&1
+	$TC qdisc del dev $rep2_2 ingress > /dev/null 2>&1
+
+	ethtool -K $link2 hw-tc-offload on 
+	ethtool -K $rep2_2  hw-tc-offload on 
+
+	$TC qdisc add dev $link2 ingress 
+	$TC qdisc add dev $rep2_2 ingress 
+
+	ip link set $link2 promisc on
+	ip link set $rep2_2 promisc on
+
+	local_vm_mac=02:25:d0:$host_num:02:02
+	remote_vm_mac=02:25:d0:$host_num:01:02
+
+	ifconfig $rep2_2 up
+	$TC filter add dev $rep2_2 protocol ip  parent ffff: prio 1 flower $offload \
+		src_mac $local_vm_mac		\
+		dst_mac $remote_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_remote_ip			\
+		dst_ip $link_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx2
+
+	$TC filter add dev $rep2_2 protocol arp parent ffff: prio 2 flower $offload	\
+		src_mac $local_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_remote_ip			\
+		dst_ip $link_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx2
+
+	$TC filter add dev $vx2 protocol ip parent ffff: prio 1 flower $offload	\
+		src_mac $remote_vm_mac		\
+		dst_mac $local_vm_mac		\
+		enc_src_ip $link_ip\
+		enc_dst_ip $link_remote_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $rep2_2
+	$TC filter add dev $vx2 protocol arp parent ffff: prio 2 flower $offload	\
+		src_mac $remote_vm_mac		\
+		enc_src_ip $link_ip	\
+		enc_dst_ip $link_remote_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $rep2_2
 set +x
 }
 

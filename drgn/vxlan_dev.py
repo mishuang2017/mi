@@ -39,6 +39,7 @@ for x, dev in enumerate(get_netdevs()):
     kind = get_kind(dev)
     if kind != "vxlan":
         continue
+    print("\n================================\n")
     print("%-20s, ifindex: %5i%20x\t" % (name, dev.ifindex, addr), end="")
     print_ip_address(dev)
     print("dev.priv_flags: %10x\t" % dev.priv_flags, end='\t')
@@ -76,7 +77,7 @@ for x, dev in enumerate(get_netdevs()):
 #         for vxlan_fdb in hlist_for_each_entry('struct vxlan_fdb', fdb_head[i], 'hlist'):
 #             print(vxlan_fdb)
 
-print("")
+print("\n-------------------------------\n")
 gen = prog['init_net'].gen
 id = prog['vxlan_net_id']
 print("vxlan_id: %d" % id)
