@@ -1234,11 +1234,11 @@ function cloud_setup2
 # 	cd asap_dev_reg/psample
 # 	make
 
-	sm
-	clone-ovs
-	smo
-	./boot.sh
-	install-ovs
+# 	sm
+# 	clone-ovs
+# 	smo
+# 	./boot.sh
+# 	install-ovs
 
 	sm
 	clone-crash
