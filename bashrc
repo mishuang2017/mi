@@ -182,6 +182,16 @@ elif (( host_num == 14 )); then
 		eval rep$((i+1))_2=${link2_pre}pf1vf$i
 	done
 
+	if (( link_name == 1 )); then
+		for (( i = 0; i < numvfs; i++)); do
+			eval vf$((i+1))=${link}v$i
+			eval rep$((i+1))=${link}_$i
+
+			eval vf$((i+1))_2=${link2}v$i
+			eval rep$((i+1))_2=${link2}_$i
+		done
+	fi
+
 # 	modprobe aer-inject
 
 	test -f /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
