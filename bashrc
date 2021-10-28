@@ -6526,6 +6526,9 @@ alias n3='exe n13'
 alias n20='exe n20'
 alias n21='exe n21'
 
+alias ns0='exe ns0'
+alias ns1='exe ns1'
+
 #  1062  echo 08000000,00000000,00000000 > /proc/irq/281/smp_affinity
 #  1063  echo 10000000,00000000,00000000 > /proc/irq/282/smp_affinity
 #  1064* echo 20000000,00000000,00000000 > /proc/irq/283/smp_affinity

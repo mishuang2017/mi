@@ -1736,7 +1736,8 @@ git push origin HEAD:refs/for/net-next-mlx5/sw_ignore_flow_level-upstream
 
 git push origin HEAD:refs/for/mlnx_ofed_5_5/fix-single_fdb_lag
 
-git push origin HEAD:refs/for/net-next-mlx5/alibaba-vtep
+git push origin HEAD:refs/for/net-next-mlx5/alibaba-vtep-decap
+git push origin HEAD:refs/for/mlnx_ofed_5_5/alibaba-vtep-decap-ofed
 
 git push origin HEAD:refs/for/mlnx_ofed_5_5/fix-remote-mirroring-for-vlan
 git push origin HEAD:refs/for/mlnx_ofed_5_5_0_1_backports/cross-compilation
