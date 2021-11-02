@@ -64,7 +64,7 @@ for x, dev in enumerate(get_netdevs()):
     print("#define VXLAN_F_UDP_ZERO_CSUM6_RX       0x100")
     print("#define VXLAN_F_COLLECT_METADATA        0x2000 (external)")
     print("vxlan_sock flags: %x" % vxlan_sock.flags)
-#     print(vxlan_sock)
+    print("skc_bound_dev_if: %d" % vxlan_sock.sock.sk.__sk_common.skc_bound_dev_if)
     for i in range(1<<10):
         for vxlan_dev_node in hlist_for_each_entry('struct vxlan_dev_node', vxlan_sock.vni_list[i], 'hlist'):
             print("vxlan_sock vni: %x" % vxlan_dev_node.vxlan.default_dst.remote_vni.value_())

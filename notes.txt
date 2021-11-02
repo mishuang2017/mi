@@ -12131,4 +12131,8 @@ mlx5_sf_esw_event
 				mlx5_sf_dealloc (table, sf);
 
 
+===lag===
+
+mlx5_lag_netdev_event
+
 
