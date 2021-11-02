@@ -1350,6 +1350,11 @@ function off_all
 	modprobe -r bonding
 }
 
+function off_one
+{
+	echo 0 > /sys/class/net/$1/device/sriov_numvfs
+}
+
 alias off=off_all
 
 function off0
@@ -10409,6 +10414,11 @@ test1=test-tc-insert-rules.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
+
+alias test_bond0="export CONFIG=/images/cmi/asap_dev_reg/config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server.sh"
+alias test_bond1="export CONFIG=/images/cmi/asap_dev_reg/config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server-bond.sh"
+
+alias test1="./$test1"
 
 alias vi-test="vi /images/cmi/asap_dev_reg/$test1"
 alias vi-test2="vi /workspace/asap_dev_test/$test1"

@@ -12,7 +12,7 @@ from lib import *
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 mlx5_lag = mlx5e_priv.mdev.priv.lag
-# print(mlx5_lag)
+print(mlx5_lag)
 print("flags: %x" % mlx5_lag.flags)
 
 MLX5_LAG_FLAG_ROCE = prog['MLX5_LAG_FLAG_ROCE']
