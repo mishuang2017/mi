@@ -108,9 +108,13 @@ def print_action_stats(a):
     packets = 0
     if a.cpu_bstats.value_():
         for cpu in for_each_online_cpu(prog):
-            bstats = per_cpu_ptr(a.cpu_bstats, cpu).bstats
-            bytes += bstats.bytes
-            packets += bstats.packets
+            if struct_exist("struct gnet_stats_basic_sync"):
+                bytes += per_cpu_ptr(a.cpu_bstats, cpu).bytes.v.a.a.counter
+                packets += per_cpu_ptr(a.cpu_bstats, cpu).packets.v.a.a.counter
+            else:
+                bstats = per_cpu_ptr(a.cpu_bstats, cpu).bstats
+                bytes += bstats.bytes
+                packets += bstats.packets
         print("percpu bytes: %d, packets: %d" % (bytes, packets))
     else:
         bstats = a.tcfa_bstats

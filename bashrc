@@ -4295,8 +4295,8 @@ set -x
 
 	ip1
 	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
-# 	ip link add name vxlan1 type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
+# 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
+	ip link add name vxlan1 type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
