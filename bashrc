@@ -2045,6 +2045,9 @@ set -x;
 		set +x	
 		return
 	}
+	sudo /bin/cp -f $src_dir/openvswitch.ko /lib/modules/$(uname -r)/kernel/net/openvswitch
+	sudo modprobe -r openvswitch
+	sudo modprobe -v openvswitch
 set +x
 }
 
@@ -4296,8 +4299,8 @@ set -x
 
 	ip1
 	ip link del $vx > /dev/null 2>&1
-# 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
-	ip link add name vxlan1 type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
+	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
+# 	ip link add name vxlan1 type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
@@ -4331,7 +4334,7 @@ set -x
 		id $vni				\
 		action mirred egress redirect dev $vx
 
-	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower skip_hw	\
+	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower $offload	\
 		src_mac $local_vm_mac		\
 		action tunnel_key set		\
 		src_ip $link_ip			\
@@ -4349,7 +4352,7 @@ set -x
 		enc_key_id $vni			\
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
-	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
+	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower $offload	\
 		src_mac $remote_vm_mac		\
 		enc_src_ip $link_remote_ip	\
 		enc_dst_ip $link_ip		\

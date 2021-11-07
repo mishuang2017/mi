@@ -32,6 +32,7 @@ for i in range(1024):
         print("name: %10s,  n_ids: %d, id: %x, %d" % (name, upcall_portids.n_ids, id, id))
         print("vport %lx" % vport)
         print("datapath %lx" % vport.dp)
+        datapath = vport.dp
         print("vport_portids %lx" % upcall_portids)
         print("portid[0] %lx, %d" % (id, id))
         print("vport_no %d" % port_no)
@@ -207,3 +208,5 @@ for i in range(n_buckets):
         print_flow_act(flow.sf_acts)
         print_flow_stat(flow.stats)
         print("")
+
+print(datapath)
