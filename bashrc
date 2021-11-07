@@ -598,7 +598,8 @@ alias v5.5='git checkout v5.5; git checkout -b 5.5'
 alias v5.9='git checkout v5.9; git checkout -b 5.9'
 alias v5.10='git checkout v5.10; git checkout -b 5.10'
 alias v5.12='git checkout v5.12; git checkout -b 5.12'
-alias v5.13='git checkout v5.13-rc4; git checkout -b 5.13-rc4'
+alias v5.13-r4='git checkout v5.13-rc4; git checkout -b 5.13-rc4'
+alias v5.13='git checkout v5.13; git checkout -b 5.13'
 alias v4.10='git checkout v4.10; git checkout -b 4.10'
 alias v4.8='git checkout v4.8; git checkout -b 4.8'
 alias v4.8-rc4='git checkout v4.8-rc4; git checkout -b 4.8-rc4'
@@ -10415,8 +10416,8 @@ alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
-alias test_bond0="export CONFIG=/images/cmi/asap_dev_reg/config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server.sh"
-alias test_bond1="export CONFIG=/images/cmi/asap_dev_reg/config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server-bond.sh"
+alias test_bond0="export CONFIG=config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server.sh"
+alias test_bond1="export CONFIG=config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server-bond.sh"
 
 alias test1="./$test1"
 

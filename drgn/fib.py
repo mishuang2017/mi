@@ -53,10 +53,29 @@ def print_fib(fib):
 
 ipv4 = prog['init_net'].ipv4
 fib_main = ipv4.fib_main
+# fib_default = ipv4.fib_default
+print(fib_main)
+# print(fib_default)
+
+RT_TABLE_LOCAL = prog['RT_TABLE_LOCAL']
+RT_TABLE_MAIN = prog['RT_TABLE_MAIN']
+print(RT_TABLE_LOCAL)
+print(RT_TABLE_LOCAL.value_())
+print(RT_TABLE_MAIN)
+print(RT_TABLE_MAIN.value_())
+
+hlist_head = ipv4.fib_table_hash
+for i in range(256):
+    head = hlist_head[i]
+#     if head.first.value_():
+#         print("%lx" % head.first.address_of_())
+    for tb in hlist_for_each_entry('struct fib_table', head, 'tb_hlist'):
+        print(tb)
+
 print_fib(fib_main)
 
-trie = cast("struct trie *", fib_main.tb_data)
-print(trie)
+# trie = cast("struct trie *", fib_main.tb_data)
+# print(trie)
 
 
 # kv = Object(prog, 'struct key_vector', address=0xffff8bc2f72f32f0)
