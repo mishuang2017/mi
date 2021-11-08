@@ -14,6 +14,9 @@ numvfs=4
 numvfs=16
 numvfs=3
 
+alias 7='ssh root@10.235.14.7'
+alias 5='ssh root@10.235.14.5'
+
 # alias virc="vi /images/cmi/mi/bashrc"
 # alias rc=". /images/cmi/mi/bashrc"
 alias virc='vi ~/.bashrc'

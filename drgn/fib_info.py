@@ -7,9 +7,8 @@ import socket
 import sys
 import os
 
-libpath = os.path.dirname(os.path.realpath("__file__"))
-sys.path.append(libpath)
-import lib
+sys.path.append('.')
+from lib import *
 
 fib_info_hash = prog['fib_info_hash']
 size = prog['fib_info_hash_size']
@@ -23,15 +22,30 @@ for i in range(size):
         if name == "eno1" or name == "virbr0":
             continue
         protocol = fib.fib_protocol
-        if protocol != 2:
-            continue
-        print("===============================================================================")
+#         if protocol != 2:
+#             continue
+        print("==================================================================================================")
         print("%-15s" % name, end='\t')
         print("oif: %4d" % oif, end='\t');
-        print("fib_protocol: %d" % protocol, end='\t')
-        print("saddr: %x" % saddr)
+        print("fib_protocol: %3d" % protocol, end='\t')
+        print("saddr: %15s" % ipv4(ntohl(saddr.value_())), end='\t')
+        print("scope: %d" % fib.fib_scope, end='\t')
+        print("nhc_gw: %s" % ipv4(ntohl(fib.fib_nh[0].nh_common.nhc_gw.ipv4.value_())))
 #         print(fib)
 #         print(fib.fib_nh[0])
+
+print('')
+RT_SCOPE_HOST = prog['RT_SCOPE_HOST']
+print("%3d: " % RT_SCOPE_HOST.value_(), end='')
+print(RT_SCOPE_HOST)
+
+RT_SCOPE_LINK = prog['RT_SCOPE_LINK']
+print("%3d: " % RT_SCOPE_LINK.value_(), end='')
+print(RT_SCOPE_LINK)
+
+RT_SCOPE_UNIVERSE = prog['RT_SCOPE_UNIVERSE']
+print("%3d: " % RT_SCOPE_UNIVERSE.value_(), end='')
+print(RT_SCOPE_UNIVERSE)
 
 #define RTPROT_UNSPEC           0
 #define RTPROT_REDIRECT         1       /* Route installed by ICMP redirects;   */
