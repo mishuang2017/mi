@@ -13,6 +13,10 @@ import time
 sys.path.append(".")
 from lib_ovs import *
 
+psample_sock = prog['psample_sock']
+print("\n===psample_sock===")
+print(psample_sock)
+
 # xbridge = get_xbridge("br")
 # print(xbridge)
 
@@ -57,7 +61,3 @@ for k, sset in enumerate(ssets):
     print("sflow.options.targets: %s" % sset.name[0].address_of_().string_().decode())
 print("sflow.options.sampling_rate: %d, polling_interval: %d, header_len: %d, agent_device: %s" % \
     (options.sampling_rate, options.polling_interval, options.header_len, options.agent_device.string_().decode()))
-
-psample_sock = prog['psample_sock']
-print("\n===psample_sock===")
-print(psample_sock)
