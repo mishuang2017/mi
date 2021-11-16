@@ -983,7 +983,7 @@ function ethtool-rxvlan-on
 
 alias restart-virt='systemctl restart libvirtd.service'
 
-export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin:/opt/mellanox/iproute2/sbin
+export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
 export TERM=xterm
@@ -1202,7 +1202,7 @@ function cloud_setup
 		/bin/cp ~cmi/.crash /root
 	fi
 
-	yum -y install python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools
+	yum -y install python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel
 	yum_bcc
 }
 
@@ -13994,6 +13994,13 @@ set -x
 # 	ip addr flush dev $VF1
 # 	ip link del $vx
 set +x
+}
+
+function ovs_flush_rules
+{
+    ovs-vsctl set O . other_config:max-idle=1
+    sleep 0.5
+    ovs-vsctl remove O . other_config max-idle
 }
 
 ######## uuu #######
