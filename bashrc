@@ -909,7 +909,7 @@ alias                vi-tc="vi lib/netdev-offload-tc.c"
 alias              vi-dpdk="vi lib/netdev-offload-dpdk.c"
 alias    vi_netdev-offload="vi lib/netdev-offload.c"
 alias      vi_dpif-netlink="vi lib/dpif-netlink.c"
-alias           vi_offload='vi lib/dpif.c lib/dpif-offload-provider.h lib/dpif-offload.c lib/dpif-offload-netlink.c lib/netdev-offload-tc.c'
+alias           vi_offload='vi lib/dpif-netdev.c lib/dpif-offload-netdev.c lib/dpif.c lib/dpif-offload-provider.h lib/dpif-offload.c lib/dpif-offload-netlink.c lib/netdev-offload-tc.c'
 alias            vi_ovs_in='vi utilities/ovs-kmod-ctl.in'
 
 alias vi_errno='vi include/uapi/asm-generic/errno.h '
@@ -8061,7 +8061,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v17" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v18" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
@@ -10752,6 +10752,7 @@ set +x
 
 alias gdb-kcore="/usr/bin/gdb $linux_dir/vmlinux /proc/kcore"
 alias gdb_ovs='gdb /usr/sbin/ovs-vswitchd'
+alias gdb_ovs='gdb /images/cmi/openvswitch/vswitchd/ovs-vswitchd'
 
 function add-symbol-file
 {
