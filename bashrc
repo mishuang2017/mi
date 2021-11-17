@@ -10422,6 +10422,9 @@ alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
 
+alias vi_geneve="cd /workspace/asap_dev_test/ovn-tests; vi test-ovn-geneve-single-switch-2-nodes-pf-tunnel-vlan.sh"
+alias test_geneve="cd /workspace/asap_dev_test/ovn-tests; ./test-ovn-geneve-single-switch-2-nodes-pf-tunnel-vlan.sh"
+
 alias test_bond0="export CONFIG=config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server.sh"
 alias test_bond1="export CONFIG=config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server-bond.sh"
 

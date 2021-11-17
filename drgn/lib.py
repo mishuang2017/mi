@@ -695,7 +695,7 @@ def print_fs_dr_rule(fte):
 
 def print_match(fte, mask):
 #     print_fs_dr_rule(fte)
-    print("fs_fte %lx\tflow_source: %x" % (fte.address_of_().value_(), fte.flow_context.flow_source))
+    print("fs_fte %lx\tflow_source: %x (0: any, 1, uplink, 2; local)" % (fte.address_of_().value_(), fte.flow_context.flow_source))
     val = fte.val
 #     print(val)
 #     smac = str(ntohl(hex(val[0])))
