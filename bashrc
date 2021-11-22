@@ -10425,7 +10425,11 @@ alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_te
 alias vi_geneve="cd /workspace/asap_dev_test/ovn-tests; vi test-ovn-geneve-single-switch-2-nodes-pf-tunnel-vlan.sh"
 alias test_geneve="cd /workspace/asap_dev_test/ovn-tests; ./test-ovn-geneve-single-switch-2-nodes-pf-tunnel-vlan.sh"
 
+alias vi_geneve0="cd /workspace/asap_dev_test/ovn-tests; vi test-ovn-geneve-single-switch-2-nodes-pf-tunnel.sh"
+alias test_geneve0="cd /workspace/asap_dev_test/ovn-tests; ./test-ovn-geneve-single-switch-2-nodes-pf-tunnel.sh"
+
 alias test_bond0="export CONFIG=config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server.sh"
+alias test_bond0="./test-tc-encap-decap-same-server.sh"
 alias test_bond1="export CONFIG=config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server-bond.sh"
 
 alias test1="./$test1"
