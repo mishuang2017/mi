@@ -541,17 +541,20 @@ def print_tuple(tuple, ct):
     if protonum == IPPROTO_UDP:
         dport = ntohs(tuple.tuple.dst.u.udp.port.value_())
         sport = ntohs(tuple.tuple.src.u.udp.port.value_())
-    if dport != 5001:
+    if dport != 8080:
         return
 
     print("nf_conn %lx" % ct.value_())
 #     print("nf_conntrack_tuple %lx" % tuple.value_())
 
-    if protonum == IPPROTO_TCP and dir == IP_CT_DIR_ORIGINAL:
+#     if protonum == IPPROTO_TCP and dir == IP_CT_DIR_ORIGINAL:
+#     if protonum == IPPROTO_UDP and dir == IP_CT_DIR_ORIGINAL:
+    if protonum == IPPROTO_UDP:
         print("\tsrc ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.src.u3.ip.value_())), sport), end=' ')
         print("dst ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.dst.u3.ip.value_())), dport), end=' ')
         print("protonum: %3d" % protonum, end=' ')
         print("dir: %3d" % dir, end=' ')
+        print("timeout: %3d" % ct.timeout, end=' ')
         state = ct.proto.tcp.state
         print("state: %x, tcp_state: %s" % (state, get_tcp_state(state)))
 #         print("timeout: %d" % ct.timeout);
