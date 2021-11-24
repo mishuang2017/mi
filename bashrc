@@ -222,6 +222,7 @@ if (( cloud == 1 )); then
 	link_name=1
 	link=enp8s0f0
 	link2=enp8s0f1
+	link3=enp9s0f0
 
 	for (( i = 0; i < numvfs; i++)); do
 		eval vf$((i+1))=$(get_vf $host_num 1 $((i+1)))
@@ -387,6 +388,7 @@ function get_pci
 		lspci -d 15b3: -nn | grep $pci_id | grep 1019 > /dev/null && cx5=1
 		lspci -d 15b3: -nn | grep $pci_id | grep 1017 > /dev/null && cx5=1
 		pci2=$(basename $(readlink /sys/class/net/$link2/device) 2> /dev/null)
+		pci3=$(basename $(readlink /sys/class/net/$link3/device) 2> /dev/null)
 	fi
 }
 get_pci
@@ -1284,6 +1286,7 @@ set +x
 alias on-sriov1="echo 1 > /sys/class/net/$link/device/sriov_numvfs"
 alias on-sriov="echo $numvfs > /sys/class/net/$link/device/sriov_numvfs"
 alias on-sriov2="echo $numvfs > /sys/class/net/$link2/device/sriov_numvfs"
+alias on-sriov3="echo $numvfs > /sys/class/net/$link3/device/sriov_numvfs"
 alias on1='on-sriov; set_mac 1; un; ip link set $link vf 0 spoofchk on'
 alias un2="unbind_all $link2"
 alias off-sriov="echo 0 > /sys/devices/pci0000:00/0000:00:02.0/0000:04:00.0/sriov_numvfs"
@@ -1308,6 +1311,7 @@ function bind_all
 }
 alias bi="bind_all $link"
 alias bi2="bind_all $link2"
+alias bi3="bind_all $link3"
 
 function unbind_all
 {
@@ -1323,6 +1327,7 @@ function unbind_all
 }
 alias un="unbind_all $link"
 alias un2="unbind_all $link2"
+alias un3="unbind_all $link3"
 
 function off_test
 {
@@ -1357,6 +1362,11 @@ function off_all
 function off_one
 {
 	echo 0 > /sys/class/net/$1/device/sriov_numvfs
+}
+
+function off3
+{
+	echo 0 > /sys/class/net/$link3/device/sriov_numvfs
 }
 
 alias off=off_all
@@ -1404,10 +1414,23 @@ set -x
 	if [[ $# == 1 && "$1" == "off" ]]; then
 		devlink dev eswitch set pci/$pci2 mode legacy
 	fi
-	devlink dev eswitch show pci/$pci
+	devlink dev eswitch show pci/$pci2
 set +x
 }
 
+function dev3
+{
+set -x
+	devlink dev eswitch show pci/$pci3
+	if [[ $# == 0 ]]; then
+		devlink dev eswitch set pci/$pci3 mode switchdev
+	fi
+	if [[ $# == 1 && "$1" == "off" ]]; then
+		devlink dev eswitch set pci/$pci3 mode legacy
+	fi
+	devlink dev eswitch show pci/$pci3
+set +x
+}
 
 function inline-mode
 {
@@ -10404,20 +10427,7 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-eswitch-add-del-flows-during-flows-cleanup.sh
-test1=test-tc-vf-remote-mirror.sh
-test1=test-ct-nic-tcp.sh
-test1=test-ovs-ct-vf-tunnel.sh
-test1=test-ovs-ct-vxlan-vf-lag.sh
-test1=test-tc-par-add-del-vxlan.sh
-test1=test-ovs-gre-in-ns.sh
-test1=test-ct-nat-tcp.sh
-test1=test-tc-insert-rules-vxlan-vf-tunnel-with-mirror.sh
-test1=test-ovs-vf-remote-mirror.sh
-test1=test-ovs-vf-tunnel-route-change.sh
-test1=test-ct-nic-tcp.sh
-test1=test-ovs-vxlan-over-vlan-int-port.sh
-test1=test-tc-insert-rules.sh
+test1=test-ovs-ct-scapy-udp-aging.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
@@ -10428,9 +10438,8 @@ alias test_geneve="cd /workspace/asap_dev_test/ovn-tests; ./test-ovn-geneve-sing
 alias vi_geneve0="cd /workspace/asap_dev_test/ovn-tests; vi test-ovn-geneve-single-switch-2-nodes-pf-tunnel.sh"
 alias test_geneve0="cd /workspace/asap_dev_test/ovn-tests; ./test-ovn-geneve-single-switch-2-nodes-pf-tunnel.sh"
 
-alias test_bond0="export CONFIG=config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server.sh"
 alias test_bond0="./test-tc-encap-decap-same-server.sh"
-alias test_bond1="export CONFIG=config_encap_decap_same_server.sh; ./test-tc-encap-decap-same-server-bond.sh"
+alias test_bond1="./test-tc-encap-decap-same-server-bond.sh"
 
 alias test1="./$test1"
 
@@ -11194,6 +11203,18 @@ set -x
 		action mirred egress redirect dev $rep2
 
 set +x
+}
+
+function get_ct_aging
+{
+	sysctl -a | grep  net.netfilter.nf_flowtable_udp_timeout
+}
+
+
+function set_ct_aging
+{
+	local timeout=$1
+	sysctl -w net.netfilter.nf_flowtable_udp_timeout=$timeout
 }
 
 function br_ct
