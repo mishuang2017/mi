@@ -5526,6 +5526,7 @@ set +x
 alias idle2='ovs-vsctl set Open_vSwitch . other_config:max-idle=2'
 alias idle10='ovs-vsctl set Open_vSwitch . other_config:max-idle=10000'
 alias idle600='ovs-vsctl set Open_vSwitch . other_config:max-idle=600000'
+alias idle6000='ovs-vsctl set Open_vSwitch . other_config:max-idle=6000000'
 
 function bru
 {
@@ -14029,6 +14030,19 @@ function ovs_flush_rules
     ovs-vsctl set O . other_config:max-idle=1
     sleep 0.5
     ovs-vsctl remove O . other_config max-idle
+}
+
+# Fix issue in libcap-ng-0.8-1.fc33.x86_64 to
+#     prog = drgn.program_from_pid(ovs_pid())
+# Exception: /usr/lib64/libcap-ng.so.0.0.0: .debug_abbrev+0x29d: unknown attribute form 7968
+# use latest code
+function install_libcap-ng
+{
+	sm
+	git clone https://github.com/stevegrubb/libcap-ng.git
+	cd libcap-ng
+	./autogen.sh
+	make-usr
 }
 
 ######## uuu #######

@@ -9,6 +9,8 @@ import os
 sys.path.append("..")
 from lib import *
 
-
-jiffies = prog['jiffies']
-print(jiffies)
+prog = drgn.program_from_kernel()
+# prog['jiffies']
+prog.type('unsigned long')
+# prog['jiffies']
+prog.variable('jiffies')
