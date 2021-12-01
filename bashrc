@@ -11641,6 +11641,9 @@ alias udp-client-example="/labhome/cmi/mi/prg/c/udp-client/udp-client -c 192.168
 alias n2_udp_server="ip netns exec n12 /labhome/cmi/mi/prg/c/udp-server/udp-server"
 alias n1_udp_client="ip netns exec n11 /labhome/cmi/mi/prg/c/udp-client/udp-client -t 10000 -c"
 
+alias ns1_udp_server="ip netns exec ns1 /labhome/cmi/mi/prg/c/udp-server/udp-server"
+alias ns0_udp_client="ip netns exec ns0 /labhome/cmi/mi/prg/c/udp-client/udp-client -t 10000 -c"
+
 function udp1
 {
 	local n=1
