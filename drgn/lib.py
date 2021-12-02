@@ -383,6 +383,11 @@ def hash(rhashtable, type, member):
 
     return nodes
 
+# def print_mlx5_flow_handle(handle):
+#     num_rules = handle.num_rules
+#     for k in range(num_rules):
+#         print_dest(handle.rule[k])
+
 def print_mlx5_flow_handle(handle):
     print("\n=== mlx5_flow_handle start ===")
     num = handle.num_rules.value_()
@@ -390,6 +395,12 @@ def print_mlx5_flow_handle(handle):
     for i in range(num):
         print(handle.rule[i].dest_attr)
     print("=== mlx5_flow_handle end ===\n")
+
+def print_mlx5e_tc_flow_rules(rules):
+    if rules[0]:
+        print_mlx5_flow_handle(rules[0])
+    if rules[1]:
+        print_mlx5_flow_handle(rules[1])
 
 def print_mlx5_fc(fc):
     p = fc.lastpackets
@@ -593,10 +604,6 @@ def print_dest(rule):
     else:
         print(rule)
 
-def print_mlx5_flow_handle(handle):
-    num_rules = handle.num_rules
-    for k in range(num_rules):
-        print_dest(handle.rule[k])
 
 def print_mlx5_esw_flow_attr(attr):
     print("\t\taction: %x" % attr.action, end='\t')
@@ -698,7 +705,7 @@ def print_fs_dr_rule(fte):
 
 def print_match(fte, mask):
 #     print_fs_dr_rule(fte)
-    print("fs_fte %lx\tflow_source: %x (0: any, 1, uplink: 2: local)" % (fte.address_of_().value_(), fte.flow_context.flow_source))
+    print("fs_fte %lx\tflow_source: %x (0: any, 1: uplink: 2: local)" % (fte.address_of_().value_(), fte.flow_context.flow_source))
     val = fte.val
 #     print(val)
 #     smac = str(ntohl(hex(val[0])))
@@ -1014,12 +1021,12 @@ def print_mlx5_rx_tun_attr(tun_attr):
 def print_mlx5e_tc_flow(flow):
     print("===============================")
     name = flow.priv.netdev.name.string_().decode()
-    print(flow.decap_route)
-#     print(flow.rule[0])
+#     print(flow.decap_route)
+    print_mlx5e_tc_flow_rules(flow.rule)
     flow_attr = flow.attr
-#     print(flow_attr)
+    print(flow_attr)
     esw_attr = flow_attr.esw_attr[0]
-#     print(esw_attr)
+    print(esw_attr)
     parse_attr = flow_attr.parse_attr
     print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
         (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))

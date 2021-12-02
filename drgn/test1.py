@@ -11,7 +11,5 @@ sys.path.append(".")
 from lib import *
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
-offloads = mlx5e_priv.mdev.priv.eswitch.offloads
-post_action = offloads.post_action
-print("%x" % post_action.id)
-flow_table("", post_action)
+esw = mlx5e_priv.mdev.priv.eswitch
+print(esw.user_count)
