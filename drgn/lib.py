@@ -176,8 +176,9 @@ def print_exts(e):
             print("\toutput: %s," % tcf_mirred.tcfm_dev.name.string_().decode(), end='\t')
             print_action_stats(a)
         if kind == "gact":
-            print("\ttcf_chain %lx" % a.goto_chain.value_(), end='')
-            print("\trecirc_id: %d, 0x%x" % (a.goto_chain.index, a.goto_chain.index))
+            print("\tgact action: %d (TC_ACT_SHOT = 2)" % a.tcfa_action)
+            if a.goto_chain.value_():
+                print("\trecirc_id: %d, 0x%x" % (a.goto_chain.index, a.goto_chain.index))
         if kind == "tunnel_key":
             tun = Object(prog, 'struct tcf_tunnel_key', address=a.value_())
             if tun.params.tcft_action == 1:

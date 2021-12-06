@@ -10428,7 +10428,7 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-ovs-ct-scapy-udp-vf-mirror.sh
+test1=test-tc-insert-rules-nic.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
