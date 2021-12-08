@@ -235,6 +235,9 @@ if (( cloud == 1 )); then
 	done
 
 	link_remote_ip=192.168.1.$rhost_num
+	vf1=enp8s0f2
+	vf2=enp8s0f3
+	vf3=enp8s0f4
 fi
 
 test -f /sys/class/net/$link/address && link_mac=$(cat /sys/class/net/$link/address)
@@ -2624,7 +2627,7 @@ function tc-setup
 	[[ $# == 1 ]] && l=$1
 set -x
 	TC=tc
-	TC=/images/cmi/iproute2/tc/tc
+# 	TC=/images/cmi/iproute2/tc/tc
 	$TC qdisc del dev $l ingress > /dev/null 2>&1
 	ethtool -K $l hw-tc-offload on 
 	$TC qdisc add dev $l ingress 
@@ -12213,12 +12216,24 @@ function branch
 	git branch | grep \* | cut -d ' ' -f2
 }
 
-function tc1
+alias tcn=tc_nic
+function tc_nic
 {
-	tc-setup $rep2
-#	tc filter add dev $rep2 protocol ip parent ffff: prio 1 flower skip_hw dst_mac cc:cc:cc:cc:cc:cc action drop
-	tc filter add dev $rep2 protocol ip parent ffff: prio 1 flower skip_sw dst_mac aa:bb:cc:dd:ee:ff action simple sdata '"unsupported action"'
+	local nic=$rep2
+	local nic=$vf
+	[[ $# == 0 ]] && prio=3 || prio=$1
+
+	vf=enp8s0f2
+	tc-setup $nic
+	tc -s filter add dev $nic protocol ip parent ffff: prio $prio flower skip_sw \
+		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
+		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
+
+# 	tc filter add dev $rep2 protocol ip parent ffff: prio 3 flower dst_mac cc:cc:cc:cc:cc:cc action drop
+# 	tc filter add dev $rep2 protocol ip parent ffff: prio 1 flower skip_sw dst_mac aa:bb:cc:dd:ee:ff action simple sdata '"unsupported action"'
 }
+
+alias tc2n="tc qdisc del dev $vf1 ingress"
 
 function git-send-ovs
 {

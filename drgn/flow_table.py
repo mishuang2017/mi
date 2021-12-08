@@ -39,8 +39,8 @@ def print_prio(prio):
     num_ft = prio.num_ft.value_()
 #     print("fs_prio %lx" % prio)
     if num_ft:
-        print("prio: num_level: %4d, start_level: %4d, prio: %4d, num_ft: %4d" % \
-            (num_levels, start_level, prio1, num_ft))
+        print("prio: %x, num_level: %4d, start_level: %4d, prio: %4d, num_ft: %4d" % \
+            (prio, num_levels, start_level, prio1, num_ft))
 
 def print_table(table):
     id = table.id
@@ -76,7 +76,7 @@ def print_namespace(ns):
 
 root_ns = steering.root_ns
 print('')
-print("============ root_ns ===============")
+print("============ root_ns mlx5_flow_namespace %x ===============" % root_ns.ns.address_of_())
 print_namespace(root_ns.ns)
 print('')
 
@@ -86,9 +86,9 @@ print('')
 
 print("============ fdb_sub_ns ===============")
 fdb_sub_ns = steering.fdb_sub_ns
-for i in range(4):
+for i in range(5):
     ns = fdb_sub_ns[i]
 
-    print("=== namespace %d ===" %i)
+    print("=== namespace %d, %x, %x ===" % (i, ns.value_(), ns.address_of_()))
     print_namespace(ns)
     print("")
