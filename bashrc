@@ -9506,9 +9506,9 @@ function get_vf_ns
 	ip netns exec $ns ls /sys/class/net | grep en
 }
 
-vf1=$(get_vf $host_num 1 1)
-vf2=$(get_vf $host_num 1 2)
-vf3=$(get_vf $host_num 1 3)
+# vf1=$(get_vf $host_num 1 1)
+# vf2=$(get_vf $host_num 1 2)
+# vf3=$(get_vf $host_num 1 3)
 
 # vf1_2=$(get_vf $host_num 2 1)
 # vf2_2=$(get_vf $host_num 2 2)
@@ -10747,14 +10747,12 @@ function replace
 # 1546524
 function tc1
 {
-	local n=1
-	local l=$link
-	[[ $# == 1 ]] && n=$1
-	tc qdisc del dev $l ingress;
-	tc qdisc add dev $l ingress;
-	ethtool -K $l hw-tc-offload on 
-	tc filter add dev $link prio 1 protocol all parent ffff: flower skip_sw action mirred egress redirect dev $rep2
+	tc-setup $rep2
+	src_mac=02:25:d0:$host_num:01:02
+	dst_mac=02:25:d0:$host_num:01:03
+	$TC filter add dev $rep2 prio 2 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 }
+
 alias cp-rpm='scp mi@10.12.205.13:~/rpmbuild/RPMS/x86_64/* .'
 
 function tc-panic
@@ -12229,8 +12227,29 @@ function tc_nic
 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
 
+# 	tc -s filter add dev $nic protocol ip parent ffff: prio 1 flower skip_sw \
+# 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
+# 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
+
 # 	tc filter add dev $rep2 protocol ip parent ffff: prio 3 flower dst_mac cc:cc:cc:cc:cc:cc action drop
 # 	tc filter add dev $rep2 protocol ip parent ffff: prio 1 flower skip_sw dst_mac aa:bb:cc:dd:ee:ff action simple sdata '"unsupported action"'
+}
+
+function tc_nic2
+{
+	local nic=$rep2
+	local nic=$vf
+	[[ $# == 0 ]] && prio=3 || prio=$1
+
+	vf=enp8s0f2
+	tc-setup $nic
+	tc -s filter add dev $nic protocol ip parent ffff: prio 1 flower skip_sw \
+		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
+		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
+
+	tc -s filter add dev $nic protocol ip parent ffff: prio 2 flower skip_sw \
+		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
+		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
 }
 
 alias tc2n="tc qdisc del dev $vf1 ingress"

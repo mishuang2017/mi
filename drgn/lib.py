@@ -446,6 +446,7 @@ def get_mlx5_core_devs():
 
 def get_mlx5_core_dev(index):
     devs = get_mlx5_core_devs()
+#     print(devs)
     return devs[index]
 
 def parse_ct_status(status):
