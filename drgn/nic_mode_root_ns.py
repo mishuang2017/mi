@@ -74,44 +74,16 @@ def print_namespace(ns):
             ns = list_first_entry(prio_node.children, "struct mlx5_flow_namespace", "node.list")
             print("\tmlx5_flow_namespace %x" % ns)
             print_namespace_level2(ns)
-#         table_addr = prio.node.children.address_of_()
-#         for table_node in list_for_each_entry('struct fs_node', table_addr, 'list'):
-#             if table_node.type.value_() == prog['FS_TYPE_NAMESPACE'].value_():
-#                 namespace = container_of(table_node, "struct mlx5_flow_namespace", "node")
-#                 print_namespace(namespace)
-#             elif table_node.type.value_() == prog['FS_TYPE_PRIO'].value_():
-#                 print_prio(prio)
-#             else:
-#                 print(prio)
-#                 table = cast("struct mlx5_flow_table *", table_node)
-#                 print_table(table)
-
-# offloads = priv.eswitch.fdb_table.offloads
-# print(offloads)
 
 root_ns = steering.root_ns
 print('')
 print("============ root_ns mlx5_flow_namespace %x ===============\n" % root_ns)
 print_namespace(root_ns.ns)
-print('')
 
-if steering.fdb_root_ns:
-    fdb_root_ns = steering.fdb_root_ns
-    print(fdb_root_ns.mode)
-    print("root ft: %lx" % fdb_root_ns.root_ft)
-    print("============ fdb_root_ns ===============")
-    print_namespace(fdb_root_ns.ns)
-    print('')
+# for nic mode, both fdb_root_ns and fdb_sub_ns are NULL
+# the flow tables are saved in mlx5_fs_chains samed as esw mode.
 
-if steering.fdb_sub_ns:
-    print("============ fdb_sub_ns ===============")
-    fdb_sub_ns = steering.fdb_sub_ns
-    for i in range(5):
-        ns = fdb_sub_ns[i]
-
-        print("=== namespace %d, %x, %x ===" % (i, ns.value_(), ns.address_of_()))
-        print_namespace(ns)
-        print("")
+sys.exit(0)
 
 mlx5e_priv = get_mlx5e_priv("enp8s0f2")
 mlx5_fs_chains = mlx5e_priv.fs.tc.chains
@@ -132,3 +104,64 @@ for i, chain in enumerate(hash(mlx5_fs_chains.chains_ht, 'struct fs_chain', 'nod
             (next_fdb, miss_group, miss_rule))
         table = prio.ft
         flow_table("", table)
+
+#
+# in .bashrc, use function tc_nic to test it.
+#
+# for nic mode, The namespace is MLX5_FLOW_NAMESPACE_KERNEL. The prio is assigned based on
+# the sequence, so it is 4.
+# In mlx5_get_flow_namespace(), get the first namespace of that prio.
+# There are two prios.
+#
+# } root_fs = {
+#         .type = FS_TYPE_NAMESPACE,
+#         .ar_size = 7,
+#           .children = (struct init_tree_node[]){
+#                   ADD_PRIO(0, BY_PASS_MIN_LEVEL, 0, FS_CHAINING_CAPS,
+#                            ADD_NS(MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+#                                   ADD_MULTIPLE_PRIO(MLX5_BY_PASS_NUM_PRIOS,
+#                                                     BY_PASS_PRIO_NUM_LEVELS))),
+#                   ADD_PRIO(0, LAG_MIN_LEVEL, 0, FS_CHAINING_CAPS,
+#                            ADD_NS(MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+#                                   ADD_MULTIPLE_PRIO(LAG_NUM_PRIOS,
+#                                                     LAG_PRIO_NUM_LEVELS))),
+#                   ADD_PRIO(0, OFFLOADS_MIN_LEVEL, 0, FS_CHAINING_CAPS,
+#                            ADD_NS(MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+#                                   ADD_MULTIPLE_PRIO(OFFLOADS_NUM_PRIOS,
+#                                                     OFFLOADS_MAX_FT))),
+#                   ADD_PRIO(0, ETHTOOL_MIN_LEVEL, 0, FS_CHAINING_CAPS,
+#                            ADD_NS(MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+#                                   ADD_MULTIPLE_PRIO(ETHTOOL_NUM_PRIOS,
+#                                                     ETHTOOL_PRIO_NUM_LEVELS))),
+#                   ADD_PRIO(0, KERNEL_MIN_LEVEL, 0, {},
+#                            ADD_NS(MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+#                                   ADD_MULTIPLE_PRIO(KERNEL_NIC_TC_NUM_PRIOS,
+#                                                     KERNEL_NIC_TC_NUM_LEVELS),
+#                                   ADD_MULTIPLE_PRIO(KERNEL_NIC_NUM_PRIOS,
+#                                                     KERNEL_NIC_PRIO_NUM_LEVELS))),
+#                   ADD_PRIO(0, BY_PASS_MIN_LEVEL, 0, FS_CHAINING_CAPS,
+#                            ADD_NS(MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+#                                   ADD_MULTIPLE_PRIO(LEFTOVERS_NUM_PRIOS,
+#                                                     LEFTOVERS_NUM_LEVELS))),
+#                   ADD_PRIO(0, ANCHOR_MIN_LEVEL, 0, {},
+#                            ADD_NS(MLX5_FLOW_TABLE_MISS_ACTION_DEF,
+#                                   ADD_MULTIPLE_PRIO(ANCHOR_NUM_PRIOS,
+#                                                     ANCHOR_NUM_LEVELS))),
+#         }
+# };
+#
+# So we got:
+#
+# fs_prio ffff9a8778b0ac00, num_level:    9, start_level:   49, prio:    4, num_ft:    0
+#         mlx5_flow_namespace ffff9a8778b0ca00
+#                 fs_prio ffff9a8778b0d600, num_level:    2, start_level:   49, prio:    0, num_ft:    9
+#                         mlx5_flow_table ffff9a8730433400        id: c0003, max_fte:   400000, level:  49, type: (enum fs_flow_table_type)FS_FT_NIC_RX    <= this the chain(0, 1, 0)
+#                 fs_prio ffff9a8778b0d000, num_level:    7, start_level:   51, prio:    1, num_ft:    8
+#                         mlx5_flow_table ffff9a8762c58400        id: 40005, max_fte:    10000, level:  52, type: (enum fs_flow_table_type)FS_FT_NIC_RX
+#                         mlx5_flow_table ffff9a873168cc00        id: 40004, max_fte:    10000, level:  53, type: (enum fs_flow_table_type)FS_FT_NIC_RX
+#                         mlx5_flow_table ffff9a8763099c00        id:     2, max_fte:       80, level:  54, type: (enum fs_flow_table_type)FS_FT_NIC_RX
+#                         mlx5_flow_table ffff9a876309cc00        id:     1, max_fte:       80, level:  55, type: (enum fs_flow_table_type)FS_FT_NIC_RX
+#                         mlx5_flow_table ffff9a8709725800        id: 40000, max_fte:    10000, level:  56, type: (enum fs_flow_table_type)FS_FT_NIC_RX
+#                         mlx5_flow_table ffff9a8731dde400        id: 40001, max_fte:    10000, level:  56, type: (enum fs_flow_table_type)FS_FT_NIC_RX
+#                         mlx5_flow_table ffff9a8749049000        id: 40002, max_fte:    10000, level:  56, type: (enum fs_flow_table_type)FS_FT_NIC_RX
+#                         mlx5_flow_table ffff9a8749044c00        id: 40003, max_fte:    10000, level:  56, type: (enum fs_flow_table_type)FS_FT_NIC_RX

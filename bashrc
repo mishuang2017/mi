@@ -12218,16 +12218,34 @@ function branch
 	git branch | grep \* | cut -d ' ' -f2
 }
 
+function set_trusted_vf_mode() {
+	local nic=$1
+	local pci=$(basename `readlink /sys/class/net/$nic/device`)
+
+set -x
+	mlxreg -d $pci --reg_id 0xc007 --reg_len 0x40 --indexes "0x0.31:1=1" --yes --set "0x4.0:32=0x1"
+set +x
+}
+
+function tc_nic_setup
+{
+	off
+	on-sriov
+	un
+	set_trusted_vf_mode $link
+	bi
+}
+
 alias tcn=tc_nic
 function tc_nic
 {
-	local nic=$rep2
-	local nic=$vf
 	[[ $# == 0 ]] && prio=3 || prio=$1
 
-	vf=enp8s0f2
+	nic=enp8s0f2
+# 	tc_nic_setup
 	tc-setup $nic
-	tc -s filter add dev $nic protocol ip parent ffff: prio $prio flower skip_sw \
+
+	tc -s filter add dev $nic protocol ip parent ffff: chain 2 prio $prio flower skip_sw \
 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
 
@@ -12252,6 +12270,19 @@ function tc_nic2
 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
 
 	tc -s filter add dev $nic protocol ip parent ffff: prio 2 flower skip_sw \
+		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
+		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
+}
+
+function tc_nic_chain
+{
+	local nic=$rep2
+	local nic=$vf
+	[[ $# == 0 ]] && prio=3 || prio=$1
+
+	vf=enp8s0f2
+	tc-setup $nic
+	tc -s filter add dev $nic protocol ip parent ffff: chain 2 prio 1 flower skip_sw \
 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
 }
