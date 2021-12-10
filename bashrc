@@ -10752,6 +10752,7 @@ function tc1
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
 	$TC filter add dev $rep2 prio 2 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 3 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 }
 
 alias cp-rpm='scp mi@10.12.205.13:~/rpmbuild/RPMS/x86_64/* .'
@@ -10836,6 +10837,7 @@ function tc_ct
 set -x
 
 	TC=/images/cmi/iproute2/tc/tc;
+	TC=tc
 
 	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1;
 	ethtool -K $rep2 hw-tc-offload on;
@@ -11160,6 +11162,7 @@ function tc_ct_sample
 set -x
 
 	TC=/images/cmi/iproute2/tc/tc;
+	TC=tc
 
 	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1;
 	ethtool -K $rep2 hw-tc-offload on;
