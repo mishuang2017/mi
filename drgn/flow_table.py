@@ -80,7 +80,7 @@ print("============ root_ns mlx5_flow_namespace %x ===============" % root_ns.ns
 print_namespace(root_ns.ns)
 print('')
 
-print("============ fdb_root_ns ===============")
+print("============ fdb_root_ns mlx5_flow_namespace %x ===============" % fdb_root_ns.ns.address_of_())
 print_namespace(fdb_root_ns.ns)
 print('')
 
