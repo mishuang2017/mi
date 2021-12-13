@@ -12,4 +12,4 @@ from lib import *
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 esw = mlx5e_priv.mdev.priv.eswitch
-print(esw.user_count)
+print(esw.mode)

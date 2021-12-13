@@ -1436,6 +1436,8 @@ set -x
 set +x
 }
 
+alias show_eswitch_mode="devlink dev eswitch show pci/$pci"
+
 function inline-mode
 {
 set -x
