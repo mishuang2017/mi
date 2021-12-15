@@ -21,7 +21,7 @@ mod_hdr_tbl = ct_priv.mod_hdr_tbl
 ht = mod_hdr_tbl.hlist
 for i in range(256):
     for mh in hlist_for_each_entry('struct mlx5e_mod_hdr_handle', ht[i], 'mod_hdr_hlist'):
-        print("--- %d ---" % i)
+        print("--- %x ---" % i)
         print("\tmlx5e_mod_hdr_handle.refcnt: %d" % mh.refcnt.refs.counter)
         print_mod_hdr_key(mh.key)
 

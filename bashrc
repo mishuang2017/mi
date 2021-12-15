@@ -1022,6 +1022,7 @@ alias baidu="del-br; sudo ~cmi/bin/test_router-baidu.sh; enable-ovs-debug"	# vm2
 alias dnat-no-ct="restart-ovs; sudo ~cmi/bin/test_router-dnat.sh; enable-ovs-debug"	# dnat
 alias dnat-ct="del-br; sudo ~cmi/bin/test_router-dnat-ct.sh; enable-ovs-debug"	# dnat
 alias dnat="del-br; sudo ~cmi/bin/test_router-dnat-ct-new.sh; enable-ovs-debug"	# dnat
+alias dnat-only="del-br; sudo ~cmi/bin/test_router-dnat-ct-only.sh; enable-ovs-debug"	# dnat only
 alias dnat-trex="del-br; sudo ~cmi/bin/test_router-dnat-trex.sh; enable-ovs-debug"	# dnat
 alias rx2="restart-ovs; sudo ~cmi/bin/test_router-vxlan2.sh; enable-ovs-debug"
 alias r9t="restart-ovs; sudo ~cmi/bin/test_router9-test.sh; enable-ovs-debug"
@@ -1056,6 +1057,7 @@ alias vi-corrupt="cd /labhome/cmi/mi/prg/c/$corrupt_dir; vi corrupt.c"
 alias corrupt="/labhome/cmi/mi/prg/c/$corrupt_dir/corrupt"
 alias n2_corrupt="n2 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s -l 100"
 alias n1_corrupt="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -t 100000 -c"
+alias n1_corrupt_server="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s"
 
 [[ $UID == 0 ]] && echo 2 > /proc/sys/fs/suid_dumpable
 
@@ -1514,6 +1516,8 @@ alias delm="ovs-ofctl del-flows $br dl_dst=$mac1"
 #     ovs-ofctl add-flow $BR "table=0, in_port=2, dl_type=0x0806, nw_dst=192.168.0.1, actions=load:0x2->NXM_OF_ARP_OP[], move:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[], mod_dl_src:${MAC}, move:NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[], move:NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[], load:0x248a07ad7799->NXM_NX_ARP_SHA[], load:0xc0a80001->NXM_OF_ARP_SPA[], in_port"
 
 alias d="of dump-flows $br"
+alias di="of dump-flows br-int"
+alias de="of dump-flows br-ex"
 function of1
 {
 	[[ $# != 1 ]] && return
@@ -12247,7 +12251,7 @@ function tc_nic
 # 	tc_nic_setup
 	tc-setup $nic
 
-	tc -s filter add dev $nic protocol ip parent ffff: chain 2 prio $prio flower skip_sw \
+	tc -s filter add dev $nic protocol ip parent ffff: chain 0 prio $prio flower skip_sw \
 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
 
