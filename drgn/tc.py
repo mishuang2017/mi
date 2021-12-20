@@ -12,7 +12,6 @@ from lib import *
 
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
-    print(name)
 #     if "enp4s0f0" not in name and "vxlan_sys_4789" != name:
 #     if "enp4s0f0_1" != name:
 #     if "enp4s0f0" != name:
@@ -33,8 +32,8 @@ for x, dev in enumerate(get_netdevs()):
     if block.value_() == 0:
         continue
 
-    print("=============================================================================")
-    print("%20s ingress_sched_data %20x\n" % (name, addr))
+    print("\n====================================== %s =======================================\n" % name)
+#     print("%20s ingress_sched_data %20x\n" % (name, addr))
     print("tcf_block %lx, block index: %d" % (block, block.index))
 
     if struct_exist("struct flow_block_cb"):

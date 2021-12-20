@@ -118,8 +118,8 @@ def print_action_stats(a):
         print("percpu bytes: %d, packets: %d" % (bytes, packets))
     else:
         bstats = a.tcfa_bstats
-        bytes += bstats.bytes
-        packets += bstats.packets
+        bytes += bstats.bytes.v.a.a.counter
+        packets += bstats.packets.v.a.a.counter
         print("bytes: %d, packets: %d" % (bytes, packets))
 
     bytes = 0
@@ -142,7 +142,7 @@ def print_exts(e):
     for i in range(e.nr_actions):
         a = e.actions[i]
         kind = a.ops.kind.string_().decode()
-        print("        action %d: %10s: tc_action %lx" % (i+1, kind, a.value_()), end='')
+        print("        action %d: %10s: tc_action %lx" % (i+1, kind, a.value_()), end='\n')
 #         print(a.cpu_bstats_hw)
 #         print("hw_stats: %d" % a.hw_stats)
         if kind == "ct":
@@ -165,12 +165,12 @@ def print_exts(e):
             tcf_pedit = Object(prog, 'struct tcf_pedit', address=a.value_())
 #             print("%lx" % a.value_())
             n = tcf_pedit.tcfp_nkeys
-            print("tcf_pedit.tcfp_nkeys: %d" % n)
+            print("\t\ttcf_pedit.tcfp_nkeys: %d" % n)
             for i in range(n):
+                print("\t\t%d:\t" % i, end='')
                 print(tcf_pedit.tcfp_keys_ex[i].htype)
-                print("\toffset: %x" % tcf_pedit.tcfp_keys[i].off)
-                print("\tmask:   %08x" % tcf_pedit.tcfp_keys[i].mask)
-                print("\tvalue:  %08x" % tcf_pedit.tcfp_keys[i].val)
+                print("\t\t\toffset: %x" % tcf_pedit.tcfp_keys[i].off, end='\t')
+                print("value / mask:   %08x / %08x" % (tcf_pedit.tcfp_keys[i].val, tcf_pedit.tcfp_keys[i].mask))
         if kind == "mirred":
             tcf_mirred = Object(prog, 'struct tcf_mirred', address=a.value_())
             print("\toutput: %s," % tcf_mirred.tcfm_dev.name.string_().decode(), end='\t')
@@ -197,6 +197,9 @@ def print_exts(e):
             print("\trate: %d, truncate: %d, trunc_size: %d" % (tcf_sample.rate, tcf_sample.truncate, tcf_sample.trunc_size), end='\t')
             print("\tpsample_group_num: %d" % tcf_sample.psample_group_num)
 #             print(tcf_sample.psample_group)
+        if kind == "csum":
+            tcf_csum = Object(prog, 'struct tcf_csum', address=a.value_())
+            print("\t\tupdate_flags: %d" % tcf_csum.params.update_flags)
 
 def print_cls_fl_filter(f):
     print("    cls_fl_filter %lx" % f.address_of_(), end=' ')

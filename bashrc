@@ -1022,7 +1022,7 @@ alias baidu="del-br; sudo ~cmi/bin/test_router-baidu.sh; enable-ovs-debug"	# vm2
 alias dnat-no-ct="restart-ovs; sudo ~cmi/bin/test_router-dnat.sh; enable-ovs-debug"	# dnat
 alias dnat-ct="del-br; sudo ~cmi/bin/test_router-dnat-ct.sh; enable-ovs-debug"	# dnat
 alias dnat="del-br; sudo ~cmi/bin/test_router-dnat-ct-new.sh; enable-ovs-debug"	# dnat
-alias dnat-only="del-br; sudo ~cmi/bin/test_router-dnat-ct-only.sh; enable-ovs-debug"	# dnat only
+alias dnat-only="del-br; sudo ~cmi/bin/test_router-dnat-ct-only.sh"	# dnat only
 alias dnat-trex="del-br; sudo ~cmi/bin/test_router-dnat-trex.sh; enable-ovs-debug"	# dnat
 alias rx2="restart-ovs; sudo ~cmi/bin/test_router-vxlan2.sh; enable-ovs-debug"
 alias r9t="restart-ovs; sudo ~cmi/bin/test_router9-test.sh; enable-ovs-debug"
@@ -7773,6 +7773,7 @@ function none3
 function vsconfig2
 {
 	ovs-vsctl clear Open_vSwitch . other_config
+        restart-ovs
 }
 
 # /mswg/release/BUILDS/fw-4119/fw-4119-rel-16_24_0220-build-001/etc
@@ -10754,11 +10755,20 @@ function replace
 # 1546524
 function tc1
 {
-	tc-setup $rep2
-	src_mac=02:25:d0:$host_num:01:02
-	dst_mac=02:25:d0:$host_num:01:03
-	$TC filter add dev $rep2 prio 2 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-	$TC filter add dev $rep2 prio 3 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+	tc-setup $link
+# 	src_mac=02:25:d0:$host_num:01:02
+# 	dst_mac=02:25:d0:$host_num:01:03
+# 	$TC filter add dev $rep2 prio 2 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+# 	$TC filter add dev $rep2 prio 3 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+
+# ovs-ofctl add-flow $br "table=0,priority=10,in_port=$pf,tcp,tp_dst=9999,nw_dst=8.9.10.1 actions=mod_nw_dst:192.168.0.2,mod_tp_dst:5001,mod_dl_dst=$VF_MAC,ct(commit),dec_ttl,$rep"
+        tc filter add dev $link ingress prio 1 chain 0 proto ip flower skip_hw ip_flags nofrag \
+                action pedit ex munge eth dst set 24:8a:07:ad:77:99 pipe \
+                action pedit ex munge ip src set 8.9.10.1 pipe \
+                action ct commit \
+                action pedit ex munge ip ttl set 63 pipe \
+                action mirred egress redirect dev $rep2
+        tcs $link
 }
 
 alias cp-rpm='scp mi@10.12.205.13:~/rpmbuild/RPMS/x86_64/* .'
@@ -13572,7 +13582,8 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
 	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
-		action sample rate $rate group 5 trunc 80 \
+		action sample rate 10000 group 5 trunc 80 \
+                action police rate 200mbit burst 65536 conform-exceed drop/pipe \
 		action mirred egress redirect dev $rep3
 # 	$TC filter add dev $rep2 ingress protocol arp prio 2 flower $offload \
 # 		action mirred egress redirect dev $rep3
