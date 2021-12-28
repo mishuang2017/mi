@@ -24,11 +24,8 @@ netdev_offload_tc = prog['netdev_offload_tc']
 print("netdev_offload_tc: %x" % netdev_offload_tc.address_of_())
 print(netdev_offload_tc)
 
+print("===")
 
-
-cmap = prog['dpif_offload_apis']
-print(cmap)
-ids = print_cmap(cmap, "dpif_offload_registered_api", "cmap_node")
-
-for i, id in enumerate(ids):
-    print(id)
+shashes = print_hmap(prog['dpif_offload_classes'].map, "shash_node", "node")
+for i, shash in enumerate(shashes):
+    print(shash)

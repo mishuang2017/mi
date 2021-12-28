@@ -890,7 +890,7 @@ alias vigdb='vi ~/.gdbinit'
 alias vi_update_skb='vi -t mlx5e_rep_tc_update_skb'
 alias  vi_psample="vi net/psample/psample.c include/net/psample.h"
 alias  vi_sample2="vi drivers/net/ethernet/mellanox/mlx5/core/esw/sample.c drivers/net/ethernet/mellanox/mlx5/core/esw/sample.h "
-alias   vi_sample="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.c drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.h "
+alias   vi_sample="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.c drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.h drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/sample.c drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/sample.h"
 alias       vi_ct="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h "
 alias      vi_cts="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c drivers/net/ethernet/mellanox/mlx5/core/esw/sample.c \
 	              drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h drivers/net/ethernet/mellanox/mlx5/core/esw/sample.h"
@@ -11199,8 +11199,9 @@ set -x
 	echo "add ct rules"
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac2 ct_state -trk \
+		action ct pipe \
 		action sample rate $rate group 5 trunc 60 \
-		action ct pipe action goto chain 1
+		action goto chain 1
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \
@@ -11267,6 +11268,8 @@ function br_ct
 	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
 
 	ovs-ofctl dump-flows $br
+
+	sflow_create_lo
 }
 
 
@@ -13587,6 +13590,7 @@ set -x
 #                 action police rate 200mbit burst 65536 conform-exceed drop/pipe \
 
 	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
+		action ct pipe \
 		action sample rate 1 group 5 trunc 80 \
 		action mirred egress redirect dev $rep3
 # 	$TC filter add dev $rep2 ingress protocol arp prio 2 flower $offload \
@@ -13596,8 +13600,8 @@ set -x
 
 	src_mac=02:25:d0:$host_num:01:03
 	dst_mac=02:25:d0:$host_num:01:02
+# 		action sample rate $rate group 6 trunc 80 \
 	$TC filter add dev $rep3 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
-		action sample rate $rate group 6 trunc 80 \
 		action mirred egress redirect dev $rep2
 # 	$TC filter add dev $rep3 ingress protocol arp prio 2 flower $offload \
 # 		action mirred egress redirect dev $rep2

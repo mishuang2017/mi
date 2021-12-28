@@ -45,7 +45,7 @@ set -x
         # gdb debug
         # dnf -y debuginfo-install glibc-2.26-15.fc27.x86_64
 	# gdb needs makeinfo
-	yum -y instal texinfo
+	yum -y install texinfo
 
 	# drgn, xz-devel for lzma
 	yum -y install python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel elfutils-devel
