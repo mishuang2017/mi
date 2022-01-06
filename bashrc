@@ -708,6 +708,7 @@ alias smdo="cd ~cmi/mi/drgn/ovs"
 alias d-ovs="sudo ~cmi/mi/drgn/ovs/ovs.py"
 alias sk="cd /swgwork/cmi"
 alias 1.sh="smk; cd ct; ./1.sh"
+alias 2="smk; ./esw_mode.py"
 
 alias softirq="/$images/cmi/bcc/tools/softirqs.py 1"
 alias hardirq="/$images/cmi/bcc/tools/hardirqs.py 5"
@@ -1438,15 +1439,19 @@ set -x
 set +x
 }
 
-alias show_eswitch_mode="devlink dev eswitch show pci/$pci"
+function show_eswitch_mode
+{
+set -x
+	devlink dev eswitch show pci/$pci
+set +x
+}
 
 function inline-mode
 {
 set -x
-	bdf=$(basename `readlink /sys/class/net/$link/device`)
-#	devlink dev eswitch show pci/$bdf mode
-#	devlink dev eswitch show pci/$bdf inline-mode
-	devlink dev eswitch set pci/$bdf inline-mode transport
+	devlink dev eswitch show pci/$pci mode
+	devlink dev eswitch show pci/$pci inline
+# 	devlink dev eswitch set pci/$bdf inline-mode transport
 set +x
 }
 

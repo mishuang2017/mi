@@ -46,7 +46,7 @@ def print_mlx5_vport(priv):
     # print_vport(uplink_vport)
     # print(mlx5e_priv.mdev.mlx5e_res)
 
-    for node in radix_tree_for_each(vports):
+    for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())
         print_vport(mlx5_vport)
 

@@ -21,7 +21,7 @@ mlx5e_priv = lib.get_mlx5_pf0()
 mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
 vhca_map = mlx5_eswitch.offloads.vhca_map
 
-for node in radix_tree_for_each(vhca_map):
+for node in radix_tree_for_each(vhca_map.address_of_()):
     print(node)
     port = Object(prog, 'u16', address=node[1].value_())
     print("port: %x" % port)
