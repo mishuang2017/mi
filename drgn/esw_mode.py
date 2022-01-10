@@ -26,8 +26,7 @@ if hostname.find("c-235-253-1-007") == 0:
 
     if esw.mode.value_() == 1:
         flow_table("offloads", esw.fdb_table.offloads.slow_fdb)
-
-if hostname.find("c-235-253-1-008") == 0:
+else:
     if esw.mode.value_() == 1:
         if esw.fdb_table.legacy.fdb:
             flow_table("legacy", esw.fdb_table.legacy.fdb)
