@@ -13,6 +13,7 @@ from lib import *
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 esw = mlx5e_priv.mdev.priv.eswitch
 print("mode: %d" % esw.mode)
+print("fdb_table.flags: %x" % esw.fdb_table.flags);
 print("enabled_vports: %d" % esw.enabled_vports)
 print("esw_funcs.num_vfs: %d" % esw.esw_funcs.num_vfs)
 print("esw->dev->priv.sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
