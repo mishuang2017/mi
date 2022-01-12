@@ -1135,11 +1135,8 @@ alias vlan6="vlan $link $vid2 $link_ip"
 function call
 {
 set -x
-#	/bin/rm -f cscope.out > /dev/null;
-#	/bin/rm -f tags > /dev/null;
-#	cscope -R -b -k -q &
 	cscope -R -b -k &
-	ctags -R
+	[[ "$1" == "all" ]] && ctags -R
 
 set +x
 }
