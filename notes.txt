@@ -12137,3 +12137,30 @@ mlx5_sf_esw_event
 mlx5_lag_netdev_event
 
 
+===eswitch===
+
+mlx5_devlink_eswitch_mode_set
+
+esw_legacy_enable
+esw_legacy_disable
+
+mlx5_sriov_enable
+mlx5_sriov_disable
+mlx5_sriov_detach
+
+mlx5_device_enable_sriov
+mlx5_device_disable_sriov
+
+mlx5_eswitch_enable_locked
+mlx5_eswitch_disable_locked
+
+mlx5_eswitch_enable
+mlx5_eswitch_disable
+
+esw_offloads_start
+esw_offloads_stop
+
+
+
+
+
