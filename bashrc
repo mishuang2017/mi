@@ -1135,8 +1135,12 @@ alias vlan6="vlan $link $vid2 $link_ip"
 function call
 {
 set -x
-	cscope -R -b -k &
-	[[ "$1" == "all" ]] && ctags -R
+	if [[ "$1" == "all" ]]; then
+		cscope -R -b -k &
+		ctags -R
+	else
+		cscope -R -b -k
+	fi
 
 set +x
 }
@@ -10441,7 +10445,7 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-tc-insert-rules-nic.sh
+test1=test-tc-vxlan-sample.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
@@ -12263,12 +12267,15 @@ function tc_nic
 	[[ $# == 0 ]] && prio=3 || prio=$1
 
 	nic=enp8s0f2
+	nic=eth4
 # 	tc_nic_setup
 	tc-setup $nic
 
+set -x
 	tc -s filter add dev $nic protocol ip parent ffff: chain 0 prio $prio flower skip_sw \
 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
+set +x
 
 # 	tc -s filter add dev $nic protocol ip parent ffff: prio 1 flower skip_sw \
 # 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
@@ -13620,8 +13627,8 @@ set -x
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
-	TC=tc
 	TC=/images/cmi/iproute2/tc/tc
+	TC=tc
 
 	$TC qdisc del dev $rep2 ingress
 	$TC qdisc del dev $rep3 ingress
@@ -14142,6 +14149,29 @@ function install_libcap-ng
 	cd libcap-ng
 	./autogen.sh
 	make-usr
+}
+
+function reproduce
+{
+	on-sriov
+	2
+	ip a
+	un
+	dev
+	show_eswitch_mode
+	ip a
+	bi
+	dev off
+	2
+	ip a
+	restart
+	tc-vf
+	n1 ping 1.1.1.2 -c 2
+	off0
+	2
+	show_eswitch_mode
+	reprobe
+	dmesg
 }
 
 ######## uuu #######

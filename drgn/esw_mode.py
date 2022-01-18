@@ -12,6 +12,7 @@ from lib import *
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 esw = mlx5e_priv.mdev.priv.eswitch
+print("esw->flags: %#x" % esw.flags)
 print("mode: %d" % esw.mode)
 print("fdb_table.flags: %x" % esw.fdb_table.flags);
 print("enabled_vports: %d" % esw.enabled_vports)
@@ -37,7 +38,7 @@ else:
     if esw.mode.value_() == 2:
         flow_table("offloads", esw.fdb_table.offloads.slow_fdb)
 
-sys.exit(0)
+# sys.exit(0)
 
 print("===mlx5_flow_steering===")
 mlx5_flow_steering = mlx5e_priv.mdev.priv.steering
