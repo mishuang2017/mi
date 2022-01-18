@@ -113,6 +113,9 @@ for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
     flow_attr = flow.attr
     esw_attr = flow_attr.esw_attr[0]
     parse_attr = flow_attr.parse_attr
+    print("flow.attr")
+    print("flow.attr: %x" % flow_attr)
+    print("counter id: %x, action: %x" % (flow_attr.counter.id, flow_attr.action))
     print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
         (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))
     print("chain: %x" % flow_attr.chain, end='\t')
@@ -124,10 +127,14 @@ for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
     print("action: %x" % flow_attr.action)
     if flow_attr.sample_attr.value_() != 0:
         sample_flow = flow_attr.sample_attr.sample_flow
-        print(sample_flow.pre_attr)
+        print("sample_flow.pre_attr")
+        print("sample_flow.pre_attr.action: %x" % sample_flow.pre_attr.action)
         print("mlx5_sample_flow %x" % sample_flow)
         print(sample_flow)
         print("sample_flow.restore.obj_id: 0x%x" % sample_flow.restore.obj_id)
+        post_attr = sample_flow.post_act_handle.attr
+        print("post_act_handle.attr: %x" % post_attr)
+        print("counter id: %x, action: %x" % (post_attr.counter.id, post_attr.action))
 #         print(flow_attr)
 #     print("match_criteria_enable: %x" % flow.esw_attr[0].parse_attr.spec.match_criteria_enable)
 #     print(flow.esw_attr[0].parse_attr)

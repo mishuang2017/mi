@@ -6799,7 +6799,7 @@ function start-switchdev
 
 # 	affinity_set
 
-	set_combined 4
+# 	set_combined 4
 
 	return
 }
@@ -13599,7 +13599,6 @@ set -x
 #                 action police rate 200mbit burst 65536 conform-exceed drop/pipe \
 
 	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
-		action ct pipe \
 		action sample rate 1 group 5 trunc 80 \
 		action mirred egress redirect dev $rep3
 # 	$TC filter add dev $rep2 ingress protocol arp prio 2 flower $offload \
@@ -13642,7 +13641,6 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
 	$TC filter add dev $rep2 ingress protocol ip  prio 2 flower $offload src_mac $src_mac dst_mac $dst_mac \
-		action sample rate $rate group 5 \
 		action sample rate $rate group 5 \
 		action mirred egress redirect dev $rep3
 set +x
