@@ -6729,7 +6729,6 @@ function start-switchdev-all
 
 alias mystart=start-switchdev-all
 alias restart='off; dmfs; mystart'
-alias restart_smfs='off; smfs; mystart'
 
 # assume legacy mode was enabled
 function start-switchdev
