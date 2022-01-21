@@ -708,7 +708,7 @@ alias smdo="cd ~cmi/mi/drgn/ovs"
 alias d-ovs="sudo ~cmi/mi/drgn/ovs/ovs.py"
 alias sk="cd /swgwork/cmi"
 alias 1.sh="smk; cd ct; ./1.sh"
-alias 2="smk; ./esw_mode.py"
+alias 2="smk; ./esw_mode.py; cd -"
 
 alias softirq="/$images/cmi/bcc/tools/softirqs.py 1"
 alias hardirq="/$images/cmi/bcc/tools/hardirqs.py 5"
