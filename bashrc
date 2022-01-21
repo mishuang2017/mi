@@ -1201,7 +1201,7 @@ function cloud_setup
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-	yum install -y cscope tmux ctags rsync grubby iperf3 htop pciutils vim diffstat textinfo
+	yum install -y cscope tmux ctags rsync grubby iperf3 htop pciutils vim diffstat texinfo
 
 	if ! test -f ~/.tmux.conf; then
 		mv ~/.bashrc bashrc.orig
