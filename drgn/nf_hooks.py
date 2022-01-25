@@ -15,7 +15,7 @@ net = prog['init_net']
 nf = net.nf
 print(nf)
 
-# 0: NT_INET_PRE_ROUTING
+# 0: NF_INET_PRE_ROUTING
 #   1: ipv4_conntrack_defrag
 #   2: ipv4_conntrack_in
 # 1: NF_INET_LOCAL_IN
@@ -30,8 +30,36 @@ print(nf)
 #   1: selinux_ipv4_postroute
 #   2: ipv4_confirm
 
+# 0: NF_INET_PRE_ROUTING
+#   1: ip_sabotage_in
+#   2: ipv4_conntrack_defrag
+#   3: ipv4_conntrack_in
+#   4: iptable_mangle_hook
+#   5: nf_nat_ipv4_pre_routing
+# 1: NF_INET_LOCAL_IN
+#   1: iptable_mangle_hook
+#   2: ipt_do_table
+#   3: nf_nat_ipv4_local_in
+#   4: ipv4_confirm
+# 2: NF_INET_FORWARD
+#   1: selinux_ip_forward
+#   2: iptable_mangle_hook
+#   3: ipt_do_table
+# 3: NF_INET_LOCAL_OUT
+#   1: ipv4_conntrack_defrag
+#   2: selinux_ip_output
+#   3: ipv4_conntrack_local
+#   4: iptable_mangle_hook
+#   5: nf_nat_ipv4_local_fn
+#   6: ipt_do_table
+# 4: NF_INET_POST_ROUTING
+#   1: iptable_mangle_hook
+#   2: nf_nat_ipv4_out
+#   3: selinux_ip_postroute
+#   4: ipv4_confirm
+
 enum = {}
-enum[0] = "NT_INET_PRE_ROUTING"
+enum[0] = "NF_INET_PRE_ROUTING"
 enum[1] = "NF_INET_LOCAL_IN"
 enum[2] = "NF_INET_FORWARD"
 enum[3] = "NF_INET_LOCAL_OUT"
