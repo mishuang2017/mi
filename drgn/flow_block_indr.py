@@ -95,9 +95,20 @@ if mlx5e_rep_priv.value_():
         print(mlx5e_rep_indr_block_priv)
         print(mlx5e_rep_indr_block_priv.netdev.name)
 
-print("=== mlx5e_block_cb_list ===")
+print("\n=== mlx5e_block_cb_list ===\n")
 mlx5e_block_cb_list = prog['mlx5e_block_cb_list']
 print(mlx5e_block_cb_list)
 for flow_block_cb in list_for_each_entry('struct flow_block_cb', mlx5e_block_cb_list.address_of_(), 'driver_list'):
     print(flow_block_cb)
     i = i + 1
+
+print("\n=== flow_indir_dev_list ===\n")
+flow_indir_dev_list = prog['flow_indir_dev_list']
+# print(flow_indir_dev_list)
+
+for flow_indir_dev_info in list_for_each_entry('struct flow_indir_dev_info', flow_indir_dev_list.address_of_(), 'list'):
+    print(flow_indir_dev_info.dev.name)
+#     print(flow_indir_dev_info)
+    cb_list = flow_indir_dev_info.cb_list
+#     for flow_block_offload in list_for_each_entry('struct flow_block_offload', cb_list, 'cb_list'):
+#         print(flow_block_offload)
