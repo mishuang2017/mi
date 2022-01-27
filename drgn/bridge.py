@@ -34,9 +34,11 @@ def print_mlx5_esw_bridge(bridge):
     print("egress_ft %x\n" % egress_ft.value_())
     flow_table("egress_ft", egress_ft)
 
-#     fdb_list = bridge.fdb_list
-#     for fdb_entry in list_for_each_entry('struct mlx5_esw_bridge_fdb_entry', fdb_list.address_of_(), 'list'):
-#         print(fdb_entry)
+    print("\n=== mlx5_esw_bridge mlx5_esw_bridge_fdb_entry ===\n")
+    fdb_list = bridge.fdb_list
+    for fdb_entry in list_for_each_entry('struct mlx5_esw_bridge_fdb_entry', fdb_list.address_of_(), 'list'):
+        print("key.addr: %s, vport_num: %d, dev name: %s" % ((mac((fdb_entry.key.addr))), fdb_entry.vport_num,
+            fdb_entry.dev.name.string_().decode()))
 #         print("\n=== fdb_entry.ingress_handle ===")
 #         print_mlx5_flow_handle(fdb_entry.ingress_handle)
 #         print("=== fdb_entry.egress_handle ===")
@@ -78,3 +80,38 @@ while True:
 #         worker_thread+0x52 [kernel]'
 #         kthread+0x174 [kernel]'
 #         ret_from_fork+0x22 [kernel]'
+
+# 10707.67 0       0       swapper/0       br_switchdev_fdb_notify
+#         br_switchdev_fdb_notify
+#         br_fdb_update
+#         br_handle_frame_finish
+#         br_nf_hook_thresh
+#         br_nf_pre_routing_finish
+#         br_nf_pre_routing
+#         nf_hook_bridge_pre
+#         br_handle_frame
+#         b'__netif_receive_skb_core+0x2bf [kernel]'
+#         b'__netif_receive_skb_list_core+0x12a [kernel]'
+#         b'__netif_receive_skb_list+0x102 [kernel]'
+#         b'netif_receive_skb_list_internal+0x12a [kernel]'
+#         b'napi_complete_done+0x7a [kernel]'
+#         b'mlx5e_napi_poll+0x1b9 [mlx5_core]'
+#         b'__napi_poll+0x2f [kernel]'
+#         b'net_rx_action+0x282 [kernel]'
+#         b'__softirqentry_text_start+0x169 [kernel]'
+#         b'__irq_exit_rcu+0xe9 [kernel]'
+#         b'irq_exit_rcu+0xe [kernel]'
+#         b'common_interrupt+0xc2 [kernel]'
+#         b'asm_common_interrupt+0x1e [kernel]'
+#         b'default_idle+0x14 [kernel]'
+#         b'arch_cpu_idle+0x15 [kernel]'
+#         b'default_idle_call+0x5e [kernel]'
+#         b'cpuidle_idle_call+0x16f [kernel]'
+#         b'do_idle+0x92 [kernel]'
+#         b'cpu_startup_entry+0x20 [kernel]'
+#         b'rest_init+0x170 [kernel]'
+#         b'arch_call_rest_init+0xe [kernel]'
+#         b'start_kernel+0x472 [kernel]'
+#         b'x86_64_start_reservations+0x24 [kernel]'
+#         b'x86_64_start_kernel+0x8e [kernel]'
+#         b'secondary_startup_64_no_verify+0xc3 [kernel]'

@@ -346,7 +346,7 @@ link2_ip=192.168.2.$host_num
 link_ipv6=1::$host_num
 link2_ipv6=2::$host_num
 
-br=br
+br=br1
 br2=br2
 vx=vxlan1
 vx2=vxlan2
@@ -355,6 +355,7 @@ gre_tunnel=gre_tunnel
 bond=bond0
 macvlan=macvlan1
 gre=gre1
+bridge_name=$br
 
 # if [[ "$USER" == "root" ]]; then
 #	if [[ "$(virt-what)" == "" && $centos72 != 1 ]]; then
@@ -14185,27 +14186,24 @@ function install_libcap-ng
 	make-usr
 }
 
-function reproduce
+function tc_bridge2
 {
-	on-sriov
-	2
-	ip a
-	un
-	dev
-	show_eswitch_mode
-	ip a
-	bi
-	dev off
-	2
-	ip a
-	restart
-	tc-vf
-	n1 ping 1.1.1.2 -c 2
-	off0
-	2
-	show_eswitch_mode
-	reprobe
-	dmesg
+	ip link del name $bridge_name type bridge 2>/dev/null
+}
+
+function tc_bridge
+{
+set -x
+	ip link del name $bridge_name type bridge 2>/dev/null
+	ip link add name $bridge_name type bridge
+	iptables -A FORWARD -i $bridge_name -j ACCEPT
+
+	ip link set $rep2 master $bridge_name
+	ip link set $rep3 master $bridge_name
+
+	ip link set $bridge_name up
+	ip link set name $bridge_name type bridge ageing_time 200
+set +x
 }
 
 ######## uuu #######
