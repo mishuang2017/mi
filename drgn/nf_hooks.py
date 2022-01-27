@@ -73,4 +73,4 @@ for i in range(5):
     num = entry.num_hook_entries
     for i in range(num):
         hook = entry.hooks[i].hook
-        print("  %d: %s, %x" % (i + 1, lib.address_to_name(hex(hook), entry.priv)))
+        print("  %d: %s, %x" % (i + 1, lib.address_to_name(hex(hook)), entry.hooks[i].priv))

@@ -393,12 +393,12 @@ def hash(rhashtable, type, member):
 #         print_dest(handle.rule[k])
 
 def print_mlx5_flow_handle(handle):
-    print("\n=== mlx5_flow_handle start ===")
+#     print("\n=== mlx5_flow_handle start ===")
     num = handle.num_rules.value_()
     print("num_rules: %d" % (num))
     for i in range(num):
-        print(handle.rule[i].dest_attr)
-    print("=== mlx5_flow_handle end ===\n")
+        print_dest(handle.rule[i])
+#     print("=== mlx5_flow_handle end ===\n")
 
 def print_mlx5e_tc_flow_rules(rules):
     if rules[0]:

@@ -41,3 +41,13 @@ for x, dev in enumerate(get_netdevs()):
     print("%10d" % count, end='')
     print_kind(dev)
     print("")
+
+# 14.73379 455917  455917  kworker/u20:4   mlx5_add_flow_rules
+#         mlx5_add_flow_rules
+#         mlx5_esw_bridge_fdb_entry_init
+#         mlx5_esw_bridge_fdb_create
+#         mlx5_esw_bridge_switchdev_fdb_event_work
+#         process_one_work+0x249 [kernel]'
+#         worker_thread+0x52 [kernel]'
+#         kthread+0x174 [kernel]'
+#         ret_from_fork+0x22 [kernel]'
