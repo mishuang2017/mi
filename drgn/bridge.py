@@ -44,6 +44,12 @@ def print_mlx5_esw_bridge(bridge):
 #         print("=== fdb_entry.egress_handle ===")
 #         print_mlx5_flow_handle(fdb_entry.egress_handle)
 
+#     print("\n=== mlx5_esw_bridge.egress_miss_handle ==\n")
+#     egress_miss_handle = mlx5_esw_bridge.egress_miss_handle
+#     print(egress_miss_handle)
+    ageing_time = bridge.ageing_time
+    print("ageing_time: %d" % ageing_time)
+
 print("\n=== mlx5_esw_bridge bridges ===\n")
 
 bridges = mlx5_esw_bridge_offloads.bridges
@@ -71,6 +77,7 @@ while True:
 #         print(mlx5_esw_bridge_offloads)
     notifier_block = notifier_block.next
 
+
 # 14.73379 455917  455917  kworker/u20:4   mlx5_add_flow_rules
 #         mlx5_add_flow_rules
 #         mlx5_esw_bridge_fdb_entry_init
@@ -80,6 +87,10 @@ while True:
 #         worker_thread+0x52 [kernel]'
 #         kthread+0x174 [kernel]'
 #         ret_from_fork+0x22 [kernel]'
+
+#         queue_work(mlx5_esw_bridge_switchdev_fdb_event_work)
+#         mlx5_esw_bridge_switchdev_event
+#         call_switchdev_notifiers(SWITCHDEV_FDB_ADD_TO_DEVICE)
 
 # 10707.67 0       0       swapper/0       br_switchdev_fdb_notify
 #         br_switchdev_fdb_notify
