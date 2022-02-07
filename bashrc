@@ -541,11 +541,10 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed5_5='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_5; cp ~cmi/commit-msg asap_dev_reg/.git/hooks/'
-alias clone-ofed5_6='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_6; cp ~cmi/commit-msg asap_dev_reg/.git/hooks/'
+alias clone-ofed5_6='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_6; cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone ssh://l-gerrit.mtl.labs.mlnx:29418/asap_dev_reg; cp ~/config_chrism_cx5.sh asap_dev_reg; cp ~cmi/commit-msg asap_dev_reg/.git/hooks/'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
-alias clone-iproute='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/iproute2 --branch=mlnx_ofed_5_4'
+alias clone-iproute2='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/iproute2 --branch=mlnx_ofed_5_6'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
 alias clone-systemtap='git clone git://sourceware.org/git/systemtap.git'
 alias clone-systemd='git clone git@github.com:systemd/systemd.git'
@@ -953,7 +952,7 @@ alias vfs127="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=127"
 alias vfs63="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=63"
 alias vfs32="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=32"
 alias vfs16="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=16"
-alias vfs2="mlxconfig -d $pci2 set SRIOV_EN=1 NUM_OF_VFS=4"
+alias vfs4="mlxconfig -d $pci2 set SRIOV_EN=1 NUM_OF_VFS=4"
 alias vfq="mlxconfig -d $pci q"
 alias vfq2="mlxconfig -d $pci2 q"
 alias vfsm="mlxconfig -d $linik_bdf set NUM_VF_MSIX=16"
@@ -6618,6 +6617,7 @@ alias n21='exe n21'
 
 alias ns0='exe ns0'
 alias ns1='exe ns1'
+alias ns2='exe ns2'
 
 #  1062  echo 08000000,00000000,00000000 > /proc/irq/281/smp_affinity
 #  1063  echo 10000000,00000000,00000000 > /proc/irq/282/smp_affinity
@@ -10482,7 +10482,8 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-tc-vxlan-sample.sh
+test1=test-bridge-egress-miss-restore.sh
+test1=test-devlink-port-fn-rate.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"

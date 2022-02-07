@@ -19,19 +19,25 @@ mlx5_esw_bridge_offloads = mlx5_eswitch.br_offloads
 # egress_ft is per bridge
 
 print("=== mlx5_esw_bridge_offloads ingress ===\n")
+print("ingress_vlan_fg   %x" % mlx5_esw_bridge_offloads.ingress_vlan_fg)
+print("ingress_filter_fg %x" % mlx5_esw_bridge_offloads.ingress_filter_fg)
+print("ingress_mac_fg    %x" % mlx5_esw_bridge_offloads.ingress_mac_fg)
 ingress_ft = mlx5_esw_bridge_offloads.ingress_ft
-print("ingress_ft %x" % ingress_ft.value_())
+print("ingress_ft        %x" % ingress_ft.value_())
+skip_ft = mlx5_esw_bridge_offloads.skip_ft
+print("skip_ft           %x" % skip_ft)
 flow_table("ingress_ft", ingress_ft)
 
-# skip_ft = mlx5_esw_bridge_offloads.skip_ft
-# flow_table("skip_ft", skip_ft)
 
 print("\n=== mlx5_esw_bridge egress ===\n")
 
 def print_mlx5_esw_bridge(bridge):
-    print("bridge.ifindex: %d" % bridge.ifindex)
+    print("bridge.ifindex: %d\n" % bridge.ifindex)
     egress_ft = bridge.egress_ft
-    print("egress_ft %x\n" % egress_ft.value_())
+    print("egress_vlan_fg %x" % bridge.egress_vlan_fg)
+    print("egress_mac_fg  %x" % bridge.egress_mac_fg)
+    print("egress_miss_fg %x" % bridge.egress_miss_fg)
+    print("egress_ft      %x" % egress_ft.value_())
     flow_table("egress_ft", egress_ft)
 
     print("\n=== mlx5_esw_bridge mlx5_esw_bridge_fdb_entry ===\n")
@@ -50,11 +56,11 @@ def print_mlx5_esw_bridge(bridge):
     ageing_time = bridge.ageing_time
     print("ageing_time: %d" % ageing_time)
 
-print("\n=== mlx5_esw_bridge bridges ===\n")
-
 bridges = mlx5_esw_bridge_offloads.bridges
 for mlx5_esw_bridge in list_for_each_entry('struct mlx5_esw_bridge', bridges.address_of_(), 'list'):
     print_mlx5_esw_bridge(mlx5_esw_bridge)
+
+exit(0)
 
 print("\n=== mlx5_esw_bridge ports ===\n")
 ports = mlx5_esw_bridge_offloads.ports.address_of_()
