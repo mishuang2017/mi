@@ -13879,6 +13879,11 @@ function sflow_list
 	ovs-vsctl list sflow
 }
 
+function run_ovs_test
+{
+	make check-offloads TESTSUITEFLAGS='-v 1'
+}
+
 function sflow_create_lo
 {
 	local rate=1
@@ -13887,8 +13892,8 @@ function sflow_create_lo
 
 	local header=60
 	local polling=1000
-# 	ovs-vsctl -- --id=@sflow create sflow agent=lo target=\"127.0.0.1:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
-	ovs-vsctl -- --id=@sflow create sflow agent=lo target=\"127.0.0.1\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+# 	ovs-vsctl -- --id=@sflow create sflow agent=lo target=\"127.0.0.1:6343\" header=$header sampling=$rate polling=$polling -- set bridge $br sflow=@sflow
+	ovs-vsctl -- --id=@sflow create sflow agent=lo target=\"127.0.0.1\" header=$header sampling=$rate polling=$polling -- set bridge $br sflow=@sflow
 }
 
 function sflow_create
@@ -13901,19 +13906,19 @@ function sflow_create
 	local polling=1000
 
 	if (( host_num == 13 )); then
-		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.75.205.14:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.75.205.14:6343\" header=$header sampling=$rate polling=$polling -- set bridge $br sflow=@sflow
 	fi
 	if (( host_num == 14 )); then
 set -x
-		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.75.205.13:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
-# 		ovs-vsctl -- --id=@sflow create sflow agent=$link target=\"192.168.1.13:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.75.205.13:6343\" header=$header sampling=$rate polling=$polling -- set bridge $br sflow=@sflow
+# 		ovs-vsctl -- --id=@sflow create sflow agent=$link target=\"192.168.1.13:6343\" header=$header sampling=$rate polling=$polling -- set bridge $br sflow=@sflow
 set +x
 	fi
 	if (( host_num == 9 )); then
-		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.141.46.10:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.141.46.10:6343\" header=$header sampling=$rate polling=$polling -- set bridge $br sflow=@sflow
 	fi
 	if (( host_num == 10 )); then
-		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.141.46.9:6343\" header=$header sampling=$rate polling=$polling -- set bridge br sflow=@sflow
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.141.46.9:6343\" header=$header sampling=$rate polling=$polling -- set bridge $br sflow=@sflow
 	fi
 }
 
@@ -13922,7 +13927,7 @@ function sflow_create_vxlan
 	local polling=1000
 
 	if (( host_num == 14 )); then
-		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"1.1.1.200:6343\" header=128 sampling=2 polling=$polling -- set bridge br sflow=@sflow
+		ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"1.1.1.200:6343\" header=128 sampling=2 polling=$polling -- set bridge $br sflow=@sflow
 	fi
 }
 
