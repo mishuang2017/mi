@@ -10484,6 +10484,7 @@ fi
 
 test1=test-bridge-egress-miss-restore.sh
 test1=test-devlink-port-fn-rate.sh
+test1=test-vf-vf-ping-legacy-vport-match.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
