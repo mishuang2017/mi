@@ -12160,6 +12160,12 @@ mlx5_eswitch_disable
 esw_offloads_start
 esw_offloads_stop
 
+=== bridge offload ===
+
+br_fdb_offloaded_set
+	BR_FDB_OFFLOADED
+
+
 
 
 
