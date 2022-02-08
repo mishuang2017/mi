@@ -14212,6 +14212,16 @@ set -x
 set +x
 }
 
+function esw_port_metadata
+{
+set -x
+	mode=true
+	devlink dev param show pci/$pci name esw_port_metadata | grep true && mode=false
+	devlink dev param set pci/$pci  name esw_port_metadata value $mode cmode runtime
+	devlink dev param show pci/$pci name esw_port_metadata
+set +x
+}
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
