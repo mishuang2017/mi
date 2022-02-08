@@ -17,12 +17,12 @@ from lib import *
 # prog = drgn.program_from_kernel()
 devlinks = prog['devlinks']
 # print(devlinks)
-for node in radix_tree_for_each(devlinks):
+for node in radix_tree_for_each(devlinks.address_of_()):
     devlink = Object(prog, 'struct devlink', address=node[1].value_())
     pci_name = devlink.dev.kobj.name.string_().decode()
     if pci_name != "0000:08:00.0":
         continue
-    p rint(devlink.ops)
+    print(devlink.ops)
 
 # devlink ffff91b683000000
 # devlink.dev.kobj.name: mlx5_core.sf.2
@@ -106,6 +106,7 @@ for node in radix_tree_for_each(devlinks):
 #         __x64_sys_sendto+0x24 [kernel]
 #         do_syscall_64+0x55 [kernel]
 #         entry_SYSCALL_64_after_hwframe+0x65 [kernel]
+
  
     print("devlink.dev.kobj.name: %s" % pci_name)
     if pci_name.find("mlx5_core.sf") == 0:
@@ -131,7 +132,13 @@ for node in radix_tree_for_each(devlinks):
 #     print(devlink.ops.reload_up)
     mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
     print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
+    print("=== devlink_port ===")
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
         print("\tport index: %x" % port.index)
         if port.index & 0xffff == 0xffff:
              print(port.attrs)
+        print(port.devlink_rate)
+
+    print("\n=== devlink_rate list for node ===\n")
+    for devlink_rate in list_for_each_entry('struct devlink_rate', devlink.rate_list.address_of_(), 'list'):
+        print(devlink_rate)
