@@ -19,7 +19,7 @@ print("enabled_vports: %d" % esw.enabled_vports)
 print("esw_funcs.num_vfs: %d" % esw.esw_funcs.num_vfs)
 print("esw->dev->priv.sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
 
-print(esw.fdb_table.offloads.send_to_vport_meta_grp)
+print("esw.fdb_table.offloads.send_to_vport_meta_grp: %x" % esw.fdb_table.offloads.send_to_vport_meta_grp)
 
 sys.exit(0)
 
