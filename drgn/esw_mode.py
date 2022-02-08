@@ -19,6 +19,10 @@ print("enabled_vports: %d" % esw.enabled_vports)
 print("esw_funcs.num_vfs: %d" % esw.esw_funcs.num_vfs)
 print("esw->dev->priv.sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
 
+print(esw.fdb_table.offloads.send_to_vport_meta_grp)
+
+sys.exit(0)
+
 if hostname.find("c-235-253-1-007") == 0:
     if esw.mode.value_() == 0:
         if esw.fdb_table.legacy.fdb and esw.fdb_table.legacy.fdb.id:
@@ -37,8 +41,6 @@ else:
 
     if esw.mode.value_() == 2:
         flow_table("offloads", esw.fdb_table.offloads.slow_fdb)
-
-# sys.exit(0)
 
 print("===mlx5_flow_steering===")
 mlx5_flow_steering = mlx5e_priv.mdev.priv.steering

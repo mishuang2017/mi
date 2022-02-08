@@ -13,8 +13,6 @@ libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
 from lib import *
 
-print(pf1_name)
-
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 mlx5_eswitch_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table
 

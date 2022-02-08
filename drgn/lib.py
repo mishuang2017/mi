@@ -49,7 +49,7 @@ if hostname.find("c-") == 0:
     pf0_name = "enp8s0f0"
     pf1_name = "enp8s0f1"
 
-print(pf0_name)
+print("pf0_name: %s" % pf0_name)
 
 def name_to_address(name):
     (status, output) = subprocess.getstatusoutput("grep -w " + name + " /proc/kallsyms | awk '{print $1}'")
@@ -582,7 +582,8 @@ def print_tun(tun):
         ntohs(tun.key.tp_dst.value_())))
 
 def print_dest(rule):
-    print("\t\tmlx5_flow_rule %lx" % rule.address_of_().value_())
+    print("\t\tmlx5_flow_rule %lx, refcount: %d" % \
+        (rule.address_of_().value_(), rule.node.refcount.refs.counter))
 #     print(rule.dest_attr)
     if prog['MLX5_FLOW_DESTINATION_TYPE_COUNTER'] == rule.dest_attr.type:
         print("\t\t\tdest: counter_id: %x" % (rule.dest_attr.counter_id))
@@ -673,7 +674,8 @@ def flow_table(name, table):
 #         print_mlx5_flow_group_dr(mlx5_flow_group)
         match_criteria_enable = mlx5_flow_group.mask.match_criteria_enable
         mask = mlx5_flow_group.mask.match_criteria
-        print("mlx5_flow_group %lx, match_criteria_enable: 0x%x" % (group, match_criteria_enable))
+        print("mlx5_flow_group %lx, id: %d, match_criteria_enable: %#x, refcount: %d" % \
+            (group, mlx5_flow_group.id, match_criteria_enable, mlx5_flow_group.node.refcount.refs.counter))
         fte_addr = group.children.address_of_()
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
@@ -710,7 +712,8 @@ def print_fs_dr_rule(fte):
 
 def print_match(fte, mask):
 #     print_fs_dr_rule(fte)
-    print("fs_fte %lx\tflow_source: %x (0: any, 1: uplink: 2: local)" % (fte.address_of_().value_(), fte.flow_context.flow_source))
+    print("fs_fte %lx\tflow_source: %x (0: any, 1: uplink: 2: local), refcount: %d" % \
+        (fte.address_of_().value_(), fte.flow_context.flow_source, fte.node.refcount.refs.counter))
     val = fte.val
 #     print(val)
 #     smac = str(ntohl(hex(val[0])))
