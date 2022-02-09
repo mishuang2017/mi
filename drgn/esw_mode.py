@@ -22,14 +22,14 @@ print("esw.fdb_table.offloads.send_to_vport_meta_grp: %x" % esw.fdb_table.offloa
 print("esw->fdb_table.offloads.send_to_vport_meta_rules: %d" % esw.fdb_table.offloads.send_to_vport_meta_rules)
 
 if type_exist("enum mlx5_eswitch_action"):
-    if esw.mode.value_() == 1:
+    if esw.mode.value_() == 0:
+        if not esw.fdb_table.legacy.fdb:
+            print("legacy fdb is 0")
+    elif esw.mode.value_() == 1:
         flow_table("esw.fdb_table.offloads.slow_fdb", esw.fdb_table.offloads.slow_fdb)
 else:
     if esw.mode.value_() == 1:
-        if esw.fdb_table.legacy.fdb:
-            flow_table("legacy", esw.fdb_table.legacy.fdb)
-        else:
+        if not esw.fdb_table.legacy.fdb:
             print("legacy fdb is 0")
-
-    if esw.mode.value_() == 2:
+    elif esw.mode.value_() == 2:
         flow_table("esw.fdb_table.offloads.slow_fdb", esw.fdb_table.offloads.slow_fdb)
