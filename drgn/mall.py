@@ -34,7 +34,7 @@ for x, dev in enumerate(get_netdevs()):
 
 #     print("block.lockeddevcnt: %d" % block.lockeddevcnt)
 
-    if struct_exist("struct flow_block_cb"):
+    if type_exist("struct flow_block_cb"):
         for cb in list_for_each_entry('struct flow_block_cb', block.flow_block.cb_list.address_of_(), 'list'):
 #             print(cb)
 

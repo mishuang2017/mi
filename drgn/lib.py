@@ -108,7 +108,7 @@ def print_action_stats(a):
     packets = 0
     if a.cpu_bstats.value_():
         for cpu in for_each_online_cpu(prog):
-            if struct_exist("struct gnet_stats_basic_sync"):
+            if type_exist("struct gnet_stats_basic_sync"):
                 bytes += per_cpu_ptr(a.cpu_bstats, cpu).bytes.v.a.a.counter
                 packets += per_cpu_ptr(a.cpu_bstats, cpu).packets.v.a.a.counter
             else:
@@ -350,7 +350,7 @@ def get_mlx5e_rep_priv2(port):
     mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=priv.value_())
     return mlx5e_rep_priv
 
-def struct_exist(name):
+def type_exist(name):
     try:
         prog.type(name)
         return True
@@ -374,7 +374,7 @@ def hash(rhashtable, type, member):
     print("")
     for i in range(size):
         rhash_head = buckets[i]
-        if struct_exist("struct rhash_lock_head"):
+        if type_exist("struct rhash_lock_head"):
             rhash_head = cast("struct rhash_head *", rhash_head)
             if rhash_head.value_() == 0:
                 continue
@@ -674,8 +674,9 @@ def flow_table(name, table):
 #         print_mlx5_flow_group_dr(mlx5_flow_group)
         match_criteria_enable = mlx5_flow_group.mask.match_criteria_enable
         mask = mlx5_flow_group.mask.match_criteria
-        print("mlx5_flow_group %lx, id: %d, match_criteria_enable: %#x, refcount: %d" % \
-            (group, mlx5_flow_group.id, match_criteria_enable, mlx5_flow_group.node.refcount.refs.counter))
+        print("mlx5_flow_group %lx, id: %d, match_criteria_enable: %#x, refcount: %d, max_ftes: %d" % \
+            (group, mlx5_flow_group.id, match_criteria_enable, \
+             mlx5_flow_group.node.refcount.refs.counter, mlx5_flow_group.max_ftes))
         fte_addr = group.children.address_of_()
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
