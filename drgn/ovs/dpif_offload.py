@@ -17,6 +17,7 @@ shashes = print_hmap(prog['dpif_classes'].map, "shash_node", "node")
 
 print("\n=== dpif_classes ===\n")
 for i, shash in enumerate(shashes):
+    print("\n\t=== %d ===\n" % i)
     dpif = Object(prog, 'struct registered_dpif_class', address=shash.data)
     print(dpif)
     print(dpif.dpif_class.type)

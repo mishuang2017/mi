@@ -12160,6 +12160,9 @@ mlx5_eswitch_disable
 esw_offloads_start
 esw_offloads_stop
 
+mlx5_eswitch_del_send_to_vport_meta_rules
+mlx5_eswitch_add_send_to_vport_meta_rules
+
 === bridge offload ===
 
 br_fdb_offloaded_set
