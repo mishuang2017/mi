@@ -13,7 +13,7 @@ import time
 sys.path.append(".")
 from lib_ovs import *
 
-xbridge = get_xbridge("br")
+xbridge = get_xbridge("br1")
 
 dpif = xbridge.dpif
 
