@@ -2097,11 +2097,29 @@ function install-python3
 function install-ovs
 {
 set -x
+        make clean
+        ./boot.sh
 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
 #	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
+# 	make -j CFLAGS="-Werror"
 	make -j
 	sudo make install -j
+	restart-ovs
+set +x
+}
+
+function install-ovs2
+{
+set -x
+        make clean
+        ./boot.sh
+	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+# 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
+#	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
+	make -j CFLAGS="-Werror -g"
+	sudo make install -j
+	restart-ovs
 set +x
 }
 
@@ -2110,6 +2128,16 @@ function io
 	test -d ofproto || return
 set -x
 	make -j
+	sudo make install
+	restart-ovs
+set +x
+}
+
+function io2
+{
+	test -d ofproto || return
+set -x
+	make -j  CFLAGS="-Werror -g"
 	sudo make install
 	restart-ovs
 set +x
@@ -10258,7 +10286,7 @@ function make-dpdk
 
 	export RTE_SDK=`pwd`
 	export RTE_TARGET=x86_64-native-linuxapp-gcc
-	make install T=x86_64-native-linuxapp-gcc -j16
+	make install T=x86_64-native-linuxapp-gcc -j9
 }
 
 # alias pmd1="$DPDK_DIR/build/app/testpmd -l 0-8 -n 4 --socket-mem=1024,1024 -w 04:00.0 -w 04:00.2 -- -i"

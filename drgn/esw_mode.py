@@ -21,7 +21,7 @@ print("esw->dev->priv.sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
 print("esw.fdb_table.offloads.send_to_vport_meta_grp: %x" % esw.fdb_table.offloads.send_to_vport_meta_grp)
 print("esw->fdb_table.offloads.send_to_vport_meta_rules: %d" % esw.fdb_table.offloads.send_to_vport_meta_rules)
 
-if type_exist("enum mlx5_eswitch_action"):
+if type_exist("enum mlx5_esw_action"):
     if esw.mode.value_() == 0:
         if not esw.fdb_table.legacy.fdb:
             print("legacy fdb is 0")
