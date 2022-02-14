@@ -2102,8 +2102,7 @@ set -x
 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
 #	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
-# 	make -j CFLAGS="-Werror"
-	make -j
+	make -j CFLAGS="-Werror -g"
 	sudo make install -j
 	restart-ovs
 set +x
@@ -2114,7 +2113,8 @@ function install-ovs2
 set -x
         make clean
         ./boot.sh
-	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+	export PKG_CONFIG_PATH=/root/dpdk.org/build/lib/pkgconfig/
+	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=static
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
 #	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
 	make -j CFLAGS="-Werror -g"
@@ -5675,6 +5675,34 @@ set -x
 		ifconfig $rep up
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
+set +x
+}
+
+function br_dpdk
+{
+set -x
+	del-br
+
+# 	i=1
+# 	local rep=$(get_rep $i)
+# 	ifconfig $rep up
+# 	ovs-vsctl add-port $br $rep -- set Interface $rep ofport_request=$((i+1)) type=dpdk options:dpdk-devargs="class=eth,mac=02:25:d0:25:01:02"
+
+# 	i=2
+# 	local rep=$(get_rep $i)
+# 	ifconfig $rep up
+# 	ovs-vsctl add-port $br $rep -- set Interface $rep ofport_request=$((i+1)) type=dpdk options:dpdk-devargs="class=eth,mac=02:25:d0:25:01:03"
+
+ovs-vsctl --no-wait set Open_vSwitch . other_config:hw-offload=true
+ovs-vsctl --no-wait add-br $br -- set bridge $br datapath_type=netdev
+ovs-vsctl set Open_vSwitch . other_config:dpdk-extra="-w 0000:08:00.0,representor=[0,65535]"
+# ovs-vsctl --no-wait add-port $br dpdk0 -- set Interface dpdk0 type=dpdk -- set Interface dpdk0 options:dpdk-devargs=0000:03:00.0
+ovs-vsctl --no-wait add-port $br $rep2 -- set Interface $rep2 type=dpdk -- set Interface $rep2 options:dpdk-devargs=0000:08:00.0
+# systemctl restart openvswitch
+# ovs-vsctl show
+
+
+
 set +x
 }
 
