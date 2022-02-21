@@ -22,7 +22,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     pci_name = devlink.dev.kobj.name.string_().decode()
     if pci_name != "0000:08:00.0":
         continue
-    print(devlink.ops)
+#     print(devlink.ops)
 
 # devlink ffff91b683000000
 # devlink.dev.kobj.name: mlx5_core.sf.2
@@ -134,9 +134,9 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
     print("=== devlink_port ===")
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
-        print("\tport index: %x" % port.index)
-        if port.index & 0xffff == 0xffff:
-             print(port.attrs)
+        print("\n\tport index: %x" % port.index)
+#         if port.index & 0xffff == 0xffff:
+#              print(port.attrs)
         print(port.devlink_rate)
 
     print("\n=== devlink_rate list for node ===\n")
