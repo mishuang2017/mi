@@ -14318,6 +14318,14 @@ set -x
 set +x
 }
 
+function rate1
+{
+set -x
+	devlink port func rate set pci/$pci/2 tx_share 30mbit
+set +x
+}
+
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
