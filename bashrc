@@ -14277,6 +14277,47 @@ set -x
 set +x
 }
 
+function devlink_rate_limit
+{
+set -x
+	devlink port func rate set pci/$pci/2 tx_share 30mbit
+	devlink port func rate set pci/$pci/2 tx_max 40mbit
+
+	devlink port func rate set pci/$pci/3 tx_share 50mbit
+	devlink port func rate set pci/$pci/3 tx_max 60mbit
+
+	# pci/0000:08:00.0/2: type leaf tx_share 30Mbit tx_max 40Mbit
+	# pci/0000:08:00.0/3: type leaf tx_share 50Mbit tx_max 60Mbit
+
+	devlink port func rate add pci/$pci/1st_grp
+	devlink port func rate add pci/$pci/2nd_grp
+
+	devlink port func rate set pci/$pci/1st_grp tx_share 30mbit
+	devlink port func rate set pci/$pci/1st_grp tx_max 40mbit
+
+	devlink port func rate set pci/$pci/2nd_grp tx_share 10mbit
+	devlink port func rate set pci/$pci/2nd_grp tx_max 20mbit
+
+	# pci/0000:08:00.0/2nd_grp: type node tx_share 10Mbit tx_max 20Mbit
+	# pci/0000:08:00.0/1st_grp: type node tx_share 30Mbit tx_max 40Mbit
+
+	devlink port func rate set pci/$pci/2 parent 1st_grp
+	devlink port func rate set pci/$pci/3 parent 2nd_grp
+	devlink port func rate show
+
+	read
+
+	devlink port func rate set pci/$pci/2 noparent
+	devlink port func rate set pci/$pci/3 noparent
+	devlink port func rate show
+
+	read
+
+	devlink port func rate del pci/$pci/1st_grp
+	devlink port func rate del pci/$pci/2nd_grp
+set +x
+}
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
