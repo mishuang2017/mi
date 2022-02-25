@@ -549,6 +549,10 @@ win+alt+p configuration
 
 c-w o close all other vim windows
 
+===windows===
+
+net user cmi /domain
+
 ===kernel===
 
 /proc/config.gz

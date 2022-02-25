@@ -25,9 +25,9 @@ def print_mlx5_sf(sf):
         (sf.port_index, sf.controller, sf.id, sf.hw_fn_id, sf.hw_state))
 
 for node in radix_tree_for_each(mlx5_sf_table.port_indices):
-#     print(node)
     mlx5_sf = Object(prog, 'struct mlx5_sf', address=node[1].value_())
     print_mlx5_sf(mlx5_sf)
+    print(mlx5_sf)
 
 n_head = mlx5e_priv.mdev.priv.eswitch.n_head
 # print(n_head)
@@ -38,5 +38,5 @@ while True:
         break
 #     print(notifier_block)
     mlx5_sf_table = container_of(notifier_block, "struct mlx5_sf_table", "esw_nb");
-    print(mlx5_sf_table)
+#     print(mlx5_sf_table)
     notifier_block = notifier_block.next
