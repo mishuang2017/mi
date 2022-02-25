@@ -24,10 +24,10 @@ def print_mlx5_sf(sf):
     print("port_index: %d, controller: %d, id: %d, hw_fn_id: %d, hw_state: %d" % \
         (sf.port_index, sf.controller, sf.id, sf.hw_fn_id, sf.hw_state))
 
-for node in radix_tree_for_each(mlx5_sf_table.port_indices):
+for node in radix_tree_for_each(mlx5_sf_table.port_indices.address_of_()):
     mlx5_sf = Object(prog, 'struct mlx5_sf', address=node[1].value_())
     print_mlx5_sf(mlx5_sf)
-    print(mlx5_sf)
+#     print(mlx5_sf)
 
 n_head = mlx5e_priv.mdev.priv.eswitch.n_head
 # print(n_head)

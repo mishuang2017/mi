@@ -14279,7 +14279,8 @@ set +x
 
 function devlink_rate_limit
 {
-	local debug=1
+	local debug=0
+	[[ $# == 1 ]] && debug=1
 set -x
 	devlink port func rate set pci/$pci/2 tx_share 30mbit
 	(( debug == 1 )) && read
@@ -14319,6 +14320,7 @@ set -x
 	(( debug == 1 )) && read
 	devlink port func rate show
 	(( debug == 1 )) && read
+	read
 
 	devlink port func rate set pci/$pci/2 noparent
 	(( debug == 1 )) && read
