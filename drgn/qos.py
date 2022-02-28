@@ -13,8 +13,11 @@ from lib import *
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 esw = mlx5e_priv.mdev.priv.eswitch
 
-print("\n === esw qos ===\n")
+if esw.qos.refcnt.refs.counter == 0:
+    print("qos is not enabled")
+    exit()
 
+print("\n === esw qos ===\n")
 print(esw.qos)
 mlx5_esw_rate_group = esw.qos.group0
 
