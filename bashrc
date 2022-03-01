@@ -2016,6 +2016,7 @@ set -x
 #	sudo /etc/init.d/openibd stop
 	sudo modprobe -r cls_flower
 	sudo modprobe -r mlx5_fpga_tools
+	sudo modprobe -r mlx5_vdpa
 	sudo modprobe -r mlx5_ib
 	sudo modprobe -r mlx5_core
 	sudo modprobe -v mlx5_core
