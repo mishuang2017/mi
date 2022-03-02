@@ -6912,11 +6912,11 @@ function sf
 
 set -x
 	for (( i = 1; i <= n; i++ )); do
-		mlxdevm port add pci/$pci flavour pcisf pfnum 0 sfnum $i
+		devlink port add pci/$pci flavour pcisf pfnum 0 sfnum $i
 		mac=02:25:00:$host_num:01:$i
 		local start=32768
 		local num=$((start+i-1))
-		mlxdevm port function set pci/$pci/$num hw_addr $mac state active
+		devlink port function set pci/$pci/$num hw_addr $mac state active
 	done
 set +x
 }
