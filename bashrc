@@ -259,6 +259,12 @@ ports=1
 base_baud=115200
 base_baud=9600
 
+sfcmd='devlink'
+
+if which mlxdevm &>/dev/null ; then
+	sfcmd='mlxdevm'
+fi
+
 cpu_num=$(nproc)
 if (( cloud == 0 )); then
 	cpu_num2=$((cpu_num*2))
