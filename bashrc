@@ -5625,7 +5625,7 @@ set -x
 	vs add-br $br
 	vs add-port $br $link -- set Interface $link ofport_request=5
 	#for (( i = 1; i < 2; i++)); do
-	for (( i = 0; i < numvfs; i++)); do
+	for (( i = 1; i < numvfs; i++)); do
 		local rep=$(get_rep $i)
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
