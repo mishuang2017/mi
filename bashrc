@@ -203,8 +203,8 @@ elif (( host_num == 14 )); then
 		echo 5000000 > /proc/sys/net/netfilter/nf_conntrack_max
 	fi
 
-elif (( host_num == 5 )); then
-	remote_mac=0c:42:a1:60:62:ac
+elif (( host_num == 7 )); then
+	remote_mac=0c:42:a1:58:ac:2c
 fi
 
 link_remote_ip=192.168.1.$rhost_num
@@ -2519,9 +2519,8 @@ set -x
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
-	TC=/images/cmi/tc-scripts/tc
-	TC=tc
 	TC=/images/cmi/iproute2/tc/tc
+	TC=tc
 
 	$TC qdisc del dev $rep2 ingress
 	$TC qdisc del dev $link ingress
@@ -2535,22 +2534,24 @@ set -x
 	$TC qdisc add dev $rep2 ingress 
 	$TC qdisc add dev $link ingress 
 
-	src_mac=02:25:d0:$host_num:01:02
-	dst_mac=$remote_mac
-	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac \
-		action mirred egress mirror dev $rep1	\
-		action mirred egress redirect dev $link
-	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
-	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $link
+# 	src_mac=02:25:d0:$host_num:01:02
+# 	dst_mac=$remote_mac
+# 	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac \
+# 		action mirred egress mirror dev $rep1	\
+# 		action mirred egress redirect dev $link
+# 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
+# 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $link
 	src_mac=$remote_mac
 	dst_mac=02:25:d0:$host_num:01:02
 	$TC filter add dev $link prio 1 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac \
 		action mirred egress mirror dev $rep1	\
 		action mirred egress redirect dev $rep2
-	$TC filter add dev $link prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
-	$TC filter add dev $link prio 3 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
+# 	$TC filter add dev $link prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
+# 	$TC filter add dev $link prio 3 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 set +x
 }
+
+alias pf=tc-mirror-pf
 
 function tc-vf
 {
@@ -3565,6 +3566,35 @@ set -x
 	$TC filter add dev $rep2 protocol ip prio 1 handle 1 parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac \
 		action mirred egress mirror dev $rep1	\
 		action vlan push id $vid		\
+		action mirred egress redirect dev $link
+set +x
+}
+
+function tc_mirror
+{
+set -x
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+	TC=tc
+
+	$TC qdisc del dev $rep2 ingress
+	$TC qdisc del dev $link ingress
+
+	ethtool -K $rep2 hw-tc-offload on 
+	ethtool -K $link hw-tc-offload on 
+
+	ip link set $rep2 promisc on
+	ip link set $link promisc on
+
+	$TC qdisc add dev $rep2 ingress 
+	$TC qdisc add dev $link ingress 
+
+	src_mac=02:25:d0:$host_num:01:02	# local vm mac
+	dst_mac=$remote_mac			# remote vm mac
+	$TC filter add dev $rep2 protocol ip prio 1 handle 1 parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac \
+		action mirred egress mirror dev $rep1	\
 		action mirred egress redirect dev $link
 set +x
 }

@@ -28,6 +28,7 @@ mlx5_flow_root_namespace = Object(prog, 'struct mlx5_flow_root_namespace', addre
 fs_dr_domain = mlx5_flow_root_namespace.fs_dr_domain
 # print(fs_dr_domain.dr_domain.refcount)
 print(fs_dr_domain.dr_domain.type)
+print(fs_dr_domain.dr_domain.refcount)
 
 # print(fs_dr_domain)
 
@@ -38,4 +39,9 @@ mlx5dr_icm_pool = mlx5dr_domain.ste_icm_pool
 # print(mlx5dr_icm_pool)
 
 mlx5dr_ste_ctx = mlx5dr_domain.ste_ctx
-print(mlx5dr_ste_ctx)
+# print(mlx5dr_ste_ctx)
+
+i = 1
+for tbl in list_for_each_entry('struct mlx5dr_table', mlx5dr_domain.tbl_list.address_of_(), 'list_node'):
+    print("%3d: mlx5dr_table %x, id: %4d, %#x" % (i, tbl, tbl.table_id, tbl.table_id))
+    i = i + 1
