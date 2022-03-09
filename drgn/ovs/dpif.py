@@ -22,6 +22,9 @@ print(dpif)
 print(dpif.dpif_class)
 # print(prog['dpif_netlink_class'])
 
+if dpif.dpif_class.type.string_().decode() != "system":
+    exit(0)
+
 print("\n===dpif_netlink_class===")
 print("%30s: %s" % ("get_stats", address_to_name(hex(dpif.dpif_class.get_stats.value_()))))
 print("%30s: %s" % ("flow_dump_thread_create", address_to_name(hex(dpif.dpif_class.flow_dump_thread_create.value_()))))
