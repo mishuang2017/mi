@@ -3712,6 +3712,9 @@ static const struct dpctl_command all_commands[] = {
 
 ===ovs===
 
+ovs-vswitchd --enable-dummy --disable-system --disable-system-route  --detach --no-chdir --pidfile --log-file -vvconn -vofproto_dpif -vunixctl
+ovs-appctl -t ovs-vswitchd exit --cleanup
+
 https://docs.openvswitch.org/en/latest/topics/testing/
 
 make check TESTSUITEFLAGS='993'
