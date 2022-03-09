@@ -205,6 +205,8 @@ elif (( host_num == 14 )); then
 
 elif (( host_num == 7 )); then
 	remote_mac=0c:42:a1:58:ac:2c
+elif (( host_num == 8 )); then
+	remote_mac=b8:ce:f6:09:fa:08
 fi
 
 link_remote_ip=192.168.1.$rhost_num
