@@ -14384,6 +14384,10 @@ set -x
 set +x
 }
 
+function ovs_test
+{
+	make check TESTSUITEFLAGS='1'
+}
 
 ######## uuu #######
 
