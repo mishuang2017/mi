@@ -42,6 +42,9 @@ mlx5dr_ste_ctx = mlx5dr_domain.ste_ctx
 # print(mlx5dr_ste_ctx)
 
 i = 1
-for tbl in list_for_each_entry('struct mlx5dr_table', mlx5dr_domain.tbl_list.address_of_(), 'list_node'):
+# ofed
+# for tbl in list_for_each_entry('struct mlx5dr_table', mlx5dr_domain.tbl_list.address_of_(), 'list_node'):
+# upstream
+for tbl in list_for_each_entry('struct mlx5dr_table', mlx5dr_domain.dbg_tbl_list.address_of_(), 'dbg_node'):
     print("%3d: mlx5dr_table %x, id: %4d, %#x" % (i, tbl, tbl.table_id, tbl.table_id))
     i = i + 1

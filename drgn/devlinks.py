@@ -20,8 +20,8 @@ devlinks = prog['devlinks']
 for node in radix_tree_for_each(devlinks.address_of_()):
     devlink = Object(prog, 'struct devlink', address=node[1].value_())
     pci_name = devlink.dev.kobj.name.string_().decode()
-    if pci_name != "0000:08:00.0":
-        continue
+#     if pci_name != "0000:08:00.0":
+#         continue
 #     print(devlink.ops)
 
 # devlink ffff91b683000000
@@ -109,36 +109,31 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 
  
     print("devlink.dev.kobj.name: %s" % pci_name)
-    if pci_name.find("mlx5_core.sf") == 0:
-        auxiliary_device = container_of(devlink.dev, 'struct auxiliary_device', "dev")
-        print("\tauxiliary_device.name: %s" % auxiliary_device.name.string_().decode())
-        print("\tauxiliary_device.id: %d" % auxiliary_device.id)
+#     if pci_name.find("mlx5_core.sf") == 0:
+#         auxiliary_device = container_of(devlink.dev, 'struct auxiliary_device', "dev")
+#         print("\tauxiliary_device.name: %s" % auxiliary_device.name.string_().decode())
+#         print("\tauxiliary_device.id: %d" % auxiliary_device.id)
 
 #         print(devlink.dev.driver)
-        auxiliary_driver = container_of(devlink.dev.driver, "struct auxiliary_driver", "driver")
+#         auxiliary_driver = container_of(devlink.dev.driver, "struct auxiliary_driver", "driver")
 #         print(auxiliary_driver)
 
-        probe = auxiliary_driver.probe
-        print(address_to_name(hex(probe)))
+#         probe = auxiliary_driver.probe
+#         print(address_to_name(hex(probe)))
 
-        remove = auxiliary_driver.remove
-        print(address_to_name(hex(remove)))
+#         remove = auxiliary_driver.remove
+#         print(address_to_name(hex(remove)))
 
-        shutdown = auxiliary_driver.shutdown
-        print(address_to_name(hex(shutdown)))
+#         shutdown = auxiliary_driver.shutdown
+#         print(address_to_name(hex(shutdown)))
 
 #     print(devlink._net)
 #     print(devlink.ops.reload_down)
 #     print(devlink.ops.reload_up)
-    mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
-    print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
+#     mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
+#     print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
     print("=== devlink_port ===")
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
 #              print(port.attrs)
-        print(port.devlink_rate)
-
-    print("\n=== devlink_rate list for node ===\n")
-    for devlink_rate in list_for_each_entry('struct devlink_rate', devlink.rate_list.address_of_(), 'list'):
-        print(devlink_rate)
