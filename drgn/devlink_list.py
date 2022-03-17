@@ -22,8 +22,8 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
     print("devlink %x" % devlink)
     pci_name = devlink.dev.kobj.name.string_().decode()
 #     print(devlink)
-    if pci_name != "0000:04:00.0":
-        continue
+#     if pci_name != "0000:04:00.0":
+#         continue
 
 # devlink ffff91b683000000
 # devlink.dev.kobj.name: mlx5_core.sf.2
@@ -131,7 +131,7 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
 #     print(devlink.ops.reload_down)
 #     print(devlink.ops.reload_up)
     mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
-    print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
+    print("mlx5_core_dev %x" % (mlx5_core_dev.address_of_()))
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
         print("\tport index: %x" % port.index)
         if port.index & 0xffff == 0xffff:
@@ -142,8 +142,3 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
 #              print(port.attrs)
-        print(port.devlink_rate)
-
-    print("\n=== devlink_rate list for node ===\n")
-    for devlink_rate in list_for_each_entry('struct devlink_rate', devlink.rate_list.address_of_(), 'list'):
-        print(devlink_rate)

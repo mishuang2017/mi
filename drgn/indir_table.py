@@ -15,16 +15,17 @@ mlx5e_priv = get_mlx5_pf0()
 
 # struct mlx5_esw_offload
 indir = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.indir
-# print(indir)
+print(indir)
 
 table = indir.table
 
 for i in range(256):
     node = table[i].first
+#     print(node)
     while node.value_():
         obj = container_of(node, "struct mlx5_esw_indir_table_entry", "hlist")
-#         obj = container_of(node, "struct esw_indir_tbl_entry", "hlist")
-#         print(obj)
+        obj = container_of(node, "struct esw_indir_tbl_entry", "hlist")
+        print(obj)
         vport = obj.vport
         print(" ======== vport: %d =========" % vport)
         ft = obj.ft
