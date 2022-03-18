@@ -7989,6 +7989,7 @@ set +x
 
 if (( cloud == 1 )); then
 	alias fwreset="/workspace/cloud_tools/cloud_firmware_reset.sh -ips $(hostname -i)"
+	alias setup_reset="/workspace/cloud_tools/cloud_setup_reset.sh -ips $(hostname -i)"
 else
 	alias fwreset="sudo mlxfwreset -d $pci reset -y"
 fi

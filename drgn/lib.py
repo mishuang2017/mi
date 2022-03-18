@@ -588,7 +588,8 @@ def print_dest(rule):
     if prog['MLX5_FLOW_DESTINATION_TYPE_COUNTER'] == rule.dest_attr.type:
         print("\t\t\tdest: counter_id: %x" % (rule.dest_attr.counter_id))
         return
-    if prog['MLX5_FLOW_DESTINATION_TYPE_VPORT'] == rule.dest_attr.type:
+    if prog['MLX5_FLOW_DESTINATION_TYPE_VPORT'] == rule.dest_attr.type or \
+       prog['MLX5_FLOW_DESTINATION_TYPE_UPLINK'] == rule.dest_attr.type:
         print("\t\t\tdest: vport: %x, flags: %x, (MLX5_FLOW_DEST_VPORT_VHCA_ID: %x, MLX5_FLOW_DEST_VPORT_REFORMAT_ID: %x)" %
             (rule.dest_attr.vport.num, rule.dest_attr.vport.flags,
              prog['MLX5_FLOW_DEST_VPORT_VHCA_ID'], prog['MLX5_FLOW_DEST_VPORT_REFORMAT_ID']))
@@ -608,6 +609,7 @@ def print_dest(rule):
         print("\t\t\tdest: sampler_id: %x" % rule.dest_attr.sampler_id)
         return
     else:
+        print(rule.dest_attr.type)
         print(rule)
 
 
