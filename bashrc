@@ -14456,7 +14456,7 @@ set -x
 set +x
 }
 
-function rate_test2
+function rate_test_port_max
 {
 set -x
 	devlink_rate_test_cleanup
@@ -14467,7 +14467,7 @@ set -x
 set +x
 }
 
-function rate_test4
+function rate_test_port_share
 {
 set -x
 	devlink_rate_test_cleanup
