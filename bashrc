@@ -14403,7 +14403,10 @@ function ovs_test
 	make check TESTSUITEFLAGS='1'
 }
 
-function devlink_rate_test_cleanup
+
+alias rate_show="devlink port fun rate"
+
+function rate_cleanup
 {
 	devlink port function rate set pci/$pci/2 tx_max 0  tx_share 0
 	devlink port function rate set pci/$pci/3 tx_max 0  tx_share 0
@@ -14414,7 +14417,7 @@ function devlink_rate_test_cleanup
 	devlink port fun rate
 }
 
-function devlink_rate_test
+function rate_test
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
@@ -14427,7 +14430,7 @@ set -x
 set +x
 }
 
-function devlink_rate_test5
+function rate_test5
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
@@ -14440,7 +14443,7 @@ set -x
 set +x
 }
 
-function devlink_rate_test6
+function rate_test6
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
@@ -14453,7 +14456,7 @@ set -x
 set +x
 }
 
-function devlink_rate_test2
+function rate_test2
 {
 set -x
 	devlink_rate_test_cleanup
@@ -14464,7 +14467,7 @@ set -x
 set +x
 }
 
-function devlink_rate_test4
+function rate_test4
 {
 set -x
 	devlink_rate_test_cleanup
@@ -14474,12 +14477,12 @@ set -x
 set +x
 }
 
-function devlink_rate_test3
+function rate_test3
 {
 set -x
 	devlink_rate_test_cleanup
 	ethtool -s $link speed 10000 autoneg off
-	devlink port function rate add pci/$pci/g1 tx_max 90000mbit
+	devlink port function rate add pci/$pci/g1 tx_max 9000mbit
 	devlink port function rate set pci/$pci/2 tx_max  9000mbit
 	devlink port function rate set pci/$pci/3 tx_max  9000mbit
 	devlink port function rate set pci/$pci/2 parent g1
