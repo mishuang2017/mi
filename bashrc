@@ -1061,6 +1061,7 @@ alias corrupt="/labhome/cmi/mi/prg/c/$corrupt_dir/corrupt"
 alias n2_corrupt="n2 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s -l 100"
 alias n1_corrupt="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -t 100000 -c"
 alias n1_corrupt_server="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s"
+alias cd_sriov=" cd /sys/class/net/$link/device/sriov"
 
 [[ $UID == 0 ]] && echo 2 > /proc/sys/fs/suid_dumpable
 
@@ -10584,7 +10585,7 @@ fi
 
 test1=test-bridge-egress-miss-restore.sh
 test1=test-vf-vf-ping-legacy-vport-match.sh
-test1=test-devlink-port-fn-rate.sh
+test1=test-vf-lag-nic-tc-rule.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
@@ -14488,6 +14489,11 @@ set -x
 	devlink port function rate set pci/$pci/2 parent g1
 	devlink port function rate set pci/$pci/3 parent g1
 set +x
+}
+
+function pf_stats
+{
+	cat /sys/class/net/enp8s0f0/statistics/rx_packets  /sys/class/net/enp8s0f1/statistics/rx_packets
 }
 
 ######## uuu #######
