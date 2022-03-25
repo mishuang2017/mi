@@ -25,14 +25,15 @@ for i in range(size):
 #         if protocol != 2:
 #             continue
         print("==================================================================================================")
-        print("%-15s" % name, end='\t')
+        print("%-15s %x" % (name, fib), end='\t')
         print("oif: %4d" % oif, end='\t');
         print("fib_protocol: %3d" % protocol, end='\t')
         print("saddr: %15s" % ipv4(ntohl(saddr.value_())), end='\t')
         print("scope: %d" % fib.fib_scope, end='\t')
-        print("nhc_gw: %s" % ipv4(ntohl(fib.fib_nh[0].nh_common.nhc_gw.ipv4.value_())))
-#         print(fib)
-#         print(fib.fib_nh[0])
+        print("fib_nhs: %d" % fib.fib_nhs)
+        for j in range(fib.fib_nhs):
+            print_nh(fib.fib_nh[j])
+        print('')
 
 print('')
 RT_SCOPE_HOST = prog['RT_SCOPE_HOST']

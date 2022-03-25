@@ -19,7 +19,6 @@ print("fib_notifier_net %lx" % fib_notifier_net.address_of_())
 fib_chain = fib_notifier_net.fib_chain
 # print(fib_chain)
 head = fib_chain.head
-print(head)
 
 while head.value_():
     print(head)
