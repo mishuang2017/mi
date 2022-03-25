@@ -31,6 +31,8 @@ alias rc1='. ~cmi/.bashrc'
 host_num=$(hostname | cut -d '-' -f 5 | sed 's/0*//')
 host_num=$((host_num % 100))
 cloud=1
+bf=0
+[[ "$(uname -m)" == "aarch64" ]] && bf=1
 [[ -z $host_num ]] && host_num=1
 if [[ "$(hostname -s)" == "dev-r630-03" ]]; then
 	host_num=13
@@ -240,6 +242,11 @@ if (( cloud == 1 )); then
 	vf1=enp8s0f2
 	vf2=enp8s0f3
 	vf3=enp8s0f4
+fi
+
+if (( bf == 1 )); then
+	link=enp3s0f0np0
+	link2=enp3s0f1np1
 fi
 
 test -f /sys/class/net/$link/address && link_mac=$(cat /sys/class/net/$link/address)

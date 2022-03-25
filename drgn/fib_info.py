@@ -19,7 +19,7 @@ for i in range(size):
         name = nh_common.nhc_dev.name.string_().decode()
         oif = nh_common.nhc_oif
         saddr = fib.fib_nh[0].nh_saddr
-        if name == "eno1" or name == "virbr0":
+        if name != pf0_name and name != pf1_name:
             continue
         protocol = fib.fib_protocol
 #         if protocol != 2:
@@ -33,7 +33,6 @@ for i in range(size):
         print("fib_nhs: %d" % fib.fib_nhs)
         for j in range(fib.fib_nhs):
             print_nh(fib.fib_nh[j])
-        print('')
 
 print('')
 RT_SCOPE_HOST = prog['RT_SCOPE_HOST']
