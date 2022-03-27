@@ -41,4 +41,4 @@ def print_info(info):
 
 for i in range(size):
 	for nh in hlist_for_each_entry('struct fib_nh', fib_info_devhash[i].address_of_(), 'nh_hash'):
-            lib.print_nh(nh)
+            lib.print_fib_nh(nh)

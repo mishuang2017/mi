@@ -1096,7 +1096,17 @@ def print_mlx5e_tc_flow(flow):
         print("\t%d: mlx5e_miniflow %lx" % (j, mlx5e_miniflow_node.miniflow.value_()))
         j = j + 1
 
-def print_nh(nh):
+def get_fib_type(type):
+    if type == 1:
+        return "RTN_UNICAST"
+    elif type == 2:
+        return "RTN_LOCAL"
+    elif type == 3:
+        return "RTN_BROADCAST"
+    else:
+        return "others"
+
+def print_fib_nh(nh):
     fib_info = nh.nh_parent
     name = nh.nh_common.nhc_dev.name.string_().decode()
     fib_type = nh.nh_parent.fib_type.value_()
@@ -1110,13 +1120,33 @@ def print_nh(nh):
 #         return
 
 #     print("fib_nh %lx" % nh)
-    print("\t\tname: %10s" % name, end='')
+    print("\tname: %10s" % name, end='')
     print("  saddr: %15s" % ipv4(socket.ntohl(nh.nh_saddr.value_())), end='')
     print("  gw: %15s" % ipv4(socket.ntohl(nh.nh_common.nhc_gw.ipv4.value_())), end='')
     print("  weight: %4d" % nh.nh_common.nhc_weight.value_(), end='')
     print("  scope: %4d" % nh.nh_common.nhc_scope.value_(), end='')
     print("  flags: %4x" % nh.nh_common.nhc_flags.value_(), end='')
-    print("  fib_info %lx" % nh.nh_parent.value_(), end='')
-    print("  fib_type %x" % nh.nh_parent.fib_type, end='')
+#     print("  fib_info: %lx" % nh.nh_parent.value_(), end='')
+    print("  fib_type: %s" % get_fib_type(nh.nh_parent.fib_type), end='')
     print('')
 #     print_info(fib_info)
+
+def print_fib_info(fib):
+    nh_common = fib.fib_nh[0].nh_common
+    name = nh_common.nhc_dev.name.string_().decode()
+    oif = nh_common.nhc_oif
+    saddr = fib.fib_nh[0].nh_saddr
+    if name != pf0_name and name != pf1_name:
+        return
+    protocol = fib.fib_protocol
+#     if protocol != 2:
+#         return
+    print("==================================================================================================")
+    print("%-15s %x" % (name, fib), end='\t')
+    print("oif: %4d" % oif, end='\t');
+    print("fib_protocol: %3d" % protocol, end='\t')
+    print("saddr: %15s" % ipv4(ntohl(saddr.value_())), end='\t')
+    print("scope: %d" % fib.fib_scope, end='\t')
+    print("fib_nhs: %d" % fib.fib_nhs)
+    for j in range(fib.fib_nhs):
+        print_fib_nh(fib.fib_nh[j])

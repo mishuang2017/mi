@@ -14670,6 +14670,20 @@ function load_psample
 	fi
 }
 
+function reboot1
+{
+	uname=$(uname -r)
+#	pgrep vim && return
+
+	[[ $# == 1 ]] && uname=$1
+
+	sync
+set -x
+	sudo kexec -l /boot/vmlinuz-$uname --reuse-cmdline --initrd=/boot/initrd.img-$uname
+set +x
+	sudo kexec -e
+}
+
 alias status='systemctl status openvswitch-switch'
 alias status2='systemctl status openvswitch-nonetwork.service'
 alias mkconfig=grub-mkconfig

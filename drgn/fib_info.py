@@ -15,24 +15,7 @@ size = prog['fib_info_hash_size']
 
 for i in range(size):
     for fib in hlist_for_each_entry('struct fib_info', fib_info_hash[i].address_of_(), 'fib_hash'):
-        nh_common = fib.fib_nh[0].nh_common
-        name = nh_common.nhc_dev.name.string_().decode()
-        oif = nh_common.nhc_oif
-        saddr = fib.fib_nh[0].nh_saddr
-        if name != pf0_name and name != pf1_name:
-            continue
-        protocol = fib.fib_protocol
-#         if protocol != 2:
-#             continue
-        print("==================================================================================================")
-        print("%-15s %x" % (name, fib), end='\t')
-        print("oif: %4d" % oif, end='\t');
-        print("fib_protocol: %3d" % protocol, end='\t')
-        print("saddr: %15s" % ipv4(ntohl(saddr.value_())), end='\t')
-        print("scope: %d" % fib.fib_scope, end='\t')
-        print("fib_nhs: %d" % fib.fib_nhs)
-        for j in range(fib.fib_nhs):
-            print_nh(fib.fib_nh[j])
+        print_fib_info(fib)
 
 print('')
 RT_SCOPE_HOST = prog['RT_SCOPE_HOST']
