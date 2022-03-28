@@ -83,15 +83,15 @@ print_namespace(root_ns.ns)
 # for nic mode, both fdb_root_ns and fdb_sub_ns are NULL
 # the flow tables are saved in mlx5_fs_chains samed as esw mode.
 
-sys.exit(0)
+# sys.exit(0)
 
-mlx5e_priv = get_mlx5e_priv("enp8s0f2")
+mlx5e_priv = get_mlx5e_priv("enp4s0f0v0")
 mlx5_fs_chains = mlx5e_priv.fs.tc.chains
 # print(mlx5_fs_chains.chains_ht)
 
 for i, chain in enumerate(hash(mlx5_fs_chains.chains_ht, 'struct fs_chain', 'node')):
-#     print(chain)
-    print("chain id: %x\nfdb_chain %x" % (chain.id, chain))
+    print(chain)
+    print("chain id: %x\nfdb_chain %x, chain: %d" % (chain.id, chain, chain.chain))
     for prio in list_for_each_entry('struct prio', chain.prios_list.address_of_(), 'list'):
         fdb = prio.ft
         next_fdb = prio.next_ft
