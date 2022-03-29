@@ -65,7 +65,7 @@ def print_mlx5_vport(priv):
 
     for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())
-        if mlx5_vport.vport == 2 or mlx5_vport.vport == 3:
+        if mlx5_vport.vport < 4:
             print_vport(mlx5_vport)
 
 mlx5e_priv = get_mlx5_pf0()
