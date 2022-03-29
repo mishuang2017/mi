@@ -14425,15 +14425,13 @@ function rate_cleanup
 	devlink port fun rate
 }
 
-function rate_test
+function rate_test_group
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
-	devlink_rate_test_cleanup
+	rate_cleanup
 	devlink port function rate add pci/$pci/g1 tx_max 1000mbit
-	devlink port function rate add pci/$pci/g2 tx_max 2000mbit
 	devlink port function rate set pci/$pci/2 parent g1
-	devlink port function rate set pci/$pci/3 parent g2
 	devlink port fun rate
 set +x
 }
@@ -14442,7 +14440,7 @@ function rate_test5
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
-	devlink_rate_test_cleanup
+	rate_cleanup
 	devlink port function rate add pci/$pci/g1 tx_share  10000mbit
 	devlink port function rate add pci/$pci/g2 tx_share  10000mbit
 	devlink port function rate set pci/$pci/2 parent g1
@@ -14455,7 +14453,7 @@ function rate_test6
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
-	devlink_rate_test_cleanup
+	rate_cleanup
 	devlink port function rate add pci/$pci/g1 tx_share  4000mbit
 	devlink port function rate add pci/$pci/g2 tx_share  1000mbit
 	devlink port function rate set pci/$pci/2 parent g1
@@ -14467,7 +14465,7 @@ set +x
 function rate_test_port_max
 {
 set -x
-	devlink_rate_test_cleanup
+	rate_cleanup
 	ethtool -s $link speed 10000 autoneg off
 	devlink port function rate set pci/$pci/2 tx_max   1000mbit
 	devlink port function rate set pci/$pci/3 tx_max   2000mbit
@@ -14478,7 +14476,7 @@ set +x
 function rate_test_port_share
 {
 set -x
-	devlink_rate_test_cleanup
+	rate_cleanup
 	ethtool -s $link speed 10000 autoneg off
 	devlink port function rate set pci/$pci/2 tx_share   1000mbit
 	devlink port function rate set pci/$pci/3 tx_share   2000mbit
@@ -14488,7 +14486,7 @@ set +x
 function rate_test3
 {
 set -x
-	devlink_rate_test_cleanup
+	rate_cleanup
 	ethtool -s $link speed 10000 autoneg off
 	devlink port function rate add pci/$pci/g1 tx_max 9000mbit
 	devlink port function rate set pci/$pci/2 tx_max  9000mbit
