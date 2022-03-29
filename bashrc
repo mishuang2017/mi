@@ -14501,6 +14501,14 @@ function pf_stats
 	cat /sys/class/net/enp8s0f0/statistics/rx_packets  /sys/class/net/enp8s0f1/statistics/rx_packets
 }
 
+function rate2
+{
+	cd_sriov
+	cd 1
+	echo 1 > group
+	cat config
+}
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
