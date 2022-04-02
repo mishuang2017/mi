@@ -14509,6 +14509,23 @@ function rate2
 	cat config
 }
 
+function rate3
+{
+	cd_sriov
+	cd 2
+	echo 2 > group
+	cat config
+}
+
+if (( bf == 1 )); then
+	alias sml='cd /workspace/linux'
+
+	function headers_install
+	{
+		sudo make headers_install ARCH=arm64 INSTALL_HDR_PATH=/usr -j -B
+	}
+fi
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
