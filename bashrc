@@ -1260,7 +1260,7 @@ function cloud_setup2
 # 	git clone https://github.com/iovisor/bcc.git
 # 	install_bcc
 	if (( bf == 1 )); then
-		atp install -y bpfcc-tools
+		apt install -y bpfcc-tools
 	else
 		yum install -y bcc-tools
 	fi
