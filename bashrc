@@ -1247,16 +1247,7 @@ function cloud_setup2
 		tar zxf linux.tar.gz
 		cd linux
 		/bin/cp -f ~cmi/mi/config.cloud .config
-	elif ((cloud == 1 && bf == 1 && $# == 0 )); then
-		cd /workspace
-		cp /swgwork/cmi/linux.tar.gz .
-		tar zxf linux.tar.gz
-		cd linux
-		git remote set-url origin ssh://cmi@bu-gerrit.mtbu.labs.mlnx:29418/linux-bluefield
-		git fetch origin master-next-nvidia && git checkout FETCH_HEAD && git checkout -b master-next-nvidia
-		/bin/cp -f ~cmi/mi/config.cloud .config
 	fi
-
 
 	install_libkdumpfile
 	sm
@@ -14455,7 +14446,7 @@ function rate_cleanup
 	devlink port fun rate
 }
 
-function rate_test_group
+function rate_group
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
@@ -14524,7 +14515,7 @@ set -x
 set +x
 }
 
-function rate_test_port_max
+function rate_port_max
 {
 set -x
 	rate_cleanup

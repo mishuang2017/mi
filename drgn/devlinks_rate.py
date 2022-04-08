@@ -20,8 +20,8 @@ devlinks = prog['devlinks']
 for node in radix_tree_for_each(devlinks.address_of_()):
     devlink = Object(prog, 'struct devlink', address=node[1].value_())
     pci_name = devlink.dev.kobj.name.string_().decode()
-    if pci_name != "0000:08:00.0":
-        continue
+#     if pci_name != "0000:04:00.0":
+#         continue
 #     print(devlink.ops)
 
 # devlink ffff91b683000000
@@ -136,7 +136,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
-#              print(port.attrs)
+        print(port.attrs)
         print(port.devlink_rate)
 
     print("\n=== devlink_rate list for node ===\n")
