@@ -139,6 +139,6 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print(port.attrs)
         print(port.devlink_rate)
 
-    print("\n=== devlink_rate list for node ===\n")
+    print("\n=== devlink_rate list for node %s ===\n" % pci_name)
     for devlink_rate in list_for_each_entry('struct devlink_rate', devlink.rate_list.address_of_(), 'list'):
         print(devlink_rate)
