@@ -47,6 +47,11 @@ dev_head = prog['dev_head']
 for mlx5_devm_device in list_for_each_entry('struct mlx5_devm_device', dev_head.address_of_(), 'list'):
     print('=============================================')
     print(mlx5_devm_device.device.device.kobj.name)
-#     print(mlx5_devm_device.device.rate_group_list)
+    print(mlx5_devm_device.device.ops)
+#     print(mlx5_devm_device.device)
+
     for mlxdevm_rate_group in list_for_each_entry('struct mlxdevm_rate_group', mlx5_devm_device.device.rate_group_list.address_of_(), 'list'):
         print(mlxdevm_rate_group)
+
+    for mlx5_devm_port in list_for_each_entry('struct mlx5_devm_port', mlx5_devm_device.device.port_list.address_of_(), 'port.list'):
+        print(mlx5_devm_port)
