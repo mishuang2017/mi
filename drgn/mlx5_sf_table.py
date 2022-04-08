@@ -40,3 +40,13 @@ while True:
     mlx5_sf_table = container_of(notifier_block, "struct mlx5_sf_table", "esw_nb");
 #     print(mlx5_sf_table)
     notifier_block = notifier_block.next
+
+print('')
+dev_head = prog['dev_head']
+# print(dev_head)
+for mlx5_devm_device in list_for_each_entry('struct mlx5_devm_device', dev_head.address_of_(), 'list'):
+    print('=============================================')
+    print(mlx5_devm_device.device.device.kobj.name)
+#     print(mlx5_devm_device.device.rate_group_list)
+    for mlxdevm_rate_group in list_for_each_entry('struct mlxdevm_rate_group', mlx5_devm_device.device.rate_group_list.address_of_(), 'list'):
+        print(mlxdevm_rate_group)

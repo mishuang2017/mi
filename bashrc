@@ -9442,7 +9442,8 @@ alias restart-udev='sudo systemctl restart systemd-udevd.service'
 
 alias ofed-configure-memtrack='./configure --with-mlx5-core-and-en-mod --with-memtrack -j'
 alias ofed-configure="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2"
-alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
+alias ofed-configure-mektrack="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
+alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
 
 alias vi_m4='vi compat/config/rdma.m4'
 
@@ -10591,8 +10592,7 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-ecmp-route-events.sh
-test1=test-ecmp-add-multipath-rule.sh
+test1=test-eswitch-sf-qos.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
@@ -14413,6 +14413,7 @@ function ovs_test
 
 
 alias rate_show="devlink port fun rate"
+alias rate_show2="mlxdevm port fun rate show"
 
 function rate_cleanup
 {
@@ -14432,9 +14433,30 @@ set -x
 	rate_cleanup
 	devlink port function rate add pci/$pci/g1 tx_max 1000mbit
 	devlink port function rate set pci/$pci/2 parent g1
-	devlink port fun rate
+	devlink port fun rate show
 set +x
 }
+
+function rate_cleanup_sf
+{
+	mlxdevm port function rate set pci/$pci/32768 tx_max 0  tx_share 0
+	mlxdevm port function rate set pci/$pci/32768 noparent
+	mlxdevm port function rate del pci/$pci/12_group
+	mlxdevm port fun rate show
+}
+
+function rate_group_sf
+{
+set -x
+	ethtool -s $link speed 10000 autoneg off
+	rate_cleanup_sf
+	mlxdevm port function rate set pci/$pci/12_group tx_max 100
+	mlxdevm port function rate set pci/$pci/32768 parent 12_group
+	mlxdevm port fun rate show
+set +x
+}
+
+
 
 function rate_test5
 {
