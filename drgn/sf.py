@@ -43,6 +43,7 @@ while True:
 
 print('')
 dev_head = prog['dev_head']
+print("dev_head list")
 # print(dev_head)
 for mlx5_devm_device in list_for_each_entry('struct mlx5_devm_device', dev_head.address_of_(), 'list'):
     print('=============================================')

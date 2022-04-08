@@ -1227,15 +1227,36 @@ function cloud_setup
 	yum_bcc
 }
 
+function bf2_linux
+{
+	cd /workspace
+	cp /swgwork/cmi/linux.tar.gz .
+	tar zxf linux.tar.gz
+	cd linux
+	git remote set-url origin ssh://cmi@bu-gerrit.mtbu.labs.mlnx:29418/linux-bluefield
+	git fetch origin master-next-nvidia && git checkout FETCH_HEAD && git checkout -b master-next-nvidia
+	/bin/cp -f ~cmi/config.bluefield-bodong-devlink-rate.arm .config
+	make-all all
+}
+
 function cloud_setup2
 {
-	if (( cloud == 1 && $# == 0 )); then
+	if (( cloud == 1 && bf == 0 && $# == 0 )); then
 		sm
 		cp /swgwork/cmi/linux.tar.gz .
 		tar zxf linux.tar.gz
 		cd linux
 		/bin/cp -f ~cmi/mi/config.cloud .config
+	elif ((cloud == 1 && bf == 1 && $# == 0 )); then
+		cd /workspace
+		cp /swgwork/cmi/linux.tar.gz .
+		tar zxf linux.tar.gz
+		cd linux
+		git remote set-url origin ssh://cmi@bu-gerrit.mtbu.labs.mlnx:29418/linux-bluefield
+		git fetch origin master-next-nvidia && git checkout FETCH_HEAD && git checkout -b master-next-nvidia
+		/bin/cp -f ~cmi/mi/config.cloud .config
 	fi
+
 
 	install_libkdumpfile
 	sm
@@ -1247,7 +1268,11 @@ function cloud_setup2
 # 	sm
 # 	git clone https://github.com/iovisor/bcc.git
 # 	install_bcc
-	yum install -y bcc-tools
+	if (( bf == 1 )); then
+		atp install -y bpfcc-tools
+	else
+		yum install -y bcc-tools
+	fi
 
 # 	sm
 # 	clone-iproute
@@ -6946,18 +6971,22 @@ function start-switchdev
 	return
 }
 
+sf1=en8f0pf0sf1
+sf2=en8f0pf0sf2
+
 function sf
 {
 	n=2
         [[ $# == 1 ]] && n=$1
 
 set -x
+        devlink dev eswitch set pci/$pci mode switchdev
 	for (( i = 1; i <= n; i++ )); do
-		devlink port add pci/$pci flavour pcisf pfnum 0 sfnum $i
+		mlxdevm port add pci/$pci flavour pcisf pfnum 0 sfnum $i
 		mac=02:25:00:$host_num:01:$i
 		local start=32768
 		local num=$((start+i-1))
-		devlink port function set pci/$pci/$num hw_addr $mac state active
+		mlxdevm port function set pci/$pci/$num hw_addr $mac state active
 	done
 set +x
 }
@@ -6970,8 +6999,8 @@ function sf_ns
 
 function sf2
 {
-	mlxdevm port del enp8s0f0npf0sf1
-	mlxdevm port del enp8s0f0npf0sf2
+	mlxdevm port del $sf1
+	mlxdevm port del $sf2
 }
 
 function br_sf
@@ -6979,10 +7008,10 @@ function br_sf
 	set -x;
 	del-br;
 	sudo ovs-vsctl add-br $br;
-	ifconfig enp8s0f0npf0sf1 up
-	ifconfig enp8s0f0npf0sf2 up
-	sudo ovs-vsctl add-port $br enp8s0f0npf0sf1
-	sudo ovs-vsctl add-port $br enp8s0f0npf0sf2
+	ifconfig $sf1 up
+	ifconfig $sf2 up
+	sudo ovs-vsctl add-port $br $sf1
+	sudo ovs-vsctl add-port $br $sf2
 	set +x
 }
 
@@ -14441,6 +14470,8 @@ function rate_cleanup_sf
 {
 	mlxdevm port function rate set pci/$pci/32768 tx_max 0  tx_share 0
 	mlxdevm port function rate set pci/$pci/32768 noparent
+	mlxdevm port function rate set pci/$pci/32769 tx_max 0  tx_share 0
+	mlxdevm port function rate set pci/$pci/32769 noparent
 	mlxdevm port function rate del pci/$pci/12_group
 	mlxdevm port fun rate show
 }
@@ -14449,14 +14480,23 @@ function rate_group_sf
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
-	rate_cleanup_sf
+	mlxdevm port function rate add pci/$pci/12_group
 	mlxdevm port function rate set pci/$pci/12_group tx_max 100
 	mlxdevm port function rate set pci/$pci/32768 parent 12_group
 	mlxdevm port fun rate show
 set +x
 }
 
-
+function rate_port_max_sf
+{
+set -x
+	rate_cleanup_sf
+	ethtool -s $link speed 10000 autoneg off
+	mlxdevm port function rate set pci/$pci/32768 tx_max 100
+	mlxdevm port function rate set pci/$pci/32769 tx_max 200
+	mlxdevm port fun rate show
+set +x
+}
 
 function rate_test5
 {
