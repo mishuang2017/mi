@@ -9125,6 +9125,8 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+kstrdup
+
 memchr_inv
 
 numactl --hardware
@@ -12174,9 +12176,4 @@ mlx5_eswitch_add_send_to_vport_meta_rules
 
 br_fdb_offloaded_set
 	BR_FDB_OFFLOADED
-
-
-
-
-
 
