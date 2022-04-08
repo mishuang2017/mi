@@ -1,11 +1,12 @@
 #include <linux/init.h>
 #include <linux/module.h>
+#include <linux/sysfs.h>
 
 MODULE_LICENSE("Dual BSD/GPL");
 
 static int test2_init(void)
 {
-	printk(KERN_ALERT "test2 enter, %d\n", HZ);
+	printk(KERN_ALERT "test2 enter, %d, %s\n", HZ, __stringify(FOO));
 	return 0;
 }
 
