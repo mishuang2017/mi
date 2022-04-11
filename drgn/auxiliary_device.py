@@ -22,7 +22,10 @@ for i in devs.keys():
         print("mlx5_core_dev %lx" % dev.address_of_())
         print("")
         print(dev.device.kobj)
-        for kobject in list_for_each_entry('struct kobject', dev.device.kobj.kset.list.address_of_(), 'entry'):
-            print(kobject.name)
-        mlx5_ib_dev = Object(prog, 'struct mlx5_ib_dev', address=dev.device.driver_data)
-        print(mlx5_ib_dev.num_ports)
+        sd = dev.device.kobj.sd
+        print(sd)
+#         for kobject in list_for_each_entry('struct kobject', dev.device.kobj.kset.list.address_of_(), 'entry'):
+#             print(kobject.name)
+
+#         mlx5_ib_dev = Object(prog, 'struct mlx5_ib_dev', address=dev.device.driver_data)
+#         print(mlx5_ib_dev.num_ports)
