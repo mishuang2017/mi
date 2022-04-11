@@ -10,13 +10,13 @@ import os
 
 libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
-import lib
+from lib import *
 
-devs = lib.get_mlx5_core_devs()
+devs = get_mlx5_core_devs()
 for i in devs.keys():
     dev = devs[i]
     pci_name = dev.device.kobj.name.string_().decode()
-    if pci_name == "0000:08:00.0":
+    if pci_name == get_pci(pf0_name):
         print(pci_name)
         print(dev.coredev_type)
         print("mlx5_core_dev %lx" % dev.address_of_())

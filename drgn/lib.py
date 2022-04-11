@@ -51,6 +51,10 @@ if hostname.find("c-") == 0:
 
 print("pf0_name: %s" % pf0_name)
 
+def get_pci(name):
+    (status, output) = subprocess.getstatusoutput("basename `readlink /sys/class/net/" + name + "/device`")
+    return output
+
 def name_to_address(name):
     (status, output) = subprocess.getstatusoutput("grep -w " + name + " /proc/kallsyms | awk '{print $1}'")
     print("%d, %s" % (status, output))
