@@ -21,9 +21,9 @@ for i in devs.keys():
         print(dev.coredev_type)
         print("mlx5_core_dev %lx" % dev.address_of_())
         print("")
-        print(dev.device.kobj)
-        sd = dev.device.kobj.sd
-        print(sd)
+#         print(dev.device.kobj)
+#         sd = dev.device.kobj.sd
+#         print(sd)
 #         for kobject in list_for_each_entry('struct kobject', dev.device.kobj.kset.list.address_of_(), 'entry'):
 #             print(kobject.name)
 

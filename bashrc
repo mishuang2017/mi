@@ -11,8 +11,8 @@ ofed_mlx5=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
 
 numvfs=4
-numvfs=16
 numvfs=3
+numvfs=16
 
 alias 7='ssh root@10.235.14.7'
 alias 5='ssh root@10.235.14.5'
@@ -1242,11 +1242,19 @@ function bf2_linux
 function cloud_setup2
 {
 	if (( cloud == 1 && bf == 0 && $# == 0 )); then
+		cloud_setup
+		(( machine == 1 )) && cloud_tools_asap_dev
+		(( machine == 2 )) && cloud_tools_asap_dev -s
 		sm
 		cp /swgwork/cmi/linux.tar.gz .
 		tar zxf linux.tar.gz
 		cd linux
 		/bin/cp -f ~cmi/mi/config.cloud .config
+		sml
+		m all
+		cloud_ofed_cp
+		smm
+		rebase
 	fi
 
 	install_libkdumpfile

@@ -14,8 +14,9 @@ for name in pf0_name, pf1_name:
     mlx5e_priv = get_mlx5e_priv(name)
     print("mlx5e_priv %x" % mlx5e_priv.address_of_().value_())
     mlx5_lag = mlx5e_priv.mdev.priv.lag
-    print("mlx5_lag %x" % mlx5_lag)
-    print_fib_info(mlx5_lag.lag_mp.mfi)
+    print("mlx5_lag %x, flags: %x" % (mlx5_lag, mlx5_lag.flags))
+#     print_fib_info(mlx5_lag.lag_mp.mfi)
+    print('')
 
 MLX5_LAG_FLAG_ROCE = prog['MLX5_LAG_FLAG_ROCE']
 MLX5_LAG_FLAG_SRIOV = prog['MLX5_LAG_FLAG_SRIOV']
