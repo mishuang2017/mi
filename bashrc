@@ -11,8 +11,8 @@ ofed_mlx5=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
 
 numvfs=4
-numvfs=3
 numvfs=16
+numvfs=3
 
 alias 7='ssh root@10.235.14.7'
 alias 5='ssh root@10.235.14.5'
@@ -14428,6 +14428,11 @@ set -x
 	devlink port func rate del pci/$pci/2nd_grp
 	(( debug == 1 )) && read
 set +x
+}
+
+function rate_sysfs
+{
+	for i in {0..2} ; do echo 55 > /sys/class/net/$link/device/sriov/$i/group ; done
 }
 
 function rate1
