@@ -12146,7 +12146,7 @@ mlx5_sf_esw_event
 mlx5_lag_netdev_event
 
 
-===eswitch===
+===esw===
 
 mlx5_devlink_eswitch_mode_set
 

@@ -26,6 +26,15 @@ for i in devs.keys():
 #         print(sd)
 #         for kobject in list_for_each_entry('struct kobject', dev.device.kobj.kset.list.address_of_(), 'entry'):
 #             print(kobject.name)
+        print(dev.device.kobj)
+        sd = dev.device.kobj.sd
+#         print(sd)
+        for kobject in list_for_each_entry('struct kobject', dev.device.kobj.kset.list.address_of_(), 'entry'):
+            name = (kobject.name.string_().decode())
+            if name.find("mlx5_core") == 0:
+                print(name)
+#                 driver_private = container_of(kobject, "struct driver_private", "kobj")
+#                 print(driver_private.driver)
 
 #         mlx5_ib_dev = Object(prog, 'struct mlx5_ib_dev', address=dev.device.driver_data)
 #         print(mlx5_ib_dev.num_ports)
