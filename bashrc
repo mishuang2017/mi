@@ -1245,8 +1245,8 @@ function cloud_setup
 		python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
 		bcc-tools
 
-	(( machine_num == 1 )) && cloud_tools_asap_dev
-	(( machine_num == 2 )) && cloud_tools_asap_dev -s
+	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering
+	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s
 	sm
 set -x
 	cp /swgwork/cmi/linux.tar.gz .
