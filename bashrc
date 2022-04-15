@@ -13037,38 +13037,6 @@ set -x
 set +x
 }
 
-function arp2
-{
-set -x
-	if (( host_num == 13 )); then
-		arp -d 1.1.1.2
-		arp -s 1.1.1.2 24:8a:07:88:27:ca
-	fi
-
-	if (( host_num == 14 )); then
-		arp -d 1.1.1.1
-		arp -s 1.1.1.1 24:8a:07:88:27:9a
-	fi
-set +x
-}
-
-
-
-function test-panic
-{
-set -x
-	while :; do
-		ovs-vsctl del-port $rep2 $br
-		ovs-vsctl del-port $link $br
-		ovs-vsctl add-port $rep2 $br
-		ovs-vsctl add-port $link $br
-		sleep 5
-	done
-set +x
-}
-
-alias vm='v drivers/net/ethernet/mellanox/mlx5/core/miniflow.c:1010'
-
 alias top-ovs=" top -p $(pgrep ovs-)"
 
 function siblings
@@ -13080,24 +13048,6 @@ function siblings
 }
 
 alias iperf-dnat='iperf -c 8.9.10.10 -p 9999 -i 1 -t 10000'
-
-function restart-ovs-1
-{
-    n=0
-
-    while :; do
-        echo $n
-        restart-ovs
-	ovs-ofctl add-flow br "table=0,in_port=$link,actions=2,21,22,23,24,25,26,22,23,24,30,31,32,33,34,35,36,32,33,34,40,41,42,43,44,45,46,42,43,44,45,46,47,48,49,50"
-	ovs-ofctl add-flow br "table=0,in_port=$rep2,actions=21,22,23,24,25,26,22,23,24,30,31,32,33,34,35,36,32,33,34,40,41,42,43,44,45,46,42,43,44,45,46,47,48,49,50"
-        sudo ovs-appctl vlog/set netlink_socket:file:DBG;
-        sudo ovs-appctl vlog/set tc:file:DBG
-        sudo ovs-appctl vlog/set dpif_netlink:file:DBG
-        sudo ovs-appctl vlog/set netdev_tc_offloads:file:DBG
-        n=$((n+1))
-        sleep 60
-    done
-}
 
 function ethtool-tx
 {
