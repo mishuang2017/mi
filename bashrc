@@ -1206,7 +1206,7 @@ function create-images
 	chown -R cmi.mtl /images/cmi
 }
 
-function cloud_setup
+function cloud_setup0
 {
 	mkdir -p /images/cmi
 	chown cmi.mtl /images/cmi
@@ -1239,23 +1239,26 @@ function bf2_linux
 	make-all all
 }
 
-function cloud_setup2
+function cloud_setup
 {
-	if (( cloud == 1 && bf == 0 && $# == 0 )); then
-		cloud_setup
-		(( machine == 1 )) && cloud_tools_asap_dev
-		(( machine == 2 )) && cloud_tools_asap_dev -s
-		sm
-		cp /swgwork/cmi/linux.tar.gz .
-		tar zxf linux.tar.gz
-		cd linux
-		/bin/cp -f ~cmi/mi/config.cloud .config
-		sml
-		m all
-		cloud_ofed_cp
-		smm
-		rebase
-	fi
+	sudo yum install -y cscope tmux screen ctags rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
+		python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
+		bcc-tools
+
+	(( machine_num == 1 )) && cloud_tools_asap_dev
+	(( machine_num == 2 )) && cloud_tools_asap_dev -s
+	sm
+set -x
+	cp /swgwork/cmi/linux.tar.gz .
+	tar zvxf linux.tar.gz
+	cd linux
+	/bin/cp -f ~cmi/mi/config.cloud .config
+	sml
+	m all
+	cloud_ofed_cp
+	smm
+	rebase
+set +x
 
 	install_libkdumpfile
 	sm
@@ -1269,8 +1272,6 @@ function cloud_setup2
 # 	install_bcc
 	if (( bf == 1 )); then
 		apt install -y bpfcc-tools
-	else
-		yum install -y bcc-tools
 	fi
 
 # 	sm
@@ -10641,7 +10642,7 @@ alias test1="./$test1"
 alias vi-test="vi /images/cmi/asap_dev_reg/$test1"
 alias vi-test2="vi /workspace/asap_dev_test/$test1"
 alias psample=/images/cmi/asap_dev_reg/psample/psample
-alias cloud_tools_asap_dev="/workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering"
+alias cloud_tools_asap_dev="sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering"
 
 function get-diff
 {
