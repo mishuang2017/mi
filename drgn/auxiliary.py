@@ -12,6 +12,11 @@ libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
 import lib
 
+def print_auxiliary(driver):
+    auxiliary_driver = container_of(driver, "struct auxiliary_driver", "driver")
+    print(auxiliary_driver.name.string_().decode())
+    print(auxiliary_driver)
+
 def print_bus(bus):
     print("===================== %s ==========================" % bus)
     bus_type = prog[bus]
@@ -25,8 +30,7 @@ def print_bus(bus):
         name = driver_private.kobj.name.string_().decode()
         print(name)
         if bus == "auxiliary_bus_type" and name.find("mlx5_core") == 0:
-            auxiliary_driver = container_of(driver_private.driver, "struct auxiliary_driver", "driver")
-            print(auxiliary_driver.name.string_().decode())
+            print_auxiliary(driver_private.driver)
     print('')
 
     print("=== device ===")
