@@ -7964,7 +7964,7 @@ function syndrome
 	local ver=$(echo $1 | sed 's/\./_/g')
 	local type
 	if echo $ver | grep ^26; then
-		type=4127
+		type=4125
 	elif echo $ver | grep ^22; then
 		type=4125
 	elif echo $ver | grep ^16; then
@@ -7976,12 +7976,14 @@ function syndrome
 		return
 	fi
 	local file=/mswg/release/BUILDS/fw-$type/fw-$type-rel-$ver-build-001/etc/syndrome_list.log
+# 	file=/auto/host_fw_release/fw-4125/fw-4125-rel-22_33_0830-build-001/etc/syndrome_list.log
 	echo $file
 	grep -i $2 $file
 }
 
 alias syn5='syndrome 16.30.1004'
 alias syn='syndrome 26.29.2002'
+
 
 # mlxfwup
 
@@ -14434,6 +14436,10 @@ function rate_sysfs
 {
 	for i in {0..2} ; do echo 55 > /sys/class/net/$link/device/sriov/$i/group ; done
 }
+function rate_sysfs2
+{
+	for i in {0..2} ; do echo 0 > /sys/class/net/$link/device/sriov/$i/group ; done
+}
 
 function rate1
 {
@@ -14781,3 +14787,8 @@ alias status='systemctl status openvswitch-switch'
 alias status2='systemctl status openvswitch-nonetwork.service'
 alias mkconfig=grub-mkconfig
 alias mkconfig_cfg='grub-mkconfig -o /boot/grub/grub.cfg'
+
+function install_sshask
+{
+	sudo apt install sshpass ssh-askpass
+}
