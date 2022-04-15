@@ -1254,7 +1254,7 @@ set -x
 	cd linux
 	/bin/cp -f ~cmi/mi/config.cloud .config
 	sml
-	m all
+	make-all all
 	cloud_ofed_cp
 	smm
 	rebase
@@ -6982,11 +6982,12 @@ function sf
 set -x
         devlink dev eswitch set pci/$pci mode switchdev
 	for (( i = 1; i <= n; i++ )); do
-		mlxdevm port add pci/$pci flavour pcisf pfnum 0 sfnum $i
+		cmd=devlink
+		$cmd port add pci/$pci flavour pcisf pfnum 0 sfnum $i
 		mac=02:25:00:$host_num:01:$i
 		local start=32768
 		local num=$((start+i-1))
-		mlxdevm port function set pci/$pci/$num hw_addr $mac state active
+		$cmd port function set pci/$pci/$num hw_addr $mac state active
 	done
 set +x
 }
@@ -6999,8 +7000,10 @@ function sf_ns
 
 function sf2
 {
-	mlxdevm port del $sf1
-	mlxdevm port del $sf2
+	cmd=devlink
+
+	$cmd port del $sf1
+	$cmd port del $sf2
 }
 
 function br_sf
