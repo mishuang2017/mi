@@ -12,10 +12,14 @@ libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
 import lib
 
-def print_auxiliary(driver):
+def print_auxiliary_driver(driver):
     auxiliary_driver = container_of(driver, "struct auxiliary_driver", "driver")
     print(auxiliary_driver.name.string_().decode())
     print(auxiliary_driver)
+
+def print_auxiliary_device(device):
+    auxiliary_device = container_of(device_private.device, "struct auxiliary_device", "dev")
+    print(auxiliary_device.id)
 
 def print_bus(bus):
     print("===================== %s ==========================" % bus)
@@ -30,13 +34,14 @@ def print_bus(bus):
         name = driver_private.kobj.name.string_().decode()
         print(name)
         if bus == "auxiliary_bus_type" and name.find("mlx5_core") == 0:
-            print_auxiliary(driver_private.driver)
+            print_auxiliary_driver(driver_private.driver)
     print('')
 
     print("=== device ===")
     klist_devices = subsys_private.klist_devices
     for device_private in list_for_each_entry('struct device_private', klist_devices.k_list.address_of_(), 'knode_bus.n_node'):
         print(device_private.device.kobj.name.string_().decode())
+#         print(device_private.device)
     print('')
 
 # print_bus("pci_bus_type")
