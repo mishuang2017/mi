@@ -54,6 +54,9 @@ def print_mlx5_vport(priv):
     # print(vports)
 
     def print_vport(vport):
+        group = vport.qos.group
+        if group.value_() == 0:
+            return
         print("mlx5_vport %x" % vport.address_of_(), end=' ')
         print("vport: %4x, %4d, metadata: %4x" % (vport.vport, vport.vport, vport.metadata), end=' ')
         print_mac(vport.info.mac)
@@ -65,8 +68,8 @@ def print_mlx5_vport(priv):
 
     for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())
-        if mlx5_vport.vport < 4:
-            print_vport(mlx5_vport)
+#         if mlx5_vport.vport < 4:
+        print_vport(mlx5_vport)
 
 mlx5e_priv = get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)
