@@ -269,10 +269,7 @@ base_baud=115200
 base_baud=9600
 
 sfcmd='devlink'
-
-if which mlxdevm &>/dev/null ; then
-	sfcmd='mlxdevm'
-fi
+(( ofed == 1 )) && sfcmd='mlxdevm'
 
 cpu_num=$(nproc)
 if (( cloud == 0 )); then
@@ -294,7 +291,7 @@ images=images
 shopt -s histappend
 [[ $(hostname -s) != vnc14 ]] && shopt -s autocd
 ofed=0
-uname -r | grep 3.10 > /dev/null 2>&1 && ofed=1
+modinfo mlx5_core | grep filename| grep updates > /dev/null && ofed=1
 
 centos=0
 centos72=0
@@ -6982,12 +6979,11 @@ function sf
 set -x
         devlink dev eswitch set pci/$pci mode switchdev
 	for (( i = 1; i <= n; i++ )); do
-		cmd=devlink
-		$cmd port add pci/$pci flavour pcisf pfnum 0 sfnum $i
+		$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $i
 		mac=02:25:00:$host_num:01:$i
 		local start=32768
 		local num=$((start+i-1))
-		$cmd port function set pci/$pci/$num hw_addr $mac state active
+		$sfcmd port function set pci/$pci/$num hw_addr $mac state active
 	done
 set +x
 }
@@ -7000,10 +6996,8 @@ function sf_ns
 
 function sf2
 {
-	cmd=devlink
-
-	$cmd port del $sf1
-	$cmd port del $sf2
+	$sfcmd port del $sf1
+	$sfcmd port del $sf2
 }
 
 function br_sf
@@ -14435,22 +14429,34 @@ set +x
 
 function rate_cleanup_sf
 {
-	mlxdevm port function rate set pci/$pci/32768 tx_max 0  tx_share 0
-	mlxdevm port function rate set pci/$pci/32768 noparent
-	mlxdevm port function rate set pci/$pci/32769 tx_max 0  tx_share 0
-	mlxdevm port function rate set pci/$pci/32769 noparent
-	mlxdevm port function rate del pci/$pci/12_group
-	mlxdevm port fun rate show
+	$sfcmd port function rate set pci/$pci/32768 tx_max 0  tx_share 0
+	$sfcmd port function rate set pci/$pci/32768 noparent
+	$sfcmd port function rate set pci/$pci/32769 tx_max 0  tx_share 0
+	$sfcmd port function rate set pci/$pci/32769 noparent
+	$sfcmd port function rate del pci/$pci/12_group
+	$sfcmd port fun rate show
 }
 
 function rate_group_sf
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
-	mlxdevm port function rate add pci/$pci/12_group
-	mlxdevm port function rate set pci/$pci/12_group tx_max 100
-	mlxdevm port function rate set pci/$pci/32768 parent 12_group
-	mlxdevm port fun rate show
+	$sfcmd port function rate add pci/$pci/12_group
+	$sfcmd port function rate set pci/$pci/12_group tx_max 100
+	$sfcmd port function rate set pci/$pci/32768 parent 12_group
+	$sfcmd port fun rate show
+set +x
+}
+
+function rate_group_sf2
+{
+set -x
+	ethtool -s $link speed 10000 autoneg off
+	$sfcmd port function rate add pci/$pci/12_group
+	$sfcmd port function rate set pci/$pci/12_group tx_max 100
+	$sfcmd port function rate set pci/$pci/32768 parent 12_group
+	$sfcmd port function rate del pci/$pci/12_group
+	$sfcmd port fun rate show
 set +x
 }
 

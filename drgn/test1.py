@@ -18,3 +18,5 @@ print(esw.user_count)
 print(mlx5e_priv.ppriv)
 
 print(esw.offloads.rep_ops[0])
+
+print(esw.unload_reps_lock)
