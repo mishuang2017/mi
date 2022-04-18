@@ -25,7 +25,7 @@ def print_auxiliary_device(device):
 #     print(mlx5_adev)
 #     print("%x" % mlx5_adev.idx)
 #     print("%x" % mlx5_adev.mdev)
-    print("mlx5_core_dev device name: %s" % mlx5_adev.mdev.device.kobj.name.string_().decode())
+    print("mlx5_core_dev device name: %-20s" % mlx5_adev.mdev.device.kobj.name.string_().decode())
     print('')
 
 def print_bus(bus):
@@ -47,7 +47,7 @@ def print_bus(bus):
     print("=== device ===")
     klist_devices = subsys_private.klist_devices
     for device_private in list_for_each_entry('struct device_private', klist_devices.k_list.address_of_(), 'knode_bus.n_node'):
-        print("auxiliary device name:     %s" % device_private.device.kobj.name.string_().decode())
+        print("auxiliary device name:     %-20s, %x" % (device_private.device.kobj.name.string_().decode(), device_private.device))
         print_auxiliary_device(device_private.device)
     print('')
 
