@@ -14566,6 +14566,8 @@ if (( bf == 1 )); then
 	}
 fi
 
+alias fedora_upgrade="sudo dnf upgrade --refresh -y"
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
