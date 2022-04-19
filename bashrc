@@ -14434,12 +14434,14 @@ set +x
 
 function rate_cleanup_sf
 {
+set -x
 	$sfcmd port function rate set pci/$pci/32768 tx_max 0  tx_share 0
 	$sfcmd port function rate set pci/$pci/32768 noparent
 	$sfcmd port function rate set pci/$pci/32769 tx_max 0  tx_share 0
 	$sfcmd port function rate set pci/$pci/32769 noparent
 	$sfcmd port function rate del pci/$pci/12_group
 	$sfcmd port fun rate show
+set +x
 }
 
 function rate_group_sf
@@ -14458,8 +14460,10 @@ function rate_group_sf2
 set -x
 	ethtool -s $link speed 10000 autoneg off
 	$sfcmd port function rate add pci/$pci/12_group
+	$sfcmd port function rate add pci/$pci/13_group
 	$sfcmd port function rate set pci/$pci/12_group tx_max 100
 	$sfcmd port function rate set pci/$pci/32768 parent 12_group
+	$sfcmd port function rate set pci/$pci/32768 parent 13_group
 	$sfcmd port function rate del pci/$pci/12_group
 	$sfcmd port fun rate show
 set +x
