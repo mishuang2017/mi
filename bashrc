@@ -14568,6 +14568,13 @@ fi
 
 alias fedora_upgrade="sudo dnf upgrade --refresh -y"
 
+function cloud_grub
+{
+	sed -i "s/systemd.unified_cgroup_hierarchy=0.*$/systemd.unified_cgroup_hierarchy=0 crashkernel=512M\"/" /etc/default/grub
+	cat /etc/default/grub
+# 	grub2-mkconfig
+}
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
