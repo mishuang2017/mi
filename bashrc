@@ -1238,6 +1238,10 @@ function bf2_linux
 
 function cloud_setup
 {
+	if (( UID == 0 )); then
+		echo "please run as non-root user"
+		return
+	fi
 	sudo yum install -y cscope tmux screen ctags rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
 		python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
 		bcc-tools python-devel
@@ -1292,6 +1296,7 @@ set +x
 	cd crash
 	make lzo -j 4
 }
+alias cl_setup=cloud_setup
 
 function cloud_ofed_cp
 {
