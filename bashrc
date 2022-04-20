@@ -418,7 +418,7 @@ alias testpmd-ovs='testpmd -l 0-8 -n 4 --socket-mem=1024,1024 -w 04:00.0 -w 04:0
 alias testpmd-ovs1='testpmd -l 0-8 -n 4 --socket-mem=1024,1024 -w 04:00.3 -- -i'
 
 alias mac1="ip l show $link | grep ether; ip link set dev $link address $link_mac;  ip l show $link | grep ether"
-alias mac2="ip l show $link | grep ether; ip link set dev $link address $link_mac2; ip l show $link | grep ether"
+alias mac2="ip l show $link | grep ether; ip link set dev $link address $link2_mac; ip l show $link | grep ether"
 
 alias vxlan6="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ipv6  options:key=$vni options:dst_port=$vxlan_port"
 alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit"
