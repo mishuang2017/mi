@@ -11809,12 +11809,8 @@ set +x
 	up_all_reps 2
 
 	bi
-	ifconfig $vf1
-	if [[ $? == 0 ]] ; then
-		ifconfig $vf1 1.1.1.$host_num/24 up
-	else
-		ifconfig eth2 1.1.1.$host_num/24 up
-	fi
+	vf1=$(get_vf $host_num 1 1)
+	ifconfig $vf1 1.1.1.$host_num/24 up
 
 # 	bond_br_ct_pf
 }
