@@ -14593,6 +14593,7 @@ function initramfs_get()
 {
 	local dir=initramfs
 
+	/bin/rm -rf /root/$dir
 	mkdir -p /root/$dir
 	cd /root/$dir
 	/usr/lib/dracut/skipcpio /boot/initramfs-$(uname -r).img | zcat | cpio -idmv
