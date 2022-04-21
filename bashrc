@@ -14589,6 +14589,15 @@ EOF
 	grub2-mkconfig
 }
 
+function initramfs_get()
+{
+	local dir=initramfs
+
+	mkdir -p /root/$dir
+	cd /root/$dir
+	/usr/lib/dracut/skipcpio /boot/initramfs-$(uname -r).img | zcat | cpio -idmv
+}
+
 ######## uuu #######
 
 [[ -f /usr/bin/lsb_release ]] || return
