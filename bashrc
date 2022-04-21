@@ -1302,6 +1302,7 @@ function cloud_ofed_cp
 {
 	cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
 }
+alias cl_ofed_cp=cloud_ofed_cp
 
 function bind5
 {
@@ -9528,7 +9529,8 @@ function ofed_configure
 
 function ofed_install
 {
-	build=OFED-internal-5.2-0.2.8 /mswg/release/ofed/ofed_install --force --basic
+# 	build=OFED-internal-5.2-0.2.8 /mswg/release/ofed/ofed_install --force --basic
+	build=MLNX_OFED_LINUX-5.6-0.7.8.0/    /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 }
 
 # alias ofed-configure2="./configure -j32 --with-linux=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --kernel-version=4.7-rc7 --kernel-sources=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-ipoib-mod --with-mlx5-mod"
