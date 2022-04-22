@@ -14579,10 +14579,10 @@ function cloud_grub
 {
 	sed -i "s/systemd.unified_cgroup_hierarchy=0.*$/systemd.unified_cgroup_hierarchy=0 crashkernel=512M\"/" /etc/default/grub
 
-cat << EOF > /etc/modprobe.d/blacklist.conf
-blacklist mlx5_ib
-blacklist mlx5_core
-EOF
+# cat << EOF > /etc/modprobe.d/blacklist.conf
+# blacklist mlx5_ib
+# blacklist mlx5_core
+# EOF
 
 	grub2-mkconfig
 }
