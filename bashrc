@@ -6981,15 +6981,18 @@ function sf
 {
 	n=2
         [[ $# == 1 ]] && n=$1
+	debug=0
 
 set -x
         devlink dev eswitch set pci/$pci mode switchdev
 	for (( i = 1; i <= n; i++ )); do
 		$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $i
 		mac=02:25:00:$host_num:01:$i
+		(( debug == 1 )) && read
 		local start=32768
 		local num=$((start+i-1))
 		$sfcmd port function set pci/$pci/$num hw_addr $mac state active
+		(( debug == 1 )) && read
 	done
 set +x
 }
@@ -7002,8 +7005,11 @@ function sf_ns
 
 function sf2
 {
-	$sfcmd port del $sf1
-	$sfcmd port del $sf2
+# 	$sfcmd port del $sf1
+# 	$sfcmd port del $sf2
+
+	$sfcmd port del enp8s0f0npf0sf1
+	$sfcmd port del enp8s0f0npf0sf2
 }
 
 function br_sf

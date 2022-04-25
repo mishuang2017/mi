@@ -20,6 +20,8 @@ mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
 #         .hw_fn_id = (u16)32769,
 #         .hw_state = (u16)3,
 
+print(" === sf rep === ")
+
 def print_mlx5_sf(sf):
     print("port_index: %d, controller: %d, id: %d, hw_fn_id: %d, hw_state: %d" % \
         (sf.port_index, sf.controller, sf.id, sf.hw_fn_id, sf.hw_state))
@@ -29,17 +31,37 @@ for node in radix_tree_for_each(mlx5_sf_table.port_indices.address_of_()):
     print_mlx5_sf(mlx5_sf)
 #     print(mlx5_sf)
 
-n_head = mlx5e_priv.mdev.priv.eswitch.n_head
+mlx5_nb = mlx5e_priv.mdev.priv.eswitch.nb
+# print(mlx5_nb)
+
+# n_head = mlx5e_priv.mdev.priv.eswitch.n_head
+# n_head = mlx5e_priv.mdev.priv.vhca_state_notifier.n_head
 # print(n_head)
 
-notifier_block = n_head.head
-while True:
-    if notifier_block.value_() == 0:
-        break
+# notifier_block = n_head.head
+# while True:
+#     if notifier_block.value_() == 0:
+#         break
 #     print(notifier_block)
-    mlx5_sf_table = container_of(notifier_block, "struct mlx5_sf_table", "esw_nb");
+#     mlx5_sf_table = container_of(notifier_block, "struct mlx5_sf_table", "esw_nb");
 #     print(mlx5_sf_table)
-    notifier_block = notifier_block.next
+#     notifier_block = notifier_block.next
+
+print(" === sf === ")
+
+mlx5_sf_dev_table = mlx5e_priv.mdev.priv.sf_dev_table
+for node in radix_tree_for_each(mlx5_sf_dev_table.devices.address_of_()):
+    mlx5_sf_dev = Object(prog, 'struct mlx5_sf_dev', address=node[1].value_())
+    print(mlx5_sf_dev.adev.dev.kobj.name.string_().decode())
+    print(mlx5_sf_dev)
+
+# (struct mlx5_sf_dev){
+#         .adev = (struct auxiliary_device){
+#                 .dev = (struct device){
+#                         .kobj = (struct kobject){
+#                                 .name = (const char *)0xffff9660120d3de0 = "mlx5_core.sf.2",
+
+exit(0)
 
 print('')
 dev_head = prog['dev_head']
