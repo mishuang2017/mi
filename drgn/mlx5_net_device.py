@@ -42,5 +42,6 @@ for x, dev in enumerate(get_netdevs()):
     print_kind(dev)
     mlx5e_priv_addr = dev.value_() + prog.type('struct net_device').size
     mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
-    print("%x" % mlx5e_priv.fs.tc.ct.value_())
-#     print("")
+#     print("%x" % mlx5e_priv.fs.tc.ct.value_(), end='\t')
+    print("%x" % mlx5e_priv.dfs_root.value_())
+    print("")
