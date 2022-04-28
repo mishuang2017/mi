@@ -9482,7 +9482,7 @@ alias restart-udev='sudo systemctl restart systemd-udevd.service'
 
 alias ofed-configure-memtrack='./configure --with-mlx5-core-and-en-mod --with-memtrack -j'
 alias ofed-configure="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2"
-alias ofed-configure-memktrack="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
+alias ofed-configure-memtrack="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
 alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
 
 alias vi_m4='vi compat/config/rdma.m4'
