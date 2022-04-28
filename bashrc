@@ -7985,8 +7985,8 @@ function syndrome
 		echo "wrong verions: $ver"
 		return
 	fi
-	local file=/mswg/release/BUILDS/fw-$type/fw-$type-rel-$ver-build-001/etc/syndrome_list.log
-# 	file=/auto/host_fw_release/fw-4125/fw-4125-rel-22_33_0830-build-001/etc/syndrome_list.log
+# 	local file=/mswg/release/BUILDS/fw-$type/fw-$type-rel-$ver-build-001/etc/syndrome_list.log
+	file=/auto/host_fw_release/fw-4125/fw-4125-rel-22_33_0830-build-001/etc/syndrome_list.log
 	echo $file
 	grep -i $2 $file
 }
@@ -9482,7 +9482,7 @@ alias restart-udev='sudo systemctl restart systemd-udevd.service'
 
 alias ofed-configure-memtrack='./configure --with-mlx5-core-and-en-mod --with-memtrack -j'
 alias ofed-configure="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2"
-alias ofed-configure-mektrack="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
+alias ofed-configure-memktrack="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
 alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
 
 alias vi_m4='vi compat/config/rdma.m4'
@@ -11063,8 +11063,8 @@ set -x
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac2 ct_state -trk \
 		action ct pipe action goto chain 1
-# set +x
-# 	return
+set +x
+	return
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \

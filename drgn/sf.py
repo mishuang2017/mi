@@ -38,18 +38,18 @@ mlx5_nb = mlx5e_priv.mdev.priv.eswitch.nb
 # print(mlx5_nb)
 
 # n_head = mlx5e_priv.mdev.priv.eswitch.n_head
-# n_head = mlx5e_priv.mdev.priv.vhca_state_notifier.n_head
+n_head = mlx5e_priv.mdev.priv.vhca_state_notifier.n_head
 # print(n_head)
 
-# notifier_block = n_head.head
-# while True:
-#     if notifier_block.value_() == 0:
-#         break
+notifier_block = n_head.head
+while True:
+    if notifier_block.value_() == 0:
+        break
 #     print(notifier_block)
-#     mlx5_sf_table = container_of(notifier_block, "struct mlx5_sf_table", "esw_nb");
-#     print(mlx5_sf_table)
-#     notifier_block = notifier_block.next
-
+    mlx5_sf_table = container_of(notifier_block, "struct mlx5_sf_table", "esw_nb");
+    print(mlx5_sf_table.esw_nb)
+    notifier_block = notifier_block.next
+ 
 print(" === sf === ")
 
 mlx5_sf_dev_table = mlx5e_priv.mdev.priv.sf_dev_table

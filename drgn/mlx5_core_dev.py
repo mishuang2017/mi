@@ -19,6 +19,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     pci_name = devlink.dev.kobj.name.string_().decode()
     print("devlink.dev.kobj.name: %s" % pci_name)
     mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_())
+    print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
     print(mlx5_core_dev.coredev_type)
     for i in range(6):
         if mlx5_core_dev.priv.adev[i]:
