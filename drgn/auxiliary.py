@@ -20,6 +20,8 @@ def print_auxiliary_driver(driver):
 def print_auxiliary_device(device):
     auxiliary_device = container_of(device, "struct auxiliary_device", "dev")
 #     print(auxiliary_device.id)
+    driver_data = auxiliary_device.dev.driver_data
+    print("driver_data %x" % driver_data)
 
     mlx5_adev = container_of(auxiliary_device, "struct mlx5_adev", "adev")
 #     print(mlx5_adev)
