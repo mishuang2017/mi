@@ -1238,6 +1238,8 @@ function bf2_linux
 
 function cloud_setup
 {
+	local branch=$1
+
 	if (( UID == 0 )); then
 		echo "please run as non-root user"
 		return
@@ -1255,6 +1257,7 @@ set -x
 	cd linux
 	/bin/cp -f ~cmi/mi/config.cloud .config
 	sml
+	[[ -n $branch ]] && git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch
 	make-all all
 	cloud_ofed_cp
 	smm
@@ -14440,7 +14443,7 @@ fi
 
 alias fedora_upgrade="sudo dnf upgrade --refresh -y"
 
-function cloud_grub
+function cl_grub
 {
 	sed -i "s/systemd.unified_cgroup_hierarchy=0.*$/systemd.unified_cgroup_hierarchy=0 crashkernel=512M\"/" /etc/default/grub
 
@@ -14448,6 +14451,9 @@ function cloud_grub
 # blacklist mlx5_ib
 # blacklist mlx5_core
 # EOF
+
+	systemctl start kdump
+	systemctl enable kdump
 
 	grub2-mkconfig
 }
