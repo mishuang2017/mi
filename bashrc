@@ -14,9 +14,6 @@ numvfs=4
 numvfs=16
 numvfs=3
 
-alias 7='ssh root@10.235.14.7'
-alias 5='ssh root@10.235.14.5'
-
 # alias virc="vi /images/cmi/mi/bashrc"
 # alias rc=". /images/cmi/mi/bashrc"
 alias virc='vi ~/.bashrc'
@@ -658,22 +655,13 @@ alias rx='rxdump -d 03:00.0 -s 0'
 alias rx2='rxdump -d 03:00.0 -s 0 -m'
 alias sx='sxdump -d 03:00.0 -s 0'
 
-alias or='ssh root@10.209.32.230'
 alias t="tcpdump -enn -i $link"
 alias t1="tcpdump -enn -v -i $link"
 alias t2="tcpdump -enn -vv -i $link"
 alias t4="tcpdump -enn -vvvv -i $link"
 alias ti='sudo tcpdump -enn -i'
-function ti1
-{
-	sudo tcpdump -enn -vvv -i $1 -c 100
-}
 alias mount-mswg='sudo mkdir -p /mswg; sudo mount 10.4.0.102:/vol/mswg/mswg /mswg/'
 alias mount-swgwork='sudo mkdir -p /swgwork; sudo mount l1:/vol/swgwork /swgwork'
-
-alias tvf1="tcpdump ip src host 1.1.1.14 -e -xxx -i $vf1"
-alias tvf2="tcpdump ip src host 1.1.1.14 -e -xxx -i $vf2"
-alias tvx="tcpdump ip dst host 1.1.13.2 -e -xxx -i $vx"
 
 alias watch_netstat='watch -d -n 1 netstat -s'
 alias w1='watch -d -n 1'
@@ -696,11 +684,6 @@ alias ctl='sudo systemctl'
 # alias dmesg='dmesg -T'
 alias dmesg1='dmesg -HwT'
 
-alias win='vncviewer 10.75.201.135:0'
-
-# alias uperf="$nfs_dir/uperf-1.0.5/src/uperf"
-
-alias chown-linux="sudo chown -R cmi.mtl $linux_dir"
 alias chown1="sudo chown -R cmi.mtl ."
 alias sb='tmux save-buffer'
 
@@ -712,10 +695,8 @@ alias smb2="cd /$images/cmi/bcc/tools"
 alias smb="cd /$images/cmi/bcc/examples/tracing"
 alias smk="cd /$images/cmi/mi/drgn"
 alias smdo="cd ~cmi/mi/drgn/ovs"
-alias d-ovs="sudo ~cmi/mi/drgn/ovs/ovs.py"
 alias sk="cd /swgwork/cmi"
 alias 1.sh="smk; cd ct; ./1.sh"
-alias 2="smk; ./esw_mode.py; cd -"
 
 alias softirq="/$images/cmi/bcc/tools/softirqs.py 1"
 alias hardirq="/$images/cmi/bcc/tools/hardirqs.py 5"
@@ -769,8 +750,6 @@ alias dp='sudo ovs-dpctl'
 alias dpd="sudo ~cmi/bin/ovs-df.sh"
 alias dpd-bond='dpd -m | grep -v arp | grep -v "bond0$" | grep offloaded | grep bond0'
 alias dpd0='sudo ovs-dpctl dump-flows --name'
-alias dpd1='sudo ovs-dpctl dump-flows --name | grep "in_port(enp4s0f0)"'
-alias dpd2='sudo ovs-dpctl dump-flows --name | grep "in_port(enp4s0f0_1)"'
 alias app='sudo ovs-appctl'
 alias fdbs='sudo ovs-appctl fdb/show'
 alias fdbi='sudo ovs-appctl fdb/show br-int'
@@ -836,31 +815,18 @@ alias s0="[[ $UID == 0 ]] && su cmi"
 alias e=exit
 alias vnc2="ssh cmi@10.7.2.14"
 # Unable to negotiate with 10.7.2.14 port 22: no matching key exchange method found. Their offer: diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
-alias vnc3="ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 cmi@10.7.2.14"
 alias vnc="ssh cmi@10.75.68.111"
 alias netstat1='netstat -ntlp'
 
-alias bf12='ssh root@bu-lab12v'	# minicom
-alias bf31='ssh root@bu-lab31v' # HV
-
 alias 13='ssh -X root@10.75.205.13'
 alias 14='ssh -X root@10.75.205.14'
-alias i1='ssh -X root@10.130.41.1'
-alias i2='ssh -X root@10.130.42.1'
-alias i3='ssh -X root@10.130.43.1'
 
 alias 15='ssh root@10.75.205.15'
-alias vm1=15
 alias 16='ssh root@10.75.205.16'
-alias vm2=16
 alias 17='ssh root@10.75.205.17'
-alias vm3=17
 alias 18='ssh root@10.75.205.18'
-alias vm4=18
 alias 9='ssh root@10.75.205.9'
-alias vm5=9
 alias 8='ssh root@10.75.205.8'
-alias vm6=8
 
 alias b3='lspci -d 15b3: -nn'
 
@@ -1340,12 +1306,6 @@ alias on-sriov3="echo $numvfs > /sys/class/net/$link3/device/sriov_numvfs"
 alias on1='on-sriov; set_mac 1; un; ip link set $link vf 0 spoofchk on'
 alias un2="unbind_all $link2"
 alias off-sriov="echo 0 > /sys/devices/pci0000:00/0000:00:02.0/0000:04:00.0/sriov_numvfs"
-
-function off-sriov2
-{
-	echo 0 > /sys/devices/pci0000:00/0000:00:02.0/0000:04:00.0/sriov_numvfs &
-	echo 0 > /sys/devices/pci0000:00/0000:00:02.0/0000:04:00.0/sriov_numvfs
-}
 
 function bind_all
 {
@@ -12010,12 +11970,6 @@ function test-mtu
 	done
 }
 
-alias an0='ssh root@mtl-stm-az-125.mtl.labs.mlnx'
-alias 23='ssh root@10.196.23.1'
-alias 24='ssh root@10.196.24.1'
-alias 25='ssh root@10.196.23.5'
-alias 26='ssh root@10.196.24.5'
-
 # if [[ $USER == "root" && "$(virt-what)" == "kvm" ]]; then
 #	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
 #	alias p0='/root/testpmd0 -l 0-2 -n 4  -m=1024  -w 0000:00:09.0 -- -i --rxq=2 --txq=2  --nb-cores=2'
@@ -14606,10 +14560,6 @@ function br-hp
 	sudo ovs-vsctl add-port $br $e
 	sudo ifconfig $br 1.1.1.1/24 up
 }
-alias br1=br-hp
-alias pi200='ssh pi@192.168.31.200'
-alias pi100='ssh pi@192.168.31.100'
-alias pi='ssh pi@1.1.1.2'
 
 function chrome
 {
