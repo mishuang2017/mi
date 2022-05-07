@@ -9157,6 +9157,7 @@ initrd16 /initramfs-5.5.0-rc4+.img
 
 du -sh * | sort -hr
 find . -type f -exec ls -lShd {} +
+find . -name "*.o" -delete
 
 kill -0 $pid
 If sig is 0, then no signal is sent, but error checking is still performed; 
