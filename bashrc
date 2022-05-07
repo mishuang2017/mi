@@ -14397,19 +14397,23 @@ fi
 
 alias fedora_upgrade="sudo dnf upgrade --refresh -y"
 
-function cl_grub
+function cloud_grub
 {
 	sed -i "s/systemd.unified_cgroup_hierarchy=0.*$/systemd.unified_cgroup_hierarchy=0 crashkernel=512M\"/" /etc/default/grub
-
-# cat << EOF > /etc/modprobe.d/blacklist.conf
-# blacklist mlx5_ib
-# blacklist mlx5_core
-# EOF
 
 	systemctl start kdump
 	systemctl enable kdump
 
 	grub2-mkconfig
+}
+alias cl_grub=cloud_grub
+
+function black_mlx5_ib
+{
+	cat << EOF > /etc/modprobe.d/blacklist.conf
+blacklist mlx5_ib
+# blacklist mlx5_core
+EOF
 }
 
 function initramfs_get()
