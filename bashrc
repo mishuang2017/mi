@@ -597,59 +597,21 @@ alias evolution_mark_read='gsettings set org.gnome.evolution.mail mark-seen-time
 
 alias contains="git tag --contains"
 alias git-log='git log --tags --source'
-alias v4.14='git checkout v4.14; git checkout -b 4.14'
-alias v4.20='git checkout v4.20; git checkout -b 4.20'
-alias v4.19='git checkout v4.19; git checkout -b 4.19'
-alias v5.1='git checkout v5.1; git checkout -b 5.1'
-alias v5.2='git checkout v5.2; git checkout -b 5.2'
-alias v5.3='git checkout v5.3; git checkout -b 5.3'
-alias v5.4='git checkout v5.4; git checkout -b 5.4'
-alias v5.5='git checkout v5.5; git checkout -b 5.5'
-alias v5.9='git checkout v5.9; git checkout -b 5.9'
-alias v5.10='git checkout v5.10; git checkout -b 5.10'
-alias v5.12='git checkout v5.12; git checkout -b 5.12'
-alias v5.13-r4='git checkout v5.13-rc4; git checkout -b 5.13-rc4'
-alias v5.13='git checkout v5.13; git checkout -b 5.13'
-alias v5.15='git checkout v5.15; git checkout -b 5.15'
 alias v5.17='git checkout v5.17-rc7; git checkout -b 5.17-rc7'
-alias v4.10='git checkout v4.10; git checkout -b 4.10'
-alias v4.8='git checkout v4.8; git checkout -b 4.8'
-alias v4.8-rc4='git checkout v4.8-rc4; git checkout -b 4.8-rc4'
-alias v4.4='git checkout v4.4; git checkout -b 4.4'
-alias v6000='git checkout rel-12_25_6000; git checkout -b 12_25_6000'
-alias ab='rej; git am --abort'
-alias gr='git add -u; git am --resolved'
-alias gar='git add -A; git am --resolved'
 alias gs='git status'
 alias gc='git commit -a'
-# alias amend='git commit --amend'
 alias slog='git slog'
 alias slog1='git slog -1'
-alias slog2='git slog -2'
-alias slog3='git slog -3'
-alias slog4='git slog -4'
-alias slog10='git slog -10'
 alias git1='git slog v4.11.. drivers/net/ethernet/mellanox/mlx5/core/'
-alias gita='git log --tags --source --author="chrism@mellanox.com"'
-alias gitvlad='git log --tags --source --author="vladbu@mellanox.com"'
-alias gitroi='git log --tags --source --author="roid@mellanox.com"'
-alias gitpaul='git log --tags --source --author="paulb@mellanox.com"'
-alias gityossi='git log --tags --source --author="yossiku@mellanox.com"'
-alias gitelib='git log --tags --source --author="elibr@mellanox.com"'
+alias gita='git log --tags --source --author="cmi@nvidia.com"'
 alias git-linux-origin="git remote set-url origin ssh://cmi@l-gerrit.lab.mtl.com:29418/upstream/linux"
 alias git-linus='git remote add linus git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git; git fetch --tags linus'
-alias git-net-next='git remote add net-next git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git'
-alias git-net-next='git remote add net-next git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git; fetch net-next master'
-# alias git-vlad='git remote add vlad git@github.com:vbuslov/linux.git'
-alias git-vlad-v5.4='git log --author=vladbu@mellanox.com --oneline v5.4..'
-alias git-vlad-v5.3='git log --author=vladbu@mellanox.com --oneline v5.3..v5.4'
-alias git-vlad-v5.2='git log --author=vladbu@mellanox.com --oneline v5.2..v5.3'
-alias git-vlad-v5.1='git log --author=vladbu@mellanox.com --oneline v5.1..v5.2'
-# git checkout v4.12
+alias git-vlad-v5.3='git log --author=cmi@nvidia.com --oneline v5.3..v5.4'
 
 # for legacy
 
-alias debug-esw='debugm 8; debug-file drivers/net/ethernet/mellanox/mlx5/core/eswitch.c'
+alias debug_ct='debugm 8; debug-file drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c'
+alias debug_ct_clear='debugm 8; debug-nofile drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c'
 alias debug-esw='debugm 8; debug-file drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c'
 alias rx='rxdump -d 03:00.0 -s 0'
 alias rx2='rxdump -d 03:00.0 -s 0 -m'
@@ -2343,13 +2305,17 @@ function debug
 function debug-file
 {
 	(( $# == 0 )) && return
+set -x
 	echo "file $1 +p" > /sys/kernel/debug/dynamic_debug/control
+set +x
 }
 
 function debug-nofile
 {
 	(( $# == 0 )) && return
+set -x
 	echo "file $1 -p" > /sys/kernel/debug/dynamic_debug/control
+set +x
 }
 
 function debug-m
