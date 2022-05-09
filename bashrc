@@ -2345,7 +2345,7 @@ function make-all
 	make -j $cpu_num2 || return
 	sudo make modules_install -j $cpu_num2
 	sudo make install
-	[[ "$1" == "all" ]] && sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B
+	[[ "$1" == "all" ]] && sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B > /dev/null
 
 	/bin/rm -rf ~/.ccache
 }
@@ -8002,7 +8002,7 @@ set +x
 alias checkpatch="./scripts/checkpatch.pl --strict --show-types -g HEAD"
 alias git_fixes="git log -1 --pretty=fixes"
 alias gf1="git format-patch -o ~/tmp -1"
-alias sample_cover_letter='git commit --allow-empty -F ~/sflow/cover-letter/sflow_tunnel.txt'
+alias cover_letter='git commit --allow-empty -F /labhome/cmi/none/cover-letter.txt'
 alias ovs_cover_letter='git commit --allow-empty -F /labhome/cmi/sflow/ovs/10/0000-cover-letter.patch'
 # to regenerate the change-id for cover letter
 # git commit --amend --allow-empty
