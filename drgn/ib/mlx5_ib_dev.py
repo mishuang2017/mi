@@ -6,11 +6,10 @@ import time
 import sys
 import os
 
-libpath = os.path.dirname(os.path.realpath("__file__"))
-sys.path.append(libpath)
-import lib
+sys.path.append("..")
+from lib import *
 
-mlx5e_priv = lib.get_mlx5_pf0()
+mlx5e_priv = get_mlx5_pf0()
 
 # struct mlx5_eswitch_rep
 
@@ -33,5 +32,11 @@ i=1
 for node in radix_tree_for_each(vports):
     print("=== %d ===" % i)
     i=i+1
+    print("mlx5_eswitch_rep %x" % node[1].value_())
     mlx5_eswitch_rep = Object(prog, 'struct mlx5_eswitch_rep', address=node[1].value_())
-    print(mlx5_eswitch_rep)
+    priv = mlx5_eswitch_rep.rep_data[1].priv
+    print("mlx5_ib_dev %x" % priv)
+    if priv:
+        mlx5_ib_dev = Object(prog, 'struct mlx5_ib_dev', address=priv)
+        print(mlx5_eswitch_rep)
+        print(mlx5_ib_dev)
