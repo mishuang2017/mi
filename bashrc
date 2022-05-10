@@ -14367,7 +14367,7 @@ alias fedora_upgrade="sudo dnf upgrade --refresh -y"
 
 function cloud_grub
 {
-	sed -i "s/systemd.unified_cgroup_hierarchy=0.*$/systemd.unified_cgroup_hierarchy=0 crashkernel=512M\"/" /etc/default/grub
+	sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=512M\"/" /etc/default/grub
 
 	systemctl start kdump
 	systemctl enable kdump
