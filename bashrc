@@ -14364,6 +14364,7 @@ if (( bf == 1 )); then
 fi
 
 alias fedora_upgrade="sudo dnf upgrade --refresh -y"
+alias default=grub2-set-default
 
 function cloud_grub
 {

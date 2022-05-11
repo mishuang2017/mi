@@ -39,4 +39,9 @@ for node in radix_tree_for_each(vports):
     if priv:
         mlx5_ib_dev = Object(prog, 'struct mlx5_ib_dev', address=priv)
         print(mlx5_eswitch_rep)
-        print(mlx5_ib_dev)
+        print(mlx5_ib_dev.port.roce)
+
+# mlx5_ib_dev_list = prog['mlx5_ib_dev_list']
+# print(mlx5_ib_dev_list)
+# for dev in list_for_each_entry('struct mlx5_ib_dev', mlx5_ib_dev_list.address_of_(), 'ib_dev_list'):
+#     print(dev)
