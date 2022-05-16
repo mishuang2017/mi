@@ -8994,111 +8994,6 @@ function watchr
 	watch -d -n 1 "ethtool -S $link | grep \"rx[0-9]*_packets:\""
 }
 
-function 1_natan
-{
-	fw_path=/.autodirect/fwgwork/natano/fw2/mirror_and_decap_wa
-	fw_path=/root/mirror_and_decap_wa
-	galil_fw_path=${fw_path}_galil/
-	mstdev=$pci
-	mlxburn -d $mstdev -fw ${galil_fw_path}fw-ConnectX5.mlx -conf_dir ${galil_fw_path} -force
-}
-
-# unbind vf first
-function q1
-{
-set -x
-	modprobe vfio
-	modprobe vfio-pci
-	echo 15b3 101a >/sys/bus/pci/drivers/vfio-pci/new_id
-	ls /dev/vfio
-
-	pkill -9 qemu
-	sleep 1
-	qemu-system-x86_64 --enable-kvm \
-		-S			\
-		-cpu qemu64		\
-		-name vm1		\
-		-m 4096			\
-		-hda /var/lib/libvirt/images/vm1.qcow2	\
-		-smp 4,sockets=4,cores=1,threads=1	\
-		-netdev user,id=nat1,hostfwd=tcp:127.0.0.1:8000-10.0.2.15:22	\
-		-device e1000,netdev=nat1,mac=52:54:00:13:01:01			\
-		-device vfio-pci,host=04:00.4,id=hostdev0,bus=pci.0,addr=0x9	\
-		-vga std	\
-		-vnc :1		\
-		-serial "/dev/ttyS0" \
-		-daemonize
-
-set +x
-}
-alias sq1="ssh -p 8000 127.0.0.1"
-
-
-function q2
-{
-set -x
-	modprobe vfio
-	modprobe vfio-pci
-	echo 15b3 101a >/sys/bus/pci/drivers/vfio-pci/new_id
-	ls /dev/vfio
-
-	qemu-system-x86_64 --enable-kvm \
-		-cpu qemu64 -smp 4 -name vm2 -m 1024 -hda /var/lib/libvirt/images/vm2.qcow2 \
-		-netdev user,id=nat1,hostfwd=tcp:127.0.0.1:8001-10.0.2.16:22 \
-		-device e1000,netdev=nat1,mac=52:54:00:13:01:02 \
-		-device vfio-pci,host=04:00.3 \
-		-vga std \
-		-vnc :3 -daemonize
-set +x
-}
-alias sq2="ssh -p 8001 127.0.0.1"
-
-function qq1
-{
-	/usr/bin/qemu-system-x86_64 \
-		-machine accel=kvm	\
-		-name guest=vm1,debug-threads=on	\
-		-S -object secret,id=masterKey0,format=raw,file=/var/lib/libvirt/qemu/domain-10-vm1/master-key.aes	\
-		-machine pc-i440fx-2.10,accel=kvm,usb=off,dump-guest-core=off	\	
-		-cpu Broadwell -m 3815 -realtime mlock=off -smp 1,sockets=1,cores=1,threads=1	\
-		-uuid edc5bad7-f54b-43ec-957b-821d197d1a01 -no-user-config -nodefaults		\
-		-chardev socket,id=charmonitor,path=/var/lib/libvirt/qemu/domain-10-vm1/monitor.sock,server,nowait	\
-		-mon chardev=charmonitor,id=monitor,mode=control -rtc base=utc,driftfix=slew	\
-		-global kvm-pit.lost_tick_policy=delay -no-hpet -no-shutdown	\
-		-global PIIX4_PM.disable_s3=1 -global PIIX4_PM.disable_s4=1 -boot strict=on	\	
-		-device ich9-usb-ehci1,id=usb,bus=pci.0,addr=0x6.0x7	\
-		-device ich9-usb-uhci1,masterbus=usb.0,firstport=0,bus=pci.0,multifunction=on,addr=0x6	\
-		-device ich9-usb-uhci2,masterbus=usb.0,firstport=2,bus=pci.0,addr=0x6.0x1	\
-		-device ich9-usb-uhci3,masterbus=usb.0,firstport=4,bus=pci.0,addr=0x6.0x2	\
-		-device virtio-serial-pci,id=virtio-serial0,bus=pci.0,addr=0x5	\
-		-drive file=/var/lib/libvirt/images/vm1.qcow2,format=qcow2,if=none,id=drive-virtio-disk0	\
-		-device virtio-blk-pci,scsi=off,bus=pci.0,addr=0x7,drive=drive-virtio-disk0,id=virtio-disk0,bootindex=1	\
-		-drive if=none,id=drive-ide0-0-0,readonly=on	\
-		-device ide-cd,bus=ide.0,unit=0,drive=drive-ide0-0-0,id=ide0-0-0	\
-		-netdev tap,fd=25,id=hostnet0,vhost=on,vhostfd=27	\
-		-device virtio-net-pci,netdev=hostnet0,id=net0,mac=52:54:00:13:02:01,bus=pci.0,addr=0xa	\
-		-netdev tap,fd=28,id=hostnet1,vhost=on,vhostfd=29	\
-		-device virtio-net-pci,netdev=hostnet1,id=net1,mac=52:54:00:13:01:01,bus=pci.0,addr=0x3	\
-		-chardev pty,id=charserial0	\
-		-device isa-serial,chardev=charserial0,id=serial0	\
-		-chardev socket,id=charchannel0,path=/var/lib/libvirt/qemu/channel/target/domain-10-vm1/org.qemu.guest_agent.0,server,nowait	\
-		-device virtserialport,bus=virtio-serial0.0,nr=1,chardev=charchannel0,id=channel0,name=org.qemu.guest_agent.0	\
-		-chardev spicevmc,id=charchannel1,name=vdagent	\
-		-device virtserialport,bus=virtio-serial0.0,nr=2,chardev=charchannel1,id=channel1,name=com.redhat.spice.0	\
-		-device usb-tablet,id=input0,bus=usb.0,port=1	\
-		-spice port=5900,addr=127.0.0.1,disable-ticketing,image-compression=off,seamless-migration=on	\
-		-device qxl-vga,id=video0,ram_size=67108864,vram_size=67108864,vram64_size_mb=0,vgamem_mb=16,max_outputs=1,bus=pci.0,addr=0x2	\
-		-device intel-hda,id=sound0,bus=pci.0,addr=0x4	\
-		-device hda-duplex,id=sound0-codec0,bus=sound0.0,cad=0	\
-		-chardev spicevmc,id=charredir0,name=usbredir	\
-		-device usb-redir,chardev=charredir0,id=redir0,bus=usb.0,port=2	\
-		-chardev spicevmc,id=charredir1,name=usbredir	\
-		-device usb-redir,chardev=charredir1,id=redir1,bus=usb.0,port=3	\
-		-device vfio-pci,host=04:00.2,id=hostdev0,bus=pci.0,addr=0x9	\
-		-device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x8	\
-		-msg timestamp=on
-}
-
 function tc_simple
 {
 	tc2
@@ -9107,15 +9002,6 @@ set -x
 	tc filter add dev $link parent ffff: protocol ip prio 5 U32 match ip protocol 1 0xff flowid 1:1 action simple "Incoming ICMP" index 1 ok
 	tc -s filter ls dev $link parent ffff:
 set +x
-}
-
-function cx5-power-budget
-{
-	echo "MLNX_RAW_TLV_FILE" > /tmp/power_conf_tlv.cfg; echo "0x00000004 0x00000088 0x00000000 0xc0000000" >> /tmp/power_conf_tlv.cfg
-	mlxconfig -d $pci -f /tmp/power_conf_tlv.cfg set_raw
-	mlxconfig -d $pci2 -f /tmp/power_conf_tlv.cfg set_raw
-	mlxfwreset -d $pci reset
-	mlxfwreset -d $pci2 reset
 }
 
 ### ecmp ###
@@ -9301,13 +9187,6 @@ function enable-br
 ###ofed###
 
 alias fr=force-restart
-
-function ofed-unload
-{
-	for i in ib_srpt ib_isert rpcrdma xprtrdma mlx5_fpga_tools; do
-		lsmod | grep $i && sudo modprobe -r $i
-	done
-}
 
 function force-stop
 {
@@ -14342,6 +14221,20 @@ function initramfs_get()
 	mkdir -p /root/$dir
 	cd /root/$dir
 	/usr/lib/dracut/skipcpio /boot/initramfs-$(uname -r).img | zcat | cpio -idmv
+}
+
+function prepare_udev()
+{
+	ASAP_DEVTEST_SCRIPTS=/images/cmi/asap_dev_reg/udev-scripts
+	if [ ! -f "/etc/udev/rules.d/82-net-setup-link.rules" ]; then
+		cp -f $ASAP_DEVTEST_SCRIPTS/82-net-setup-link.rules /etc/udev/rules.d/.
+		cp -f $ASAP_DEVTEST_SCRIPTS/vf-net-link-name.sh /etc/udev/.
+	fi
+	cp -f $ASAP_DEVTEST_SCRIPTS/legacy-name.sh /etc/udev/.
+	cp -f $ASAP_DEVTEST_SCRIPTS/83-net-setup-link.rules /etc/udev/rules.d/.
+
+	touch /etc/udev/rules.d/90-rdma-hw-modules.rules
+	udevadm control --reload
 }
 
 ######## uuu #######
