@@ -8149,60 +8149,6 @@ function git_patch
 	git format-patch -o $dir/$n $commit
 }
 
-function git_linux
-{
-	dir=~/sflow/saeed
-	git_patch $dir $1
-}
-
-function git_ovs
-{
-	dir=~/sflow/ofproto
-	git_patch $dir $1
-}
-
-linux_file=~/idr/
-function checkout
-{
-set -x
-	local list=$linux_file/out.txt
-	local new_dir=$linux_file/out
-	local linux_full_name
-	local new_full
-
-	while read line; do 
-		echo $line
-		dir=$(dirname $line)
-		echo $dir
-		echo
-
-		linux_full_name=$linux_dir/$line
-		new_full=$new_dir/$dir
-		mkdir -p $new_full
-		/bin/cp -f $linux_full_name $new_full
-	done < $list
-set +x
-}
-
-function checkin
-{
-set -x
-	sml
-	[[ $# != 1 ]] && return
-	local list=$linux_file/$1
-	local new_dir=$linux_file/2
-	local linux_full_name
-	local new_full
-
-	while read line; do 
-		echo $line
-		linux_full_name=$linux_dir/$line
-		new_full=$new_dir/$line
-		/bin/cp -f $new_full $linux_full_name
-	done < $list
-set +x
-}
-
 function git-format-patch
 {
 	[[ $# != 2 ]] && return
