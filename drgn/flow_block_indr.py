@@ -107,11 +107,11 @@ flow_indir_dev_list = prog['flow_indir_dev_list']
 # print(flow_indir_dev_list)
 
 for flow_indir_dev_info in list_for_each_entry('struct flow_indir_dev_info', flow_indir_dev_list.address_of_(), 'list'):
-#     print(flow_indir_dev_info)
+    print(flow_indir_dev_info)
     print(flow_indir_dev_info.dev.name.string_().decode())
     print(flow_indir_dev_info.binder_type)
     print("net_device %x" % flow_indir_dev_info.dev)
     cb_list = flow_indir_dev_info.cb_list
-    for flow_block_offload in list_for_each_entry('struct flow_block_offload', cb_list, 'cb_list'):
-        print(flow_block_offload)
+    for flow_block_cb in list_for_each_entry('struct flow_block_cb', cb_list, 'list'):
+        print(flow_block_cb)
     print('')
