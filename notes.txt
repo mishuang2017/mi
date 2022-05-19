@@ -9332,6 +9332,10 @@ rpm -ql systemtap
 [root@bjglab-18 ~]# ls -l /sys/class/net/em1/device/driver/module
 lrwxrwxrwx. 1 root root 0 Mar 15 02:39 /sys/class/net/em1/device/driver/module -> ../../../../module/igb
 
+_Static_assert(FLOW_DISSECTOR_KEY_CT <= 24);
+
+
+
 ===hosts===
 
 TYPE=Ethernet

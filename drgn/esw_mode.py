@@ -20,6 +20,7 @@ print("esw_funcs.num_vfs: %d" % esw.esw_funcs.num_vfs)
 print("esw->dev->priv.sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
 print("esw.fdb_table.offloads.send_to_vport_meta_grp: %x" % esw.fdb_table.offloads.send_to_vport_meta_grp)
 print("esw->fdb_table.offloads.send_to_vport_meta_rules: %d" % esw.fdb_table.offloads.send_to_vport_meta_rules)
+print("esw->offloads.inline_mode: %d" % esw.offloads.inline_mode)
 
 new = 1
 if new:
