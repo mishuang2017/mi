@@ -63,6 +63,9 @@ set -x
 
 	# build rhel 8.3 kernel
 	dnf -y install dwarves
+
+	# rdma perftest
+	yum -y install libibverbs-devel pciutils-devel
 set +x
 }
 
