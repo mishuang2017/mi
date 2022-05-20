@@ -12266,29 +12266,6 @@ function tc_nic_chain
 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
 }
 
-alias tc2n="tc qdisc del dev $vf1 ingress"
-
-function git-send-ovs
-{
-	run="--dry-run"
-	[[ "$1" == "run" ]] && run=""
-	git send-email				\
-		$run				\
-		--to blp@ovn.org		\
-		--to fbl@sysclose.org		\
-		--to ovs-dev@openvswitch.org	\
-		--cc simon.horman@netronome.com	\
-		--cc roid@mellanox.com		\
-		/labhome/cmi/ovs/vxlan7/0001-netdev-vport-Use-the-dst_port-in-tunnel-netdev-name.patch
-}
-
-function rule
-{
-	on-sriov
-	tc-setup $link
-	tc filter add dev $link parent ffff: prio 1 flower skip_sw action drop
-}
-
 alias clone_perftest='git clone https://github.com/linux-rdma/perftest.git'
 
 function install-tools
@@ -12335,25 +12312,6 @@ function qinq-br
 		-- add-port br2 patch2	\
 		-- set interface patch2 type=patch options:peer=patch1
 }
-
-# ovs-ofctl -O OpenFlow13 add-flow ovs-br0 in_port=patch0,actions=push_vlan:0x88a8,mod_vlan_vid=1000,output=ens2f1
-# ovs-ofctl -O OpenFlow13 add-flow ovs-br0 dl_vlan=1000,actions=strip_vlan,patch0
-# 
-# 
-# ovs-ofctl -O OpenFlow13 add-flow ovs-br1 in_port=patch1,arp,dl_vlan=6,actions=strip_vlan,ens2f1_0,ens2f1_1
-# ovs-ofctl -O OpenFlow13 add-flow ovs-br1 in_port=patch1,arp,dl_vlan=3,actions=strip_vlan,ens2f1_1,ens2f1_0
-# 
-# ovs-ofctl -O OpenFlow13 add-flow ovs-br1 dl_vlan=6,dl_dst=e4:11:22:33:25:50,actions=strip_vlan,ens2f1_0
-# ovs-ofctl -O OpenFlow13 add-flow ovs-br1 dl_vlan=3,dl_dst=e4:11:22:33:25:50,actions=strip_vlan,ens2f1_0
-# ovs-ofctl -O OpenFlow13 add-flow ovs-br1 dl_vlan=6,dl_dst=e4:11:22:33:25:51,actions=strip_vlan,ens2f1_1
-# 
-# ovs-ofctl -O Openflow13 add-flow ovs-br1 in_port=ens2f1_0,dl_dst=e4:11:22:33:25:51,actions=output=ens2f1_1
-# ovs-ofctl -O Openflow13 add-flow ovs-br1 in_port=ens2f1_0,ipv4,actions=push_vlan:0x8100,mod_vlan_vid=6,output=patch1
-# ovs-ofctl -O Openflow13 add-flow ovs-br1 in_port=ens2f1_0,arp,actions=output=ens2f1_1,push_vlan:0x8100,mod_vlan_vid=6,output=patch1
-# 
-# ovs-ofctl -O Openflow13 add-flow ovs-br1 in_port=ens2f1_1,dl_dst=e4:11:22:33:25:50,actions=output=ens2f1_0
-# ovs-ofctl -O Openflow13 add-flow ovs-br1 in_port=ens2f1_1,ipv4,actions=push_vlan:0x8100,mod_vlan_vid=3,output=patch1
-# ovs-ofctl -O Openflow13 add-flow ovs-br1 in_port=ens2f1_1,arp,actions=output=ens2f1_0,push_vlan:0x8100,mod_vlan_vid=3,output=patch1
 
 alias rxvlan-off="ethtool -K $link rxvlan off"
  
@@ -12416,25 +12374,6 @@ function kmsg() {
 	if [ -w /dev/kmsg ]; then
 		echo -e ":test: $m" >>/dev/kmsg
 	fi
-}
-
-drgn_dir=~cmi/mi/drgn
-
-function _flowtable
-{
-	i=0
-	n=0
-	[[ $# == 1 ]] && n=$1
-	cd $drgn_dir
-	while :; do
-		echo "======== $i ======="
-		sudo $drgn_dir/_flowtable.py
-		i=$((i+1))
-		if (( n == i )); then
-			break;
-		fi
-		sleep 2
-	done
 }
 
 function set_combined
