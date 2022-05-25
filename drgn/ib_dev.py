@@ -15,6 +15,7 @@ devices = prog['devices']
 for node in radix_tree_for_each(devices):
     ib_device = Object(prog, 'struct ib_device', address=node[1].value_())
     print("index: %x" % ib_device.index)
+    print(ib_device.phys_port_cnt)
 
 rdma_dev_net_id = prog['rdma_dev_net_id']
 print("rdma_dev_net_id: %x " % rdma_dev_net_id)

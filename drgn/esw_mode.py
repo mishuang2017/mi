@@ -15,6 +15,7 @@ esw = mlx5e_priv.mdev.priv.eswitch
 print("esw->flags: %#x" % esw.flags)
 print("mode: %d" % esw.mode)
 print("fdb_table.flags: %x" % esw.fdb_table.flags);
+print("total_vports: %d" % esw.total_vports)
 print("enabled_vports: %d" % esw.enabled_vports)
 print("esw_funcs.num_vfs: %d" % esw.esw_funcs.num_vfs)
 print("esw->dev->priv.sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
