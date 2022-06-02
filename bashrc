@@ -8082,6 +8082,24 @@ function git-am
 	done
 }
 
+function git_apply
+{
+set -x
+	[[ $# != 3 ]] && return
+	local dir=$1
+	local start=$2
+	local end=$3
+	local file
+
+	for ((i = start; i <= end; i ++)); do
+		file=$(printf "$dir/00%02d-*" $i)
+		echo $file
+		git apply --reject $file
+		read
+	done
+set +x
+}
+
 alias git-am1="git-am /labhome/cmi/bp/17"
 
 function git-checkout
@@ -14178,6 +14196,24 @@ function prepare_udev()
 
 	touch /etc/udev/rules.d/90-rdma-hw-modules.rules
 	udevadm control --reload
+}
+
+function none_test
+{
+	restart
+	reprobe
+
+	source ~/.bashrc
+	restart
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov_numvfs
+	devlink dev eswitch show pci/$pci
+	reprobe
+
+	source ~/.bashrc
+	restart
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov_numvfs
+	devlink dev eswitch show pci/$pci
+	echo 3 > /sys/class/net/enp8s0f0/device/sriov_numvfs
 }
 
 ######## uuu #######
