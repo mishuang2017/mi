@@ -1455,57 +1455,6 @@ function tc-drop
 		action drop
 }
 
-# ovs-ofctl add-flow br -O openflow13 "in_port=2,dl_type=0x86dd,nw_proto=58,icmp_type=128,action=set_field:0x64->tun_id,output:5"
-
-alias ofd="sudo ovs-ofctl dump-flows $br --color"
-alias ofdi="sudo ovs-ofctl dump-flows br-int --color"
-alias ofde="sudo ovs-ofctl dump-flows br-ex --color"
-alias ofd2="sudo ovs-ofctl dump-flows br2 --color" 
-
-function ofi
-{
-	ovs-ofctl dump-flows br-int table=$1 --color
-}
-
-alias drop3="ovs-ofctl add-flow $br 'nw_dst=1.1.3.2 action=drop'"
-alias del3="ovs-ofctl del-flows $br 'nw_dst=1.1.3.2'"
-
-alias drop1="ovs-ofctl add-flow $br 'nw_src=192.168.1.1 action=drop'"
-alias normal1="ovs-ofctl add-flow $br 'nw_src=192.168.1.1 action=normal'"
-
-alias drop2="ovs-ofctl add-flow $br 'nw_src=192.168.1.2 action=drop'"
-alias normal2="ovs-ofctl add-flow $br 'nw_src=192.168.1.3 action=normal'"
-
-mac1=02:25:d0:14:01:04
-alias dropm="ovs-ofctl add-flow $br 'dl_dst=02:25:d0:14:01:04  action=drop'"
-alias  delm="ovs-ofctl add-flow $br 'dl_dst=02:25:d0:14:01:04	action=drop'"
-alias normalm="ovs-ofctl add-flow $br 'dl_dst=24:8a:07:88:27:9a  action=normal'"
-alias normalm="ovs-ofctl add-flow $br 'dl_dst=24:8a:07:88:27:9a  table=0,priority=10,action=normal'"
-alias delm="ovs-ofctl del-flows $br dl_dst=$mac1"
-
-#     ovs-ofctl add-flow $BR "table=0, in_port=2, dl_type=0x0806, nw_dst=192.168.0.1, actions=load:0x2->NXM_OF_ARP_OP[], move:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[], mod_dl_src:${MAC}, move:NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[], move:NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[], load:0x248a07ad7799->NXM_NX_ARP_SHA[], load:0xc0a80001->NXM_OF_ARP_SPA[], in_port"
-
-alias d="of dump-flows $br"
-alias di="of dump-flows br-int"
-alias de="of dump-flows br-ex"
-function of1
-{
-	[[ $# != 1 ]] && return
-	restart-ovs
-	num=$1
-set -x
-	for i in $(seq 10); do
-#		of add-flow $br "table=0, in_port=1, dl_type=0x800, dl_dst=02:25:d0:14:01:03, tcp, nw_src=1.1.1.22, nw_dst=1.1.1.23, tp_src=$((num+i*2+2)), tp_dst=5201, actions=output:2"
-		of add-flow $br "table=0, in_port=1, dl_type=0x800, dl_dst=02:25:d0:14:01:03, tcp, nw_src=1.1.1.22, tp_src=$((num+i*2+2)), tp_dst=5201, actions=output:2"
-	done
-set +x
-	of dump-flows $br
-}
-
-# alias of1="of add-flow $br 'table=0, in_port=1, dl_type=0x800, dl_dst=02:25:d0:14:01:03, tcp, nw_src=1.1.1.22, nw_dst=1.1.1.23, tp_src=33304, tp_dst=5201, actions=output:3,2'"
-
-alias make_core='make M=drivers/net/ethernet/mellanox/mlx5/core'
-
 alias stap='/usr/local/bin/stap --all-modules -v'
 stap_str_common="--all-modules -d /usr/sbin/ovs-vswitchd -d /usr/sbin/tc -d /usr/bin/ping -d /usr/sbin/ip -d /sbin/udevadm"
 if (( ofed == 1 || kernel49 == 1 )); then
