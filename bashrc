@@ -14218,7 +14218,7 @@ function none_test
 
 ######## uuu #######
 
-[[ -f /usr/bin/lsb_release ]] || return
+if [[ -f /usr/bin/lsb_release ]]; then
 
 [[ "$USER" == "cmi" ]] && alias s='[[ $UID == 0 ]] && su - cmi'
 alias vig='sudo vim /boot/grub/grub.cfg'
@@ -14403,3 +14403,5 @@ function install_sshask
 {
 	sudo apt install sshpass ssh-askpass
 }
+
+fi
