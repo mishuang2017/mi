@@ -1146,7 +1146,7 @@ function cloud_setup0
 		/bin/cp ~cmi/.crash /root
 	fi
 
-	yum -y install python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel
+	yum -y install python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel ibutils
 	yum_bcc
 }
 
