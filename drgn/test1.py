@@ -10,6 +10,8 @@ import os
 sys.path.append(".")
 from lib import *
 
+print(sys.path)
+
 devs = get_netdevs()
 # print(devs)
 
@@ -22,3 +24,5 @@ if new_devs[0] in new_devs:
 else:
     print("false")
 
+
+print(__name__)

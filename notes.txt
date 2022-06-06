@@ -9334,7 +9334,7 @@ lrwxrwxrwx. 1 root root 0 Mar 15 02:39 /sys/class/net/em1/device/driver/module -
 
 _Static_assert(FLOW_DISSECTOR_KEY_CT <= 24);
 
-
+#pragma message "test1"
 
 ===hosts===
 
@@ -12160,6 +12160,8 @@ esw_legacy_disable
 
 mlx5_sriov_enable
 mlx5_sriov_disable
+
+mlx5_sriov_attach
 mlx5_sriov_detach
 
 mlx5_device_enable_sriov
@@ -12176,6 +12178,10 @@ esw_offloads_stop
 
 mlx5_eswitch_del_send_to_vport_meta_rules
 mlx5_eswitch_add_send_to_vport_meta_rules
+
+devlink_nl_cmd_eswitch_set_doit
+
+mlx5_eswitch_disable_sriov_locked
 
 === bridge offload ===
 

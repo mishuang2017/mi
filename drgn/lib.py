@@ -10,6 +10,8 @@ import subprocess
 import drgn
 import socket
 
+# print(__name__)
+
 prog = drgn.program_from_kernel()
 # prog = drgn.program_from_core_dump("/var/crash/vmcore.4")
 
