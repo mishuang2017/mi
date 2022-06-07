@@ -1176,8 +1176,8 @@ function cloud_setup
 		libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 # 	sudo yum install -y memstrack busybox
 
-	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering
-	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s
+# 	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering
+# 	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s
 	sm
 set -x
 	cp /swgwork/cmi/linux.tar.gz .
@@ -1185,11 +1185,11 @@ set -x
 	cd linux
 	/bin/cp -f ~cmi/mi/config.cloud .config
 	sml
-	[[ -n $branch ]] && git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch
-	make-all all
-	cloud_ofed_cp
-	smm
-	rebase
+# 	[[ -n $branch ]] && git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch
+# 	make-all all
+# 	cloud_ofed_cp
+# 	smm
+# 	rebase
 set +x
 
 	install_libkdumpfile
@@ -1225,7 +1225,7 @@ set +x
 	sm
 	clone-crash
 	cd crash
-	make lzo -j 4
+# 	make lzo -j 4
 }
 alias cl_setup=cloud_setup
 
