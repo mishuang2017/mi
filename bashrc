@@ -11570,11 +11570,11 @@ function bond_setup
 	bond_create
 
 	ifconfig bond0 0
-# 	bi
-# 	bi2
-# 	set_netns_all 1
+	bi
+	bi2
+	set_netns_all 1
 
-# 	bond_br
+	bond_br
 }
 
 alias cd-scapy="cd /labhome/cmi/prg/python/scapy"
