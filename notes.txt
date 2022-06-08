@@ -12194,7 +12194,8 @@ unmanaged-devices=*;except:interface-name:eth0;except:interface-name:eth1
 
 ===roce===
 
-[root@dev-r630-03 ~]# /usr/bin/ibv_rc_pingpong -p 19998 -d rocep4s0f0v1 -i 1 -n 86 -r 8239 -s 6146 -m 1024 -l 14 -g 5 --ts --chk
+/usr/bin/ibv_rc_pingpong -p 19998 -d rocep4s0f0v1 -i 1 -n 86 -r 8239 -s 6146 -m 1024 -l 14 -g 5 --ts --chk
+
   local address:  LID 0x0000, QPN 0x0001c9, PSN 0x329622, GID 1::11
   remote address: LID 0x0000, QPN 0x0001ca, PSN 0x05a0f8, GID 1::21
 1057112 bytes in 0.02 seconds = 368.14 Mbit/sec
@@ -12203,7 +12204,8 @@ Max receive completion clock cycles = 38106
 Min receive completion clock cycles = 22217
 Average receive completion clock cycles = 30285.435294
 
-[root@dev-r630-04 ~]# /usr/bin/ibv_rc_pingpong -p 19998 -d rocep4s0f0v1 -i 1 -n 86 -r 8239 -s 6146 -m 1024 -l 14 -g 5 --ts --chk 1.1.1.1
+/usr/bin/ibv_rc_pingpong -p 19998 -d rocep4s0f0v1 -i 1 -n 86 -r 8239 -s 6146 -m 1024 -l 14 -g 5 --ts --chk 1.1.1.1
+
   local address:  LID 0x0000, QPN 0x0001ca, PSN 0x05a0f8, GID 1::21
   remote address: LID 0x0000, QPN 0x0001c9, PSN 0x329622, GID 1::11
 1057112 bytes in 0.02 seconds = 428.00 Mbit/sec

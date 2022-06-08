@@ -11540,7 +11540,6 @@ set +x
 	up_all_reps 1
 	up_all_reps 2
 
-	bi
 	vf1=$(get_vf $host_num 1 1)
 	ifconfig $vf1 1.1.1.$host_num/24 up
 
@@ -11566,8 +11565,11 @@ function bond_setup
 {
 	off
 	bond_delete
+	sleep 1
 	bond_switchdev
+	sleep 1
 	bond_create
+	sleep 1
 
 	ifconfig bond0 0
 	bi
