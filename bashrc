@@ -1176,8 +1176,8 @@ function cloud_setup
 		libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 # 	sudo yum install -y memstrack busybox
 
-# 	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering
-# 	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s
+	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering
+	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s
 	sm
 set -x
 	cp /swgwork/cmi/linux.tar.gz .
@@ -1225,7 +1225,7 @@ set +x
 	sm
 	clone-crash
 	cd crash
-# 	make lzo -j 4
+	make lzo -j 4
 }
 alias cl_setup=cloud_setup
 
@@ -6439,7 +6439,7 @@ function netns
 	ip netns exec $n ip link set dev $link up
 	ip netns exec $n ip addr add $ip/16 brd + dev $link
 
-	(( $host_num == 14 )) && ipv6=$((ipv6+10))
+	(( $machine_num == 2 )) && ipv6=$((ipv6+10))
 	ip netns exec $n ip addr add 1::$ipv6/64 dev $link
 
 #	ip netns exec $n ip r a 2.2.2.0/24 nexthop via 1.1.1.1 dev $link

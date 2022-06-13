@@ -19,7 +19,7 @@ vports = mlx5_eswitch.offloads.vport_reps
 total_vports = mlx5_eswitch.total_vports
 enabled_vports = mlx5_eswitch.enabled_vports
 
-print("esw mode: %d" % mlx5_eswitch.mode)
+# print("esw mode: %d" % mlx5_eswitch.mode)
 print("total_vports: %d" % total_vports)
 print("enabled_vports: %d" % enabled_vports)
 
