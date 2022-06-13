@@ -1277,6 +1277,7 @@ function bind_all
 	for (( i = 0; i < numvfs; i++)); do
 		bdf=$(basename `readlink /sys/class/net/$l/device/virtfn$i`)
 		echo "vf${i} $bdf"
+		echo "echo $bdf > /sys/bus/pci/drivers/mlx5_core/bind"
 		echo $bdf > /sys/bus/pci/drivers/mlx5_core/bind
 	done
 	echo "end bind_all"
