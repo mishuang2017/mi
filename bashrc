@@ -11509,6 +11509,9 @@ set -x
 # 	ip link set dev bond0 type bond mode active-backup miimon 100
 	ip link add name bond0 type bond mode active-backup miimon 100
 # 	ip link set dev bond0 type bond mode 802.3ad
+
+	# bi # have syndrom 0x7d49cb
+
 	ip link set dev $link master bond0
 	ip link set dev $link2 master bond0
 	ip link set dev bond0 up
