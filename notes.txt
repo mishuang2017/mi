@@ -12194,6 +12194,11 @@ unmanaged-devices=*;except:interface-name:eth0;except:interface-name:eth1
 
 ===roce===
 
+cloud
+/usr/bin/ibv_rc_pingpong -p 19998 -d rocep8s0f0v1 -i 1 -n 86 -r 8239 -s 6146 -m 1024 -l 14 -g 5 --ts --chk
+/usr/bin/ibv_rc_pingpong -p 19998 -d rocep8s0f0v1 -i 1 -n 86 -r 8239 -s 6146 -m 1024 -l 14 -g 5 --ts --chk 1.1.1.1
+
+
 /usr/bin/ibv_rc_pingpong -p 19998 -d rocep4s0f0v1 -i 1 -n 86 -r 8239 -s 6146 -m 1024 -l 14 -g 5 --ts --chk
 
   local address:  LID 0x0000, QPN 0x0001c9, PSN 0x329622, GID 1::11
