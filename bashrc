@@ -14360,3 +14360,14 @@ function install_sshask
 }
 
 fi
+
+function autoprobe
+{
+	if [[ $# == 0 ]]; then
+		cat /sys/class/net/$link/device/sriov_drivers_autoprobe
+		cat /sys/class/net/$link2/device/sriov_drivers_autoprobe
+	else
+		echo $1 > /sys/class/net/$link/device/sriov_drivers_autoprobe
+		echo $1 > /sys/class/net/$link2/device/sriov_drivers_autoprobe
+	fi
+}
