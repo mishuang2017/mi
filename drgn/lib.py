@@ -75,7 +75,7 @@ def address_to_name(address):
     if address == "0x0":
         return "0x0"
 #     print("address: %s" % address)
-    (status, output) = subprocess.getstatusoutput("grep " + address.replace("0x", "") + " /proc/kallsyms | awk '{print $3}'")
+    (status, output) = subprocess.getstatusoutput("grep -a " + address.replace("0x", "") + " /proc/kallsyms | awk '{print $3}'")
 #     print("%d, %s" % (status, output))
 
     if status:

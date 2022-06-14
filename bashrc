@@ -11707,92 +11707,6 @@ function cat-liberal
 	cat /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
 }
 
-function jd-hugepage
-{
-	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-}
-
-/bin/cp ~/.bashrc ~/.bashrc.bak
-
-function restart-net
-{
-	/etc/init.d/network restart
-}
-
-function change-mtu
-{
-	local mtu=$1
-	ifconfig $rep2 mtu $mtu
-	ifconfig $rep2
-	n1 ifconfig $vf2 mtu $mtu
-	n1 ifconfig $vf2
-}
-
-function test-mtu
-{
-	local i=0
-	while true; do
-		echo "============ $i ==========="
-		change-mtu 576
-		sleep 5
-		change-mtu 1450
-		sleep 5
-		((i++))
-	done
-}
-
-# if [[ $USER == "root" && "$(virt-what)" == "kvm" ]]; then
-#	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-#	alias p0='/root/testpmd0 -l 0-2 -n 4  -m=1024  -w 0000:00:09.0 -- -i --rxq=2 --txq=2  --nb-cores=2'
-#	alias p1='/root/dpdk-stable-17.11.4/x86_64-native-linuxapp-gcc/app/testpmd -l 0-2 -n 4	-m=1024  -w 0000:00:09.0 -- -i --rxq=2 --txq=2	--nb-cores=2'
-#	alias p2='/root/dpdk-stable-17.11.4/x86_64-native-linuxapp-gcc/app/testpmd -c 0xf -n 4 -w 0000:00:09.0,txq_inline=896 --socket-mem=2048,0 -- --rxq=4 --txq=4 --nb-cores=3 -i set fwd macswap'
-# fi
-
-alias gitr='git format-patch -o ~/backport/r -1'
-alias log1=' git log lib/rhashtable.c'
-
-alias cs='corrupt -s'
-alias c200='corrupt -c 1.1.1.200 -t 100000'
-alias cc2='corrupt -c 1.1.3.2 -t 100000 -l 2'
-alias cc3='corrupt -c 1.1.1.23 -t 100000'
-alias cc122='corrupt -c 1.1.1.122 -t 100000'
-
-alias msg='tail -f /var/log/messages'
-
-alias rc0="scp ~cmi/.bashrc cmi@10.7.2.14:~"
-
-alias hping='hping3 -S -s 10001 -p 12345 1.1.1.122'
-alias f1="sudo flint -d $pci q"
-
-alias cd-miniflow-cache='cd /sys/kernel/slab/mlx5_miniflow_cache'
-alias cd-wq='cd /sys/devices/virtual/workqueue'
-
-alias dis="ethtool -S $link | grep dis"
-
-function autoprobe-show
-{
-	cat /sys/class/net/$link/device/sriov_drivers_autoprobe
-}
-
-function autoprobe
-{
-	cat /sys/class/net/$link/device/sriov_drivers_autoprobe
-	echo 1 > /sys/class/net/$link/device/sriov_drivers_autoprobe
-	cat /sys/class/net/$link/device/sriov_drivers_autoprobe
-}
-
-function autoprobe-disable
-{
-	cat /sys/class/net/$link/device/sriov_drivers_autoprobe
-	echo 0 > /sys/class/net/$link/device/sriov_drivers_autoprobe
-	cat /sys/class/net/$link/device/sriov_drivers_autoprobe
-}
-
-function eth0
-{
-	echo 0 > /sys/class/net/eth0_65534/device/sriov_numvfs
-}
-
 alias scapy-traffic-tester.py=~cmi/asap_dev_reg/scapy-traffic-tester.py
 
 scapy_time=1000
@@ -14372,9 +14286,10 @@ function autoprobe
 	fi
 }
 
+alias cd_drivertest='cd /usr/local/lib64/python3.8/site-packages/drivertest'
 function drivertest_git_init
 {
-	cd /usr/local/lib64/python3.8/site-packages/drivertest
+	cd_drivertest
 	git init .
 	git add '**/*.py'
 	git commit -a -m 'init'

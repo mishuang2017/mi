@@ -30,18 +30,20 @@ for x, dev in enumerate(get_netdevs()):
 #     addr = 0xffff93e6b7e00000
 #     dev = Object(prog, 'struct net_device', address=addr)
     name = dev.name.string_().decode()
-    if "enp8" not in name:
-        continue
     addr = dev.value_()
 #     if "enp" in name:
-    print("%5i%20s%20x\t" % (dev.ifindex, name, addr), end="")
+    netdev_ops = address_to_name(hex(dev.netdev_ops.value_()))
+    if "mlx5" not in netdev_ops:
+        continue
+    print("%5i%20s%20x" % (dev.ifindex, name, addr), end="\t")
     print_ip_address(dev)
-    print("%10x\t" % dev.priv_flags, end='\t')
-    count = get_pcpu_refcnt(dev)
-    print("%10d" % count, end='\t')
-    print_kind(dev)
-    mlx5e_priv_addr = dev.value_() + prog.type('struct net_device').size
-    mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
+    netdev_ops = print("dev.netdev_ops: %s" % netdev_ops, end='\t')
+#     print("%10x\t" % dev.priv_flags, end='\t')
+#     count = get_pcpu_refcnt(dev)
+#     print("%10d" % count, end='\t')
+#     print_kind(dev)
+#     mlx5e_priv_addr = dev.value_() + prog.type('struct net_device').size
+#     mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
 #     print("%x" % mlx5e_priv.fs.tc.ct.value_(), end='\t')
-    print("%x" % mlx5e_priv.dfs_root.value_())
+#     print("%x" % mlx5e_priv.dfs_root.value_())
     print("")
