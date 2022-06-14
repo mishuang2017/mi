@@ -15,9 +15,9 @@ from lib import *
 def print_ip_address(dev):
     ifa_list = dev.ip_ptr.ifa_list
     if ifa_list:
-        print("%15s" % ipv4(socket.ntohl(dev.ip_ptr.ifa_list.ifa_address.value_())), end="")
+        print("%15s " % ipv4(socket.ntohl(dev.ip_ptr.ifa_list.ifa_address.value_())), end="")
     else:
-        print("%15s" % "", end="")
+        print("%15s " % "", end="")
 
 def print_kind(dev):
     rtnl_link_ops = dev.rtnl_link_ops
