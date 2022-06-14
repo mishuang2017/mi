@@ -14379,3 +14379,5 @@ function drivertest_git_init
 	git add '**/*.py'
 	git commit -a -m 'init'
 }
+
+modprobe configs
