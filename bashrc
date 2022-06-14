@@ -12606,7 +12606,7 @@ function ka
 {
 	[[ $# != 1 ]] && return
 	addr=$(echo $1 | sed 's/0x//')
-	sudo grep $addr /proc/kallsyms
+	sudo grep -a $addr /proc/kallsyms
 }
 
 function inject
