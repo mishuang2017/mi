@@ -46,15 +46,8 @@ for dev in list_for_each_entry('struct device_private', k_list.address_of_(), 'k
         print("pci_dev.physfn.sriov %x" % pci_dev.physfn.sriov)
         print(pci_dev.physfn.sriov)
     else:
-        if pci_dev.physfn:
-            print("pci_dev.physfn.sriov")
-            print(pci_dev.physfn.sriov)
-        else:
-            print("pci_dev.physfn is NULL")
         print("pci_dev.sriov")
         print(pci_dev.sriov)
-#         if pci_dev.sriov:
-#             print("pci_dev.sriov.drivers_autoprobe: %d" % pci_dev.sriov.drivers_autoprobe)
     print("")
 
 #     print("pci_dev.is_virtfn: %d" % pci_dev.is_virtfn)
