@@ -14371,3 +14371,11 @@ function autoprobe
 		echo $1 > /sys/class/net/$link2/device/sriov_drivers_autoprobe
 	fi
 }
+
+function drivertest_git_init
+{
+	cd /usr/local/lib64/python3.8/site-packages/drivertest
+	git init .
+	git add '**/*.py'
+	git commit -a -m 'init'
+}
