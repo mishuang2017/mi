@@ -7037,112 +7037,6 @@ function tcm2
 #	sudo tc filter add  dev $link prio 1 protocol ip handle 2 parent ffff: flower skip_hw src_mac e4:11:0:0:0:2 dst_mac e4:12:0:0:0:2 action drop
 }
 
-# Usage: /auto/mtbcswgwork/cmi/noodle/noodle [-s | -c host] [client(sender) options]
-#  where options are:
-#               -h help screen
-#               -v report statistics, otherwise be silent
-#               -p port (default 10005)
-#               -l local port bind start (default random)
-#               -L local ip address to bind (default ANY)
-#               -c server host address
-#               -C concurrent connections(100000 max)
-#               -P use Packet Pacing for throttling. otherwise software is used
-#               -n conn created per second
-#               -t active time per connection in seconds. The connection will be //closed and a new connection will be created once time is up.
-#               -T Total run time in secs, otherwise run forever or till killed
-#               -r how many client threads. (This box has 16 cores available)
-#               -R how many server threads. (This box has 16 cores available)
-#               -M Modify pace, currently hard-coded to 10 rates
-#               -y yield send factor
-#               -S snd buffer size (KB)
-#               -E rcv buffer size (KB)
-#               -z bandwidth per conn (bits) or
-#               -b bandwidth per conn (kbps) or
-#               -B total bandwidth (kbps)
-
-alias noodle=/auto/mtbcswgwork/cmi/noodle/noodle
-alias noodle1='noodle -c 1.1.14.1 -p 9999 -C 10000 -n 100 -l 3000  -b 10 -r 10'
-# noodle -p 1500 -l 2000 -C 40000 -n 5000  -r 8 -b 1
-alias noodle1='noodle -c 8.9.10.11 -p 1500 -C 40000 -n 5000 -l 2000  -b 1 -r 8'
-
-alias noodle_arp='arp -s 1.1.14.1 02:25:d0:e2:14:00; arp -a'
-noodle_dst_port=1500
-noodle_src_port=2000
-noodle_conns=40000
-function noodle2
-{
-	n=1
-	if [[ $# == 1 ]]; then
-		n=$1
-	fi
-	p=1
-	for (( i = noodle_dst_port; i < noodle_dst_port + n; i ++)); do
-set -x
-		noodle -L 1.1.11.$p -c 1.1.14.1 -p $i -C $noodle_conns -n 5000 -l $noodle_src_port  -b 1 -r 8 &
-		((p++))
-set +x
-	done
-}
-
-function tcnoodle
-{
-	d=1
-	if [[ $# == 1 ]]; then
-		d=$1
-	fi
-	TC=/auto/mtbcswgwork/cmi/iproute2/tc/tc
-	tc2
-	sudo $TC qdisc add dev $link ingress
-set -x
-	for (( j = noodle_src_port; j < noodle_src_port + d; j ++)); do
-		tc filter add dev $link prio 1 protocol ip parent ffff: flower skip_sw dst_mac 02:25:d0:e2:14:00 ip_proto udp dst_port $noodle_dst_port src_port $j action mirred egress redirect dev $rep1
-	done
-set +x
-}
-
-function tcnoodle2
-{
-	dir=nb
-	/bin/rm -rf $dir
-	mkdir -p $dir
-	file=$dir/nb
-	d=1
-	n=0
-	c=0
-	if [[ $# == 1 ]]; then
-		d=$1
-	fi
-	TC=/auto/mtbcswgwork/cmi/iproute2/tc/tc
-	for (( i = noodle_dst_port; i < noodle_dst_port + d; i ++)); do
-		for (( j = noodle_src_port; j < noodle_src_port + noodle_conns; j ++)); do
-			echo "filter add dev $link prio 1 protocol ip parent ffff: flower skip_sw dst_mac 02:25:d0:e2:14:00 ip_proto udp dst_port $i src_port $j action mirred egress redirect dev $rep1" >> $file.$n
-			((c++))
-			p=$((c%400000))
-			if (( p == 0 )); then
-				echo $n
-				((n++))
-			fi
-		done
-	done
-
-	tc2
-	sudo $TC qdisc add dev $link ingress
-
-	set -x
-	time for f in $file.*; do
-		$TC -b $f
-	done
-	set +x
-}
-
-function noodle_check
-{
-set -x
-	tcss | grep Sent > 1.txt
-	awk '{if ($2 == 0) print $2}' 1.txt | tee > 2.txt
-set +x
-}
-
 alias tdc="cd-test; sudo ./tdc.py -f tc-tests/filters/tests.json -d $link"
 alias tdc-check='ip netns exec tcut tc action ls action gact'
 
@@ -7577,32 +7471,6 @@ else
 	alias fwreset="sudo mlxfwreset -d $pci reset -y"
 fi
 
-function burn5l
-{
-set -x
-	pci=0000:04:00.0
-	version=last_revision
-	version=fw-4119-rel-16_24_0300
-	version=fw-4119-rel-16_24_0166
-#	yes | sudo mlxburn -d $pci -fw /root/$version/fw-ConnectX5.mlx -conf_dir /root/$version
-	yes | sudo mlxburn -d $pci -fw /root/fw-ConnectX5.mlx -conf_dir /root/$version
-	sudo mlxfwreset -d $pci reset
-set +x
-}
-
-function burn4
-{
-set -x
-	version=fw-4117-rel-14_23_8010
-	version=last_revision
-	version=fw-4117-rel-14_25_0292
-	mkdir -p /mswg/
-	sudo mount 10.4.0.102:/vol/mswg/mswg /mswg/
-	yes | sudo mlxburn -d $pci -fw /mswg/release/fw-4117/$version/fw-ConnectX4Lx.mlx -conf_dir /mswg/release/fw-4117/$version
-	sudo mlxfwreset -y -d $pci reset
-set +x
-}
-
 alias checkpatch="./scripts/checkpatch.pl --strict --show-types -g HEAD"
 alias git_fixes="git log -1 --pretty=fixes"
 alias gf1="git format-patch -o ~/tmp -1"
@@ -7877,49 +7745,6 @@ function app-test
 	time ovs-appctl offloads/test 1 50 100 1
 }
 
-function clog
-{
-	cdir=/var/crash
-	file=vmcore-dmesg.txt
-	dir=$(ls -lht $cdir | awk 'NR == 2 {print $NF}')
-	less $cdir/$dir/$file
-}
-
-function setup-nic
-{
-	[[ $# != 2 ]] && return
-	local link=$1
-	local ip=$2
-	local file=/etc/sysconfig/network-scripts/ifcfg-$link
-	cat << EOF > $file
-TYPE=Ethernet
-BOOTPROTO=static
-DEFROUTE=yes
-PEERDNS=yes
-PEERROUTES=yes
-IPV4_FAILURE_FATAL=no
-IPV6INIT=yes
-IPV6_AUTOCONF=yes
-IPV6_DEFROUTE=yes
-IPV6_PEERDNS=yes
-IPV6_PEERROUTES=yes
-IPV6_FAILURE_FATAL=no
-IPV6_ADDR_GEN_MODE=stable-privacy
-NAME=$link
-UUID=69b82430-695f-4650-8249-813146f59b80
-DEVICE=$link
-ONBOOT=yes
-
-IPADDR=10.12.205.$ip
-GATEWAY=10.12.205.1
-NETMASK=255.255.255.0
-DNS1=10.12.68.102
-DNS2=10.12.68.101
-
-DOMAIN="mtbc.labs.mlnx labs.mlnx mlnx lab.mtl.com mtl.com"
-EOF
-}
-
 alias pps1="ethtool -S $link | egrep \"rx_packets_phy|tx_packets_phy\""
 
 function pps
@@ -7934,30 +7759,6 @@ function pps
 	echo $t2 $r1
 	echo $(((t2 - t1 + r2 - r1) / t))
 	echo $(((t2 - t1 + r2 - r1) / t / 1000 / 1000))
-}
-
-function disable-tcp-offload
-{
-	local link=$1
-	[[ $# != 1 ]] && return
-set -x
-	ethtool -K $link gro off
-	ethtool -K $link gso off 
-	ethtool -K $link tso off
-	ethtool -K $link lro off 
-set +x
-}
-
-function enable-tcp-offload
-{
-	local link=$1
-	[[ $# != 1 ]] && return
-set -x
-	ethtool -K $link gro on
-	ethtool -K $link gso on
-	ethtool -K $link tso on
-	ethtool -K $link lro on
-set +x
 }
 
 function peer
@@ -8295,45 +8096,6 @@ function create-vm
 	cd $dir
 	qemu-img create -f qcow2 $disk_name 1G
 	virt-install --name $vm_name --memory 1024 --disk=$dir/$disk_name --pxe --check path_in_use=off
-}
-
-function netperf1
-{
-	killall -9 netperf
-	pkill netperf
-
-	[[ $# != 2 ]] && return
-	n=$1
-	ip=$2
-
-	for ((i = 0; i < n; i ++)); do
-		netperf -H $ip -l 10000 -t UDP_STREAM -- -m 1 &
-	done
-}
-
-alias np1='netperf1 1'
-alias np2='netperf1 2'
-alias np4='netperf1 4'
-alias np8='netperf1 8'
-alias np16='netperf1 16'
-alias np32='netperf1 32'
-alias np64='netperf1 64'
-alias np128='netperf1 128'
-alias np256='netperf1 256'
-alias np512='netperf1 512'
-
-function netperf2
-{
-	killall -9 netperf
-	pkill netperf
-
-	[[ $# != 1 ]] && return
-	n=$1
-	ip=192.168.1.13
-
-	for ((i = 0; i < n; i ++)); do
-		netperf -H $ip -l 10 &
-	done
 }
 
 # https://github.com/Mellanox/sockperf.git
@@ -9037,52 +8799,6 @@ set -x
 set +x
 }
 
-function tc-unqos
-{
-	tc qdisc del dev $link root handle 1
-}
-
-# ping -I ens6 11.196.22.1 -c 100 -s 100 -i 0.05
-function ping-all
-{
-set -x
-	local s=32768
-	local s=1000
-	local c=100
-	local iv=0.1
-
-	local start1=10
-	local start2=$((start1+1))
-	local end=$((start1+numvfs-1))
-	local end2=$((numvfs-1))
-	for n in $(seq $start2 $end); do
-		for i in $(seq 1 $end2); do
-			if (( n - start1 != i)); then
-				exe n$n ping 1.1.1.$i -i $iv -c $c -s $s &
-			fi
-			exe n$n ping 1.1.3.$i -i $iv -c $c -s $s &
-		done
-	done
-
-	if (( ports == 1 )); then
-set +x
-		return
-	fi
-
-	start1=20
-	start2=$((start1+1))
-	end=$((start1+numvfs-1))
-	for n in $(seq $start2 $end); do
-		for i in $(seq 1 $end2); do
-			if (( n - start1 != i)); then
-				exe n$n ping 1.1.2.$i -i $iv -c $c -s $s &
-			fi
-			exe n$n ping 1.1.4.$i -i $iv -c $c -s $s &
-		done
-	done
-set +x
-}
-
 # get vf name from namespace
 function get_vf_ns
 {
@@ -9091,114 +8807,6 @@ function get_vf_ns
 	ns=n1$((n))
 	ip netns exec $ns ls /sys/class/net | grep en
 }
-
-# vf1=$(get_vf $host_num 1 1)
-# vf2=$(get_vf $host_num 1 2)
-# vf3=$(get_vf $host_num 1 3)
-
-# vf1_2=$(get_vf $host_num 2 1)
-# vf2_2=$(get_vf $host_num 2 2)
-
-function hugepage
-{
-#	mkdir -p /mnt/huge
-#	mount -t hugetlbfs nodev /mnt/huge
-#	echo 1024 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
-
-set -x
-	mkdir -p /mnt/huge_2M
-	mount -t hugetlbfs -o pagesize=2M none /mnt/huge_2M/
-	echo 8192 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
-	mkdir -p /mnt/huge_1G
-	mount -t hugetlbfs -o pagesize=1G none /mnt/huge_1G/
-	echo 16 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
-set +x
-}
-
-function vm1-dpdk
-{
-set -x
-	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-	cd /root/dpdk-stable-17.11.4/
-	./x86_64-native-linuxapp-gcc/app/testpmd -c 0xf -n 4 -w 0000:00:09.0,txq_inline=896 --socket-mem=2048,0 -- --rxq=4 --txq=4 --nb-cores=3 -i set fwd macswap --forward-mode=macswap -i -a --rss-udp
-set +x
-}
-
-function vm3-dpdk
-{
-	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-	cd /root/dpdk-stable-17.11.4/
-	./x86_64-native-linuxapp-gcc/app/testpmd -l 0-2 -n 4	-m=1024  -w 0000:00:09.0 -- -i --rxq=2 --txq=2	--nb-cores=2 -i --forward-mode=flowgen -i -a --rss-udp
-# 	./x86_64-native-linuxapp-gcc/app/testpmd -l 0-6 -n 4	-m=4096  -w 0000:00:09.0 -- -i --rxq=4 --txq=4	--nb-cores=4 -i --forward-mode=flowgen -i -a --rss-udp
-}
-
-function 13-dpdk
-{
-set -x
-	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-	echo 1024 > /sys/devices/system/node/node1/hugepages/hugepages-2048kB/nr_hugepages
-	cd /root/dpdk
-	./x86_64-native-linuxapp-gcc/app/testpmd -c 0xf -n 4 -w 0000:04:00.3,txq_inline=896 --socket-mem=2048,0 -- --rxq=4 --txq=4 --nb-cores=3 -i set fwd macswap
-set +x
-}
-
-function 14-dpdk
-{
-	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-	echo 1024 > /sys/devices/system/node/node1/hugepages/hugepages-2048kB/nr_hugepages
-	cd /root/dpdk
-	 ./x86_64-native-linuxapp-gcc/app/testpmd -l 0-5 -n 4    -m=4096  -w 0000:04:00.3 -- -i --rxq=4 --txq=4  --nb-cores=4 -i --forward-mode=flowgen -i -a --rss-udp
-}
-
-function 14-dpdk-pf
-{
-	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-	echo 1024 > /sys/devices/system/node/node1/hugepages/hugepages-2048kB/nr_hugepages
-	cd /root/dpdk
-	 ./x86_64-native-linuxapp-gcc/app/testpmd -l 0-5 -n 4    -m=4096  -w 0000:04:00.0 -- -i --rxq=4 --txq=4  --nb-cores=3 -i --forward-mode=flowgen -i -a --rss-udp
-}
-
-function 14-dpdk-icmpecho
-{
-set -x
-	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-	echo 1024 > /sys/devices/system/node/node1/hugepages/hugepages-2048kB/nr_hugepages
-	cd /root/dpdk
-	./x86_64-native-linuxapp-gcc/app/testpmd -c 0xf -n 4 -w 0000:04:00.0,txq_inline=896 --socket-mem=2048,0 -- --rxq=4 --txq=4 --nb-cores=1 -i set fwd icmpecho
-set +x
-}
-
-function 14-dpdk-macswap
-{
-set -x
-	echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-	echo 1024 > /sys/devices/system/node/node1/hugepages/hugepages-2048kB/nr_hugepages
-	cd /root/dpdk
-	./x86_64-native-linuxapp-gcc/app/testpmd -c 0xf -n 4 -w 0000:04:00.0,txq_inline=896 --socket-mem=2048,0 -- --rxq=4 --txq=4 --nb-cores=1 -i set fwd macswap
-set +x
-}
-
-function clone-dpdk
-{
-	git clone https://github.com/DPDK/dpdk.git
-	cd dpdk
-	git checkout v18.08-rc3
-	git checkout -b v18.08-rc3+
-}
-
-# ssh cmi@ dev-chrism-vm4
-# echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-# /root/dpdk-stable-17.11.4/x86_64-native-linuxapp-gcc/app/testpmd -c 0xf -n 4 -w 0000:00:09.0,txq_inline=896 --socket-mem=2048,0 -- --rxq=4 --txq=4 --nb-cores=3 -i set fwd macswap
-# testpmd> set fwd macswap
-# testpmd> start
-# testpmd> show port stats all
-
-# ssh chrism@ dev-chrism-vm3
-# echo 1024 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-# /root/dpdk-stable-17.11.4/x86_64-native-linuxapp-gcc/app/testpmd -l 0-2 -n 4	-m=1024  -w 0000:00:09.0 -- -i --rxq=2 --txq=2	--nb-cores=2
-# testpmd> set fwd flowgen
-# testpmd> start
-# testpmd> show port stats all
 
 function disable-ipv6
 {
@@ -9213,18 +8821,6 @@ function enable-ipv6
 	sysctl -w net.ipv6.conf.all.disable_ipv6=0
 	sysctl -w net.ipv6.conf.default.disable_ipv6=0
 }
-
-function book-noga
-{
-	noga -l -k 7a0d370e3a69f07c8741724a67ba6a6b -U cmi -n dev-r630-03 -t Server -L 168
-	noga -l -k 7a0d370e3a69f07c8741724a67ba6a6b -U cmi -n dev-r630-04 -t Server -L 168
-}
-
-# if systemctl status NetworkManager > /dev/null 2>&1; then
-#	systemctl stop NetworkManager
-#	systemctl disable NetworkManager
-#	/etc/init.d/network restart
-# fi
 
 function set-mangle
 {
@@ -12345,56 +11941,8 @@ alias vi_nginx='vi /usr/local/nginx/conf/nginx.conf'
 alias nginx_reload='/usr/local/nginx/sbin/nginx -s reload'
 alias nginx='/usr/local/nginx/sbin/nginx'
 
-# net.netfilter.nf_conntrack_generic_timeout = 600
-# net.netfilter.nf_conntrack_icmp_timeout = 30
-# net.netfilter.nf_conntrack_tcp_timeout_close = 10
-# net.netfilter.nf_conntrack_tcp_timeout_close_wait = 60
-# net.netfilter.nf_conntrack_tcp_timeout_established = 432000
-# net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 120
-# net.netfilter.nf_conntrack_tcp_timeout_last_ack = 30
-# net.netfilter.nf_conntrack_tcp_timeout_max_retrans = 300
-# net.netfilter.nf_conntrack_tcp_timeout_syn_recv = 60
-# net.netfilter.nf_conntrack_tcp_timeout_syn_sent = 120
-# net.netfilter.nf_conntrack_tcp_timeout_time_wait = 120
-# net.netfilter.nf_conntrack_tcp_timeout_unacknowledged = 300
-# net.netfilter.nf_conntrack_udp_timeout = 30
-# net.netfilter.nf_conntrack_udp_timeout_stream = 180
-
-# net.netfilter.nf_conntrack_generic_timeout=60
-# net.netfilter.nf_conntrack_icmp_timeout=10
-#net.netfilter.nf_conntrack_tcp_timeout_close=10
-# net.netfilter.nf_conntrack_tcp_timeout_close_wait=20
-# net.netfilter.nf_conntrack_tcp_timeout_established=1800
-# net.netfilter.nf_conntrack_tcp_timeout_fin_wait=30
-#net.netfilter.nf_conntrack_tcp_timeout_last_ack=30
-#net.netfilter.nf_conntrack_tcp_timeout_max_retrans=300
-# net.netfilter.nf_conntrack_tcp_timeout_syn_recv=30
-# net.netfilter.nf_conntrack_tcp_timeout_syn_sent=60
-# net.netfilter.nf_conntrack_tcp_timeout_time_wait=60
-#net.netfilter.nf_conntrack_tcp_timeout_unacknowledged=300
-#net.netfilter.nf_conntrack_udp_timeout=30
-# net.netfilter.nf_conntrack_udp_timeout_stream=60
-
 function sysctl_get_nf
 {
-# 	for i in	\
-# 			net.netfilter.nf_conntrack_generic_timeout	\
-# 			net.netfilter.nf_conntrack_icmp_timeout	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_close	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_close_wait	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_established	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_fin_wait	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_last_ack	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_max_retrans	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_syn_recv	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_syn_sent	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_time_wait	\
-# 			net.netfilter.nf_conntrack_tcp_timeout_unacknowledged	\
-# 			net.netfilter.nf_conntrack_udp_timeout	\
-# 			net.netfilter.nf_conntrack_udp_timeout_stream; do
-# 		sysctl $i
-# 	done
-
 	sysctl -a | grep conntrack | grep timeout
 }
 
