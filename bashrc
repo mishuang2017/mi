@@ -14270,4 +14270,32 @@ function drivertest_git_init
 
 test -f /proc/config.gz && modprobe configs
 
+function build_kexec
+{
+	if (( UID == 0 )); then
+		echo "please run as non-root user"
+		return
+	fi
 
+	sm
+	git clone git://git.kernel.org/pub/scm/utils/kernel/kexec/kexec-tools.git
+	cd kexec-tools
+	./bootstrap
+	make-usr
+}
+
+function build_makedumpfile
+{
+	if (( UID == 0 )); then
+		echo "please run as non-root user"
+		return
+	fi
+
+	sm
+	sudo yum install -y snappy-devel
+	git clone https://github.com/makedumpfile/makedumpfile.git
+	cd makedumpfile
+	make USEZSTD=on USESNAPPY=on USELZO=on LINKTYPE=dynamic
+	sudo cp ./makedumpfile /sbin
+	makedumpfile -v
+}
