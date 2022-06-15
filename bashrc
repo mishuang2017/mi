@@ -14,16 +14,8 @@ numvfs=4
 numvfs=16
 numvfs=3
 
-# alias virc="vi /images/cmi/mi/bashrc"
-# alias rc=". /images/cmi/mi/bashrc"
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
-alias rc1='. ~cmi/.bashrc'
-
-# [[ "$(hostname -s)" == "dev-chrism-vm1" ]] && host_num=15
-# [[ "$(hostname -s)" == "dev-chrism-vm2" ]] && host_num=16
-# [[ "$(hostname -s)" == "dev-chrism-vm3" ]] && host_num=17
-# [[ "$(hostname -s)" == "dev-chrism-vm4" ]] && host_num=18
 
 host_num=$(hostname | cut -d '-' -f 5 | sed 's/0*//')
 host_num=$((host_num % 100))
@@ -59,9 +51,6 @@ else
 	rhost_num=$((host_num+1))
 	machine_num=1
 fi
-# echo $host_num
-# echo $rhost_num
-# echo $machine_num
 
 function get_vf
 {
@@ -201,11 +190,6 @@ elif (( host_num == 14 )); then
 		echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal;
 		echo 5000000 > /proc/sys/net/netfilter/nf_conntrack_max
 	fi
-
-elif (( host_num == 7 )); then
-	remote_mac=0c:42:a1:58:ac:2c
-elif (( host_num == 8 )); then
-	remote_mac=b8:ce:f6:09:fa:08
 fi
 
 link_remote_ip=192.168.1.$rhost_num
@@ -295,38 +279,6 @@ if uname -r | grep 3.10.0-327 > /dev/null 2>&1; then
 	centos=1
 	centos72=1
 fi
-
-kernel49=0
-uname -r | grep 4.9 > /dev/null 2>&1 && kernel49=1
-
-centos74=0
-if uname -r | grep 3.10.0-693 > /dev/null 2>&1; then
-	centos=1
-	centos74=1
-fi
-
-jd_kernel=0
-if uname -r | grep 3.10.0-693.21.3 > /dev/null 2>&1; then
-	centos=1
-	jd_kernel=1
-fi
-
-centos75=0
-if uname -r | grep 3.10.0-862 > /dev/null 2>&1; then
-	centos=1
-	centos75=1
-fi
-
-centos76=0
-if uname -r | grep 3.10.0-957 > /dev/null 2>&1; then
-	centos=1
-	centos76=1
-fi
-
-# if [[ "$UID" == "0" ]]; then
-# 	dmidecode | grep "Red Hat" > /dev/null 2>&1
-# 	rh=$?
-# fi
 
 export LC_ALL=en_US.UTF-8
 # export DISPLAY=:0.0
@@ -1431,20 +1383,8 @@ function tc-drop
 
 alias stap='/usr/local/bin/stap --all-modules -v'
 stap_str_common="--all-modules -d /usr/sbin/ovs-vswitchd -d /usr/sbin/tc -d /usr/bin/ping -d /usr/sbin/ip -d /sbin/udevadm"
-if (( ofed == 1 || kernel49 == 1 )); then
-	stap_str="$stap_str_common -d /usr/lib64/libc-2.17.so -d /usr/lib64/libpthread-2.17.so"
-	STAP="/usr/local/bin/stap -v"
-elif (( debian == 1 )); then
-	stap_str="$stap_str_common -d /lib/x86_64-linux-gnu/libc-2.27.so -d /lib/x86_64-linux-gnu/libpthread-2.27.so"
-	STAP="/usr/local/bin/stap -v"
-fi
 STAP="/usr/local/bin/stap -v"
 stap_str="--all-modules -d /usr/sbin/ovs-vswitchd -d /usr/sbin/tc -d /usr/bin/ping -d /usr/sbin/ip -d /sbin/udevadm -d kernel -d /usr/lib64/libpthread-2.26.so"
-
-# stap_str="-d /usr/lib64/libpthread-2.17.so -d //lib/modules/3.10.0-862.2.3.el7.x86_64.debug/extra/mlnx-ofa_kernel/drivers/infiniband/hw/mlx5/mlx5_ib.ko -d /usr/lib64/libibverbs.so.1.1.16.0	-d /usr/lib64/libmlx5.so.1.3.16.0  -d /images/cmi/dpdk-18.05/build/app/testpmd"
-
-# make oldconfig
-# make prepare
 
 alias sta="$STAP $stap_str -DDEBUG_UNWIND"
 alias sta-usr="/usr/bin/stap -v $stap_str"
