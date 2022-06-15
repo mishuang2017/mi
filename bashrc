@@ -14295,4 +14295,10 @@ function drivertest_git_init
 	git commit -a -m 'init'
 }
 
-modprobe configs
+test -f /proc/config.gz && modprobe configs
+
+function makedumpfile_yum
+{
+	#              zstd           -lz         -lzc         -lbz2        -llzma    -ldw -lelf
+	yum install -y libzstd-static zlib-static glibc-static bzip2-static xz-static elfutils-devel-static
+}
