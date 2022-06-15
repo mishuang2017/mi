@@ -1650,8 +1650,6 @@ function reprobe-ib
 	sudo modprobe -v mlx5_ib
 }
 
-
-
 function build_vxlan
 {
 set -x; 
@@ -1690,12 +1688,6 @@ set -x;
 	sudo modprobe -r openvswitch
 	sudo modprobe -v openvswitch
 set +x
-}
-
-function install-python3
-{
-	sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm
-	sudo yum -y install python36u
 }
 
 # need to install /auto/mtbcswgwork/cmi/libcap-ng-0.7.8 first
@@ -1746,27 +1738,6 @@ set -x
 	make -j  CFLAGS="-Werror -g"
 	sudo make install
 	restart-ovs
-set +x
-}
-
-function my_start_ovs
-{
-set -x
-	mkdir -p /usr/local/etc/openvswitch
-	ovsdb-tool create /usr/local/etc/openvswitch/conf.db vswitchd/vswitch.ovsschema 
-
-	ovsdb-tool create /usr/local/etc/openvswitch/conf.db \
-	    vswitchd/vswitch.ovsschema
-	ovsdb-server --remote=punix:/usr/local/var/run/openvswitch/db.sock \
-	    --remote=db:Open_vSwitch,Open_vSwitch,manager_options \
-	    --private-key=db:Open_vSwitch,SSL,private_key \
-	    --certificate=db:Open_vSwitch,SSL,certificate \
-	    --bootstrap-ca-cert=db:Open_vSwitch,SSL,ca_cert \
-	    --pidfile --detach --log-file
-	
-	ovs-vsctl --no-wait init
-
-	ovs-vswitchd --pidfile --detach --log-file
 set +x
 }
 
