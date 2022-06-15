@@ -275,7 +275,6 @@ else
 	cpu_num2=$((cpu_num-1))
 fi
 
-nfs_dir="/auto/mtbcswgwork/cmi"
 if which kdump-config > /dev/null 2>&1; then
 	crash_dir=$(kdump-config show | grep KDUMP_COREDIR | awk '{print $2}')
 else
@@ -293,7 +292,6 @@ modinfo mlx5_core | grep filename| grep updates > /dev/null && ofed=1
 centos=0
 centos72=0
 if uname -r | grep 3.10.0-327 > /dev/null 2>&1; then
-	unum=327
 	centos=1
 	centos72=1
 fi
@@ -303,28 +301,24 @@ uname -r | grep 4.9 > /dev/null 2>&1 && kernel49=1
 
 centos74=0
 if uname -r | grep 3.10.0-693 > /dev/null 2>&1; then
-	unum=693
 	centos=1
 	centos74=1
 fi
 
 jd_kernel=0
 if uname -r | grep 3.10.0-693.21.3 > /dev/null 2>&1; then
-	unum=693
 	centos=1
 	jd_kernel=1
 fi
 
 centos75=0
 if uname -r | grep 3.10.0-862 > /dev/null 2>&1; then
-	unum=862
 	centos=1
 	centos75=1
 fi
 
 centos76=0
 if uname -r | grep 3.10.0-957 > /dev/null 2>&1; then
-	unum=957
 	centos=1
 	centos76=1
 fi
@@ -424,9 +418,6 @@ alias vxlan4000="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan opti
 alias vxlan4789="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4789"
 alias vxlan1-2="ovs-vsctl add-port $br2 $vx2 -- set interface $vx2 type=vxlan options:remote_ip=$link_remote_ip2  options:key=$vni options:dst_port=$vxlan_port"
 alias vxlan2="ovs-vsctl del-port $br $vx"
-alias vx='vxlan2; vxlan1'
-
-alias ipmirror="ifconfig $link 0; ip addr add dev $link $link_ip_vlan/16; ip link set $link up"
 
 alias vsconfig="sudo ovs-vsctl get Open_vSwitch . other_config"
 function vsconfig3
@@ -445,14 +436,6 @@ alias ovs-log='sudo tail -f  /var/log/openvswitch/ovs-vswitchd.log'
 alias ovs-test-log="vi tests/system-offloads-testsuite.log"
 alias ovs2-log=' tail -f /var/log/openvswitch/ovsdb-server.log'
 
-alias p23="ping 1.1.1.23"
-alias p6="ping6 2017::14"
-
-alias 3.10='cd /usr/src/debug/kernel-3.10.0-327.el7/linux-3.10.0-327.el7.x86_64'
-alias restart-network='/etc/init.d/network restart'
-
-alias crash2="$nfs_dir/crash/crash -i /root/.crash //boot/vmlinux-$(uname -r).bz2"
-
 # use 'crash -s' to avoid the following error
 # log: cannot determine length of symbol: log_end
 if test -f /$images/cmi/crash/crash; then
@@ -463,12 +446,6 @@ fi
 VMLINUX=$linux_dir/vmlinux
 alias crash1="$CRASH -i /root/.crash $VMLINUX"
 alias c=crash1
-
-# -d8 to add debug info
-if (( centos == 1 && jd_kernel == 0 )); then
-	VMLINUX=/usr/lib/debug/lib/modules/3.10.0-${unum}.el7.x86_64/vmlinux
-	alias c="$CRASH -i /root/.crash /usr/lib/debug/lib/modules/$(uname -r)/vmlinux"
-fi
 
 alias c0="$CRASH -i /root/.crash $crash_dir/vmcore.0 $VMLINUX"
 alias c1="$CRASH -i /root/.crash $crash_dir/vmcore.1 $VMLINUX"
@@ -481,9 +458,7 @@ alias c7="$CRASH -i /root/.crash $crash_dir/vmcore.7 $VMLINUX"
 alias c8="$CRASH -i /root/.crash $crash_dir/vmcore.8 $VMLINUX"
 alias c9="$CRASH -i /root/.crash $crash_dir/vmcore.9 $VMLINUX"
 
-
 alias jd-ovs="del-br; br; ~cmi/bin/ct_lots_rule.sh $rep2 $rep3"
-
 alias jd-vxlan="del-br; brx; ~cmi/bin/ct_lots_rule_vxlan.sh $rep2 $vx"
 alias jd-vxlan-ttl="del-br; brx; ~cmi/bin/ct_lots_rule_vxlan-ttl.sh $rep2 $vx"
 
@@ -695,7 +670,6 @@ alias rmswp='find . -name *.swp -exec rm {} \;'
 alias cd-drgn='cd /usr/local/lib64/python3.6/site-packages/drgn-0.0.1-py3.6-linux-x86_64.egg/drgn/helpers/linux/'
 alias smdr="cd /$images/cmi/drgn/"
 
-alias sm2="cd $nfs_dir"
 alias smc="sm; cd crash; vi net.c"
 alias smi='cd /var/lib/libvirt/images'
 alias smi2='cd /etc/libvirt/qemu'
@@ -815,7 +789,6 @@ alias vime='sudo vim /boot/grub/menu.lst'
 alias vig='sudo vim /boot/grub2/grub.cfg'
 alias vig1='sudo vim /boot/grub/grub.conf'
 alias vig2='sudo vim /etc/default/grub'
-alias viu="vi $nfs_dir/uperf-1.0.5/workloads/netperf.xml"
 alias vit='vi ~/.tmux.conf'
 alias vic='vi ~/.crash'
 alias viu='vi /etc/udev/rules.d/82-net-setup-link.rules'
@@ -14297,8 +14270,4 @@ function drivertest_git_init
 
 test -f /proc/config.gz && modprobe configs
 
-function makedumpfile_yum
-{
-	#              zstd           -lz         -lzc         -lbz2        -llzma    -ldw -lelf
-	yum install -y libzstd-static zlib-static glibc-static bzip2-static xz-static elfutils-devel-static
-}
+
