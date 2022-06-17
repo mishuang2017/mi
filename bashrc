@@ -13530,7 +13530,4 @@ function build_makedumpfile
 	makedumpfile -v
 }
 
-alias 15='ssh root@10.141.64.15'
-alias 16='ssh root@10.141.64.16'
-alias 60='ssh root@10.141.92.60'
-alias 61='ssh root@10.141.92.61'
+test -f ~cmi/mi/cloud_alias && source ~cmi/mi/cloud_alias
