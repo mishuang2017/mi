@@ -13522,7 +13522,7 @@ function build_makedumpfile
 	fi
 
 	sm
-	sudo yum install -y snappy-devel
+	sudo yum install -y snappy-devel bzip2-devel lzo-devel
 	git clone https://github.com/makedumpfile/makedumpfile.git
 	cd makedumpfile
 	make USEZSTD=on USESNAPPY=on USELZO=on LINKTYPE=dynamic
