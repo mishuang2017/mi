@@ -553,6 +553,9 @@ c-w o close all other vim windows
 
 net user cmi /domain
 
+https://www.technipages.com/stop-mouse-from-waking-up-windows-10-pc
+powercfg -devicequery wake_armed
+
 ===kernel===
 
 /proc/config.gz
