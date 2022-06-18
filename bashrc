@@ -6949,7 +6949,7 @@ function int0
 
 alias tma='tmux attach'
 [[ "$HOSTNAME" == "bc-vnc02" ]] && alias tma='screen -x'
-[[ "$HOSTNAME" == "vnc14.mtl.labs.mlnx" ]] && alias tma='screen -x'
+[[ "$HOSTNAME" == "mtl-vdi-602" ]] && alias tma='screen -x'
 function tm
 {
 	[[ $# == 0 ]] && return
