@@ -54,3 +54,12 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
 #              print(port.attrs)
+
+    print("=== devlink.param_list ===")
+    print(devlink.param_list)
+    for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
+        print("-------------------------------------------------------------")
+#         print(item)
+        print(item.param.id)
+
+
