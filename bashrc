@@ -1108,7 +1108,7 @@ set -x
 	cp /swgwork/cmi/linux.tar.gz .
 	tar zvxf linux.tar.gz
 	cd linux
-	/bin/cp -f ~cmi/mi/config.cloud .config
+	/bin/cp -f ~cmi/mi/config .config
 	sml
 # 	[[ -n $branch ]] && git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch
 # 	make-all all
