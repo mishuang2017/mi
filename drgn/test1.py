@@ -26,3 +26,6 @@ else:
 
 
 print(__name__)
+
+mlx5e_priv = get_mlx5_pf0()
+print(mlx5e_priv.wq)
