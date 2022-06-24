@@ -7560,6 +7560,12 @@ pci_call_probe
         do_syscall_64       5a [kernel]
         entry_SYSCALL_64_after_hwframe       44 [kernel]
 
+===console===
+
+register_console
+
+con_printk
+
 ===mlx===
 
 add it to grub
