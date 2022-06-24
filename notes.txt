@@ -7566,6 +7566,8 @@ register_console
 
 con_printk
 
+earlycon_print_info
+
 ===mlx===
 
 add it to grub
