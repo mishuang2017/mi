@@ -9613,7 +9613,7 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-ecmp-add-multipath-rule.sh
+test1=test-eswitch-multiport-fwd-uplink2vf.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
@@ -13105,6 +13105,7 @@ set -x
 	$sfcmd port function rate add pci/$pci/12_group
 	$sfcmd port function rate set pci/$pci/12_group tx_max 100
 	$sfcmd port function rate set pci/$pci/32768 parent 12_group
+	$sfcmd port function rate del pci/$pci/12_group
 	$sfcmd port fun rate show
 set +x
 }
@@ -13225,18 +13226,6 @@ if (( bf == 1 )); then
 fi
 
 alias fedora_upgrade="sudo dnf upgrade --refresh -y"
-alias default=grub2-set-default
-
-function cloud_grub
-{
-	sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=512M\"/" /etc/default/grub
-
-	systemctl start kdump
-	systemctl enable kdump
-
-	grub2-mkconfig
-}
-alias cl_grub=cloud_grub
 
 function black_mlx5_ib
 {
@@ -13529,5 +13518,27 @@ function build_makedumpfile
 	sudo cp ./makedumpfile /sbin
 	makedumpfile -v
 }
+
+alias default=grub2-set-default
+
+function cloud_grub
+{
+	if (( UID == 0 )); then
+		echo "please run as non-root user"
+		return
+	fi
+
+	sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=512M\"/" /etc/default/grub
+
+	sudo systemctl start kdump
+	sudo systemctl enable kdump
+
+	sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+	build_kexec
+	build_makedumpfile
+}
+alias cl_grub=cloud_grub
+
+
 
 test -f ~cmi/mi/cloud_alias && source ~cmi/mi/cloud_alias
