@@ -7568,6 +7568,8 @@ con_printk
 
 earlycon_print_info
 
+printk_kthread_func
+
 ===mlx===
 
 add it to grub

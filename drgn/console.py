@@ -13,8 +13,9 @@ from lib import *
 console_drivers = prog['console_drivers']
 
 while console_drivers:
-    print(console_drivers)
+#     print(console_drivers)
     print(console_drivers.name)
     print(console_drivers.index)
+#     print(console_drivers.seq)
 
     console_drivers = console_drivers.next
