@@ -13479,12 +13479,17 @@ function autoprobe
 }
 
 alias cd_drivertest='cd /usr/local/lib64/python3.8/site-packages/drivertest'
-function drivertest_git_init
+
+function git_init_python
 {
-	cd_drivertest
 	git init .
 	git add '**/*.py'
 	git commit -a -m 'init'
+}
+function drivertest_git_init
+{
+	cd_drivertest
+	git_init_python
 }
 
 test -f /proc/config.gz && modprobe configs
