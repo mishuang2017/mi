@@ -1112,9 +1112,9 @@ set -x
 	sml
 # 	[[ -n $branch ]] && git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch
 # 	make-all all
-# 	cloud_ofed_cp
-# 	smm
-# 	rebase
+	cloud_ofed_cp
+	smm
+	rebase
 set +x
 
 	install_libkdumpfile
@@ -13511,7 +13511,7 @@ function build_makedumpfile
 	fi
 
 	sm
-	sudo yum install -y snappy-devel bzip2-devel lzo-devel
+	sudo yum install -y snappy-devel bzip2-devel lzo-devel libzstd-devel
 	git clone https://github.com/makedumpfile/makedumpfile.git
 	cd makedumpfile
 	make USEZSTD=on USESNAPPY=on USELZO=on LINKTYPE=dynamic
@@ -13523,22 +13523,21 @@ alias default=grub2-set-default
 
 function cloud_grub
 {
-	if (( UID == 0 )); then
-		echo "please run as non-root user"
-		return
+	if grep crashkernel=512M /etc/default/grub; then
+		sudo systemctl start kdump
+		sudo systemctl enable kdump
+	else
+		if (( UID == 0 )); then
+			echo "please run as non-root user"
+			return
+		fi
+
+		sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=512M\"/" /etc/default/grub
+		sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+		build_kexec
+		build_makedumpfile
 	fi
-
-	sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=512M\"/" /etc/default/grub
-
-	sudo systemctl start kdump
-	sudo systemctl enable kdump
-
-	sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-	build_kexec
-	build_makedumpfile
 }
 alias cl_grub=cloud_grub
-
-
 
 test -f ~cmi/mi/cloud_alias && source ~cmi/mi/cloud_alias
