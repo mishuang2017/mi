@@ -249,9 +249,6 @@ ports=1
 base_baud=115200
 base_baud=9600
 
-sfcmd='devlink'
-(( ofed == 1 )) && sfcmd='mlxdevm'
-
 cpu_num=$(nproc)
 if (( cloud == 0 )); then
 	cpu_num2=$((cpu_num*2))
@@ -271,7 +268,10 @@ images=images
 shopt -s histappend
 [[ $(hostname -s) != vnc14 ]] && shopt -s autocd
 ofed=0
-modinfo mlx5_core | grep filename| grep updates > /dev/null && ofed=1
+modinfo mlx5_core | grep filename| egrep "updates|extra" > /dev/null && ofed=1
+
+sfcmd='devlink'
+(( ofed == 1 )) && sfcmd='mlxdevm'
 
 centos=0
 centos72=0
