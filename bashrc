@@ -11011,7 +11011,15 @@ function yum_bcc
 
 function install_bcc
 {
+	test -d /images/cmi/bcc || clone-bcc
 	sm
+	grep 27 /etc/redhat-release
+	if [[ $? == 0 ]]; then
+		cd bcc
+		git fetch --tags
+		git checkout v0.24.0 -b 0.24.0
+		cd ..
+	fi
 	mkdir -p bcc/build; cd bcc/build
 	cmake .. -DCMAKE_INSTALL_PREFIX=/usr
 	time make -j
