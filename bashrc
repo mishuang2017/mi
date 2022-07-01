@@ -13103,10 +13103,10 @@ function rate_group_sf
 set -x
 	ethtool -s $link speed 10000 autoneg off
 	$sfcmd port function rate add pci/$pci/12_group
-	$sfcmd port function rate set pci/$pci/12_group tx_max 100
-	$sfcmd port function rate set pci/$pci/32768 parent 12_group
-	$sfcmd port function rate del pci/$pci/12_group
-	$sfcmd port fun rate show
+# 	$sfcmd port function rate set pci/$pci/12_group tx_max 100
+# 	$sfcmd port function rate set pci/$pci/32768 parent 12_group
+# 	$sfcmd port function rate del pci/$pci/12_group
+# 	$sfcmd port fun rate show
 set +x
 }
 
