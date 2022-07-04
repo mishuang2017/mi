@@ -1311,6 +1311,10 @@ hairpin
 
 ===python===
 
+pycharm
+
+https://code.visualstudio.com/
+
 python2 -m pip install jsonschema
 
 sudo yum -y install https://centos7.iuscommunity.org/ius-release.rpm

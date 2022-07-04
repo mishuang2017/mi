@@ -13554,3 +13554,5 @@ function cloud_grub
 alias cl_grub=cloud_grub
 
 test -f ~cmi/mi/cloud_alias && source ~cmi/mi/cloud_alias
+
+alias cd_vrtsdk="cd /opt/python/2.7.3/lib/python2.7/site-packages/vrtsdk"
