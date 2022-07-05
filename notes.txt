@@ -1314,6 +1314,7 @@ hairpin
 pycharm
 
 https://code.visualstudio.com/
+ - show all command: ctl + shift + p
 
 python2 -m pip install jsonschema
 
