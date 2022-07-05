@@ -206,6 +206,9 @@ def print_exts(e):
         if kind == "csum":
             tcf_csum = Object(prog, 'struct tcf_csum', address=a.value_())
             print("\t\tupdate_flags: %d" % tcf_csum.params.update_flags)
+        if kind == "police":
+            tcf_police = Object(prog, 'struct tcf_police', address=a.value_())
+            print(tcf_police.params)
 
 def print_cls_fl_filter(f):
     print("    cls_fl_filter %lx" % f.address_of_(), end=' ')
