@@ -33,8 +33,8 @@ for i, id in enumerate(ids):
     len = id.sflow.action.nla_len
     attr = id.sflow.action
     print(id.refcount)
-    print("id: %d, len: %d, ref: %d, hash: %x, sflow_attr: %x, userdata(cookie): %x" % \
-        (id.id, len, id.refcount.count, id.hash, id.sflow.address_of_(), id.sflow.userdata))
+    print("id: %d, len: %d, ref: %d, hash: %x, sflow_attr: %x, userdata(cookie): %x, set_action: %x" % \
+        (id.id, len, id.refcount.count, id.hash, id.sflow.address_of_(), id.sflow.userdata,id.sflow. set_action))
 #     print(id.sflow.ufid)
 #     print(id.sflow.action)
     p = Object(prog, 'unsigned char *', address=attr.address_of_())

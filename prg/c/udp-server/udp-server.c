@@ -13,12 +13,23 @@
 #define MAXLINE 1024 
 
 // Driver code 
-int main() { 
+int main(int argc, char *argv[])
+{
+	int c;
 	int sockfd; 
 	char buffer[MAXLINE]; 
 	char *hello = "Hello from server\0"; 
 	struct sockaddr_in servaddr, cliaddr; 
 	unsigned char  service_type = 0xe0 | IPTOS_LOWDELAY | IPTOS_RELIABILITY;
+	int bidirectional = 0;
+
+	while ((c = getopt(argc, argv, "b")) != -1) {
+		switch (c) {
+			case 'b':
+				bidirectional = 1;
+				break;
+		}
+	}
 
 	// Creating socket file descriptor 
 	if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { 
@@ -53,10 +64,12 @@ int main() {
 					&len); 
 		buffer[n] = '\0'; 
 		printf("Client : %s\n", buffer); 
-		n = sendto(sockfd, (const char *)hello, strlen(hello) + 1,
-			MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
-				len); 
-		printf("Hello message sent: %d\n", n);
+		if (bidirectional) {
+			n = sendto(sockfd, (const char *)hello, strlen(hello) + 1,
+				MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
+					len);
+			printf("Hello message sent: %d\n", n);
+		}
 	}
 
 	return 0; 

@@ -645,11 +645,11 @@ do_poll
 
 kernel poll function: do_pollfd
 
+process_offload_sflow
+
 udpif_upcall_handler
 
 group_alloc_id_ctx
-udpif_sflow_handler
-
 
 udpif_create
 
