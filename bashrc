@@ -8760,7 +8760,7 @@ function enable-ovs-debug
 set -x
 	sudo ovs-appctl vlog/set tc:file:DBG
 	sudo ovs-appctl vlog/set dpif_netlink:file:DBG
-	sudo ovs-appctl vlog/set netdev_tc_offloads:file:DBG
+	sudo ovs-appctl vlog/set netdev_offload_tc:file:DBG
 
 	sudo ovs-appctl vlog/set netlink:file:DBG
 	sudo ovs-appctl vlog/set ofproto_dpif_xlate:file:DBG

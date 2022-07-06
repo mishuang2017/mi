@@ -20,7 +20,7 @@ print(psample_sock)
 # xbridge = get_xbridge("br")
 # print(xbridge)
 
-ofproto_dpif = get_ofproto_dpif("br")
+ofproto_dpif = get_ofproto_dpif("br1")
 
 # in set_sflow()
 #   ofproto->sflow = dpif_sflow_create();
