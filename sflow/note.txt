@@ -5,6 +5,30 @@ XX.29.0614
 
 ===upstream===
 
+f94d6389f6a8 net/mlx5e: TC, Add support to offload sample action
+be9dc0047450 net/mlx5e: TC, Handle sampled packets
+7319a1cc3ca9 net/mlx5e: TC, Refactor tc update skb function
+36a3196256bf net/mlx5e: TC, Add sampler restore handle API
+11ecd6c60b4e net/mlx5e: TC, Add sampler object API
+2a9ab10a5689 net/mlx5e: TC, Add sampler termination table API
+41c2fd949803 net/mlx5e: TC, Parse sample action
+c935568271b5 net/mlx5: Instantiate separate mapping objects for FDB and NIC tables
+a91d98a0a2b8 net/mlx5: Map register values to restore objects
+c1904360dde8 net/mlx5: E-switch, Set per vport table default group number
+c796bb7cd230 net/mlx5: E-switch, Generalize per vport table API
+0a9e2307870b net/mlx5: E-switch, Rename functions to follow naming convention.
+4c7f40287aa5 net/mlx5: E-switch, Move vport table functions to a new file
+
+2741f2230905 net/mlx5e: TC, Support sample offload action for tunneled traffic
+ee950e5db1b9 net/mlx5e: TC, Restore tunnel info for sample offload
+d12e20ac0661 net/mlx5e: TC, Remove CONFIG_NET_TC_SKB_EXT dependency when restoring tunnel
+f0da4daa3413 net/mlx5e: Refactor ct to use post action infrastructure
+6f0b692a5aa9 net/mlx5e: Introduce post action infrastructure
+2799797845db net/mlx5e: CT, Use xarray to manage fte ids
+bcd6740c6b6d net/mlx5e: Move sample attribute to flow attribute
+0027d70c73c9 net/mlx5e: Move esw/sample to en/tc/sample
+
+
 sFlow was merge in kernel 5.12
 
  git clone https://github.com/mishuang2017/linux.git --branch=5.4-ct
