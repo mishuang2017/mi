@@ -1313,6 +1313,9 @@ hairpin
 
 pycharm
 
+Ctrl + N to search classes
+To navigate backwards, press Ctrl+Alt+Left
+
 https://code.visualstudio.com/
  - show all command: ctl + shift + p
 
