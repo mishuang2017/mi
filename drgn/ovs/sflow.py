@@ -32,6 +32,8 @@ print(sflow)
 
 sflow_ports = print_hmap(sflow.ports.address_of_(), "dpif_sflow_port", "hmap_node")
 for i, sflow_port in enumerate(sflow_ports):
+    print("------------------ sflow_port ----------------------")
+    print(sflow_port)
     print("sflow port odp_port: %d, dsi.ds_index: %d" % (sflow_port.odp_port, sflow_port.dsi.ds_index))
 print('')
 

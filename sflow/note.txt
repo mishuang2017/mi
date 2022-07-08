@@ -646,6 +646,7 @@ do_poll
 kernel poll function: do_pollfd
 
 process_offload_sflow
+sflow_read_set_action
 
 udpif_upcall_handler
 
