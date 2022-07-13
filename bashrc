@@ -11006,6 +11006,7 @@ function build_bcc
 	test -d /images/cmi/bcc || clone-bcc
 	grep 27 /etc/redhat-release
 	if [[ $? == 0 ]]; then
+		sudo yum install -y clang clang-devel llvm llvm-devel llvm-static
 		cd bcc
 		git fetch --tags
 		git checkout v0.24.0 -b 0.24.0
