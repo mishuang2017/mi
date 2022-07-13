@@ -11000,10 +11000,10 @@ function yum_bcc
 	sudo $cmd install -y clang clang-devel llvm llvm-devel llvm-static ncurses-devel
 }
 
-function install_bcc
+function build_bcc
 {
-	test -d /images/cmi/bcc || clone-bcc
 	sm
+	test -d /images/cmi/bcc || clone-bcc
 	grep 27 /etc/redhat-release
 	if [[ $? == 0 ]]; then
 		cd bcc
