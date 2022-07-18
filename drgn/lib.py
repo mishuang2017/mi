@@ -834,8 +834,9 @@ def print_match(fte, mask):
         print(" source_port: %6x" % source_port, end='')
 
     reg_c5 = ntohl(val[54].value_())
-    if reg_c5:
-        print(" reg_c5 (fteid): %4x" % reg_c5, end='')
+    reg_c5_mask = ntohl(mask[54].value_())
+    if reg_c5_mask:
+        print(" reg_c5 (fteid, meter red: 0, green: 2): %4x" % reg_c5, end='')
 
     reg_c2 = ntohl(val[57].value_())
     if reg_c2:
