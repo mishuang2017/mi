@@ -13548,3 +13548,12 @@ alias cl_grub=cloud_grub
 test -f ~cmi/mi/cloud_alias && source ~cmi/mi/cloud_alias
 
 alias cd_vrtsdk="cd /opt/python/2.7.3/lib/python2.7/site-packages/vrtsdk"
+
+function counters
+{
+	port=1
+	[[ $# == 1 ]] && port=$1
+
+	echo "port=$port"
+	cat /sys/class/infiniband/rdmap4s0f0/ports/$port/counters/*
+}

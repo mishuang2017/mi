@@ -30,16 +30,17 @@ print("enabled_vports: %d" % enabled_vports)
 
 i=1
 for node in radix_tree_for_each(vports):
-    print("=== %d ===" % i)
-    i=i+1
-    print("mlx5_eswitch_rep %x" % node[1].value_())
     mlx5_eswitch_rep = Object(prog, 'struct mlx5_eswitch_rep', address=node[1].value_())
     priv = mlx5_eswitch_rep.rep_data[1].priv
-    print("mlx5_ib_dev %x" % priv)
     if priv:
+        print("\n=== %d ===" % i)
+        print("mlx5_eswitch_rep %x" % node[1].value_())
+        print("mlx5_ib_dev %x" % priv)
         mlx5_ib_dev = Object(prog, 'struct mlx5_ib_dev', address=priv)
-        print(mlx5_eswitch_rep)
-        print(mlx5_ib_dev.port.roce)
+        print(mlx5_ib_dev.num_ports)
+        print(mlx5_eswitch_rep.vport)
+#         print(mlx5_ib_dev.port.roce)
+    i=i+1
 
 # mlx5_ib_dev_list = prog['mlx5_ib_dev_list']
 # print(mlx5_ib_dev_list)
