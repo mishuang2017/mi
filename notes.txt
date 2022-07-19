@@ -12166,3 +12166,20 @@ Max receive completion clock cycles = 37370
 Min receive completion clock cycles = 20328
 Average receive completion clock cycles = 30263.988235
 
+ns2
+
+ibv_rc_pingpong -g 0  -i 1
+  local address:  LID 0x0000, QPN 0x0000af, PSN 0xbafdb7, GID fe80::e42:a1ff:fed1:d05c
+  remote address: LID 0x0000, QPN 0x0000b0, PSN 0x69af26, GID fe80::e42:a1ff:fed1:d05c
+8192000 bytes in 0.01 seconds = 11630.17 Mbit/sec
+1000 iters in 0.01 seconds = 5.64 usec/iter
+
+
+ns1
+
+ibv_rc_pingpong -g 0  -i 1 1.1.1.2
+  local address:  LID 0x0000, QPN 0x0000b0, PSN 0x69af26, GID fe80::e42:a1ff:fed1:d05c
+  remote address: LID 0x0000, QPN 0x0000af, PSN 0xbafdb7, GID fe80::e42:a1ff:fed1:d05c
+8192000 bytes in 0.01 seconds = 12095.98 Mbit/sec
+1000 iters in 0.01 seconds = 5.42 usec/iter
+

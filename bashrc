@@ -13555,5 +13555,9 @@ function counters
 	[[ $# == 1 ]] && port=$1
 
 	echo "port=$port"
-	cat /sys/class/infiniband/rdmap4s0f0/ports/$port/counters/*
+	if (( cloud == 1 )); then
+		cat /sys/class/infiniband/rdmap8s0f0/ports/$port/counters/*
+	else
+		cat /sys/class/infiniband/rdmap4s0f0/ports/$port/counters/*
+	fi
 }
