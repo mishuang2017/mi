@@ -25,8 +25,8 @@ flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.miss_meter_fdb", mis
 post_miss_meter_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.post_miss_meter_fdb
 flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.post_miss_meter_fdb", post_miss_meter_fdb)
 
-sys.exit(0)
 vport_to_tir = mlx5e_priv.mdev.priv.eswitch.offloads.ft_offloads
+print("\n====================== vport_to_tir ========================")
 flow_table("mlx5e_priv.mdev.priv.eswitch.offloads.ft_offloads", vport_to_tir)
 
 print("\nmlx5e_priv->ppriv(mlx5e_rep_priv)->root_ft")
