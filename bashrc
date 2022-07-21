@@ -1434,6 +1434,7 @@ set -x;
 	src_dir=$linux_dir/$driver_dir
 	sudo /bin/cp -f $src_dir/$module.ko /lib/modules/$(uname -r)/kernel/$driver_dir
 
+	sudo modprobe -r bonding
 	sudo modprobe -r act_sample
 	sudo modprobe -r psample
 	sudo modprobe -r mlx5_vdpa
@@ -1618,6 +1619,7 @@ function reprobe
 {
 set -x
 #	sudo /etc/init.d/openibd stop
+	sudo modprobe -r bonding
 	sudo modprobe -r cls_flower
 	sudo modprobe -r mlx5_fpga_tools
 	sudo modprobe -r mlx5_vdpa
@@ -10764,7 +10766,6 @@ set -x
 	ifconfig $link 0
 	ifconfig $link2 0
 	ifconfig bond0 1.1.1.200/16 up
-
 set +x
 }
 
@@ -10823,6 +10824,15 @@ function bond_setup
 	set_netns_all 1
 
 	bond_br
+
+	del-br
+	ip netns del n11
+	ifconfig eth2 0
+	netns n11 eth7 1.1.1.1
+	ifconfig enp8s0f1_2 1.1.1.2/16 up
+
+	netns n12 eth2 2.1.1.1
+	ifconfig enp8s0f0_0 2.1.1.2/16 up
 }
 
 alias cd-scapy="cd /labhome/cmi/prg/python/scapy"
@@ -13561,3 +13571,46 @@ function counters
 		cat /sys/class/infiniband/rdmap4s0f0/ports/$port/counters/*
 	fi
 }
+
+function meter_show
+{
+set -x
+	cat /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	cat /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_clear
+{
+set -x
+	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_set_uplink
+{
+	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+set -x
+	echo "15000 15000" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_set_vf
+{
+	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+set -x
+	echo "15000 15000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_set_all
+{
+set -x
+	echo "15000 15000" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	echo "15000 15000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+set +x
+}
+
