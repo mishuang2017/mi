@@ -10,8 +10,6 @@ test -f /usr/bin/lsb_release && debian=1
 ofed_mlx5=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
 
-numvfs=4
-numvfs=16
 numvfs=3
 
 alias virc='vi ~/.bashrc'
@@ -10713,6 +10711,7 @@ function bond_switchdev
 {
 	nic=$1
 	off_all
+# 	dmfs
 	smfs
 	on-sriov
 	sleep 1
@@ -10828,11 +10827,11 @@ function bond_setup
 	del-br
 	ip netns del n11
 	ifconfig eth2 0
-	netns n11 eth7 1.1.1.1
-	ifconfig enp8s0f1_2 1.1.1.2/16 up
+	netns n12 eth5 2.1.1.1
+	ifconfig enp8s0f1_0 2.1.1.2/16 up
 
-	netns n12 eth2 2.1.1.1
-	ifconfig enp8s0f0_0 2.1.1.2/16 up
+	netns n11 eth2 1.1.1.1
+	ifconfig enp8s0f0_0 1.1.1.2/16 up
 }
 
 alias cd-scapy="cd /labhome/cmi/prg/python/scapy"

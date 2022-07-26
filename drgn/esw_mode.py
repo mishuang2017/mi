@@ -11,7 +11,10 @@ sys.path.append(".")
 from lib import *
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
+mlx5e_priv2 = get_mlx5e_priv(pf1_name)
 esw = mlx5e_priv.mdev.priv.eswitch
+print("1st mlx5_core_dev %#x" % mlx5e_priv.mdev)
+print("2nd mlx5_core_dev %#x" % mlx5e_priv2.mdev)
 print("esw->flags: %#x" % esw.flags)
 print("mode: %d" % esw.mode)
 print("fdb_table.flags: %x" % esw.fdb_table.flags);
