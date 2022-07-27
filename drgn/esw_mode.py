@@ -40,3 +40,5 @@ else:
             print("legacy fdb is 0")
     elif esw.mode.value_() == 2:
         flow_table("esw.fdb_table.offloads.slow_fdb", esw.fdb_table.offloads.slow_fdb)
+
+print(esw.dev.pdev.sriov)
