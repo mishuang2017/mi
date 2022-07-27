@@ -10711,12 +10711,12 @@ function bond_switchdev
 {
 	nic=$1
 	off_all
-# 	dmfs
-	smfs
+
 	on-sriov
 	sleep 1
 	on-sriov2
 	sleep 1
+
 	un
 	sleep 1
 	un2
@@ -10732,6 +10732,7 @@ function bond_switchdev
 	sleep 1
 	dev2
 	sleep 1
+
 	set_mac
 	set_mac 2
 }
@@ -10810,6 +10811,8 @@ function bond_br_ct_pf
 function bond_setup
 {
 	off
+	dmfs
+	dmfs2
 	bond_delete
 	sleep 1
 	bond_switchdev
@@ -11909,13 +11912,56 @@ set +x
 	fi
 }
 
+function dmfs2
+{
+	if (( ofed_mlx5 == 1 )); then
+		test -f /sys/class/net/$link2/compat/devlink/steering_mode || return
+set -x
+		echo dmfs > /sys/class/net/$link2/compat/devlink/steering_mode
+set +x
+	else
+set -x
+		devlink dev param set pci/$pci2 name flow_steering_mode value "dmfs" \
+			cmode runtime || echo "Failed to set steering sw"
+set +x
+	fi
+
+set +x
+}
+
+function smfs2
+{
+	if (( ofed_mlx5 == 1 )); then
+		test -f /sys/class/net/$link2/compat/devlink/steering_mode || return
+set -x
+		echo smfs > /sys/class/net/$link2/compat/devlink/steering_mode
+set +x
+	else
+set -x
+		devlink dev param set pci/$pci2 name flow_steering_mode value "smfs" \
+			cmode runtime || echo "Failed to set steering sw"
+set +x
+	fi
+}
+
 function get-fs
 {
 set -x
 	if (( ofed_mlx5 == 1 )); then
 		cat /sys/class/net/$link/compat/devlink/steering_mode
 	else
-		devlink dev  param show  pci/$pci name flow_steering_mode
+		devlink dev  param show pci/$pci name flow_steering_mode
+	fi
+set +x
+}
+
+function get-fs2
+{
+set -x
+	if (( ofed_mlx5 == 1 )); then
+		cat /sys/class/net/$link2/compat/devlink/steering_mode
+	else
+		devlink dev  param show pci/$pci2 name flow_steering_mode
 	fi
 set +x
 }
