@@ -9815,6 +9815,7 @@ function ln-crash
 	local n=$(ls vmcore* | wc -l)
 	if [[ -f ${dir}vmcore ]]; then
 		ln -s ${dir}vmcore vmcore.$n
+		ln -s ${dir}vmcore-dmesg.txt $n.txt
 	else
 		echo "no vmcore"
 	fi
@@ -10710,7 +10711,6 @@ function bond_cleanup
 function bond_switchdev
 {
 	nic=$1
-	off_all
 
 	on-sriov
 	sleep 1

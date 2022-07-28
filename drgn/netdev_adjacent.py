@@ -50,3 +50,10 @@ for netdev_adjacent in list_for_each_entry('struct netdev_adjacent', dev.adj_lis
 for netdev_adjacent in list_for_each_entry('struct netdev_adjacent', dev.adj_list.lower.address_of_(), 'list'):
     macvlan_netdev = netdev_adjacent.dev
     print(macvlan_netdev.name)
+
+bond = get_bond0()
+print(bond.name)
+
+for netdev_adjacent in list_for_each_entry('struct netdev_adjacent', bond.adj_list.lower.address_of_(), 'list'):
+    netdev = netdev_adjacent.dev
+    print(netdev.name)
