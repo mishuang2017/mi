@@ -1110,9 +1110,11 @@ set -x
 	sml
 # 	[[ -n $branch ]] && git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch
 # 	make-all all
-	cloud_ofed_cp
-	smm
-	rebase
+	if (( ofed == 1 )); then
+		cloud_ofed_cp
+		smm
+		rebase
+	fi
 set +x
 
 	install_libkdumpfile
@@ -1121,6 +1123,8 @@ set +x
 	cd drgn
 	sudo ./setup.py build
 	sudo ./setup.py install
+
+	cloud_grub
 
 # 	sm
 # 	git clone https://github.com/iovisor/bcc.git
