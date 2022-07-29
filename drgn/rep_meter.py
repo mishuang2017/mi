@@ -56,6 +56,7 @@ def print_meter(mlx5e_priv):
     #             print("\nrep_meter.meter_rule")
     #             print_mlx5_flow_handle(rep_meter.meter_rule)
                 print(rep_meter)
+                print(rep_meter.drop_counter.id)
 
     # print(mlx5e_priv.aso)
 
