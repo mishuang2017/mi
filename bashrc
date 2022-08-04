@@ -1339,6 +1339,13 @@ set -x
 set +x
 }
 
+function show_eswitch_mode2
+{
+set -x
+	devlink dev eswitch show pci/$pci2
+set +x
+}
+
 function inline-mode
 {
 set -x
@@ -1494,6 +1501,7 @@ if (( ofed == 1 )); then
 	alias bu=mybuild
 else
 	alias bu=mybuild
+	alias bu2='mybuild; mybuild_ib'
 fi
 
 build-mlx5-ib () 
@@ -10744,19 +10752,19 @@ function bond_switchdev
 function bond_create
 {
 set -x
-# 	ifenslave -d bond0 $link $link2 2> /dev/null
-# 	sleep 1
-# 	rmmod bonding
-# 	sleep 1
-# 	modprobe bonding mode=4 miimon=100
-# 	sleep 1
+	ifenslave -d bond0 $link $link2 2> /dev/null
+	sleep 1
+	rmmod bonding
+	sleep 1
+	modprobe bonding mode=4 miimon=100
+	sleep 1
 
 	ip link set dev $link down
 	ip link set dev $link2 down
 
-# 	ip link add name bond0 type bond
-# 	ip link set dev bond0 type bond mode active-backup miimon 100
-	ip link add name bond0 type bond mode active-backup miimon 100
+	ip link add name bond0 type bond
+	ip link set dev bond0 type bond mode active-backup miimon 100
+# 	ip link add name bond0 type bond mode active-backup miimon 100
 # 	ip link set dev bond0 type bond mode 802.3ad
 
 	# bi # have syndrom 0x7d49cb
@@ -10839,6 +10847,81 @@ function bond_setup
 
 	netns n11 eth2 1.1.1.1
 	ifconfig enp8s0f0_0 1.1.1.2/16 up
+}
+
+#
+# RM 3138783  test-eswitch-bond-change-mode.sh
+# create bond and then enable switchdev
+#
+function bond_setup2
+{
+set -x
+	off
+	dmfs
+	dmfs2
+
+	# bond_delete
+	ip link set dev $link down
+	ip link set dev $link2 down
+	ip link set dev bond0 down
+	ip link delete bond0
+
+	ifenslave -d bond0 $link $link2 2> /dev/null
+	sleep 1
+	rmmod bonding
+	sleep 1
+	modprobe bonding mode=4 miimon=100
+	sleep 1
+
+	ip link set dev $link down
+	ip link set dev $link2 down
+
+	ip link add name bond0 type bond
+	ip link set dev bond0 type bond mode active-backup miimon 100
+
+	ip link set dev $link master bond0
+	ip link set dev $link2 master bond0
+	ip link set dev bond0 up
+	ip link set dev $link up
+	ip link set dev $link2 up
+
+	sleep 1
+	# bond_switchdev
+
+	on-sriov
+	sleep 1
+	on-sriov2
+	sleep 1
+
+	un
+	sleep 1
+	un2
+	sleep 1
+
+	dev
+	sleep 1
+	dev2
+	sleep 1
+
+	set_mac
+	set_mac 2
+
+	sleep 1
+	# bond_create
+
+	ifconfig $link 0
+	ifconfig $link2 0
+	ifconfig bond0 1.1.1.200/16 up
+
+	sleep 1
+
+	ifconfig bond0 0
+	bi
+	bi2
+
+	off
+	bond_delete
+set +x
 }
 
 alias cd-scapy="cd /labhome/cmi/prg/python/scapy"

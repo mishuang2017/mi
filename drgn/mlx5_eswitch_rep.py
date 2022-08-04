@@ -35,3 +35,12 @@ for node in radix_tree_for_each(vports):
     i=i+1
     mlx5_eswitch_rep = Object(prog, 'struct mlx5_eswitch_rep', address=node[1].value_())
     print(mlx5_eswitch_rep)
+
+mlx5e_priv = lib.get_mlx5_pf1()
+vports = mlx5_eswitch.offloads.vport_reps
+i=1
+for node in radix_tree_for_each(vports):
+    print("=== %d ===" % i)
+    i=i+1
+    mlx5_eswitch_rep = Object(prog, 'struct mlx5_eswitch_rep', address=node[1].value_())
+    print(mlx5_eswitch_rep)
