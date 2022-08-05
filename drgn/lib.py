@@ -599,8 +599,9 @@ def print_dest(rule):
         return
     if prog['MLX5_FLOW_DESTINATION_TYPE_VPORT'] == rule.dest_attr.type or \
        prog['MLX5_FLOW_DESTINATION_TYPE_UPLINK'] == rule.dest_attr.type:
-        print("\t\t\tdest: vport: %x, flags: %x, (MLX5_FLOW_DEST_VPORT_VHCA_ID: %x, MLX5_FLOW_DEST_VPORT_REFORMAT_ID: %x)" %
-            (rule.dest_attr.vport.num, rule.dest_attr.vport.flags,
+        print("\t\t\tdest: vport: %x, vhca_id: %x, flags: %x \
+(MLX5_FLOW_DEST_VPORT_VHCA_ID: %x, MLX5_FLOW_DEST_VPORT_REFORMAT_ID: %x)" %
+            (rule.dest_attr.vport.num, rule.dest_attr.vport.vhca_id, rule.dest_attr.vport.flags,
              prog['MLX5_FLOW_DEST_VPORT_VHCA_ID'], prog['MLX5_FLOW_DEST_VPORT_REFORMAT_ID']))
         if rule.dest_attr.vport.pkt_reformat.value_() != 0:
             print("\t\t\treformat_id: %x" % rule.dest_attr.vport.pkt_reformat.id)
@@ -617,6 +618,8 @@ def print_dest(rule):
     if prog['MLX5_FLOW_DESTINATION_TYPE_FLOW_SAMPLER'] == rule.dest_attr.type:
         print("\t\t\tdest: sampler_id: %x" % rule.dest_attr.sampler_id)
         return
+    if prog['MLX5_FLOW_DESTINATION_TYPE_NONE'] == rule.dest_attr.type:
+        print("\t\t\tMLX5_FLOW_DESTINATION_TYPE_NONE")
     else:
         print(rule.dest_attr.type)
         print(rule)

@@ -53,6 +53,7 @@ def print_mlx5_vport(priv):
         print("enabled: %x" % vport.enabled, end=' ')
         print('')
 
+        # if egress acl is not NULL, it is shared_fdb
         if vport.egress.acl:
             flow_table("vport.egress.acl", vport.egress.acl)
 
