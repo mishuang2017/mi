@@ -828,8 +828,13 @@ def print_match(fte, mask):
     if source_sqn:
         print(" source_sqn: %6x" % source_sqn, end='')
 
-    source_port = ntohl(val[17].value_())
-    source_port_mask = ntohl(mask[17].value_())
+    source_eswitch_owner_vhca_id = (ntohl(val[17].value_()) & 0xffff0000) >> 16
+    source_eswitch_owner_vhca_id_mask = (ntohl(mask[17].value_()) & 0xffff0000) >> 16
+    if source_eswitch_owner_vhca_id_mask:
+        print(" source_eswitch_owner_vhca_id: %6x" % source_eswitch_owner_vhca_id, end='')
+
+    source_port = ntohl(val[17].value_()) & 0xffff
+    source_port_mask = ntohl(mask[17].value_()) & 0xffff
     if source_port_mask:
         print(" source_port: %6x" % source_port, end='')
 
