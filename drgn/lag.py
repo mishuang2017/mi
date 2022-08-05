@@ -10,18 +10,24 @@ import os
 sys.path.append(".")
 from lib import *
 
-for name in pf0_name, pf1_name:
+# for name in pf0_name,pf1_name:
+for name in pf0_name,:
     mlx5e_priv = get_mlx5e_priv(name)
     print("mlx5e_priv %x" % mlx5e_priv.address_of_().value_())
     mlx5_lag = mlx5e_priv.mdev.priv.lag
     print(mlx5_lag.mode)
+    print(mlx5_lag.state_flags)
+    print(mlx5_lag.pf[0])
+    print(mlx5_lag.pf[1])
+    print(mlx5_lag.tracker)
+    print("mlx5_lag.ports: %d" % mlx5_lag.ports)
 #     print(mlx5_lag)
 #     print("mlx5_lag %x, flags: %x" % (mlx5_lag, mlx5_lag.flags))
 #     print_fib_info(mlx5_lag.lag_mp.mfi)
     print('')
     esw = mlx5e_priv.mdev.priv.eswitch
     esw_manager_vport = esw.manager_vport
-    print("esw.manager_vport: %x" % esw_manager_vport)
+#     print("esw.manager_vport: %x" % esw_manager_vport)
 
 # MLX5_LAG_MODE_NONE = prog['MLX5_LAG_MODE_NONE']
 # MLX5_LAG_MODE_ROCE = prog['MLX5_LAG_MODE_ROCE']
@@ -34,6 +40,8 @@ for name in pf0_name, pf1_name:
 # print("MLX5_LAG_MODE_MULTIPATH: %x" % MLX5_LAG_MODE_MULTIPATH)
 # print("MLX5_LAG_MODE_MPESW: %x" % MLX5_LAG_MODE_MPESW)
 
+# exit(0)
+
 def print_mlx5_vport(priv):
     mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
     vports = mlx5_eswitch.vports
@@ -44,8 +52,9 @@ def print_mlx5_vport(priv):
     print("enabled_vports: %d" % enabled_vports)
 
     def print_vport(vport):
-        if vport.vport != esw_manager_vport:
+        if vport.vport != esw_manager_vport and vport.vport != 0xffff:
             return
+        print(" ==== %s %x ====\n" % (priv.netdev.name.string_().decode(), vport.vport))
         print("mlx5_vport %x" % vport.address_of_(), end=' ')
         print("vport: %4x, metadata: %4x" % (vport.vport, vport.metadata), end=' ')
         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
@@ -56,6 +65,9 @@ def print_mlx5_vport(priv):
         # if egress acl is not NULL, it is shared_fdb
         if vport.egress.acl:
             flow_table("vport.egress.acl", vport.egress.acl)
+
+        if vport.ingress.acl:
+            flow_table("vport.ingress.acl", vport.ingress.acl)
 
     for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())

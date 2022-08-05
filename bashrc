@@ -10791,8 +10791,8 @@ set -x
 	for (( i = 0; i < numvfs; i++)); do
 		local rep=$(get_rep $i)
 		ovs-vsctl add-port $br $rep
-# 		local rep=$(get_rep2 $i)
-# 		ovs-vsctl add-port $br $rep
+		local rep=$(get_rep2 $i)
+		ovs-vsctl add-port $br $rep
 	done
 # 	ovs-ofctl add-flow $br "in_port=bond0,dl_dst=2:25:d0:13:01:01 action=$rep1"
 set +x
@@ -10839,6 +10839,9 @@ function bond_setup
 
 	bond_br
 
+	return
+
+	# test representor meter
 	del-br
 	ip netns del n11
 	ifconfig eth2 0
