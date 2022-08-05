@@ -6152,22 +6152,16 @@ function netns_set_all_vf_channel
 function up_all_reps
 {
 	local port=$1
-	local l
 	local rep
-
-	if (( $port == 1 )); then
-		l=$link
-	elif (( $port == 2 )); then
-		l=$link2
-	else
-		echo "up_all_reps error"
-		return
-	fi
 
 	echo
 	echo "start up_all_reps"
 	for (( i = 0; i < numvfs; i++)); do
-		rep=$(get_rep $i)
+		if (( $port == 1 )); then
+			rep=$(get_rep $i)
+		elif (( $port == 2 )); then
+			rep=$(get_rep2 $i)
+		fi
 		ifconfig $rep up
 		echo "up $rep"
 		if (( ecmp == 1 )); then
@@ -10765,7 +10759,9 @@ set -x
 	ip link add name bond0 type bond
 	ip link set dev bond0 type bond mode active-backup miimon 100
 # 	ip link add name bond0 type bond mode active-backup miimon 100
+
 # 	ip link set dev bond0 type bond mode 802.3ad
+# 	ip link set dev bond0 type bond mode balance-rr
 
 	# bi # have syndrom 0x7d49cb
 
@@ -10777,13 +10773,12 @@ set -x
 
 	ifconfig $link 0
 	ifconfig $link2 0
-	ifconfig bond0 1.1.1.200/16 up
+	ifconfig bond0 3.1.1.$host_num/16 up
 set +x
 }
 
 function bond_br
 {
-set -x
 	restart-ovs
 	del-br
 	ovs-vsctl add-br $br
@@ -10795,12 +10790,15 @@ set -x
 		ovs-vsctl add-port $br $rep
 	done
 # 	ovs-ofctl add-flow $br "in_port=bond0,dl_dst=2:25:d0:13:01:01 action=$rep1"
-set +x
+
 	up_all_reps 1
 	up_all_reps 2
 
-	vf1=$(get_vf $host_num 1 1)
+	local vf1=$(get_vf $host_num 1 1)
 	ifconfig $vf1 1.1.1.$host_num/24 up
+
+	local vf2=$(get_vf $host_num 2 1)
+	ifconfig $vf2 2.1.1.$host_num/24 up
 
 # 	bond_br_ct_pf
 }

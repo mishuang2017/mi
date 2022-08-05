@@ -16,7 +16,7 @@ for name in pf0_name,:
     print("mlx5e_priv %x" % mlx5e_priv.address_of_().value_())
     mlx5_lag = mlx5e_priv.mdev.priv.lag
     print(mlx5_lag.mode)
-    print(mlx5_lag.state_flags)
+    print("state_flags: %x (MLX5_LAG_FLAG_NDEVS_READY = 1)" % mlx5_lag.state_flags)
     print(mlx5_lag.pf[0])
     print(mlx5_lag.pf[1])
     print(mlx5_lag.tracker)
@@ -29,18 +29,20 @@ for name in pf0_name,:
     esw_manager_vport = esw.manager_vport
 #     print("esw.manager_vport: %x" % esw_manager_vport)
 
-# MLX5_LAG_MODE_NONE = prog['MLX5_LAG_MODE_NONE']
-# MLX5_LAG_MODE_ROCE = prog['MLX5_LAG_MODE_ROCE']
-# MLX5_LAG_MODE_SRIOV = prog['MLX5_LAG_MODE_SRIOV']
-# MLX5_LAG_MODE_MULTIPATH = prog['MLX5_LAG_MODE_MULTIPATH']
-# MLX5_LAG_MODE_MPESW = prog['MLX5_LAG_MODE_MPESW']
+MLX5_LAG_MODE_NONE = prog['MLX5_LAG_MODE_NONE']
+MLX5_LAG_MODE_ROCE = prog['MLX5_LAG_MODE_ROCE']
+MLX5_LAG_MODE_SRIOV = prog['MLX5_LAG_MODE_SRIOV']
+MLX5_LAG_MODE_MULTIPATH = prog['MLX5_LAG_MODE_MULTIPATH']
+MLX5_LAG_MODE_MPESW = prog['MLX5_LAG_MODE_MPESW']
+
 # print("MLX5_LAG_MODE_NONE: %x" % MLX5_LAG_MODE_NONE)
 # print("MLX5_LAG_MODE_ROCE: %x" % MLX5_LAG_MODE_ROCE)
 # print("MLX5_LAG_MODE_SRIOV: %x" % MLX5_LAG_MODE_SRIOV)
 # print("MLX5_LAG_MODE_MULTIPATH: %x" % MLX5_LAG_MODE_MULTIPATH)
 # print("MLX5_LAG_MODE_MPESW: %x" % MLX5_LAG_MODE_MPESW)
 
-# exit(0)
+if mlx5_lag.mode !=  MLX5_LAG_MODE_SRIOV:
+    exit(0)
 
 def print_mlx5_vport(priv):
     mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
