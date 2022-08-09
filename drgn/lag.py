@@ -16,6 +16,7 @@ for name in pf0_name,:
     print("mlx5e_priv %x" % mlx5e_priv.address_of_().value_())
     mlx5_lag = mlx5e_priv.mdev.priv.lag
     print(mlx5_lag.mode)
+    print("mode_flags: %x (MLX5_LAG_MODE_FLAG_SHARED_FDB: 2)" % mlx5_lag.mode_flags)
     print("state_flags: %x (MLX5_LAG_FLAG_NDEVS_READY = 1)" % mlx5_lag.state_flags)
     print(mlx5_lag.pf[0])
     print(mlx5_lag.pf[1])
