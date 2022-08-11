@@ -1108,8 +1108,7 @@ set -x
 	cd linux
 	/bin/cp -f ~cmi/mi/config .config
 	sml
-# 	[[ -n $branch ]] && git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch
-# 	make-all all
+	[[ -n $branch ]] && git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch && make-all all
 	if (( ofed == 1 )); then
 		cloud_ofed_cp
 		smm
@@ -10370,8 +10369,8 @@ set -x
 	echo "add ct rules"
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac2 ct_state -trk \
-		action ct pipe \
 		action sample rate $rate group 5 trunc 60 \
+		action ct pipe \
 		action goto chain 1
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
@@ -10838,7 +10837,7 @@ function bond_setup
 
 	bond_br
 
-	return
+# 	return
 
 	# test representor meter
 	del-br

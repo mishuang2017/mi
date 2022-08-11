@@ -102,11 +102,11 @@ for i in range(256):
         print_mapping_mapping(data)
 
 print('\n=== sample_flow ===\n')
-try:
-    prog.type('struct mlx5_rep_uplink_priv')
-    tc_ht = mlx5e_rep_priv.uplink_priv.tc_ht
-except LookupError as x:
-    tc_ht = mlx5e_rep_priv.tc_ht
+# try:
+#     prog.type('struct mlx5_rep_uplink_priv')
+#     tc_ht = mlx5e_rep_priv.uplink_priv.tc_ht
+# except LookupError as x:
+tc_ht = mlx5e_rep_priv.tc_ht
 
 for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
     name = flow.priv.netdev.name.string_().decode()

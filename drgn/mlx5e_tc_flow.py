@@ -18,17 +18,18 @@ mlx5e_rep_priv = get_mlx5e_rep_priv()
 # else:
 #     tc_ht = mlx5e_rep_priv.tc_ht
 
-try:
-    prog.type('struct mlx5_rep_uplink_priv')
-    tc_ht = mlx5e_rep_priv.uplink_priv.tc_ht
-except LookupError as x:
-    tc_ht = mlx5e_rep_priv.tc_ht
+# try:
+#     prog.type('struct mlx5_rep_uplink_priv')
+#     tc_ht = mlx5e_rep_priv.uplink_priv.tc_ht
+# except LookupError as x:
+tc_ht = mlx5e_rep_priv.tc_ht
 
+# print(tc_ht)
 # hash(tc_ht, 'struct mlx5e_tc_flow', 'node')
 
 # sys.exit(0)
 
 print_mlx5e_tc_flow_flags()
 for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
-#     print(flow.attr.esw_attr[0])
+    print(flow.attr.esw_attr[0])
     print_mlx5e_tc_flow(flow)
