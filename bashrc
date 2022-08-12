@@ -11460,7 +11460,7 @@ function tc_nic
 
 	nic=enp8s0f2
 	nic=eth4
-# 	tc_nic_setup
+	tc_nic_setup
 	tc-setup $nic
 
 set -x
@@ -13747,3 +13747,8 @@ set -x
 set +x
 }
 
+
+function setpci_err_inject
+{
+	 setpci -s $pci COMMAND=0540
+}
