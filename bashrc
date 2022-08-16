@@ -1108,7 +1108,11 @@ set -x
 	cd linux
 	/bin/cp -f ~cmi/mi/config .config
 	sml
-	[[ -n $branch ]] && git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch && make-all all
+	if [[ -n $branch ]]; then
+		git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch && make-all all
+	else
+		make-all all
+	fi
 	if (( ofed == 1 )); then
 		cloud_ofed_cp
 		smm
@@ -9610,7 +9614,7 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-eswitch-bond-change-mode.sh
+test1=test-eswitch-pci-reset.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
