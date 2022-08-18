@@ -19,11 +19,11 @@ mlx5_eswitch_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table
 slow_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.slow_fdb
 flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.slow_fdb", slow_fdb)
 
-miss_meter_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.miss_meter_fdb
-flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.miss_meter_fdb", miss_meter_fdb)
+# miss_meter_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.miss_meter_fdb
+# flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.miss_meter_fdb", miss_meter_fdb)
 
-post_miss_meter_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.post_miss_meter_fdb
-flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.post_miss_meter_fdb", post_miss_meter_fdb)
+# post_miss_meter_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.post_miss_meter_fdb
+# flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.post_miss_meter_fdb", post_miss_meter_fdb)
 
 vport_to_tir = mlx5e_priv.mdev.priv.eswitch.offloads.ft_offloads
 print("\n====================== vport_to_tir ========================")
