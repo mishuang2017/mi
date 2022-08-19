@@ -24,7 +24,7 @@ for i in range(256):
 #     print(node)
     while node.value_():
         obj = container_of(node, "struct mlx5_esw_indir_table_entry", "hlist")
-        print(obj)
+#         print(obj)
         vport = obj.vport
         print(" ======== vport: %d =========" % vport)
         ft = obj.ft

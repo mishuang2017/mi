@@ -5691,6 +5691,7 @@ set -x
 	done
 	vs add-port $br $link
 
+	local vf1=$(get_vf $host_num 1 1)
 	ip addr flush $link
 	ip addr flush $vf1
 	ip addr add dev $vf1 $link_ip/24
@@ -5752,6 +5753,7 @@ function brx_ct
 set -x
 	del-br
 	vs add-br $br
+	ip1
 # 	for (( i = 0; i < numvfs; i++)); do
 	for (( i = 1; i < 2; i++)); do
 		local rep=$(get_rep $i)
@@ -10570,7 +10572,7 @@ function br_pf
 	ovs-vsctl add-port $br $link
 }
 
-function br-pf-ct
+function br_pf_ct
 {
 	del-br
 	ovs-vsctl add-br $br
