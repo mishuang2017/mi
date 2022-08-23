@@ -476,7 +476,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed5_6='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_6; cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed5_7='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_7; cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone ssh://l-gerrit.mtl.labs.mlnx:29418/asap_dev_reg; cp ~/config_chrism_cx5.sh asap_dev_reg; cp ~cmi/commit-msg asap_dev_reg/.git/hooks/'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
 alias clone-iproute2='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/iproute2 --branch=mlnx_ofed_5_6'
@@ -1089,6 +1089,7 @@ function bf2_linux
 function cloud_setup
 {
 	local branch=$1
+	local build_kernel=0
 
 	if (( UID == 0 )); then
 		echo "please run as non-root user"
@@ -1104,15 +1105,17 @@ function cloud_setup
 	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s
 	sm
 set -x
-	cp /swgwork/cmi/linux.tar.gz .
-	tar zvxf linux.tar.gz
-	cd linux
-	/bin/cp -f ~cmi/mi/config .config
-	sml
-	if [[ -n $branch ]]; then
-		git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch && make-all all
-	else
-		make-all all
+	if (( build_kernel == 1 )); then
+		cp /swgwork/cmi/linux.tar.gz .
+		tar zvxf linux.tar.gz
+		cd linux
+		/bin/cp -f ~cmi/mi/config .config
+		sml
+		if [[ -n $branch ]]; then
+			git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch && make-all all
+		else
+			make-all all
+		fi
 	fi
 	if (( ofed == 1 )); then
 		cloud_ofed_cp
@@ -9625,7 +9628,7 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-eswitch-pci-reset.sh
+test1=test-ovs-multiport-esw-mode.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
