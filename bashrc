@@ -13770,3 +13770,5 @@ function setpci_err_inject
 {
 	 setpci -s $pci COMMAND=0540
 }
+
+alias ibdev2netdev=/usr/bin/ibdev2netdev
