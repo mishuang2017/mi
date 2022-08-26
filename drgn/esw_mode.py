@@ -31,4 +31,4 @@ def print_esw(priv):
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
 mlx5e_priv2 = get_mlx5e_priv(pf1_name)
-print_esw(mlx5e_priv2)
+# print_esw(mlx5e_priv2)
