@@ -7,8 +7,8 @@ debian=0
 username=cmi
 test -f /usr/bin/lsb_release && debian=1
 
-ofed_mlx5=0
-/sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed_mlx5=1
+ofed=0
+/sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
 numvfs=3
 
@@ -266,8 +266,6 @@ images=images
 # Append to history
 shopt -s histappend
 [[ $(hostname -s) != vnc14 ]] && shopt -s autocd
-ofed=0
-modinfo mlx5_core | grep filename| egrep "updates|extra" > /dev/null && ofed=1
 
 sfcmd='devlink'
 (( ofed == 1 )) && sfcmd='mlxdevm'
@@ -1488,46 +1486,8 @@ set -x;
 #	sudo modprobe $module;
 set +x
 }
-alias ib=mybuild_ib
-
-mybuild_old () 
-{
-set -x; 
-	cd $linux_dir;
-	sudo make
-	sudo make install
-
-	sudo modprobe -r cls_flower
-	sudo modprobe -r act_gact
-	sudo /etc/init.d/openibd restart
-set +x
-}
-
-if (( ofed == 1 )); then
-	alias bu=mybuild_old
-	alias bu=mybuild
-else
-	alias bu=mybuild
-	alias bu2='mybuild; mybuild_ib'
-fi
-
-build-mlx5-ib () 
-{
-set -x; 
-	module=mlx5_ib;
-	driver_dir=drivers/infiniband/hw/mlx5
-	cd $linux_dir;
-	make M=$driver_dir -j || return
-	src_dir=$linux_dir/$driver_dir
-	sudo /bin/cp -f $src_dir/$module.ko /lib/modules/$(uname -r)/kernel/$driver_dir
-
-	sudo modprobe -r mlx5_ib
-	sudo modprobe -r mlx5_core
-	sudo modprobe -v mlx5_ib
-set +x
-}
-
-
+alias bu=mybuild
+alias bu2='mybuild; mybuild_ib'
 
 alias b1="tc2; mybuild1 cls_flower"
 alias bct="tc2; mybuild1 act_ct"
@@ -11988,7 +11948,7 @@ set +x
 
 function dmfs
 {
-	if (( ofed_mlx5 == 1 )); then
+	if (( ofed == 1 )); then
 		test -f /sys/class/net/$link/compat/devlink/steering_mode || return
 set -x
 		echo dmfs > /sys/class/net/$link/compat/devlink/steering_mode 
@@ -12005,7 +11965,7 @@ set +x
 
 function smfs
 {
-	if (( ofed_mlx5 == 1 )); then
+	if (( ofed == 1 )); then
 		test -f /sys/class/net/$link/compat/devlink/steering_mode || return
 set -x
 		echo smfs > /sys/class/net/$link/compat/devlink/steering_mode
@@ -12020,7 +11980,7 @@ set +x
 
 function dmfs2
 {
-	if (( ofed_mlx5 == 1 )); then
+	if (( ofed == 1 )); then
 		test -f /sys/class/net/$link2/compat/devlink/steering_mode || return
 set -x
 		echo dmfs > /sys/class/net/$link2/compat/devlink/steering_mode
@@ -12037,7 +11997,7 @@ set +x
 
 function smfs2
 {
-	if (( ofed_mlx5 == 1 )); then
+	if (( ofed == 1 )); then
 		test -f /sys/class/net/$link2/compat/devlink/steering_mode || return
 set -x
 		echo smfs > /sys/class/net/$link2/compat/devlink/steering_mode
@@ -12053,7 +12013,7 @@ set +x
 function get-fs
 {
 set -x
-	if (( ofed_mlx5 == 1 )); then
+	if (( ofed == 1 )); then
 		cat /sys/class/net/$link/compat/devlink/steering_mode
 	else
 		devlink dev  param show pci/$pci name flow_steering_mode
@@ -12064,7 +12024,7 @@ set +x
 function get-fs2
 {
 set -x
-	if (( ofed_mlx5 == 1 )); then
+	if (( ofed == 1 )); then
 		cat /sys/class/net/$link2/compat/devlink/steering_mode
 	else
 		devlink dev  param show pci/$pci2 name flow_steering_mode
@@ -13653,7 +13613,7 @@ function drivertest_git_init
 	git_init_python
 }
 
-test -f /proc/config.gz && modprobe configs
+test -f /proc/config.gz && modprobe configs > /dev/null 2>&1
 
 function build_kexec
 {
