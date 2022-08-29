@@ -20,6 +20,7 @@ alias 21='ssh root@10.237.155.21'
 alias 22='ssh root@10.237.155.22'
 alias 17='ssh root@10.140.251.7'
 alias 18='ssh root@10.140.251.8'
+alias vdi='ssh cmi@10.228.129.120'
 
 alias cx5-9='ssh root@10.141.254.9'
 alias cx5-10='ssh root@10.141.254.10'
