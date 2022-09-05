@@ -474,7 +474,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed5_7='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_7; cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_5_8; cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone ssh://l-gerrit.mtl.labs.mlnx:29418/asap_dev_reg; cp ~/config_chrism_cx5.sh asap_dev_reg; cp ~cmi/commit-msg asap_dev_reg/.git/hooks/'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
 alias clone-iproute2='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/iproute2 --branch=mlnx_ofed_5_6'
@@ -522,6 +522,7 @@ alias evolution_mark_read='gsettings set org.gnome.evolution.mail mark-seen-time
 alias contains="git tag --contains"
 alias git-log='git log --tags --source'
 alias v5.17='git checkout v5.17-rc7; git checkout -b 5.17-rc7'
+alias v5.15='git checkout v5.15; git checkout -b 5.15' # ofed 5.4.3
 alias gs='git status'
 alias gc='git commit -a'
 alias slog='git slog'
@@ -1084,6 +1085,22 @@ function bf2_linux
 	make-all all
 }
 
+function cloud_linux
+{
+	local branch=$1
+
+	cp /swgwork/cmi/linux.tar.gz .
+	tar zvxf linux.tar.gz
+	cd linux
+	/bin/cp -f ~cmi/mi/config .config
+	sml
+	if [[ -n $branch ]]; then
+		git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch && make-all all
+	else
+		make-all all
+	fi
+}
+
 function cloud_setup
 {
 	local branch=$1
@@ -1093,7 +1110,8 @@ function cloud_setup
 		echo "please run as non-root user"
 		return
 	fi
-	sudo yum install -y cscope tmux screen ctags rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
+# 	build_ctags
+	sudo yum install -y cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
 		python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
 		bcc-tools python-devel \
 		libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
@@ -1104,16 +1122,7 @@ function cloud_setup
 	sm
 set -x
 	if (( build_kernel == 1 )); then
-		cp /swgwork/cmi/linux.tar.gz .
-		tar zvxf linux.tar.gz
-		cd linux
-		/bin/cp -f ~cmi/mi/config .config
-		sml
-		if [[ -n $branch ]]; then
-			git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch && make-all all
-		else
-			make-all all
-		fi
+		cloud_linux $branch
 	fi
 	if (( ofed == 1 )); then
 		cloud_ofed_cp
@@ -1941,7 +1950,9 @@ function mi
 	test -f LINUX_BASE_BRANCH || return
 	make -j $cpu_num2
 	sudo make install_kernel -j $cpu_num2
-	reprobe
+# 	reprobe
+	force-stop
+	force-start
 }
 
 alias make-local='./configure; make -j; sudo make install'
@@ -9588,7 +9599,7 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-ovs-multiport-esw-mode.sh
+test1=test-eswitch-reconfig-sriov-after-reload.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
@@ -13708,20 +13719,29 @@ set -x
 set +x
 }
 
-function meter_set_vf
+function meter_set_vf1
 {
-	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+# 	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
+set -x
+	echo "15000 15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_set_vf2
+{
+# 	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 set -x
-	echo "15000 15000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "150000 150000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 set +x
 }
 
 function meter_set_all
 {
 set -x
-	echo "15000 15000" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
-	echo "15000 15000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "15000 15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
+	echo "150000 150000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 set +x
 }
 
@@ -13732,3 +13752,12 @@ function setpci_err_inject
 }
 
 alias ibdev2netdev=/usr/bin/ibdev2netdev
+
+function build_ctags
+{
+	sm
+	git clone https://github.com/universal-ctags/ctags.git
+	cd ctags
+	./autogen.sh
+	make-usr
+}
