@@ -849,9 +849,6 @@ alias restart-virt='systemctl restart libvirtd.service'
 export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
-export TERM=xterm
-[[ "$HOSTNAME" == "bc-vnc02" ]] && export TERM=screen
-[[ "$HOSTNAME" == "vnc14.mtl.labs.mlnx" ]] && export TERM=screen
 unset PROMPT_COMMAND
 
 n_time=20
@@ -13699,6 +13696,7 @@ function meter_show
 set -x
 	cat /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 	cat /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	cat /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
 set +x
 }
 
@@ -13706,7 +13704,9 @@ function meter_clear
 {
 set -x
 	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
 set +x
 }
 
@@ -13722,26 +13722,29 @@ set +x
 function meter_set_vf1
 {
 # 	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
-	echo "0 0" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 set -x
-	echo "15000 15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
+	echo "15000 15000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 set +x
 }
 
 function meter_set_vf2
 {
 # 	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
-	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
 set -x
-	echo "150000 150000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "150000 150000" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
 set +x
 }
 
 function meter_set_all
 {
 set -x
-	echo "15000  15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
-	echo "150000 150000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "1500  1500" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "15000 15000" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
+
+	echo "1500  1500" > /sys/class/net/enp8s0f1_1/rep_config/miss_rl_cfg
+	echo "15000 15000" > /sys/class/net/enp8s0f1_2/rep_config/miss_rl_cfg
 set +x
 }
 
