@@ -13697,7 +13697,7 @@ function counters
 function meter_show
 {
 set -x
-	cat /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	cat /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 	cat /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 set +x
 }
@@ -13740,7 +13740,7 @@ set +x
 function meter_set_all
 {
 set -x
-	echo "15000 15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
+	echo "15000  15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 	echo "150000 150000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 set +x
 }
