@@ -849,7 +849,7 @@ alias restart-virt='systemctl restart libvirtd.service'
 export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
-export TERM=tmux-256color
+export TERM=xterm
 [[ "$HOSTNAME" == "bc-vnc02" ]] && export TERM=screen
 [[ "$HOSTNAME" == "vnc14.mtl.labs.mlnx" ]] && export TERM=screen
 unset PROMPT_COMMAND
