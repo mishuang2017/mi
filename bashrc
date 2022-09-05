@@ -1950,9 +1950,9 @@ function mi
 	test -f LINUX_BASE_BRANCH || return
 	make -j $cpu_num2
 	sudo make install_kernel -j $cpu_num2
-# 	reprobe
-	force-stop
-	force-start
+	reprobe
+# 	force-stop
+# 	force-start
 }
 
 alias make-local='./configure; make -j; sudo make install'
