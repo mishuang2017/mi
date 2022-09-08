@@ -1086,6 +1086,7 @@ function cloud_linux
 {
 	local branch=$1
 
+	cd /images/cmi
 	cp /swgwork/cmi/linux.tar.gz .
 	tar zvxf linux.tar.gz
 	cd linux
@@ -13763,4 +13764,18 @@ function build_ctags
 	cd ctags
 	./autogen.sh
 	make-usr
+}
+
+function test10
+{
+	for (( i = 0; i < 20; i ++ )); do
+		sleep 1
+		echo " ====================== $i ======================="
+		python test-all.py --db databases/ofed-5.8/second_db.yaml --from-test test-vf-lag-reload.sh
+	done
+}
+
+function devlink_reload
+{
+	devlink dev reload pci/$pci
 }
