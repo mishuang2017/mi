@@ -13692,14 +13692,22 @@ function counters
 	fi
 }
 
-function meter_show
+function meter_show_config
 {
 set -x
 	cat /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
-	cat /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
-	cat /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
+	cat /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
 set +x
 }
+
+function meter_show_stats
+{
+set -x
+	cat /sys/class/net/enp8s0f0_0/rep_config/*dropped*
+	cat /sys/class/net/enp8s0f1_0/rep_config/*dropped*
+set +x
+}
+
 
 function meter_clear
 {
@@ -13722,19 +13730,17 @@ set +x
 
 function meter_set_vf1
 {
-# 	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
-	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	meter_clear
 set -x
-	echo "15000 15000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "15000 15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 set +x
 }
 
 function meter_set_vf2
 {
-# 	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
-	echo "0 0" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
+	meter_clear
 set -x
-	echo "150000 150000" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
+	echo "150000 150000" > /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
 set +x
 }
 
