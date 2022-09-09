@@ -13692,7 +13692,7 @@ function counters
 	fi
 }
 
-function meter_show_config
+function meter_config
 {
 set -x
 	cat /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
@@ -13700,7 +13700,7 @@ set -x
 set +x
 }
 
-function meter_show_stats
+function meter_stats
 {
 set -x
 	cat /sys/class/net/enp8s0f0_0/rep_config/*dropped*
@@ -13708,50 +13708,43 @@ set -x
 set +x
 }
 
+alias  stat1="cat /sys/class/net/enp8s0f0_0/rep_config/*dropped*"
+alias  stat2="cat /sys/class/net/enp8s0f1_0/rep_config/*dropped*"
 
 function meter_clear
 {
 set -x
-	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
-	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
-	echo "0 0" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
 set +x
 }
 
-function meter_set_uplink
+function meter_vf1
 {
-	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
-	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
-set -x
-	echo "15000 15000" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
-set +x
-}
-
-function meter_set_vf1
-{
-	meter_clear
 set -x
 	echo "15000 15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 set +x
 }
 
-function meter_set_vf2
+function meter_vf1_update
 {
-	meter_clear
+set -x
+	echo "150000 150000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_vf2
+{
 set -x
 	echo "150000 150000" > /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
 set +x
 }
 
-function meter_set_all
+function meter_all
 {
 set -x
-	echo "1500  1500" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
-	echo "15000 15000" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
-
-	echo "1500  1500" > /sys/class/net/enp8s0f1_1/rep_config/miss_rl_cfg
-	echo "15000 15000" > /sys/class/net/enp8s0f1_2/rep_config/miss_rl_cfg
+	echo "15000 15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
+	echo "150000 150000" > /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
 set +x
 }
 
