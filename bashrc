@@ -242,8 +242,8 @@ vxlan_port=4789
 vxlan_mac=24:25:d0:e1:00:00
 vxlan_mac2=24:25:d0:e2:00:00
 ecmp=0
-ports=2
 ports=1
+ports=2
 
 base_baud=115200
 base_baud=9600
@@ -1269,6 +1269,9 @@ function off_all
 #		echo legacy > /sys/kernel/debug/mlx5/$pci/compat/mode 2 > /dev/null || echo "legacy"
 #	fi
 	modprobe -r bonding
+
+	devlink dev eswitch set pci/$pci mode legacy
+	devlink dev eswitch set pci/$pci2 mode legacy
 }
 
 function off_one
@@ -6416,7 +6419,7 @@ function start-switchdev-all
 }
 
 alias mystart=start-switchdev-all
-alias restart='off; dmfs; mystart'
+alias restart='off; dmfs; dmfs2; mystart'
 
 # assume legacy mode was enabled
 function start-switchdev
