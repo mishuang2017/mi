@@ -13700,6 +13700,8 @@ function meter_config
 set -x
 	cat /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 	cat /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
+	cat /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	cat /sys/class/net/enp8s0f1/rep_config/miss_rl_cfg
 set +x
 }
 
@@ -13719,6 +13721,22 @@ function meter_clear
 set -x
 	echo "0 0" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f1/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_uplink
+{
+set -x
+	echo "15000 15000" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_uplink2
+{
+set -x
+	echo "15000 15000" > /sys/class/net/enp8s0f1/rep_config/miss_rl_cfg
 set +x
 }
 
