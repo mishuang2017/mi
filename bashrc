@@ -242,8 +242,8 @@ vxlan_port=4789
 vxlan_mac=24:25:d0:e1:00:00
 vxlan_mac2=24:25:d0:e2:00:00
 ecmp=0
-ports=1
 ports=2
+ports=1
 
 base_baud=115200
 base_baud=9600
@@ -2139,6 +2139,8 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
 	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+set +x
+	return
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 	src_mac=02:25:d0:$host_num:01:03
@@ -6420,6 +6422,7 @@ function start-switchdev-all
 
 alias mystart=start-switchdev-all
 alias restart='off; dmfs; dmfs2; mystart'
+alias restart2='off; smfs; smfs2; mystart'
 
 # assume legacy mode was enabled
 function start-switchdev
@@ -13720,7 +13723,9 @@ function meter_clear
 {
 set -x
 	echo "0 0" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f1_1/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f1/rep_config/miss_rl_cfg
 set +x
@@ -13740,24 +13745,45 @@ set -x
 set +x
 }
 
-function meter_vf1
+function meter_rep00
 {
 set -x
 	echo "15000 15000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 set +x
 }
 
-function meter_vf1_update
+function meter_rep01
+{
+set -x
+	echo "15000 15000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_rep02
+{
+set -x
+	echo "15000 15000" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_rep00_update
 {
 set -x
 	echo "150000 150000" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 set +x
 }
 
-function meter_vf2
+function meter_rep10
 {
 set -x
 	echo "150000 150000" > /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
+set +x
+}
+
+function meter_rep11
+{
+set -x
+	echo "150000 150000" > /sys/class/net/enp8s0f1_1/rep_config/miss_rl_cfg
 set +x
 }
 

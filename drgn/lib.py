@@ -12,7 +12,7 @@ import socket
 
 # print(__name__)
 
-# prog = drgn.program_from_core_dump("/var/crash/vmcore.2")
+# prog = drgn.program_from_core_dump("/var/crash/vmcore.0")
 prog = drgn.program_from_kernel()
 
 def kernel(name):
@@ -1076,7 +1076,7 @@ def print_mlx5e_tc_flow(flow):
     else:
         print("")
 
-    print(flow_attr.sample_attr)
+#     print(flow_attr.sample_attr)
 
     MLX5_ESW_DEST_ENCAP = prog['MLX5_ESW_DEST_ENCAP']
     MLX5_ESW_DEST_ENCAP_VALID = prog['MLX5_ESW_DEST_ENCAP_VALID']
@@ -1100,7 +1100,7 @@ def print_mlx5e_tc_flow(flow):
 #     print(flow_attr.modify_hdr)
 #     print(flow_attr.parse_attr)
 #     print(flow_attr.parse_attr.mod_hdr_acts)
-    print("tunnel_id: %x" % flow.tunnel_id)
+#     print("tunnel_id: %x" % flow.tunnel_id)
 
     print_mlx5e_tc_flow_parse_attr(parse_attr)
     print("")
