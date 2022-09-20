@@ -13724,6 +13724,7 @@ function meter_clear
 set -x
 	echo "0 0" > /sys/class/net/enp8s0f0_0/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "0 0" > /sys/class/net/enp8s0f0_2/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f1_0/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f1_1/rep_config/miss_rl_cfg
 	echo "0 0" > /sys/class/net/enp8s0f0/rep_config/miss_rl_cfg
