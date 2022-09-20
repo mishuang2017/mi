@@ -108,37 +108,50 @@ print('\n=== sample_flow ===\n')
 # except LookupError as x:
 tc_ht = mlx5e_rep_priv.tc_ht
 
-for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
-    name = flow.priv.netdev.name.string_().decode()
-    flow_attr = flow.attr
-    esw_attr = flow_attr.esw_attr[0]
-    parse_attr = flow_attr.parse_attr
-    print("flow.attr")
-    print("flow.attr: %x" % flow_attr)
-    print("counter id: %x, action: %x" % (flow_attr.counter.id, flow_attr.action))
-    print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
-        (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))
-    print("chain: %x" % flow_attr.chain, end='\t')
-    print("dest_chain: %x" % flow_attr.dest_chain, end='\t')
-    print("ft: %x" % flow_attr.ft, end='\t')
-    print("dest_ft: %x" % flow_attr.dest_ft, end='\t')
-    print("ct_state: %x/%x" % (parse_attr.spec.match_value[57] >> 8, parse_attr.spec.match_criteria[57] >> 8))
-    print("mlx5_flow_spec %lx" % parse_attr.spec.address_of_())
-    print("action: %x" % flow_attr.action)
-    if flow_attr.sample_attr.value_() != 0:
-        sample_flow = flow_attr.sample_attr.sample_flow
-        print("sample_flow.pre_attr")
-        print("sample_flow.pre_attr.action: %x" % sample_flow.pre_attr.action)
-        print("mlx5_sample_flow %x" % sample_flow)
-        print(sample_flow)
-        print("sample_flow.restore.obj_id: 0x%x" % sample_flow.restore.obj_id)
-        post_attr = sample_flow.post_act_handle.attr
-        print("post_act_handle.attr: %x" % post_attr)
-        print("counter id: %x, action: %x" % (post_attr.counter.id, post_attr.action))
-#         print(flow_attr)
-#     print("match_criteria_enable: %x" % flow.esw_attr[0].parse_attr.spec.match_criteria_enable)
-#     print(flow.esw_attr[0].parse_attr)
-    print("")
+for x, dev in enumerate(get_netdevs()):
+    name = dev.name.string_().decode()
+    addr = dev.value_()
+    if "enp" not in name:
+        continue;
+
+    mlx5e_priv_addr = addr + prog.type('struct net_device').size
+    mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
+
+    ppriv = mlx5e_priv.ppriv
+    if ppriv.value_() == 0:
+        continue
+
+    print(name)
+    print(dev.name)
+    mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=ppriv.value_())
+    tc_ht = mlx5e_rep_priv.tc_ht
+
+    for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
+        name = flow.priv.netdev.name.string_().decode()
+        flow_attr = flow.attr
+        esw_attr = flow_attr.esw_attr[0]
+        parse_attr = flow_attr.parse_attr
+        print("flow.attr")
+        print("flow.attr: %x" % flow_attr)
+#         print("counter id: %x, action: %x" % (flow_attr.counter.id, flow_attr.action))
+        print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
+            (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))
+        print("chain: %x" % flow_attr.chain, end='\t')
+        print("dest_chain: %x" % flow_attr.dest_chain, end='\t')
+        print("ft: %x" % flow_attr.ft, end='\t')
+        print("dest_ft: %x" % flow_attr.dest_ft, end='\t')
+        print("ct_state: %x/%x" % (parse_attr.spec.match_value[57] >> 8, parse_attr.spec.match_criteria[57] >> 8))
+        print("mlx5_flow_spec %lx" % parse_attr.spec.address_of_())
+        print("action: %x" % flow_attr.action)
+        if flow_attr.sample_attr.rate!= 0:
+            print(flow_attr.sample_attr)
+            sample_flow = flow_attr.sample_attr.sample_flow
+            print("sample_flow.pre_attr")
+            print("sample_flow.pre_attr.action: %x" % sample_flow.pre_attr.action)
+            print("mlx5_sample_flow %x" % sample_flow)
+            print(sample_flow)
+            print("sample_flow.restore.obj_id: 0x%x" % sample_flow.restore.obj_id)
+        print("")
 
 def print_tunnel_mapping(item):
     print("mapping_item %lx" % item, end='\t')
