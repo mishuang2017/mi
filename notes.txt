@@ -9068,6 +9068,9 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+remove color:
+sed 's/\x1B\[[0-9;]\{1,\}[A-Za-z]//g'
+
 find_first_zero_bit
 
 kstrdup
