@@ -28,7 +28,7 @@ mlx5e_tc_table = mlx5e_priv.fs.tc
 hairpin_tbl = mlx5e_tc_table.hairpin_tbl
 # print(hairpin_tbl)
 
-for i in range(256):
+for i in range(1<<16):
     node = hairpin_tbl[i].first
     while node.value_():
         obj = container_of(node, "struct mlx5e_hairpin_entry", "hairpin_hlist")
