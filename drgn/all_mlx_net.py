@@ -9,22 +9,24 @@ import os
 
 libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
-import lib
+from lib import *
 
-for x, dev in enumerate(lib.get_netdevs()):
+for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     addr = dev.value_()
-    if "enp" not in name:
+    ops = address_to_name(hex(dev.netdev_ops))
+    if ops != "mlx5e_netdev_ops":
         continue;
     print(name)
     print(dev.name)
 
     mlx5e_priv_addr = addr + prog.type('struct net_device').size
     mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
-    print("mlx5e_priv_addr: %x" % mlx5e_priv_addr)
+    print(mlx5e_priv.fs.tc.netdevice_nb.notifier_call)
+#     print("mlx5e_priv_addr: %x" % mlx5e_priv_addr)
 #     print(mlx5e_priv)
 #     print(mlx5e_priv.init)
-    print(mlx5e_priv.profile)
+#     print(mlx5e_priv.profile)
 
 #     ppriv = mlx5e_priv.ppriv
 #     if ppriv:
