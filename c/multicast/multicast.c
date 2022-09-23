@@ -23,11 +23,15 @@ just one host and as a receiver on all the other hosts
 #include <arpa/inet.h>
 #include <time.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <strings.h>
 
 #define EXAMPLE_PORT 6000
 #define EXAMPLE_GROUP "239.0.0.1"
 
-main(int argc)
+int
+main(int argc, char *p)
 {
    struct sockaddr_in addr;
    int addrlen, sock, cnt;
@@ -87,5 +91,7 @@ main(int argc)
 	 printf("%s: message = \"%s\"\n", inet_ntoa(addr.sin_addr), message);
         }
     }
+
+    return 0;
 }
 

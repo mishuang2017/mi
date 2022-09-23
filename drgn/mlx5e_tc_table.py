@@ -34,5 +34,9 @@ for i in range(1<<16):
         obj = container_of(node, "struct mlx5e_hairpin_entry", "hairpin_hlist")
         print("mlx5e_hairpin_entry %lx" % obj.value_())
         mlx5e_hairpin_entry = Object(prog, "struct mlx5e_hairpin_entry", address=obj.value_())
+        entry = mlx5e_hairpin_entry
         print(mlx5e_hairpin_entry)
         node = node.next
+
+print(entry.hp)
+print(entry.hp.pair)
