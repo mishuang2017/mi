@@ -20,7 +20,7 @@ mlx5_esw_bridge_offloads = mlx5_eswitch.br_offloads
 
 print("=== mlx5_esw_bridge_offloads ingress ===\n")
 print("ingress_vlan_fg   %x" % mlx5_esw_bridge_offloads.ingress_vlan_fg)
-print("ingress_filter_fg %x" % mlx5_esw_bridge_offloads.ingress_filter_fg)
+# print("ingress_filter_fg %x" % mlx5_esw_bridge_offloads.ingress_filter_fg)
 print("ingress_mac_fg    %x" % mlx5_esw_bridge_offloads.ingress_mac_fg)
 ingress_ft = mlx5_esw_bridge_offloads.ingress_ft
 print("ingress_ft        %x" % ingress_ft.value_())
