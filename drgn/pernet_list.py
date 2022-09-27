@@ -9,26 +9,26 @@ import os
 
 sys.path.append('.')
 
-pernet_list = prog['pernet_list']
-
+# pernet_list = prog['pernet_list']
 # i=1
 # for pernet in list_for_each_entry('struct pernet_operations', pernet_list.address_of_(), 'list'):
 #     print(i)
 #     print(pernet)
 #     i=i+1
 
-netdev_chain = prog['netdev_chain']
+def print_netdev_chain(chain):
+    i=1
+    head = chain.head
+    while head.next:
+        print(i)
+        print(head)
+        head = head.next
+        i=i+1
 
-i=1
-head = netdev_chain.head
-while head.next:
-    print(i)
-    print(head)
-    head = head.next
-    i=i+1
+# eg. mlx5_netdev_event
+# netdev_chain = prog['netdev_chain']
+# print_netdev_chain(netdev_chain)
 
-# i=1
-# for pernet in list_for_each_entry('struct raw_notifier_head', pernet_list.address_of_(), 'list'):
-#     print(i)
-#     print(pernet)
- 
+# eg. mlx5_esw_bridge_switchdev_port_event
+init_net_netdev_chain = prog['init_net'].netdev_chain
+print_netdev_chain(init_net_netdev_chain)

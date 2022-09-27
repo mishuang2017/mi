@@ -10830,7 +10830,7 @@ function bond_setup
 
 	bond_br
 
-# 	return
+	return
 
 	# test representor meter
 	del-br
@@ -13100,6 +13100,9 @@ set -x
 
 	ip link set $rep2 master $bridge_name
 	ip link set $rep3 master $bridge_name
+
+# 	ip link set $rep2_2 master $bridge_name
+# 	ip link set $rep3_2 master $bridge_name
 
 	ip link set $bridge_name up
 	ip link set name $bridge_name type bridge ageing_time 200

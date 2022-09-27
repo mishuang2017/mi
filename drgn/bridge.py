@@ -60,13 +60,17 @@ bridges = mlx5_esw_bridge_offloads.bridges
 for mlx5_esw_bridge in list_for_each_entry('struct mlx5_esw_bridge', bridges.address_of_(), 'list'):
     print_mlx5_esw_bridge(mlx5_esw_bridge)
 
-exit(0)
+# exit(0)
+
+MLX5_ESW_BRIDGE_PORT_FLAG_PEER = prog['MLX5_ESW_BRIDGE_PORT_FLAG_PEER']
 
 print("\n=== mlx5_esw_bridge ports ===\n")
+print("MLX5_ESW_BRIDGE_PORT_FLAG_PEER = %d" % MLX5_ESW_BRIDGE_PORT_FLAG_PEER)
 ports = mlx5_esw_bridge_offloads.ports.address_of_()
 for node in radix_tree_for_each(ports):
     port = Object(prog, 'struct mlx5_esw_bridge_port', address=node[1].value_())
-    print("port->vport_num: %d" % port.vport_num)
+    print("port->vport_num: %d, esw_owner_vhca_id: %d, flags: %x" %
+        (port.vport_num, port.esw_owner_vhca_id, port.flags))
 #     mlx5_esw_bridge = port.bridge
 #     print_mlx5_esw_bridge(mlx5_esw_bridge)
 
