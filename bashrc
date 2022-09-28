@@ -13100,6 +13100,7 @@ set -x
 
 	ip link set $rep2 master $bridge_name
 	ip link set $rep3 master $bridge_name
+	ip link set $link master $bridge_name
 
 # 	ip link set $rep2_2 master $bridge_name
 # 	ip link set $rep3_2 master $bridge_name
