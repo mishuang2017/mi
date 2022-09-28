@@ -13830,3 +13830,17 @@ function devlink_reload
 {
 	devlink dev reload pci/$pci
 }
+
+function multicast_receive
+{
+	[[ $# != 1 ]] && return
+	route add -net 224.0.0.0 netmask 224.0.0.0 $1
+	/root/multicast
+}
+
+function multicast_send
+{
+	[[ $# != 1 ]] && return
+	route add -net 224.0.0.0 netmask 224.0.0.0 $1
+	/root/multicast 1
+}

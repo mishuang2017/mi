@@ -63,7 +63,7 @@ main(int argc, char *p)
 	    perror("sendto");
 	    exit(1);
 	 }
-	 sleep(5);
+	 sleep(1);
       }
    } else {
 
