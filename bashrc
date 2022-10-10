@@ -11,6 +11,7 @@ ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
 numvfs=3
+numvfs=16
 
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
@@ -5425,8 +5426,8 @@ function brx
 set -x
 	del-br
 	vs add-br $br
-#   	for (( i = 0; i < numvfs; i++)); do
-	for (( i = 1; i < 2; i++)); do
+  	for (( i = 0; i < numvfs; i++)); do
+# 	for (( i = 1; i < 2; i++)); do
 		local rep=$(get_rep $i)
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
