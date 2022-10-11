@@ -1053,9 +1053,9 @@ def print_mlx5e_tc_flow(flow):
 #     print(flow.decap_route)
     print_mlx5e_tc_flow_rules(flow.rule)
     flow_attr = flow.attr
-    print(flow_attr)
+#     print(flow_attr)
     esw_attr = flow_attr.esw_attr[0]
-    print(esw_attr)
+#     print(esw_attr)
     parse_attr = flow_attr.parse_attr
     print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
         (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))

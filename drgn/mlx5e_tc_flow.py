@@ -25,11 +25,11 @@ for x, dev in enumerate(get_netdevs()):
     if ppriv.value_() == 0:
         continue
 
-    print(name)
-    print(dev.name)
+#     print(name)
+#     print(dev.name)
     mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=ppriv.value_())
     tc_ht = mlx5e_rep_priv.tc_ht
 
     for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
-        print(flow.attr.esw_attr[0])
+#         print(flow.attr.esw_attr[0])
         print_mlx5e_tc_flow(flow)

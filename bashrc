@@ -10,8 +10,8 @@ test -f /usr/bin/lsb_release && debian=1
 ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
-numvfs=3
 numvfs=16
+numvfs=3
 
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
@@ -6095,6 +6095,36 @@ function netns
 
 #	ip netns exec $n ip r a 2.2.2.0/24 nexthop via 1.1.1.1 dev $link
 }
+
+function ping_netns_all
+{
+	local vfn
+	local ip
+	local i
+	local p=1
+	local start
+	local ns_ip=1.1.$p
+	local ns
+
+	echo
+	echo "start set_netns_all"
+	if (( machine_num == 1 )); then
+		ns_ip=1.1.$p
+	elif (( machine_num == 2 )); then
+		ns_ip=1.1.$((p+2))
+	fi
+
+	for (( i = 1; i < numvfs; i++)); do
+		ip=${ns_ip}.$((i))
+		vfn=$(get_vf $host_num $p $((i+1)))
+		echo "vf${i} name: $vfn, ip: $ip"
+		ns=n${p}${i}
+		ip netns exec $ns ping 1.1.1.200 &
+	done
+	echo "end set_netns_all"
+}
+
+
 
 # rep=$(eval echo '$'rep"$i")
 function set_netns_all
