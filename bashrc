@@ -6545,6 +6545,9 @@ function start-switchdev
 sf1=en8f0pf0sf1
 sf2=en8f0pf0sf2
 
+# sf1=eth2
+# sf2=eth3
+
 function sf
 {
 	n=2
@@ -6573,11 +6576,11 @@ function sf_ns
 
 function sf2
 {
-# 	$sfcmd port del $sf1
-# 	$sfcmd port del $sf2
+	$sfcmd port del $sf1
+	$sfcmd port del $sf2
 
-	$sfcmd port del enp8s0f0npf0sf1
-	$sfcmd port del enp8s0f0npf0sf2
+# 	$sfcmd port del enp8s0f0npf0sf1
+# 	$sfcmd port del enp8s0f0npf0sf2
 }
 
 function br_sf
@@ -6640,6 +6643,10 @@ function tc_sf
 
 	local rep2=enp8s0f0npf0sf1
 	local rep3=enp8s0f0npf0sf2
+# 	local rep2=eth2
+# 	local rep3=eth3
+ 	local rep2=en8f0pf0sf1
+ 	local rep3=en8f0pf0sf2
 	$TC qdisc del dev $rep2 ingress
 	$TC qdisc del dev $rep3 ingress
 
