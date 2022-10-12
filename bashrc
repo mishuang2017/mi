@@ -105,7 +105,7 @@ if (( host_num == 13 )); then
 	link2=enp4s0f1
 
 	link_remote_ip=192.168.1.$rhost_num
-	link_remote_ip2=192.168.2.$rhost_num
+	link2_remote_ip=192.168.2.$rhost_num
 	link_remote_ipv6=1::$rhost_num
 
 	remote_mac=b8:59:9f:bb:31:82
@@ -192,7 +192,7 @@ elif (( host_num == 14 )); then
 fi
 
 link_remote_ip=192.168.1.$rhost_num
-link_remote_ip2=192.168.2.$rhost_num
+link2_remote_ip=192.168.2.$rhost_num
 link_remote_ipv6=1::$rhost_num
 
 if (( link_name == 1 )); then
@@ -366,7 +366,7 @@ alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options
 alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port"
 alias vxlan4000="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4000"
 alias vxlan4789="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4789"
-alias vxlan1-2="ovs-vsctl add-port $br2 $vx2 -- set interface $vx2 type=vxlan options:remote_ip=$link_remote_ip2  options:key=$vni options:dst_port=$vxlan_port"
+alias vxlan1-2="ovs-vsctl add-port $br2 $vx2 -- set interface $vx2 type=vxlan options:remote_ip=$link2_remote_ip  options:key=$vni options:dst_port=$vxlan_port"
 alias vxlan2="ovs-vsctl del-port $br $vx"
 
 alias vsconfig="sudo ovs-vsctl get Open_vSwitch . other_config"
@@ -647,7 +647,7 @@ alias app-ct='sudo ovs-appctl app dpctl/dump-conntrack'
 
 alias p1="ping $link_remote_ip"
 alias p=p1
-alias p2="ping $link_remote_ip2"
+alias p2="ping $link2_remote_ip"
 
 # tc -s filter show dev enp4s0f0_1 root
 alias tcss="tc -stats filter show dev $link protocol ip parent ffff:"
@@ -3944,7 +3944,6 @@ set +x
 
 function tc_vxlan1
 {
-set -x
 	offload=""
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 	[[ "$1" == "sw" ]] && offload="skip_hw"
@@ -3977,16 +3976,33 @@ set -x
 	local_vm_mac=02:25:d0:$host_num:01:02
 	remote_vm_mac=$vxlan_mac
 
-	$TC filter add dev $vx protocol ip  parent ffff: prio 1 flower $offload	\
-		src_mac $remote_vm_mac		\
-		dst_mac $local_vm_mac		\
-		enc_src_ip $link_remote_ip	\
-		enc_dst_ip $link_ip		\
-		enc_dst_port $vxlan_port	\
-		enc_key_id $vni			\
-		action tunnel_key unset		\
-		action mirred egress redirect dev $redirect
+	ping $link_remote_ip -c 2
+	k=0
+	for(( i = 0; i < 1; i++)); do
+		i1=$(printf "%02x" $i)
+		for(( j = 0; j < 1; j++)); do
+			k=$((k+1))
+			j1=$(printf "%02x" $j)
+			mac1=24:25:d0:e1:${i1}:${j1}
+# 			echo $k
+			if (( k == 4000 )); then
+				ip n flush dev bond0 &
+			fi
+set -x
+			$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \
+				src_mac $local_vm_mac		\
+				dst_mac $mac1			\
+				action tunnel_key set		\
+				src_ip $link_ip			\
+				dst_ip $link_remote_ip		\
+				dst_port $vxlan_port		\
+				id $vni				\
+				action mirred egress redirect dev $vx &
 set +x
+		done
+	done
+# 	ip1
+	ping $link_remote_ip -c 2
 }
 
 # outer v4, inner v4
@@ -6119,12 +6135,10 @@ function ping_netns_all
 		vfn=$(get_vf $host_num $p $((i+1)))
 		echo "vf${i} name: $vfn, ip: $ip"
 		ns=n${p}${i}
-		ip netns exec $ns ping 1.1.1.200 &
+		ip netns exec $ns ping 1.1.1.200 -c 2 &
 	done
 	echo "end set_netns_all"
 }
-
-
 
 # rep=$(eval echo '$'rep"$i")
 function set_netns_all
@@ -8000,12 +8014,12 @@ function pktgen1
 	mac_count=50
 	[[ $# == 1 ]] && mac_count=$1
 # 	sml
-	cd /swgwork/cmi/linux-4.18.0-240.el8/
+# 	cd /swgwork/cmi/linux-4.18.0-240.el8/
 	cd ./samples/pktgen
 	export SRC_MAC_COUNT=$mac_count
 # 	./pktgen_sample02_multiqueue.sh -i $link -s 1 -m 02:25:d0:$rhost_num:01:02 -d 1.1.1.1 -t 16 -n 0
 # 	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:d0:$num:01:02 -d 1.1.1.1 -t 1 -n 0		# vf
-	./pktgen_sample02_multiqueue.sh -i vxlan1 -s 1 -m 02:25:00:$num:01:02 -d 1.1.1.1 -t 1 -n 0		# sf
+	./pktgen_sample02_multiqueue.sh -i eth3 -s 1 -m 02:25:00:$num:01:02 -d 1.1.1.1 -t 1 -n 0		# sf
 }
 
 function pktgen2
@@ -8034,6 +8048,7 @@ function pktgen2
 	if [[ "$(hostname -s)" == "dev-r630-03" ]]; then
 		./pktgen_sample02_multiqueue.sh -i $vf2 -s 1 -m 02:25:d0:14:01:02 -d 1.1.3.1 -t 4 -n 0
 	fi
+	./pktgen_sample02_multiqueue.sh -i eth3 -s 1 -m 02:25:d0:08:01:02 -d 1.1.1.200 -t 4 -n 0
 }
 
 function pktgen-pf
@@ -9320,7 +9335,6 @@ function addflow-port2
 		done
 	done >> $file
 
-	br=br
 	set -x
 	ovs-ofctl add-flows $br -O openflow13 $file
 	ovs-ofctl dump-flows $br | wc -l
@@ -10859,7 +10873,8 @@ function bond_setup
 	bi2
 	set_netns_all 1
 
-	bond_br
+	ifconfig bond0 $link_ip
+# 	bond_br
 
 	return
 
@@ -13874,4 +13889,33 @@ function multicast_send
 	[[ $# != 1 ]] && return
 	route add -net 224.0.0.0 netmask 224.0.0.0 $1
 	/root/multicast 1
+}
+
+function br_flow_key
+{
+	set -x
+
+	del-br
+	ovs-vsctl add-br $br
+	ovs-vsctl add-port $br $rep1
+	ovs-vsctl add-port $br $rep2
+	ovs-vsctl add-port $br $rep3
+	ovs-vsctl add-port $br vxlan0 -- set interface vxlan0 type=vxlan options:local_ip=$link_ip options:remote_ip=$link_remote_ip options:key=flow options:dst_port=4789
+	ovs-vsctl add-port $br vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$link2_ip options:remote_ip=$link2_remote_ip options:key=flow options:dst_port=4789
+	ovs-ofctl add-flow $br "table=0,in_port=$rep2 actions=set_field:$vni->tun_id,vxlan0,output:$rep1,output=$rep3"
+	ovs-ofctl add-flow $br "table=0,in_port=vxlan0 actions=$rep2"
+
+	set +x
+	return
+
+	local file=/tmp/of.txt
+	rm -f $file
+
+	for(( src = 1; src < 65000; src++)); do
+		echo "table=0,in_port=$rep2,udp,nw_src=1.1.1.1,tp_src=$src actions=set_field:$vni->tun_id,vxlan0,output:$rep1,output=$rep3"
+	done >> $file
+
+	ovs-ofctl add-flows $br -O openflow13 $file
+	ovs-ofctl dump-flows $br | wc -l
+
 }

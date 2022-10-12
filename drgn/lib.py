@@ -604,6 +604,7 @@ def print_dest(rule):
             (rule.dest_attr.vport.num, rule.dest_attr.vport.vhca_id, rule.dest_attr.vport.flags,
              prog['MLX5_FLOW_DEST_VPORT_VHCA_ID'], prog['MLX5_FLOW_DEST_VPORT_REFORMAT_ID']))
         if rule.dest_attr.vport.pkt_reformat.value_() != 0:
+#             print(rule.dest_attr.vport.pkt_reformat.action.dr_action.reformat)
             print("\t\t\treformat_id: %x" % rule.dest_attr.vport.pkt_reformat.id)
         return
     if prog['MLX5_FLOW_DESTINATION_TYPE_TIR'] == rule.dest_attr.type:
