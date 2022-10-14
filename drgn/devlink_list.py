@@ -22,9 +22,11 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
     print('')
     print("devlink %x" % devlink)
     pci_name = devlink.dev.kobj.name.string_().decode()
+    print(pci_name)
 #     print(devlink)
-    if pci_name != "0000:06:00.0":
-        continue
+#     if pci_name != "0000:06:00.0":
+#         continue
+    continue
 
     print("devlink.dev.kobj.name: %s" % pci_name)
     if pci_name.find("mlx5_core.sf") == 0:
@@ -52,8 +54,8 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
     print("mlx5_core_dev %x" % (mlx5_core_dev.address_of_()))
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
         print("\tport index: %x" % port.index)
-        if port.index & 0xffff == 0xffff:
-             print(port.attrs)
+#         if port.index & 0xffff == 0xffff:
+        print(port.attrs)
 
     print("=== devlink_port ===")
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
@@ -61,12 +63,12 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
 #         if port.index & 0xffff == 0xffff:
 #              print(port.attrs)
 
-    print("=== devlink.param_list ===")
-    print(devlink.param_list)
-    for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
-        print("-------------------------------------------------------------")
-        print(item)
-        print(item.param)
+#     print("=== devlink.param_list ===")
+#     print(devlink.param_list)
+#     for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
+#         print("-------------------------------------------------------------")
+#         print(item)
+#         print(item.param)
 
-DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH = prog['DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH']
-print(DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH.value_())
+# DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH = prog['DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH']
+# print(DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH.value_())

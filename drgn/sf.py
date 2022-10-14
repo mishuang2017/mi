@@ -84,7 +84,7 @@ for node in radix_tree_for_each(mlx5_sf_dev_table.devices.address_of_()):
 #                         .kobj = (struct kobject){
 #                                 .name = (const char *)0xffff9660120d3de0 = "mlx5_core.sf.2",
 
-exit(0)
+# exit(0)
 
 print('')
 dev_head = prog['dev_head']
@@ -100,4 +100,6 @@ for mlx5_devm_device in list_for_each_entry('struct mlx5_devm_device', dev_head.
         print(mlxdevm_rate_group)
 
     for mlx5_devm_port in list_for_each_entry('struct mlx5_devm_port', mlx5_devm_device.device.port_list.address_of_(), 'port.list'):
-        print(mlx5_devm_port)
+#         print(mlx5_devm_port)
+        for i in range(8):
+            print("%x%x%x%x" % mlx5_devm_port.port.dl_port.attrs.switch_id.id[i])

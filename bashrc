@@ -6545,8 +6545,8 @@ function start-switchdev
 sf1=en8f0pf0sf1
 sf2=en8f0pf0sf2
 
-# sf1=eth2
-# sf2=eth3
+sf1=eth2
+sf2=eth3
 
 function sf
 {
@@ -6641,14 +6641,10 @@ function tc_sf
 	TC=/images/cmi/iproute2/tc/tc
 	TC=tc
 
-	local rep2=enp8s0f0npf0sf1
-	local rep3=enp8s0f0npf0sf2
-# 	local rep2=eth2
-# 	local rep3=eth3
- 	local rep2=en8f0pf0sf1
- 	local rep3=en8f0pf0sf2
-	$TC qdisc del dev $rep2 ingress
-	$TC qdisc del dev $rep3 ingress
+ 	local rep2=$sf1
+ 	local rep3=$sf2
+	$TC qdisc del dev $rep2 ingress 2> /dev/null
+	$TC qdisc del dev $rep3 ingress 2> /dev/null
 
 	ethtool -K $rep2 hw-tc-offload on 
 	ethtool -K $rep3 hw-tc-offload on 
@@ -6659,6 +6655,11 @@ function tc_sf
 	src_mac=02:25:00:$host_num:01:01
 	dst_mac=02:25:00:$host_num:01:02
 	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+
+	set +x
+return
+
+
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 	src_mac=02:25:00:$host_num:01:02
