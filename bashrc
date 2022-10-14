@@ -10882,7 +10882,7 @@ function bond_setup
 	set_netns_all 1
 
 	ifconfig bond0 $link_ip
-# 	bond_br
+	bond_br
 
 	return
 
