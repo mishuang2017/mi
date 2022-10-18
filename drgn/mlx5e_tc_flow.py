@@ -32,4 +32,5 @@ for x, dev in enumerate(get_netdevs()):
 
     for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
 #         print(flow.attr.esw_attr[0])
+        print(" --- %d ---" % (i + 1))
         print_mlx5e_tc_flow(flow)

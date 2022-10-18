@@ -12,8 +12,8 @@ import socket
 
 # print(__name__)
 
-# prog = drgn.program_from_core_dump("/var/crash/vmcore.0")
-prog = drgn.program_from_kernel()
+prog = drgn.program_from_core_dump("/var/crash/vmcore.4")
+# prog = drgn.program_from_kernel()
 
 def kernel(name):
     b = os.popen('uname -r')
@@ -1056,7 +1056,6 @@ def print_mlx5e_tc_flow(flow):
     flow_attr = flow.attr
 #     print(flow_attr)
     esw_attr = flow_attr.esw_attr[0]
-#     print(esw_attr)
     parse_attr = flow_attr.parse_attr
     print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
         (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))
@@ -1087,6 +1086,9 @@ def print_mlx5e_tc_flow(flow):
         print(MLX5_ESW_DEST_ENCAP)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP_VALID:
         print(MLX5_ESW_DEST_ENCAP_VALID)
+        if esw_attr.dests[0].termtbl:
+            print("reformat id: %x" % esw_attr.dests[0].termtbl.flow_act.pkt_reformat.action.dr_action.reformat.id)
+            print("flow.encaps[0].e: %x" % flow.encaps[0].e)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE:
         print(MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE)
 

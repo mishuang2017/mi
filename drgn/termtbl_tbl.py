@@ -27,7 +27,7 @@ for i in range(256):
         obj = container_of(node, "struct mlx5_termtbl_handle", "termtbl_hlist")
         print("mlx5_termtbl_handle %lx" % obj.value_())
         mlx5_termtbl_handle = Object(prog, 'struct mlx5_termtbl_handle', address=obj.value_())
-        print(mlx5_termtbl_handle)
+        print("reforamt id: %x" % mlx5_termtbl_handle.flow_act.pkt_reformat.action.dr_action.reformat.id)
         termtbl = mlx5_termtbl_handle.termtbl
         flow_table("termtbl", termtbl)
         node = node.next

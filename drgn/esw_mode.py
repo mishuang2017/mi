@@ -25,8 +25,8 @@ def print_esw(priv):
     print("esw->fdb_table->offloads->send_to_vport_meta_grp: %x" % esw.fdb_table.offloads.send_to_vport_meta_grp)
     print("esw->fdb_table->offloads->send_to_vport_meta_rules: %d" % esw.fdb_table.offloads.send_to_vport_meta_rules)
     print("esw->offloads->inline_mode: %d" % esw.offloads.inline_mode)
-    print(esw.user_count)
-    print(esw.offloads.num_flows)
+    print("user_count: %d" % esw.user_count.counter)
+    print("num_flows %d" % esw.offloads.num_flows.counter)
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
