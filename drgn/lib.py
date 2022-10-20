@@ -12,8 +12,8 @@ import socket
 
 # print(__name__)
 
-prog = drgn.program_from_core_dump("/var/crash/vmcore.4")
-# prog = drgn.program_from_kernel()
+# prog = drgn.program_from_core_dump("/var/crash/vmcore.6")
+prog = drgn.program_from_kernel()
 
 def kernel(name):
     b = os.popen('uname -r')
@@ -605,7 +605,7 @@ def print_dest(rule):
              prog['MLX5_FLOW_DEST_VPORT_VHCA_ID'], prog['MLX5_FLOW_DEST_VPORT_REFORMAT_ID']))
         if rule.dest_attr.vport.pkt_reformat.value_() != 0:
 #             print(rule.dest_attr.vport.pkt_reformat.action.dr_action.reformat)
-            print("\t\t\treformat_id: %x" % rule.dest_attr.vport.pkt_reformat.id)
+            print("\t\t\treformat_id: %x, %x" % (rule.dest_attr.vport.pkt_reformat.id, rule.dest_attr.vport.pkt_reformat))
         return
     if prog['MLX5_FLOW_DESTINATION_TYPE_TIR'] == rule.dest_attr.type:
         print("\t\t\tdest: tir_num: %x" % rule.dest_attr.tir_num)
@@ -1049,6 +1049,10 @@ def print_mlx5_rx_tun_attr(tun_attr):
 #         (ipv4(ntohl(tun_attr.src_ip.v4)), ipv4(ntohl(tun_attr.dst_ip.v4))))
 
 def print_mlx5e_tc_flow(flow):
+    MLX5_ESW_DEST_ENCAP = prog['MLX5_ESW_DEST_ENCAP']
+    MLX5_ESW_DEST_ENCAP_VALID = prog['MLX5_ESW_DEST_ENCAP_VALID']
+    MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE = prog['MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE']
+
     print("===============================")
     name = flow.priv.netdev.name.string_().decode()
 #     print(flow.decap_route)
@@ -1056,6 +1060,9 @@ def print_mlx5e_tc_flow(flow):
     flow_attr = flow.attr
 #     print(flow_attr)
     esw_attr = flow_attr.esw_attr[0]
+    if not esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP_VALID:
+        print("not encap, return")
+        return
     parse_attr = flow_attr.parse_attr
     print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
         (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))
@@ -1078,16 +1085,13 @@ def print_mlx5e_tc_flow(flow):
 
 #     print(flow_attr.sample_attr)
 
-    MLX5_ESW_DEST_ENCAP = prog['MLX5_ESW_DEST_ENCAP']
-    MLX5_ESW_DEST_ENCAP_VALID = prog['MLX5_ESW_DEST_ENCAP_VALID']
-    MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE = prog['MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE']
     print("esw_attr.dests[0].flags: %x" % esw_attr.dests[0].flags)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP:
         print(MLX5_ESW_DEST_ENCAP)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP_VALID:
         print(MLX5_ESW_DEST_ENCAP_VALID)
         if esw_attr.dests[0].termtbl:
-            print("reformat id: %x" % esw_attr.dests[0].termtbl.flow_act.pkt_reformat.action.dr_action.reformat.id)
+            print("reformat id: %x, %x" % (esw_attr.dests[0].termtbl.flow_act.pkt_reformat.action.dr_action.reformat.id, esw_attr.dests[0].termtbl.flow_act.pkt_reformat))
             print("flow.encaps[0].e: %x" % flow.encaps[0].e)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE:
         print(MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE)
