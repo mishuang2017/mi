@@ -439,34 +439,10 @@ function fsdump
 
 alias con='virsh console'
 alias con1='virsh console vm1'
-alias con2='virsh console vm2'
-alias con3='virsh console vm3'
-alias con4='virsh console vm4'
-alias con5='virsh console vm5'
-alias con6='virsh console vm6'
-alias con7='virsh console vm7'
-alias con8='virsh console vm8'
-
-alias mount-image='mount /dev/mapper/centos74-root /mnt'
 alias start1='virsh start vm1'
-alias start2='virsh start vm2'
-alias start3='virsh start vm3'
-
 alias stop1='virsh destroy vm1'
-alias stop2='virsh destroy vm2'
-alias stop3='virsh destroy vm3'
 
 alias start1c='virsh start vm1 --console'
-
-alias restart1='stop1; sleep 5; start1'
-alias restart2='stop2; sleep 5; start2'
-alias restart2='stop3; sleep 5; start3'
-
-alias start-all='start1; start2'
-alias stop-all='stop1; stop2'
-alias start-all3='start1; start2; start3'
-alias stop-all3='stop1; stop2; stop3'
-alias restart-all='stop-all; start-all'
 
 alias dud='du -h -d 1'
 alias dus='du -sh * | sort -h'
@@ -3976,33 +3952,18 @@ function tc_vxlan1
 	local_vm_mac=02:25:d0:$host_num:01:02
 	remote_vm_mac=$vxlan_mac
 
-	ping $link_remote_ip -c 2
-	k=0
-	for(( i = 0; i < 1; i++)); do
-		i1=$(printf "%02x" $i)
-		for(( j = 0; j < 1; j++)); do
-			k=$((k+1))
-			j1=$(printf "%02x" $j)
-			mac1=24:25:d0:e1:${i1}:${j1}
-# 			echo $k
-			if (( k == 4000 )); then
-				ip n flush dev bond0 &
-			fi
+# if dev is uplink, will use termination table
 set -x
-			$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \
-				src_mac $local_vm_mac		\
-				dst_mac $mac1			\
-				action tunnel_key set		\
-				src_ip $link_ip			\
-				dst_ip $link_remote_ip		\
-				dst_port $vxlan_port		\
-				id $vni				\
-				action mirred egress redirect dev $vx &
+	$TC filter add dev $link protocol ip  parent ffff: prio 1 flower $offload \
+		src_mac $local_vm_mac		\
+		dst_mac $remote_vm_mac			\
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
 set +x
-		done
-	done
-# 	ip1
-	ping $link_remote_ip -c 2
 }
 
 # outer v4, inner v4

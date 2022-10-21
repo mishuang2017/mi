@@ -36,7 +36,10 @@ for nhe in list_for_each_entry('struct mlx5e_neigh_hash_entry', addr, 'neigh_lis
         print("\t===================== mlx5e_encap_entry =========================")
 #         print_mlx5e_encap_entry(e)
 #         print(e.flows)
-        print("\tmlx5e_encap_entry %lx, refcnt: %d" % (e.value_(), e.refcnt.refs.counter))
+        print("\tmlx5e_encap_entry %lx, refcnt: %d, pkt_reformat: %x" %
+            (e.value_(), e.refcnt.refs.counter, e.pkt_reformat))
+        if e.pkt_reformat:
+            print("\tencap reformat id: %x" % e.pkt_reformat.action.dr_action.reformat.id)
         print("\tencap %d" % j);
         j=j+1
 #         continue
@@ -46,8 +49,7 @@ for nhe in list_for_each_entry('struct mlx5e_neigh_hash_entry', addr, 'neigh_lis
         for item in list_for_each_entry('struct encap_flow_item', e.flows.address_of_(), 'list'):
             print("\tmlx5e_tc_flow %d" % k);
             k=k+1
-            print("\tflow %d" % k);
-            print(item)
+#             print(item)
             size = prog.type('struct encap_flow_item').size
 #             print(item.index)
             flow = container_of(item + size * item.index, "struct mlx5e_tc_flow", "encaps")

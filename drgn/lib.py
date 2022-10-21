@@ -1011,6 +1011,7 @@ def print_mlx5e_encap_entry(e):
 #         print("%#x " % e.encap_header[i])
     print("mlx5e_encap_entry %lx" % e.value_())
     print_tun(e.tun_info)
+    print(e.pkt_reformat)
     print("--- end ---")
 
 def print_mlx5e_tc_flow_flags():
@@ -1091,7 +1092,9 @@ def print_mlx5e_tc_flow(flow):
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP_VALID:
         print(MLX5_ESW_DEST_ENCAP_VALID)
         if esw_attr.dests[0].termtbl:
-            print("reformat id: %x, %x" % (esw_attr.dests[0].termtbl.flow_act.pkt_reformat.action.dr_action.reformat.id, esw_attr.dests[0].termtbl.flow_act.pkt_reformat))
+            print("reformat id: %x, termtbl.flow_act.pkt_reformat %x" %
+                (esw_attr.dests[0].termtbl.flow_act.pkt_reformat.action.dr_action.reformat.id,
+                esw_attr.dests[0].termtbl.flow_act.pkt_reformat))
             print("flow.encaps[0].e: %x" % flow.encaps[0].e)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE:
         print(MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE)
