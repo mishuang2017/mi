@@ -241,9 +241,10 @@ def print_cls_fl_filter(f):
 
 def get_netdevs():
     devs = []
-    dev_base_head = prog['init_net'].dev_base_head.address_of_()
-    for dev in list_for_each_entry('struct net_device', dev_base_head, 'dev_list'):
-        devs.append(dev)
+    for net in for_each_net(prog):
+        dev_base_head = net.dev_base_head.address_of_()
+        for dev in list_for_each_entry('struct net_device', dev_base_head, 'dev_list'):
+            devs.append(dev)
     return devs
 
 def get_bond0():
