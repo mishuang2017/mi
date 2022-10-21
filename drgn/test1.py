@@ -24,8 +24,7 @@ if new_devs[0] in new_devs:
 else:
     print("false")
 
-
-print(__name__)
-
 mlx5e_priv = get_mlx5_pf0()
-print(mlx5e_priv.wq)
+print(mlx5e_priv.netdev.name)
+mlx5e_priv = get_mlx5_pf1()
+print(mlx5e_priv.netdev.name)

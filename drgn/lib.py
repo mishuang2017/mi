@@ -290,33 +290,23 @@ def get_mlx5(dev):
     mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
     return mlx5e_priv
 
-def get_mlx5e_priv(n):
-    for x, dev in enumerate(get_netdevs()):
-        name = dev.name.string_().decode()
-        if name == n:
-            mlx5e_priv = get_mlx5(dev)
+def get_mlx5e_priv(name):
+    dev = netdev_get_by_name(prog['init_net'], name)
+    mlx5e_priv = get_mlx5(dev)
     return mlx5e_priv
 
 def get_mlx5_pf0():
-    for x, dev in enumerate(get_netdevs()):
-        name = dev.name.string_().decode()
-        if name == pf0_name:
-            mlx5e_priv = get_mlx5(dev)
+    dev = netdev_get_by_name(prog['init_net'], pf0_name)
+    mlx5e_priv = get_mlx5(dev)
     return mlx5e_priv
 
 def get_mlx5_pf1():
-    for x, dev in enumerate(get_netdevs()):
-        name = dev.name.string_().decode()
-        if name == pf1_name:
-            mlx5e_priv = get_mlx5(dev)
+    dev = netdev_get_by_name(prog['init_net'], pf1_name)
+    mlx5e_priv = get_mlx5(dev)
     return mlx5e_priv
 
-
 def get_pf0_netdev():
-    for x, dev in enumerate(get_netdevs()):
-        name = dev.name.string_().decode()
-        if name == pf0_name:
-            return dev
+    dev = netdev_get_by_name(prog['init_net'], pf0_name)
 
 def get_mlx5e_rep_priv():
     mlx5e_priv = get_mlx5_pf0()
