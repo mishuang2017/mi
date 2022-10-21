@@ -10906,87 +10906,6 @@ alias n1_udp_client="ip netns exec n11 /labhome/cmi/mi/prg/c/udp-client/udp-clie
 alias ns1_udp_server="ip netns exec ns1 /labhome/cmi/mi/prg/c/udp-server/udp-server"
 alias ns0_udp_client="ip netns exec ns0 /labhome/cmi/mi/prg/c/udp-client/udp-client -t 10000 -c"
 
-function udp1
-{
-	local n=1
-	[[ $# == 1 ]] && n=$1
-	pkill udp-client
-	for (( i = 0; i < n; i++ )); do
-		udp-client -c 1.1.1.23 -t 10000 -i 1
-	done
-}
-
-function udp2
-{
-    local n=1;
-    [[ $# == 1 ]] && n=$1;
-    pkill udp-client;
-    for ((i = 0; i < n; i++ ))
-    do
-	/labhome/cmi/prg/c/udp-client/udp-client -c 1.1.3.2 -t 10000 -i 1;
-    done
-}
-
-function dr
-{
-set -x
-	tc-setup $rep2
-	src_mac=02:25:d0:$host_num:01:02
-#	tc filter add dev $rep2 ingress protocol arp flower  src_mac $src_mac action mirred egress redirect dev $rep3
-	tc filter add dev $rep2 ingress protocol arp flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-#	tc filter add dev $rep2 ingress prio 2 protocol arp flower   src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-set +x
-}
-
-function ip-n8
-{
-set -x
-	ip n change 1.1.1.23 lladdr 02:25:d0:13:01:08 dev enp4s0f3
-set +x
-}
-
-function ip-n7
-{
-set -x
-	ip n change 1.1.1.23 lladdr 02:25:d0:13:01:07 dev enp4s0f3
-set +x
-}
-
-
-function tc-wrong
-{
-set -x
-	tc-setup $rep2
-	tc filter add dev $rep2 ingress protocol arp flower src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $vx_rep
-set +x
-}
-
-# tc_get_tfilter will be called
-function tc-filter-get
-{
-	tc -s filter get dev $rep2 handle 1 protocol ip prio 1 parent ffff: flower
-}
-
-# tc_del_tfilter will be called
-function tc-filter-del
-{
-	 tc filter del dev $rep2 handle 1 protocol ip prio 1 parent ffff: flower
-}
-
-# /proc/sys/net/ipv4/icmp_ratelimit
-
-# test-vf-vf-fwd-fl_classify.sh
-function fl_classify
-{
-set -x
-	tc-setup $rep1
-	tc-setup $rep2
-	tc filter add dev enp4s0f0_0 ingress protocol ip prio 1 flower skip_sw dst_mac 02:25:d0:13:01:01 action mirred egress redirect dev enp4s0f0_1
-	tc filter add dev enp4s0f0_1 ingress protocol ip prio 1 flower skip_sw dst_mac 02:25:d0:13:01:02 action mirred egress redirect dev enp4s0f0_0
-	tc filter add dev enp4s0f0_0 ingress protocol ip prio 1 flower skip_sw dst_mac 02:25:d0:13:01:01 action mirred egress redirect dev enp4s0f0_1
-set +x
-}
-
 # nf_ct_tcp_be_liberal
 function jd-proc
 {
@@ -11020,29 +10939,6 @@ scapy_device=$link
 
 alias scapyc="scapy-traffic-tester.py -i $scapy_device --src-ip $src_ip --dst-ip $dst_ip --inter 1 --time $scapy_time --pkt-count $scapy_time"
 alias scapyl="scapy-traffic-tester.py -i $scapy_device -l --src-ip $src_ip --inter 1 --time $scapy_time --pkt-count $scapy_time"
-
-# alias test2="modprobe -r mlx5_core; modprobe -v mlx5_core; ip link set dev $link up"
-
-function git-push
-{
-	[[ $# != 2 ]] && return
-	git push origin HEAD:refs/for/$1/$2
-}
-
-function load-ofed
-{
-set -x
-	modprobe devlink
-	cdr
-	local dir=/lib/modules/$(uname -r)
-	insmod $dir/extra/mlnx-ofa_kernel/compat/mlx_compat.ko
-	insmod $dir/extra/mlnx-ofa_kernel/drivers/infiniband/core/ib_core.ko
-	insmod $dir/extra/mlnx-ofa_kernel/drivers/infiniband/core/ib_uverbs.ko
-	insmod $dir/extra/mlnx-ofa_kernel/drivers/net/ethernet/mellanox/mlxfw/mlxfw.ko
-	insmod $dir/extra/mlnx-ofa_kernel/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.ko
-	insmod $dir/extra/mlnx-ofa_kernel/drivers/infiniband/hw/mlx5/mlx5_ib.ko
-set +x
-}
 
 function yum_bcc
 {
@@ -11368,7 +11264,8 @@ function set-time
 set -x
 	cd /etc
 	/bin/rm -rf  localtime
-	ln -s ../usr/share/zoneinfo/Asia/Shanghai  localtime
+	ln -s ../usr/share/zoneinfo/Asia/Shanghai localtime
+# 	ln -s ../usr/share/zoneinfo/Asia/Jerusalem localtime
 set +x
 }
 
@@ -11383,8 +11280,6 @@ function dos
 		dos2unix -n *${name}* ${name}.patch
 	done
 }
-
-b=$(test -f .git/index > /dev/null 2>&1 && git branch | grep \* | cut -d ' ' -f2)
 
 function branch
 {
@@ -11466,25 +11361,6 @@ function tc_nic_chain
 
 alias clone_perftest='git clone https://github.com/linux-rdma/perftest.git'
 
-function install-tools
-{
-	sm
-	clone-crash
-	cd crash
-	make -j
-
-	sm
-	clone-systemtap
-	cd systemtap
-	make-local
-
-	if (( centos == 0 )); then
-		sm
-		clone-bcc
-		install-bcc
-	fi
-}
-
 function install-debuginfo
 {
 	yum --enablerepo=base-debuginfo install -y kernel-debuginfo-$(uname -r)
@@ -11511,11 +11387,6 @@ function qinq-br
 		-- set interface patch2 type=patch options:peer=patch1
 }
 
-alias rxvlan-off="ethtool -K $link rxvlan off"
- 
-alias vm-vlan="ip l d vlan5 &> /dev/null; vlan $vf2 5 1.1.$host_num.1"
-alias vm-ip="ip l d vlan5 &> /dev/null; ip addr add dev $vf2 1.1.$host_num.1/16"
-alias q-rule=qinq-rule
 function qinq-rule
 {
 set -x
@@ -11615,53 +11486,6 @@ alias fin2="fin $rep2"
 
 alias proc-iperf="cd /proc/$(pidof iperf)/fd"
 
-function ipna
-{
-set -x
-	if (( host_num == 13 )); then
-		ip n d 192.168.1.14 dev enp4s0f0
-		ip n a 192.168.1.14 lladdr 24:8a:07:88:27:ca dev $link
-	fi
-	if (( host_num == 14 )); then
-		ip n d 192.168.1.13 dev enp4s0f0
-		ip n a 192.168.1.13 lladdr 24:8a:07:88:27:9a dev $link
-	fi
-set +x
-}
-
-function ipnd
-{
-set -x
-	if (( host_num == 13 )); then
-		ip n d 192.168.1.14 dev enp4s0f0
-	fi
-	if (( host_num == 14 )); then
-		ip n d 192.168.1.13 dev enp4s0f0
-	fi
-set +x
-}
-
-function rx-tx-on
-{
-set -x
-	ethtool -K $link rx on tx on
-set +x
-}
-
-function rx-tx-off
-{
-set -x
-	ethtool -K $link rx off tx off
-set +x
-}
-
-function msi
-{
-	a=$((1144-127))
-	a=$((1536-127))
-	b=$((a/240))
-	echo $b
-}
 # cat /etc/trex_cfg.yaml
 
 ### Config file generated by dpdk_setup_ports.py ###
