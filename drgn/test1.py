@@ -28,3 +28,23 @@ mlx5e_priv = get_mlx5_pf0()
 print(mlx5e_priv.netdev.name)
 mlx5e_priv = get_mlx5_pf1()
 print(mlx5e_priv.netdev.name)
+
+https://drgn.readthedocs.io/en/latest/case_studies/kyber_stack_trace.html
+
+i=1
+for task in for_each_task(prog):
+#     print("\n=================== %4d: %x ==================\n" % (i, task))
+    i=i+1
+    trace = prog.stack_trace(task)
+#     if "mlx5" in stack:
+#     print(trace)
+
+print(trace)
+dev = trace[17]["dev"]
+flow = trace[17]["flow"]
+print(dev.name)
+print(flow)
+
+# task = per_cpu(prog["runqueues"], prog["crashing_cpu"]).curr
+# print(task)
+# print(prog.stack_trace(task))
