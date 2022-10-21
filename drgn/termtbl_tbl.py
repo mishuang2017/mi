@@ -29,9 +29,9 @@ for i in range(256):
         print(mlx5_termtbl_handle)
         print("mlx5_termtbl_handle %x, ref_count: %d" %
             (mlx5_termtbl_handle.address_of_(), mlx5_termtbl_handle.ref_count))
-        print("reformat id: %x, mlx5_pkt_reformat %x" %
-            (mlx5_termtbl_handle.flow_act.pkt_reformat.action.dr_action.reformat.id,
-            mlx5_termtbl_handle.flow_act.pkt_reformat))
+#         print("reformat id: %x, mlx5_pkt_reformat %x" %
+#             (mlx5_termtbl_handle.flow_act.pkt_reformat.action.dr_action.reformat.id,
+#             mlx5_termtbl_handle.flow_act.pkt_reformat))
         termtbl = mlx5_termtbl_handle.termtbl
         flow_table("termtbl", termtbl)
         node = node.next
