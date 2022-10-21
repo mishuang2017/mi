@@ -10,8 +10,8 @@ test -f /usr/bin/lsb_release && debian=1
 ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
-numvfs=16
 numvfs=3
+numvfs=64
 
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
@@ -110,28 +110,6 @@ if (( host_num == 13 )); then
 
 	remote_mac=b8:59:9f:bb:31:82
 
-	if (( link_name == 2 )); then
-		for (( i = 0; i < numvfs; i++)); do
-			eval vf$((i+1))=${link}v$i
-			eval rep$((i+1))=${link_pre}pf0vf$i
-		done
-
-		for (( i = 0; i < numvfs; i++)); do
-			eval vf$((i+1))_2=${link2}v$i
-			eval rep$((i+1))_2=${link2_pre}pf1vf$i
-		done
-	fi
-
-	if (( link_name == 1 )); then
-		for (( i = 0; i < numvfs; i++)); do
-			eval vf$((i+1))=${link}v$i
-			eval rep$((i+1))=${link}_$i
-
-			eval vf$((i+1))_2=${link2}v$i
-			eval rep$((i+1))_2=${link2}_$i
-		done
-	fi
-
 	test -f /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
 	if [[ $? == 0 && "$USER" == "root" ]]; then
 		echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal;
@@ -172,16 +150,6 @@ elif (( host_num == 14 )); then
 		eval rep$((i+1))_2=${link2_pre}pf1vf$i
 	done
 
-	if (( link_name == 1 )); then
-		for (( i = 0; i < numvfs; i++)); do
-			eval vf$((i+1))=${link}v$i
-			eval rep$((i+1))=${link}_$i
-
-			eval vf$((i+1))_2=${link2}v$i
-			eval rep$((i+1))_2=${link2}_$i
-		done
-	fi
-
 # 	modprobe aer-inject
 
 	test -f /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
@@ -195,28 +163,10 @@ link_remote_ip=192.168.1.$rhost_num
 link2_remote_ip=192.168.2.$rhost_num
 link_remote_ipv6=1::$rhost_num
 
-if (( link_name == 1 )); then
-	for (( i = 0; i < numvfs; i++)); do
-		eval vf$((i+1))=${link}v$i
-		eval rep$((i+1))=${link}_$i
-	done
-fi
-
 if (( cloud == 1 )); then
 	link_name=1
 	link=enp8s0f0
 	link2=enp8s0f1
-	link3=enp9s0f0
-
-	for (( i = 0; i < numvfs; i++)); do
-		eval vf$((i+1))=$(get_vf $host_num 1 $((i+1)))
-		eval rep$((i+1))=${link}_$i
-		eval sf$((i+1))=${link}npf0sf$((i+1))
-	done
-	for (( i = 0; i < numvfs; i++)); do
-		eval vf$((i+1))_2=$(get_vf $host_num 2 $((i+1)))
-		eval rep$((i+1))_2=${link2}_$i
-	done
 
 	link_remote_ip=192.168.1.$rhost_num
 	vf1=enp8s0f2
@@ -333,7 +283,6 @@ fi
 
 alias scp='scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
 alias ssh='ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
-alias noga='/.autodirect/sw_tools/Internal/Noga/RELEASE/latest/cli/noga_manage.py'
 
 cx5=0
 function get_pci
