@@ -3873,29 +3873,14 @@ function tc_vxlan1
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 
 	TC=tc
-	redirect=$rep2
 	ip1
 	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
-	ip link set $vx up
-
+	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
-	$TC qdisc del dev $redirect ingress > /dev/null 2>&1
-	$TC qdisc del dev $vx ingress > /dev/null 2>&1
-
 	ethtool -K $link hw-tc-offload on
-	ethtool -K $redirect  hw-tc-offload on
 
 	$TC qdisc add dev $link ingress
-	$TC qdisc add dev $redirect ingress
-	$TC qdisc add dev $vx ingress
-#	$TC qdisc add dev $link clsact
-#	$TC qdisc add dev $redirect clsact
-#	$TC qdisc add dev $vx clsact
-
 	ip link set $link promisc on
-	ip link set $redirect promisc on
-	ip link set $vx promisc on
 
 	local_vm_mac=02:25:d0:$host_num:01:02
 	remote_vm_mac=$vxlan_mac
