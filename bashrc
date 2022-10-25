@@ -1014,6 +1014,7 @@ function cloud_linux
 	cd /images/cmi
 	cp /swgwork/cmi/linux.tar.gz .
 	tar zvxf linux.tar.gz
+	/bin/rm -f linux.tar.gz &
 	cd linux
 	/bin/cp -f ~cmi/mi/config .config
 	sml
