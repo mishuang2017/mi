@@ -24,7 +24,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #         continue
 #     print(devlink.ops)
 
-    print("devlink.dev.kobj.name: %s" % pci_name)
+    print("========================== devlink.dev.kobj.name: %s =========================" % pci_name)
 #     print(devlink)
 #     if pci_name.find("mlx5_core.sf") == 0:
 #         auxiliary_device = container_of(devlink.dev, 'struct auxiliary_device', "dev")
@@ -51,10 +51,14 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
     print("=== devlink_port ===")
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
+        print(port.type)
+        netdev = Object(prog, 'struct net_device', address=port.type_dev)
+        print(netdev.name)
         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
 #              print(port.attrs)
 
+    continue
     print("=== devlink.param_list ===")
     print(devlink.param_list)
     for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
