@@ -171,6 +171,9 @@ if (( cloud == 1 )); then
 	vf1=enp8s0f2
 	vf2=enp8s0f3
 	vf3=enp8s0f4
+	rep1=enp8s0f0_0
+	rep1=enp8s0f0_1
+	rep1=enp8s0f0_2
 	(( host_num == 43 )) && remote_mac=0c:42:a1:d1:d1:80
 fi
 
@@ -10724,7 +10727,8 @@ function bond_br
 	restart-ovs
 	del-br
 	ovs-vsctl add-br $br
-	ovs-vsctl add-port $br bond0
+# 	ovs-vsctl add-port $br bond0
+	vxlan1
 	for (( i = 0; i < numvfs; i++)); do
 		local rep=$(get_rep $i)
 		ovs-vsctl add-port $br $rep
