@@ -172,8 +172,8 @@ if (( cloud == 1 )); then
 	vf2=enp8s0f3
 	vf3=enp8s0f4
 	rep1=enp8s0f0_0
-	rep1=enp8s0f0_1
-	rep1=enp8s0f0_2
+	rep2=enp8s0f0_1
+	rep3=enp8s0f0_2
 	(( host_num == 43 )) && remote_mac=0c:42:a1:d1:d1:80
 fi
 
