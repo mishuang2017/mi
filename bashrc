@@ -3903,6 +3903,44 @@ set -x
 set +x
 }
 
+function tc_vxlan2
+{
+	offload=""
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+
+	TC=tc
+	ip1
+	ip link del $vx > /dev/null 2>&1
+	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
+	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1
+	ethtool -K $rep2 hw-tc-offload on
+
+	$TC qdisc add dev $rep2 ingress
+	ip link set $rep2 promisc on
+
+	local_vm_mac=02:25:d0:$host_num:01:02
+	remote_vm_mac=$vxlan_mac
+
+set -x
+	$TC filter add dev $rep2 protocol ip  parent ffff: prio 1 flower $offload \
+		src_mac $local_vm_mac		\
+		dst_mac $remote_vm_mac			\
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx \
+		action tunnel_key set		\
+		src_ip 192.168.1.5			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+set +x
+}
+
 # outer v4, inner v4
 function tc_vxlan
 {

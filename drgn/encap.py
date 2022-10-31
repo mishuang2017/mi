@@ -34,12 +34,12 @@ for nhe in list_for_each_entry('struct mlx5e_neigh_hash_entry', addr, 'neigh_lis
     j=1
     for e in list_for_each_entry('struct mlx5e_encap_entry', nhe.encap_list.address_of_(), 'encap_list'):
         print("\t===================== mlx5e_encap_entry =========================")
-#         print_mlx5e_encap_entry(e)
+        print_mlx5e_encap_entry(e)
 #         print(e.flows)
         print("\tmlx5e_encap_entry %lx, refcnt: %d, pkt_reformat: %x" %
             (e.value_(), e.refcnt.refs.counter, e.pkt_reformat))
-        if e.pkt_reformat:
-            print("\tencap reformat id: %x" % e.pkt_reformat.action.dr_action.reformat.id)
+#         if e.pkt_reformat:
+#             print("\tencap reformat id: %x" % e.pkt_reformat.action.dr_action.reformat.id)
         print("\tencap %d" % j);
         j=j+1
 #         continue
