@@ -11,6 +11,8 @@ ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
 numvfs=3
+ports=1
+ports=2
 
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
@@ -195,8 +197,6 @@ vxlan_port=4789
 vxlan_mac=24:25:d0:e1:00:00
 vxlan_mac2=24:25:d0:e2:00:00
 ecmp=0
-ports=2
-ports=1
 
 base_baud=115200
 base_baud=9600
