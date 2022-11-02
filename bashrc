@@ -10,9 +10,9 @@ test -f /usr/bin/lsb_release && debian=1
 ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
-numvfs=3
-ports=1
+numvfs=1
 ports=2
+ports=1
 
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
@@ -13688,4 +13688,20 @@ function br_flow_key
 	ovs-ofctl add-flows $br -O openflow13 $file
 	ovs-ofctl dump-flows $br | wc -l
 
+}
+
+function port1
+{
+	reprobe
+	sleep 1
+	on-sriov
+	on-sriov2
+	un
+	un2
+	dev
+	dev2
+	rmmod mlx5_ib
+	dev off
+	echo 0 > /sys/class/net/$link2/device/sriov_numvfs
+	echo 1 > /sys/class/net/$link2/device/sriov_numvfs
 }
