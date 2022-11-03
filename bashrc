@@ -10,7 +10,7 @@ test -f /usr/bin/lsb_release && debian=1
 ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
-numvfs=1
+numvfs=2
 ports=2
 ports=1
 
@@ -13696,6 +13696,8 @@ function port1
 	sleep 1
 	on-sriov
 	on-sriov2
+	set_mac
+	set_mac 2
 	un
 	un2
 	dev
@@ -13703,5 +13705,6 @@ function port1
 	rmmod mlx5_ib
 	dev off
 	echo 0 > /sys/class/net/$link2/device/sriov_numvfs
-	echo 1 > /sys/class/net/$link2/device/sriov_numvfs
+	echo $numvfs > /sys/class/net/$link2/device/sriov_numvfs
+	set_mac 2
 }

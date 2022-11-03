@@ -14,7 +14,7 @@ mlx5e_priv = get_mlx5_pf0()
 # struct mlx5_eswitch_rep
 
 mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
-print(mlx5e_priv.ppriv)
+# print(mlx5e_priv.ppriv)
 vports = mlx5_eswitch.offloads.vport_reps
 total_vports = mlx5_eswitch.total_vports
 enabled_vports = mlx5_eswitch.enabled_vports

@@ -13,6 +13,7 @@ from lib import *
 
 def print_esw(priv):
     esw = mlx5e_priv.mdev.priv.eswitch
+    print("mlx5_eswitch %#x" % esw)
     print("mlx5_core_dev %#x" % priv.mdev)
     print("esw->flags: %#x" % esw.flags)
     print("mode: %d" % esw.mode)
@@ -28,7 +29,9 @@ def print_esw(priv):
     print("user_count: %d" % esw.user_count.counter)
     print("num_flows %d" % esw.offloads.num_flows.counter)
 
+print("===================== port 1 =======================")
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
+print("===================== port 2 =======================")
 mlx5e_priv2 = get_mlx5e_priv(pf1_name)
-# print_esw(mlx5e_priv2)
+print_esw(mlx5e_priv2)
