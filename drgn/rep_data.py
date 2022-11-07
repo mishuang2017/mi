@@ -11,11 +11,11 @@ from lib import *
 
 # struct mlx5_eswitch_rep
 
-def print_meter(mlx5e_priv):
+def print_rep_data(mlx5e_priv):
     mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
+    print(mlx5e_priv.ppriv)
     if mlx5e_priv.ppriv.value_() == 0:
         return
-    print(mlx5e_priv.ppriv)
     vports = mlx5_eswitch.offloads.vport_reps
     total_vports = mlx5_eswitch.total_vports
     enabled_vports = mlx5_eswitch.enabled_vports
@@ -38,8 +38,8 @@ def print_meter(mlx5e_priv):
 
 print("========================= port 1 =====================")
 mlx5e_priv = get_mlx5_pf0()
-print_meter(mlx5e_priv)
+print_rep_data(mlx5e_priv)
 print("========================= port 2 =====================")
 mlx5e_priv = get_mlx5_pf1()
-print_meter(mlx5e_priv)
+print_rep_data(mlx5e_priv)
 

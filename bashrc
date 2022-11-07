@@ -13703,8 +13703,31 @@ function port1
 	dev
 	dev2
 	rmmod mlx5_ib
-	dev off
+	read
+	dev off	 # load mlx5_ib
+	read
 	echo 0 > /sys/class/net/$link2/device/sriov_numvfs
 	echo $numvfs > /sys/class/net/$link2/device/sriov_numvfs
 	set_mac 2
+}
+
+function port2
+{
+	restart; rmmod mlx5_ib; off0
+	modprobe mlx5_ib	# set port to register state
+	on-sriov		# the fix will work and ib port stat will be loaded
+}
+
+function port3
+{
+	restart
+	rmmod mlx5_ib
+	off0
+	# modprobe mlx5_ib	# module is not loaded
+	on-sriov		# even without the fix, will not hit the error
+
+# mlx5_device_enable_sriov:82:(pid 36040): failed to enable eswitch SRIOV (-22)
+# mlx5_sriov_enable:164:(pid 36040): mlx5_device_enable_sriov failed : -22
+
+	# But the ib port state is REP_REGISTERED instead of REP_LOADED
 }
