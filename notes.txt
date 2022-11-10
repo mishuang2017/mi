@@ -9287,6 +9287,9 @@ _Static_assert(FLOW_DISSECTOR_KEY_CT <= 24);
 
 #pragma message "test1"
 
+# no tab or space in the beginning
+$(info TC_CT)
+
 ===hosts===
 
 TYPE=Ethernet
