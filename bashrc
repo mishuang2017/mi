@@ -9493,6 +9493,7 @@ function v
 	local file=$(echo ${1%:*})
 	if echo $file | grep :; then
 		local file2=$(echo $file | sed "s/:/\ +/")
+		file2=$(echo $file2 | sed "s/:.*//")
 		vim $file2
 	else
 		local file2=$(echo $1 | sed "s/:/\ +/")
