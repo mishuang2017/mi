@@ -401,7 +401,7 @@ def print_mlx5_flow_handle(handle):
 #     print("=== mlx5_flow_handle end ===\n")
 
 def print_mlx5e_tc_flow_rules(rules):
-    print(rules.num_rules)
+#     print(rules.num_rules)
     if rules[0]:
         print_mlx5_flow_handle(rules[0])
     if rules[1]:
