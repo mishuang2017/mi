@@ -1078,6 +1078,7 @@ def print_mlx5e_tc_flow(flow):
 
 #     print(flow_attr.sample_attr)
 
+    print(esw_attr)
     print(esw_attr.dests[0])
     print(esw_attr.dests[1])
     print(esw_attr.dests[2])
