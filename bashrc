@@ -10,7 +10,7 @@ test -f /usr/bin/lsb_release && debian=1
 ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
-numvfs=2
+numvfs=3
 ports=2
 ports=1
 
@@ -116,6 +116,10 @@ if (( host_num == 13 )); then
 		echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal;
 		echo 2000000 > /proc/sys/net/netfilter/nf_conntrack_max
 	fi
+
+	rep1=enp4s0f0_0
+	rep2=enp4s0f0_1
+	rep3=enp4s0f0_2
 
 # 	modprobe aer-inject
 
