@@ -54,3 +54,4 @@ for nhe in list_for_each_entry('struct mlx5e_neigh_hash_entry', addr, 'neigh_lis
 #             print(item.index)
             flow = container_of(item + size * item.index, "struct mlx5e_tc_flow", "encaps")
             print_mlx5e_tc_flow(flow)
+            print_completion(flow.init_done)

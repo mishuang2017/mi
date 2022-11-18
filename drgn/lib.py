@@ -12,8 +12,8 @@ import socket
 
 # print(__name__)
 
-# prog = drgn.program_from_core_dump("/var/crash/vmcore.7")
-prog = drgn.program_from_kernel()
+prog = drgn.program_from_core_dump("/var/crash/vmcore.3")
+# prog = drgn.program_from_kernel()
 
 def kernel(name):
     b = os.popen('uname -r')
@@ -1089,11 +1089,6 @@ def print_mlx5e_tc_flow(flow):
 #     print(flow_attr.sample_attr)
 
     print(esw_attr)
-    print(esw_attr.dests[0])
-    print(esw_attr.dests[1])
-    print(esw_attr.dests[2])
-    print(esw_attr.dests[3])
-    print("esw_attr.dests[0].flags: %x" % esw_attr.dests[0].flags)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP:
         print(MLX5_ESW_DEST_ENCAP)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP_VALID:
@@ -1185,3 +1180,10 @@ def print_fib_info(fib):
     print("fib_nhs: %d" % fib.fib_nhs)
     for j in range(fib.fib_nhs):
         print_fib_nh(fib.fib_nh[j])
+
+def print_completion(completion):
+    task_list = completion.wait.task_list
+    for swait_queue in list_for_each_entry('struct swait_queue', task_list.address_of_(), 'task_list'):
+#         print(swait_queue)
+        trace = prog.stack_trace(swait_queue.task)
+        print(trace)
