@@ -12,8 +12,8 @@ import socket
 
 # print(__name__)
 
-prog = drgn.program_from_core_dump("/var/crash/vmcore.3")
-# prog = drgn.program_from_kernel()
+# prog = drgn.program_from_core_dump("/var/crash/vmcore.0")
+prog = drgn.program_from_kernel()
 
 def kernel(name):
     b = os.popen('uname -r')
@@ -1057,6 +1057,7 @@ def print_mlx5e_tc_flow(flow):
     MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE = prog['MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE']
 
     print("===============================")
+#     print(flow)
     name = flow.priv.netdev.name.string_().decode()
 #     print(flow.decap_route)
     print_mlx5e_tc_flow_rules(flow.rule)
