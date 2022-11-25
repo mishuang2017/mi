@@ -3937,7 +3937,7 @@ set -x
 		id $vni				\
 		action mirred egress redirect dev $vx \
 		action tunnel_key set		\
-		src_ip 192.168.1.5			\
+		src_ip 192.168.1.200			\
 		dst_ip $link_remote_ip		\
 		dst_port $vxlan_port		\
 		id $vni				\
@@ -12293,11 +12293,17 @@ function tc-5t
 
 function github_push
 {
+	rep=mi
+	branch=main
+	if [[ $# == 1 ]]; then
+		rep=$1
+		branch=master
+	fi
 	git remote rm origin
-	git remote add origin git@github.com:mishuang2017/mi.git
+	git remote add origin git@github.com:mishuang2017/$rep.git
 # 	git remote add origin https://github.com/mishuang2017/mi.git
 # 	git push -u origin master
-	git push --set-upstream origin main
+	git push --set-upstream origin $branch
 }
 
 function modules
