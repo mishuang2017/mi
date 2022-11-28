@@ -12,11 +12,15 @@ from lib_pedit import *
 
 mlx5e_rep_priv = get_mlx5e_rep_priv()
 ct_priv = mlx5e_rep_priv.uplink_priv.ct_priv
-tunnel_mapping = mlx5e_rep_priv.uplink_priv.tunnel_mapping
-labels_mapping = ct_priv.labels_mapping
-zone_mapping = ct_priv.zone_mapping
+# tunnel_mapping = mlx5e_rep_priv.uplink_priv.tunnel_mapping
+# labels_mapping = ct_priv.labels_mapping
+# zone_mapping = ct_priv.zone_mapping
 
-# print(ct_priv)
+print(ct_priv.debugfs)
+
+print(ct_priv.dev.priv.dbg.dbg_root)
+
+exit(0)
 print("\n=== mlx5e_rep_priv.uplink_priv.ct_priv.zone_ht ===")
 zone_ht = ct_priv.zone_ht
 # print(zone_ht)
