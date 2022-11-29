@@ -9598,8 +9598,7 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-tc-par-add-del-vxlan-nic.sh
-test1=test-tc-hairpin-disable-sriov.sh
+test1=test-eswitch-devlink-reload.sh
 alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
@@ -13634,8 +13633,6 @@ function setpci_err_inject
 	 setpci -s $pci COMMAND=0540
 }
 
-alias ibdev2netdev=/usr/bin/ibdev2netdev
-
 function build_ctags
 {
 	sm
@@ -13742,4 +13739,9 @@ function port3
 # mlx5_sriov_enable:164:(pid 36040): mlx5_device_enable_sriov failed : -22
 
 	# But the ib port state is REP_REGISTERED instead of REP_LOADED
+}
+
+function reload
+{
+	devlink dev reload pci/$pci
 }
