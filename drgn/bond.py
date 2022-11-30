@@ -42,5 +42,8 @@ for x, dev in enumerate(get_netdevs()):
 
     bond_addr = dev.value_() + prog.type('struct net_device').size
     bonding = Object(prog, 'struct bonding', address=bond_addr)
-    print("bonding.curr_active_slave: %s" % bonding.curr_active_slave.dev.name.string_().decode())
+    curr_active_slave = bonding.curr_active_slave
+    if curr_active_slave:
+        print("bonding.curr_active_slave: %s" % bonding.curr_active_slave.dev.name.string_().decode())
+    print(bonding.params.mode)
 #     print(bonding)
