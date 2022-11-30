@@ -10743,10 +10743,11 @@ set -x
 	ip link set dev $link2 down
 
 	ip link add name bond0 type bond
-	ip link set dev bond0 type bond mode active-backup miimon 100
+# 	ip link set dev bond0 type bond mode active-backup miimon 100
+
 # 	ip link add name bond0 type bond mode active-backup miimon 100
 
-# 	ip link set dev bond0 type bond mode 802.3ad
+	ip link set dev bond0 type bond mode 802.3ad
 # 	ip link set dev bond0 type bond mode balance-rr
 
 	# bi # have syndrom 0x7d49cb
