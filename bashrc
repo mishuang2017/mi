@@ -1044,8 +1044,10 @@ function cloud_setup
 # 	build_ctags
 	sudo yum install -y cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
 		python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
-		bcc-tools python-devel \
-		libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
+		bcc-tools
+	sudo yum install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
+	sudo yum install -y python-devel
+	sudo yum install -y platform-python-devel
 # 	sudo yum install -y memstrack busybox
 
 	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering
@@ -1103,7 +1105,7 @@ alias cl_setup=cloud_setup
 
 function cloud_ofed_cp
 {
-	cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
+	test -d /swgwork/cmi/mlnx-ofa_kernel-4.0 || cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
 }
 alias cl_ofed_cp=cloud_ofed_cp
 
@@ -8984,11 +8986,6 @@ set -x
 set +x
 }
 
-# [root@dev-r630-03 bin]# dp dump-flows
-# recirc_id(0xa),in_port(4),ct_state(+trk),ct_mark(0x1),eth(),eth_type(0x0800),ipv4(proto=6,frag=no), packets:63, bytes:4158, used:0.814s, flags:., actions:3
-# recirc_id(0),in_port(3),eth(),eth_type(0x0800),ipv4(proto=6,frag=no), packets:64, bytes:4350, used:0.814s, flags:P., actions:2,ct(commit,mark=0x1/0xffffffff),4
-# recirc_id(0),in_port(4),ct_state(-trk),eth(),eth_type(0x0800),ipv4(proto=6,frag=no), packets:63, bytes:4158, used:0.814s, flags:., actions:2,ct,recirc(0xa)
-
 function ct2
 {
 set -x
@@ -11687,6 +11684,22 @@ function ethtool-rx
 		tx_old=$tx
 		sleep 1
 	done
+}
+
+function bond_stat
+{
+	c1=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
+	c2=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
+	sleep 1
+	c3=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
+	c4=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
+	expr $c3 - $c1
+	expr $c4 - $c2
+}
+
+function bond_mode
+{
+	cat /sys/class/net/bond0/bonding/mode
 }
 
 function clear-br-ct
