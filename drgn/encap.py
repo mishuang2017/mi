@@ -49,19 +49,16 @@ def print_encap(rep_priv):
             for item in list_for_each_entry('struct encap_flow_item', e.flows.address_of_(), 'list'):
                 print("\tmlx5e_tc_flow num %d" % k);
                 k=k+1
-                print(item)
+#                 print(item)
                 size = prog.type('struct encap_flow_item').size
-                print("item address: %x" % item)
                 # can't do pointer calculation, cast to value
                 addr = item.value_() - size * item.index
 #                 flow = container_of(offset, "struct mlx5e_tc_flow", "encaps")
                 offset = offsetof(prog.type("struct mlx5e_tc_flow"), "encaps")
-                print("encap_flow_item size: %x, offset: %x, addr: %x" % (size, offset, addr))
                 addr = addr.value_() - offset
-                print("encap_flow_item size: %x, offset: %x, addr: %x" % (size, offset, addr))
                 flow = Object(prog, 'struct mlx5e_tc_flow', address=addr)
 #                 print(flow)
-                print_mlx5e_tc_flow(flow)
+#                 print_mlx5e_tc_flow(flow)
 #                 print_completion(flow.init_done)
 
 mlx5e_rep_priv = get_mlx5e_rep_priv()

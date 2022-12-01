@@ -12,7 +12,7 @@ import socket
 
 # print(__name__)
 
-# prog = drgn.program_from_core_dump("/var/crash/vmcore.0")
+# prog = drgn.program_from_core_dump("/var/crash/vmcore.1")
 prog = drgn.program_from_kernel()
 
 def kernel(name):

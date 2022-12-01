@@ -13767,9 +13767,7 @@ function test_neigh
 {
 set -x
 	for ((i = 0; i < 100; i++ )); do
-		ip addr add dev $link 192.168.1.200/16
-		sleep 1
-		ip addr del dev $link 192.168.1.200/16
+		arp -d 192.168.1.85
 		sleep 1
 	done
 set +x
