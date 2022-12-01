@@ -9096,6 +9096,8 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+dst %pI4
+
 crash:
 foreach user bt
 

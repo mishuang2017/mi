@@ -10743,11 +10743,11 @@ set -x
 	ip link set dev $link2 down
 
 	ip link add name bond0 type bond
-# 	ip link set dev bond0 type bond mode active-backup miimon 100
+	ip link set dev bond0 type bond mode active-backup miimon 100
 
 # 	ip link add name bond0 type bond mode active-backup miimon 100
 
-	ip link set dev bond0 type bond mode 802.3ad
+# 	ip link set dev bond0 type bond mode 802.3ad
 # 	ip link set dev bond0 type bond mode balance-rr
 
 	# bi # have syndrom 0x7d49cb
@@ -10771,12 +10771,13 @@ function bond_br
 	ovs-vsctl add-br $br
 # 	ovs-vsctl add-port $br bond0
 	vxlan1
-	for (( i = 0; i < numvfs; i++)); do
-		local rep=$(get_rep $i)
-		ovs-vsctl add-port $br $rep
-		local rep=$(get_rep2 $i)
-		ovs-vsctl add-port $br $rep
-	done
+# 	for (( i = 0; i < numvfs; i++)); do
+# 		local rep=$(get_rep $i)
+# 		ovs-vsctl add-port $br $rep
+# 		local rep=$(get_rep2 $i)
+# 		ovs-vsctl add-port $br $rep
+# 	done
+	ovs-vsctl add-port $br $rep2
 # 	ovs-ofctl add-flow $br "in_port=bond0,dl_dst=2:25:d0:13:01:01 action=$rep1"
 
 	up_all_reps 1
