@@ -3918,6 +3918,7 @@ function tc_vxlan2
 
 	TC=tc
 	ip1
+	ip addr add dev $link 192.168.1.200/16;
 	ip link del $vx > /dev/null 2>&1
 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
 	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1
@@ -13760,4 +13761,16 @@ function port3
 function reload
 {
 	devlink dev reload pci/$pci
+}
+
+function test_neigh
+{
+set -x
+	for ((i = 0; i < 100; i++ )); do
+		ip addr add dev $link 192.168.1.200/16
+		sleep 1
+		ip addr del dev $link 192.168.1.200/16
+		sleep 1
+	done
+set +x
 }

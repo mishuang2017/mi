@@ -34,3 +34,7 @@ for x, dev in enumerate(get_netdevs()):
 #         print(flow.attr.esw_attr[0])
         print(" --- %d ---" % (i + 1))
         print_mlx5e_tc_flow(flow)
+#         print(flow.attrs)
+#         for mlx5_flow_attr in list_for_each_entry('struct mlx5_flow_attr', flow.attrs.address_of_(), 'list'):
+#             print(mlx5_flow_attr)
+#             print(mlx5_flow_attr.esw_attr[0])

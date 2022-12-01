@@ -1030,7 +1030,6 @@ def print_mlx5e_tc_flow(flow):
     MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE = prog['MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE']
 
     print("===============================")
-#     print(flow)
     name = flow.priv.netdev.name.string_().decode()
 #     print(flow.decap_route)
     print_mlx5e_tc_flow_rules(flow.rule)
@@ -1041,8 +1040,8 @@ def print_mlx5e_tc_flow(flow):
 #         print("not encap, return")
 #         return
     parse_attr = flow_attr.parse_attr
-    print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
-        (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))
+#     print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
+#         (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))
     print("chain: %x, prio: %d" % (flow_attr.chain, flow_attr.prio), end='\t')
     print("dest_chain: %x" % flow_attr.dest_chain, end='\t')
     print("ft: %x" % flow_attr.ft, end='\t')
