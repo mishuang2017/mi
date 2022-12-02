@@ -18,7 +18,7 @@ for name in pf0_name,:
 #     print(mlx5_lag.mode)
 #     print("mode_flags: %x (MLX5_LAG_MODE_FLAG_SHARED_FDB: 2)" % mlx5_lag.mode_flags)
 #     print("state_flags: %x (MLX5_LAG_FLAG_NDEVS_READY = 1)" % mlx5_lag.state_flags)
-#     print(mlx5_lag)
+    print(mlx5_lag)
     print(mlx5_lag.v2p_map)
     print(mlx5_lag.tracker)
     continue

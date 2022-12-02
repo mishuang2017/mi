@@ -11673,9 +11673,11 @@ function ethtool-rx
 
 function bond_stat
 {
+	local t=1
+	[[ $# == 1 ]] && t=$1
 	c1=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
 	c2=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
-	sleep 1
+	sleep $t
 	c3=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
 	c4=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
 	expr $c3 - $c1
