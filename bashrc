@@ -8586,24 +8586,6 @@ set -x
 set +x
 }
 
-if (( centos72 )); then
-	function force-restart
-	{
-	set -x
-		stop-ovs
-		ofed-unload
-		sudo /etc/init.d/openibd force-stop
-		reprobe
-		sleep 1
-		pkill udev
-		sleep 1
-		sudo systemctl restart systemd-udevd.service
-		sleep 1
-		pgrep udev
-	set +x
-	}
-fi
-
 alias restart-udev='sudo systemctl restart systemd-udevd.service'
 
 alias ofed-configure-memtrack='./configure --with-mlx5-core-and-en-mod --with-memtrack -j'
