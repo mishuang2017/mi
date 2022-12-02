@@ -18,10 +18,12 @@ for name in pf0_name,:
 #     print(mlx5_lag.mode)
 #     print("mode_flags: %x (MLX5_LAG_MODE_FLAG_SHARED_FDB: 2)" % mlx5_lag.mode_flags)
 #     print("state_flags: %x (MLX5_LAG_FLAG_NDEVS_READY = 1)" % mlx5_lag.state_flags)
-    print(mlx5_lag)
+#     print(mlx5_lag)
+    print(mlx5_lag.v2p_map)
+    print(mlx5_lag.tracker)
+    continue
     print(mlx5_lag.pf[0])
     print(mlx5_lag.pf[1])
-    print(mlx5_lag.tracker)
     print("mlx5_lag.ports: %d" % mlx5_lag.ports)
 #     print(mlx5_lag)
 #     print("mlx5_lag %x, flags: %x" % (mlx5_lag, mlx5_lag.flags))
@@ -30,6 +32,8 @@ for name in pf0_name,:
     esw = mlx5e_priv.mdev.priv.eswitch
     esw_manager_vport = esw.manager_vport
 #     print("esw.manager_vport: %x" % esw_manager_vport)
+
+exit(0)
 
 # MLX5_LAG_MODE_NONE = prog['MLX5_LAG_MODE_NONE']
 # MLX5_LAG_MODE_ROCE = prog['MLX5_LAG_MODE_ROCE']
