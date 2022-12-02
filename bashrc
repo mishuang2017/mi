@@ -10744,12 +10744,11 @@ set -x
 	ip link set dev $link2 down
 
 	ip link add name bond0 type bond
-	ip link set dev bond0 type bond mode active-backup miimon 100
+# 	ip link set dev bond0 type bond mode active-backup miimon 100
+	ip link set dev bond0 type bond mode 802.3ad
+# 	ip link set dev bond0 type bond mode balance-rr
 
 # 	ip link add name bond0 type bond mode active-backup miimon 100
-
-# 	ip link set dev bond0 type bond mode 802.3ad
-# 	ip link set dev bond0 type bond mode balance-rr
 
 	# bi # have syndrom 0x7d49cb
 
@@ -10815,6 +10814,8 @@ function bond_setup
 	dmfs2
 	bond_delete
 	sleep 1
+# 	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 	bond_switchdev
 	sleep 1
 	bond_create
