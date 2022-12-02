@@ -145,14 +145,12 @@ elif (( host_num == 14 )); then
 
 	for (( i = 0; i < numvfs; i++)); do
 		eval vf$((i+1))=${link}v$i
-# 		eval rep$((i+1))=${link}_$i
-		eval rep$((i+1))=${link_pre}pf0vf$i
+		eval rep$((i+1))=${link}_$i
 	done
 
 	for (( i = 0; i < numvfs; i++)); do
 		eval vf$((i+1))_2=${link2}v$i
-# 		eval rep$((i+1))_2=${link2}_$i
-		eval rep$((i+1))_2=${link2_pre}pf1vf$i
+		eval rep$((i+1))_2=${link2}_$i
 	done
 
 # 	modprobe aer-inject
