@@ -10749,8 +10749,8 @@ function bond_br
 	restart-ovs
 	del-br
 	ovs-vsctl add-br $br
-# 	ovs-vsctl add-port $br bond0
-	vxlan1
+	ovs-vsctl add-port $br bond0
+# 	vxlan1
 # 	for (( i = 0; i < numvfs; i++)); do
 # 		local rep=$(get_rep $i)
 # 		ovs-vsctl add-port $br $rep
@@ -10787,6 +10787,12 @@ function bond_br_ct_pf
 	ovs-ofctl dump-flows $br
 }
 
+function bond_port_select_show
+{
+	cat /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	cat /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+}
+
 function bond_setup
 {
 	off
@@ -10794,8 +10800,12 @@ function bond_setup
 	dmfs2
 	bond_delete
 	sleep 1
+set -x
 # 	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
 # 	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+set +x
 	bond_switchdev
 	sleep 1
 	bond_create
@@ -11674,14 +11684,18 @@ function ethtool-rx
 function bond_stat
 {
 	local t=1
-	[[ $# == 1 ]] && t=$1
-	c1=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
-	c2=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
-	sleep $t
-	c3=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
-	c4=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
-	expr $c3 - $c1
-	expr $c4 - $c2
+
+	for (( i = 0; i < 100; i++ )); do
+		[[ $# == 1 ]] && t=$1
+		c1=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
+		c2=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
+		sleep $t
+		c3=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
+		c4=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
+		expr $c3 - $c1
+		expr $c4 - $c2
+		echo "------------"
+	done
 }
 
 function bond_mode
@@ -13752,6 +13766,54 @@ set -x
 	for ((i = 0; i < 100; i++ )); do
 		arp -d 192.168.1.85
 		sleep 1
+	done
+set +x
+}
+
+function netserver1
+{
+set -x
+	n=1
+	[[ $# == 1 ]] && n=$1
+	for (( i = 0; i < n; i++ )); do
+		port=$((n+i+4000))
+		netserver -p $port
+	done
+set +x
+}
+
+function netperf1
+{
+set -x
+	n=1
+	[[ $# == 1 ]] && n=$1
+	for (( i = 0; i < n; i++ )); do
+		port=$((n+i+4000))
+		netperf -H 11.230.8.1 -p $port &
+	done
+set +x
+}
+
+function netserver_n1
+{
+set -x
+	n=1
+	[[ $# == 1 ]] && n=$1
+	for (( i = 0; i < n; i++ )); do
+		port=$((n+i+4000))
+		n1 netserver -p $port
+	done
+set +x
+}
+
+function netperf_n1
+{
+set -x
+	n=1
+	[[ $# == 1 ]] && n=$1
+	for (( i = 0; i < n; i++ )); do
+		port=$((n+i+4000))
+		n1 netperf -H 1.1.3.1 -p $port &
 	done
 set +x
 }
