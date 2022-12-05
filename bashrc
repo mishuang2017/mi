@@ -540,16 +540,7 @@ alias cd-test="cd $linux_dir/tools/testing/selftests/tc-testing/"
 alias vi-action="vi $linux_dir/tools/testing/selftests/tc-testing/tc-tests/actions//tests.json"
 alias vi-filter="vi $linux_dir/tools/testing/selftests/tc-testing/tc-tests/filters//tests.json"
 alias smo="cd /$images/cmi/openvswitch"
-alias smo2="cd /$images/cmi/openvswitch2"
-alias smt="cd /$images/cmi/ovs-tests"
-alias cfo="cd /$images/cmi/openvswitch; cscope -d"
-alias ipa='ip a'
-alias ipl='ip l'
-alias ipal='ip a l'
-alias smd='cd /usr/src/debug/kernel-3.10.0-327.el7/linux-3.10.0-327.el7.x86_64'
 alias rmswp='find . -name *.swp -exec rm {} \;'
-alias cd-drgn='cd /usr/local/lib64/python3.6/site-packages/drgn-0.0.1-py3.6-linux-x86_64.egg/drgn/helpers/linux/'
-alias smdr="cd /$images/cmi/drgn/"
 
 alias smc="sm; cd crash; vi net.c"
 alias smi='cd /var/lib/libvirt/images'
@@ -721,11 +712,6 @@ alias screen='screen -h 1000'
 alias path='echo -e ${PATH//:/\\n}'
 alias x=~cmi/bin/x.py
 alias cf=" cscope -d"
-alias cfm="smm; cscope -d"
-alias cf2="cd /auto/mtbcswgwork/cmi/iproute2; cscope -d"
-alias cf3='sm3; cscope -d'
-alias cfc='cd /usr/src/debug/*/*; cscope -d'
-
 alias cdr="cd /lib/modules/$(uname -r)"
 
 alias nc-server='nc -l -p 80 < /dev/zero'
@@ -10738,6 +10724,8 @@ set -x
 	ip link set dev $link up
 	ip link set dev $link2 up
 
+	echo layer2+3 > /sys/class/net/bond0/bonding/xmit_hash_policy
+
 	ifconfig $link 0
 	ifconfig $link2 0
 	ifconfig bond0 3.1.1.$host_num/16 up
@@ -10791,6 +10779,11 @@ function bond_port_select_show
 {
 	cat /sys/class/net/$link/compat/devlink/lag_port_select_mode
 	cat /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+}
+
+function bond_xmit_mode
+{
+	cat /sys/class/net/bond0/bonding/xmit_hash_policy
 }
 
 function bond_setup
@@ -11701,6 +11694,12 @@ function bond_stat
 function bond_mode
 {
 	cat /sys/class/net/bond0/bonding/mode
+}
+
+function bond_port_sel_mode
+{
+	cat /sys/kernel/debug/mlx5/$pci/lag/port_sel_mode
+	cat /sys/kernel/debug/mlx5/$pci2/lag/port_sel_mode
 }
 
 function clear-br-ct
