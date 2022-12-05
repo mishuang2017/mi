@@ -1104,7 +1104,7 @@ alias cl_setup=cloud_setup
 
 function cloud_ofed_cp
 {
-	test -d /swgwork/cmi/mlnx-ofa_kernel-4.0 || cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
+	test -d /images/cmi/mlnx-ofa_kernel-4.0 || cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
 }
 alias cl_ofed_cp=cloud_ofed_cp
 
@@ -10801,10 +10801,10 @@ function bond_setup
 	bond_delete
 	sleep 1
 set -x
-# 	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-# 	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
-	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+# 	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 set +x
 	bond_switchdev
 	sleep 1
@@ -11685,7 +11685,7 @@ function bond_stat
 {
 	local t=1
 
-	for (( i = 0; i < 100; i++ )); do
+	for (( i = 0; i < 10000; i++ )); do
 		[[ $# == 1 ]] && t=$1
 		c1=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
 		c2=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
