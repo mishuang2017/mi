@@ -13805,7 +13805,7 @@ function test_neigh
 {
 set -x
 	for ((i = 0; i < 100; i++ )); do
-		arp -d 192.168.1.85
+		arp -d $link_remote_ip
 		sleep 1
 	done
 set +x
