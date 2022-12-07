@@ -6473,8 +6473,8 @@ function start-switchdev
 sf1=en8f0pf0sf1
 sf2=en8f0pf0sf2
 
-sf1=eth2
-sf2=eth3
+# sf1=eth2
+# sf2=eth3
 
 function sf
 {
@@ -10794,10 +10794,10 @@ function bond_setup
 	bond_delete
 	sleep 1
 set -x
-	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
-# 	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-# 	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+# 	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 set +x
 	bond_switchdev
 	sleep 1
