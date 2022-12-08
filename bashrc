@@ -10711,20 +10711,21 @@ set -x
 
 	ip link add name bond0 type bond
 # 	ip link set dev bond0 type bond mode active-backup miimon 100
-	ip link set dev bond0 type bond mode 802.3ad
+# 	ip link set dev bond0 type bond mode 802.3ad
+	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer3+4
 # 	ip link set dev bond0 type bond mode balance-rr
 
 # 	ip link add name bond0 type bond mode active-backup miimon 100
 
 	# bi # have syndrom 0x7d49cb
 
+# 	echo layer2+3 > /sys/class/net/bond0/bonding/xmit_hash_policy
+
 	ip link set dev $link master bond0
 	ip link set dev $link2 master bond0
 	ip link set dev bond0 up
 	ip link set dev $link up
 	ip link set dev $link2 up
-
-	echo layer2+3 > /sys/class/net/bond0/bonding/xmit_hash_policy
 
 	ifconfig $link 0
 	ifconfig $link2 0
