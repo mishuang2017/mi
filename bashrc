@@ -22,7 +22,6 @@ host_num=$((host_num % 100))
 cloud=1
 bf=0
 [[ "$(uname -m)" == "aarch64" ]] && bf=1
-[[ -z $host_num ]] && host_num=1
 if [[ "$(hostname -s)" == "dev-r630-03" ]]; then
 	host_num=13
 	cloud=0
@@ -30,18 +29,6 @@ fi
 if [[ "$(hostname -s)" == "dev-r630-04" ]]; then
 	host_num=14
 	cloud=0
-fi
-
-if [[ "$(hostname -s)" == "qa-h-vrt-029" ]]; then
-	host_num=29
-	link=enp139s0f0
-	cloud=0
-	link_name=1
-fi
-if [[ "$(hostname -s)" == "qa-h-vrt-030" ]]; then
-	host_num=30
-	cloud=0
-	link_name=1
 fi
 
 if (( host_num % 2 == 0 )); then
@@ -181,9 +168,17 @@ if (( cloud == 1 )); then
 	(( host_num == 43 )) && remote_mac=0c:42:a1:d1:d1:80
 fi
 
+if (( host_num == 0 )); then
+	host_num=1
+	rhost_num=1
+fi
+
 if (( bf == 1 )); then
-	link=enp3s0f0np0
-	link2=enp3s0f1np1
+	link=pf0hpf
+	link2=pf1hpf
+	rep1=pf0vf0
+	rep2=pf0vf1
+	rep3=pf0vf2
 fi
 
 test -f /sys/class/net/$link/address && link_mac=$(cat /sys/class/net/$link/address)
@@ -4931,20 +4926,14 @@ alias vf152="ip link set dev $link vf 1 vlan 52 qos 0"
 function get_rep
 {
 	[[ $# != 1 ]] && return
-	if (( link_name == 1 )); then
-		echo "${link}_$1"
-		return
-	elif (( link_name == 2 )); then
-		echo "${link_pre}pf0vf$1"
-		return
-	elif (( link_name == 3 )); then
-		i=$1
-		echo "eth$((i+2))"
-		return
-	else
-		echo "error"
-		return
+
+	local index=$1
+	if (( bf == 1 )); then
+		(( index++ ))
 	fi
+	name=rep$index
+	eval echo \$$name
+	return
 }
 
 function get_rep2
@@ -5210,7 +5199,7 @@ function br_vf
 set -x
 	del-br
 	vs add-br $br
-	for (( i = 1; i < numvfs; i++)); do
+	for (( i = 0; i < numvfs; i++)); do
 		local rep=$(get_rep $i)
 		ifconfig $rep up
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
