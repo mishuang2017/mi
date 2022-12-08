@@ -12545,7 +12545,7 @@ set -x
 	remote_vm_mac=$vxlan_mac
 
 
-	$TC filter add dev $redirect protocol arp parent ffff: prio 1 flower skip_hw	\
+	$TC filter add dev $redirect protocol arp parent ffff: prio 1 flower $offload	\
 		src_mac $local_vm_mac	\
 		action tunnel_key set	\
 		src_ip $link_ip		\
@@ -12553,7 +12553,7 @@ set -x
 		dst_port $vxlan_port	\
 		id $vni			\
 		action mirred egress redirect dev $vx
-	$TC filter add dev $vx protocol arp parent ffff: prio 1 flower skip_hw	\
+	$TC filter add dev $vx protocol arp parent ffff: prio 1 flower $offload	\
 		src_mac $remote_vm_mac \
 		enc_src_ip $link_remote_ip	\
 		enc_dst_ip $link_ip		\
