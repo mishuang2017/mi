@@ -159,9 +159,15 @@ if (( cloud == 1 )); then
 	link2=enp8s0f1
 
 	link_remote_ip=192.168.1.$rhost_num
+
 	vf1=enp8s0f2
 	vf2=enp8s0f3
 	vf3=enp8s0f4
+
+	vf1=enp8s0f0v0
+	vf2=enp8s0f0v1
+	vf3=enp8s0f0v2
+
 	rep1=enp8s0f0_0
 	rep2=enp8s0f0_1
 	rep3=enp8s0f0_2
@@ -4934,9 +4940,7 @@ function get_rep
 	[[ $# != 1 ]] && return
 
 	local index=$1
-	if (( bf == 1 )); then
-		(( index++ ))
-	fi
+	(( index++ ))
 	name=rep$index
 	eval echo \$$name
 	return
