@@ -13810,3 +13810,18 @@ set -x
 	done
 set +x
 }
+
+function bf2_on_sriov
+{
+	local link=enp6s0f0
+
+	echo 0 > /sys/class/net/$link/device/sriov_numvfs
+	echo $numvfs > /sys/class/net/$link/device/sriov_numvfs
+
+	unbind_all $link
+	set_mac
+	bind_all $link
+
+	netns n11 enp6s0f4 1.1.1.1
+	netns n12 enp6s0f5 1.1.1.2
+}
