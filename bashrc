@@ -170,7 +170,7 @@ fi
 
 if (( host_num == 0 )); then
 	host_num=1
-	rhost_num=1
+	rhost_num=2
 fi
 
 if (( bf == 1 )); then
@@ -179,6 +179,7 @@ if (( bf == 1 )); then
 	rep1=pf0vf0
 	rep2=pf0vf1
 	rep3=pf0vf2
+	link_remote_ip=192.168.1.$rhost_num
 fi
 
 test -f /sys/class/net/$link/address && link_mac=$(cat /sys/class/net/$link/address)
@@ -311,7 +312,6 @@ alias mac2="ip l show $link | grep ether; ip link set dev $link address $link2_m
 
 alias vxlan6="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ipv6  options:key=$vni options:dst_port=$vxlan_port"
 alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit"
-alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port"
 alias vxlan4000="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4000"
 alias vxlan4789="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4789"
 alias vxlan1-2="ovs-vsctl add-port $br2 $vx2 -- set interface $vx2 type=vxlan options:remote_ip=$link2_remote_ip  options:key=$vni options:dst_port=$vxlan_port"
@@ -833,9 +833,15 @@ alias cd_sriov=" cd /sys/class/net/$link/device/sriov"
 function ip1
 {
 	local l=$link
+	ip=$link_ip
+	ipv6=$link_ipv6
+	if (( bf == 1 )); then
+		l=p0
+		ip=$link_remote_ip
+	fi
 	ip addr flush $l
-	ip addr add dev $l $link_ip/16
-	ip addr add $link_ipv6/64 dev $l
+	ip addr add dev $l $ip/16
+	ip addr add $ipv6/64 dev $l
 	ip link set $l up
 }
 
@@ -7726,8 +7732,6 @@ set -x
 	ip1
 	ip link del $vx > /dev/null 2>&1
 	ip link add name $vx type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
-# 	ip link add name $vx type vxlan id $vni remote $link_remote_ip dstport $vxlan_port
-#	ifconfig $vx $link_ip_vxlan/24 up
 	ip addr add $link_ip_vxlan/16 brd + dev $vx
 	ip addr add $link_ipv6_vxlan/64 dev $vx
 	ip link set dev $vx up
