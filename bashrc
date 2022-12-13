@@ -6009,17 +6009,8 @@ set -x
 	exe $n ifconfig ${link}.$vid $ip/24 up
 set +x
 }
-alias vn1="ifconfig $vf1 0; vlan-ns $vf1 52 1.1.1.11 n1"
-alias vn2="ifconfig $vf2 0; vlan-ns $vf2 52 1.1.1.12 n2"
 
-alias iperfc1='n1 iperf3 -c 1.1.1.11 -u -t 1000 -p 7000'
-alias iperfc1='n1 iperf3 -c 1.1.1.11 -t 1000 -p 7000'
-alias iperfs1='n1 iperf3 -s -p 7000'
-
-alias vlan-ns2="vlan-ns $link2 $vid $link_ip_vlan link2"
-
-alias vf-test="for (( i = 0; i < 50; i++)); do echo -n $i; echo -n \" \"; vf $i; done"
-alias vf-test2="for (( i = 0; i < 4; i++)); do echo -n $i; echo -n \" \"; vf $i; done"
+alias iperfc1='n1 iperf -c 1.1.1.200 -t 10000 -i 1'
 
 # 1472
 function netns
@@ -9560,25 +9551,15 @@ else
 	export CONFIG=/workspace/dev_reg_conf.sh
 fi
 
-test1=test-eswitch-devlink-reload.sh
-alias test1="export CONFIG=config_chrism_cx5.sh; ./$test1"
+test1=./test-tc-insert-rules-matchall.sh
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; RELOAD_DRIVER_PER_TEST=1; ./$test1"
 alias test2="export CONFIG=/workspace/dev_reg_conf.sh; cd /workspace/asap_dev_test; ./$test1"
-
-alias vi_geneve="cd /workspace/asap_dev_test/ovn-tests; vi test-ovn-geneve-single-switch-2-nodes-pf-tunnel-vlan.sh"
-alias test_geneve="cd /workspace/asap_dev_test/ovn-tests; ./test-ovn-geneve-single-switch-2-nodes-pf-tunnel-vlan.sh"
-
-alias vi_geneve0="cd /workspace/asap_dev_test/ovn-tests; vi test-ovn-geneve-single-switch-2-nodes-pf-tunnel.sh"
-alias test_geneve0="cd /workspace/asap_dev_test/ovn-tests; ./test-ovn-geneve-single-switch-2-nodes-pf-tunnel.sh"
-
-alias test_bond0="./test-tc-encap-decap-same-server.sh"
-alias test_bond1="./test-tc-encap-decap-same-server-bond.sh"
 
 alias test1="./$test1"
 
 alias vi-test="vi /images/cmi/asap_dev_reg/$test1"
 alias vi-test2="vi /workspace/asap_dev_test/$test1"
-alias psample=/images/cmi/asap_dev_reg/psample/psample
+alias psample=/swgwork/cmi/asap_dev_reg/psample/psample
 alias cloud_tools_asap_dev="sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering"
 
 function get-diff
@@ -10794,8 +10775,10 @@ function bond_setup
 set -x
 # 	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
 # 	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
-	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+# 	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 set +x
 	bond_switchdev
 	sleep 1
@@ -12380,6 +12363,7 @@ set -x
 	dst_mac=02:25:d0:$host_num:01:02
 # 		action sample rate $rate group 6 trunc 80 \
 	$TC filter add dev $rep3 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
+		action sample rate 1 group 6 trunc 80 \
 		action mirred egress redirect dev $rep2
 # 	$TC filter add dev $rep3 ingress protocol arp prio 2 flower $offload \
 # 		action mirred egress redirect dev $rep2
@@ -12665,7 +12649,7 @@ function sflow_create_vxlan
 
 function sflowtool1
 {
-	sflowtool -p 6343 -L localtime,srcIP,dstIP
+	sflowtool -p 6343 -L localtime,srcIP,dstIP,ethernet_type
 }
 
 function sflowtool6

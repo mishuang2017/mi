@@ -20,6 +20,6 @@ for node in radix_tree_for_each(counters_idr.idr_rt.address_of_()):
 #     print(fc)
     print("id: %x, packets: %d" % (fc.id, fc.cache.packets))
 
-print('=== list ===')
-for fc in list_for_each_entry('struct mlx5_fc',mlx5_fc_stats.counters.address_of_(), 'list'):
-    print("id: %x, packets: %d" % (fc.id, fc.cache.packets))
+# print('=== list ===')
+# for fc in list_for_each_entry('struct mlx5_fc',mlx5_fc_stats.counters.address_of_(), 'list'):
+#     print("id: %x, packets: %d" % (fc.id, fc.cache.packets))
