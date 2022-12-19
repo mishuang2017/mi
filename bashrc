@@ -982,8 +982,8 @@ function cloud_setup0
 	yum install -y cscope tmux screen ctags rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb
 
 	if ! test -f ~/.tmux.conf; then
-		mv ~/.bashrc bashrc.orig
-		ln -s ~cmi/.bashrc
+# 		mv ~/.bashrc bashrc.orig
+# 		ln -s ~cmi/.bashrc
 		ln -s ~cmi/.tmux.conf
 		ln -s ~cmi/.vimrc
 		ln -s ~cmi/.vim
@@ -1432,6 +1432,7 @@ alias b_gact="tc2; mybuild1 act_gact"
 alias b_mirred="tc2; mybuild1 act_mirred"
 alias b_vlan="tc2; mybuild1 act_vlan"
 alias b_pedit="tc2; mybuild1 act_pedit"
+alias b_police="tc2; mybuild1 act_police"
 
 mybuild1 ()
 {
@@ -2114,6 +2115,24 @@ set -x
 	$TC filter add dev $rep3 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 set +x
 }
+
+function tc_police_matchall
+{
+set -x
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+	TC=/images/cmi/iproute2/tc/tc
+	TC=tc
+
+	$TC qdisc del dev $rep2 ingress
+	ethtool -K $rep2 hw-tc-offload on 
+	$TC qdisc add dev $rep2 ingress 
+	$TC -s filter add dev $rep2 ingress prio 1 protocol ip matchall skip_sw action police rate 1mbit burst 20k conform-exceed drop/continue
+set +x
+}
+alias tc4=tc_police_matchall
 
 function tc-vf-ttl
 {
