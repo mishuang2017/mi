@@ -39,12 +39,14 @@ for dev in list_for_each_entry('struct device_private', k_list.address_of_(), 'k
         print("driver_data is NULL")
 
     pci_dev = container_of(device, "struct pci_dev", "dev")
+    print(pci_dev.is_physfn)
+    print(pci_dev.is_virtfn)
     print("enable_cnt           %x" % pci_dev.enable_cnt.counter)
     print("pci_dev              %x" % pci_dev)
     print("pci_dev.physfn       %x" % pci_dev.physfn)
     if pci_dev.is_virtfn:
         print("pci_dev.physfn.sriov %x" % pci_dev.physfn.sriov)
-        print(pci_dev.physfn.sriov)
+#         print(pci_dev.physfn.sriov)
     else:
         print("pci_dev.sriov")
         print(pci_dev.sriov)

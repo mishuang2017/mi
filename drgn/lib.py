@@ -1061,7 +1061,7 @@ def print_mlx5e_tc_flow(flow):
 
 #     print(flow_attr.sample_attr)
 
-    print(esw_attr)
+#     print(esw_attr)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP:
         print(MLX5_ESW_DEST_ENCAP)
     if esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP_VALID:

@@ -12137,6 +12137,8 @@ mlx5_lag_netdev_event
 
 ===esw===
 
+mlx5_devlink_reload_down
+
 mlx5_devlink_eswitch_mode_set
 
 mlx5_core_sriov_configure
@@ -12221,4 +12223,57 @@ ibv_rc_pingpong -g 0  -i 1 1.1.1.2
   remote address: LID 0x0000, QPN 0x0000af, PSN 0xbafdb7, GID fe80::e42:a1ff:fed1:d05c
 8192000 bytes in 0.01 seconds = 12095.98 Mbit/sec
 1000 iters in 0.01 seconds = 5.42 usec/iter
+
+===ovn===
+
+/usr/share/ovn/scripts/ovn-ctl status_northd
+ovn-northd is running with pid 1875468
+
+/usr/share/ovn/scripts/ovn-ctl status_controller
+ovn-controller is running with pid 1876622
+
+/usr/share/ovn/scripts/ovn-ctl start_northd
+
+/usr/bin/ovs-vsctl --may-exist add-port br-int enp8s0f0_0 -- set Interface enp8s0f0_0 external_ids:iface-id=node-1-port1
+
+switch 00822b7a-f9a1-4e41-a6a1-e30d59766c5a (node-1)
+    port stor-node-1
+        type: router
+        router-port: rtos-node-1
+    port k8s-node-1
+        addresses: ["50:54:00:00:01:00 7.7.7.2 7:7:7::2"]
+    port node-1-port2
+        addresses: ["50:54:00:00:01:02 7.7.7.4 7:7:7::4"]
+    port node-1-port1
+        addresses: ["50:54:00:00:01:01 7.7.7.3 7:7:7::3"]
+
+/usr/bin/ovn-nbctl -- --may-exist lr-add ovn_cluster_router -- --may-exist lrp-add ovn_cluster_router rtos-node-1 00:00:00:00:ff:01 7.7.7.1/24 7:7:7::1/112 --lrp-set-gateway-chassis rtos-node-1 d6625e6a-f695-4246-b0b7-0e948ae8dcc5 10 -- --may-exist ...
+
+/usr/bin/ovn-nbctl -- --may-exist ls-add join -- --may-exist lsp-add join jtor-ovn_cluster_router -- lsp-set-type jtor-ovn_cluster_router router -- lsp-set-addresses jtor-ovn_cluster_router router -- lsp-set-options ...
+
+/usr/bin/ovn-nbctl -- --may-exist lr-add GR_node-1 -- set Logical_Router GR_node-1 options:chassis=d6625e6a-f695-4246-b0b7-0e948ae8dcc5 -- --may-exist lrp-add GR_node-1 rtoe-GR_node-1 00:00:00:01:ff:01 172.16.0.2/24 172:16:0::2/112 -- --may-exist ...
+
+/usr/bin/ovs-vsctl set Open_vSwitch . external_ids:ovn-bridge-mappings=physnet:brenp8s0f0
+/opt/mellanox/iproute2/sbin/ip link set enp8s0f0 mtu 1700
+/opt/mellanox/iproute2/sbin/ip link set enp8s0f0 up
+/opt/mellanox/iproute2/sbin/ip link set brenp8s0f0 mtu 1700
+/opt/mellanox/iproute2/sbin/ip link set brenp8s0f0 up
+/opt/mellanox/iproute2/sbin/ip link set enp8s0f0 addr 00:00:00:01:ff:01
+/opt/mellanox/iproute2/sbin/ip addr add 172.16.0.2/24 dev brenp8s0f0
+/usr/bin/ovs-vsctl set open . external-ids:ovn-remote=tcp:[172.16.0.2]:6642
+/usr/bin/ovs-vsctl set open . external-ids:ovn-encap-ip=172.16.0.2
+/usr/bin/ovs-vsctl set open . external-ids:ovn-encap-type=geneve
+
+[root@c-141-140-1-007 ~]#  ovn-nbctl lr-route-list ovn_cluster_router
+IPv4 Routes
+Route Table <main>:
+               100.64.0.2                100.64.0.2 dst-ip
+               100.64.0.3                100.64.0.3 dst-ip
+               7.7.7.0/24                100.64.0.2 src-ip
+               7.7.8.0/24                100.64.0.3 src-ip
+
+
+ovn-sbctl list Logical_Flow
+
+
 
