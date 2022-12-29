@@ -3541,14 +3541,24 @@ set -x
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
 
+	sample=0
+	if (( sample == 1 )); then
+		$TC filter add dev $redirect protocol ip  parent ffff: chain 0 prio 2 flower $offload \
+			src_mac $local_vm_mac	\
+			dst_mac $remote_vm_mac	\
+			ct_state -trk		\
+			action sample rate $rate group 5 \
+			action ct pipe		\
+			action goto chain 1
+	else
+		$TC filter add dev $redirect protocol ip  parent ffff: chain 0 prio 2 flower $offload \
+			src_mac $local_vm_mac	\
+			dst_mac $remote_vm_mac	\
+			ct_state -trk		\
+			action ct pipe		\
+			action goto chain 1
+	fi
 
-	$TC filter add dev $redirect protocol ip  parent ffff: chain 0 prio 2 flower $offload \
-		src_mac $local_vm_mac	\
-		dst_mac $remote_vm_mac	\
-		ct_state -trk		\
-		action sample rate $rate group 5 \
-		action ct pipe		\
-		action goto chain 1
 	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 2 flower $offload \
 		src_mac $local_vm_mac	\
 		dst_mac $remote_vm_mac	\
@@ -3571,17 +3581,32 @@ set -x
 		id $vni			\
 		action mirred egress redirect dev $vx
 
-	$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
-		src_mac $remote_vm_mac	\
-		dst_mac $local_vm_mac	\
-		enc_src_ip $link_remote_ip	\
-		enc_dst_ip $link_ip		\
-		enc_dst_port $vxlan_port	\
-		enc_key_id $vni			\
-		ct_state -trk			\
-		action sample rate $rate group 6 \
-		action ct pipe			\
-		action goto chain 1
+	sample=1
+	if (( sample == 1 )); then
+		$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
+			src_mac $remote_vm_mac	\
+			dst_mac $local_vm_mac	\
+			enc_src_ip $link_remote_ip	\
+			enc_dst_ip $link_ip		\
+			enc_dst_port $vxlan_port	\
+			enc_key_id $vni			\
+			ct_state -trk			\
+			action sample rate $rate group 6 \
+			action ct pipe			\
+			action goto chain 1
+	else
+		$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
+			src_mac $remote_vm_mac	\
+			dst_mac $local_vm_mac	\
+			enc_src_ip $link_remote_ip	\
+			enc_dst_ip $link_ip		\
+			enc_dst_port $vxlan_port	\
+			enc_key_id $vni			\
+			ct_state -trk			\
+			action ct pipe			\
+			action goto chain 1
+	fi
+
 	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 2 flower $offload	\
 		src_mac $remote_vm_mac	\
 		dst_mac $local_vm_mac	\
@@ -3607,7 +3632,7 @@ set -x
 set +x
 }
 
-alias test3=tc_vxlan_ct_mirror
+alias test3=tc_vxlan_ct_sample
 function tc_vxlan_ct_mirror
 {
 set -x

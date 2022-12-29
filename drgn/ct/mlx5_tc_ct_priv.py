@@ -104,6 +104,7 @@ for i, mlx5_ct_ft in enumerate(hash(zone_ht, 'struct mlx5_ct_ft', 'node')):
 
         for k in range(2):
             mlx5_ct_zone_rule = mlx5_ct_entry.zone_rules[k]
+#             print(mlx5_ct_entry.tuple.zone)
             print("\tmlx5_ct_entry.zone_rules[%d]" % k)
             print("\tmlx5_ct_zone_rule %lx" % mlx5_ct_zone_rule.address_of_())
 #             print(mlx5_ct_zone_rule)
