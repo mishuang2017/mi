@@ -33,6 +33,10 @@ def print_esw(priv):
     print("user_count: %d" % esw.user_count.counter)
     print("num_flows %d" % esw.offloads.num_flows.counter)
 
+    print(esw.offloads.peer_flows)
+    for flow in list_for_each_entry('struct mlx5e_tc_flow', esw.offloads.peer_flows.address_of_(), 'peer'):
+        print("%x" % flow)
+
 print("===================== port 1 =======================")
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)

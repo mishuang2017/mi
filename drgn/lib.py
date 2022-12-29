@@ -1025,6 +1025,8 @@ def print_mlx5_rx_tun_attr(tun_attr):
 #         (ipv4(ntohl(tun_attr.src_ip.v4)), ipv4(ntohl(tun_attr.dst_ip.v4))))
 
 def print_mlx5e_tc_flow(flow):
+    print("mlx5e_tc_flow           %x" % flow)
+    print("mlx5e_tc_flow.peer_flow %x" % flow.peer_flow)
     MLX5_ESW_DEST_ENCAP = prog['MLX5_ESW_DEST_ENCAP']
     MLX5_ESW_DEST_ENCAP_VALID = prog['MLX5_ESW_DEST_ENCAP_VALID']
     MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE = prog['MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE']
