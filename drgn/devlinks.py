@@ -24,7 +24,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #         continue
 #     print(devlink.ops)
 
-    print("========================== devlink.dev.kobj.name: %s =========================" % pci_name)
+    print("========================== devlink.dev.kobj.name: %s index: %d =========================" % (pci_name, devlink.index))
 #     print(devlink)
 #     if pci_name.find("mlx5_core.sf") == 0:
 #         auxiliary_device = container_of(devlink.dev, 'struct auxiliary_device', "dev")
