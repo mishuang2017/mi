@@ -126,27 +126,32 @@ def print_action_stats(a):
         bstats = a.tcfa_bstats
         bytes += bstats.bytes.v.a.a.counter
         packets += bstats.packets.v.a.a.counter
-        print("bytes: %d, packets: %d" % (bytes, packets))
+        print("\t\t\t\tbytes: %d, packets: %d" % (bytes, packets))
 
     bytes = 0
     packets = 0
 
-#     if a.cpu_bstats_hw.value_():
-#         for cpu in for_each_online_cpu(prog):
-#             bstats = per_cpu_ptr(a.cpu_bstats_hw, cpu).bstats
-#             bytes += bstats.bytes
-#             packets += bstats.packets
-#         print("hw percpu bytes: %d, packets: %d" % (bytes, packets))
-#     else:
+    if a.cpu_bstats_hw.value_():
+        for cpu in for_each_online_cpu(prog):
+            if type_exist("struct gnet_stats_basic_sync"):
+                bytes += per_cpu_ptr(a.cpu_bstats_hw, cpu).bytes.v.a.a.counter
+                packets += per_cpu_ptr(a.cpu_bstats_hw, cpu).packets.v.a.a.counter
+            else:
+                bstats = per_cpu_ptr(a.cpu_bstats_hw, cpu).bstats
+                bytes += bstats.bytes
+                packets += bstats.packets
+        print("\t\t\t     hw percpu bytes: %d, packets: %d" % (bytes, packets))
+    else:
 #         bstats = a.tcfa_bstats_hw
 #         bytes += bstats.bytes
 #         packets += bstats.packets
-#         print("hw bytes: %d, packets: %d" % (bytes, packets))
+        print("\t\t\t\thw bytes: %d, packets: %d" % (bytes, packets))
  
 def print_exts(e):
     print("      nr_actions: %d" % e.nr_actions)
     for i in range(e.nr_actions):
         a = e.actions[i]
+#         print(a.hw_stats)
         kind = a.ops.kind.string_().decode()
         print("        action %d: %10s: tc_action %lx" % (i+1, kind, a.value_()), end='\n')
 #         print(a.cpu_bstats_hw)
