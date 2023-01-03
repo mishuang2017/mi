@@ -764,7 +764,11 @@ function ethtool-rxvlan-on
 
 alias restart-virt='systemctl restart libvirtd.service'
 
-export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+if (( ofed == 1 )); then
+	export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+else
+	export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+fi
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
 unset PROMPT_COMMAND
