@@ -12594,16 +12594,29 @@ set -x
 		action tunnel_key unset	pipe	\
 		action mirred egress redirect dev $redirect
 
-	$TC filter add dev $redirect protocol ip  parent ffff: prio 2 flower $offload \
-		src_mac $local_vm_mac	\
-		dst_mac $remote_vm_mac	\
-		action sample rate $rate group 5 \
-		action tunnel_key set	\
-		src_ip $link_ip		\
-		dst_ip $link_remote_ip	\
-		dst_port $vxlan_port	\
-		id $vni \
-		action mirred egress redirect dev $vx
+	sample=0
+	if (( sample == 1 )); then
+		$TC filter add dev $redirect protocol ip  parent ffff: prio 2 flower $offload \
+			src_mac $local_vm_mac	\
+			dst_mac $remote_vm_mac	\
+			action sample rate $rate group 5 \
+			action tunnel_key set	\
+			src_ip $link_ip		\
+			dst_ip $link_remote_ip	\
+			dst_port $vxlan_port	\
+			id $vni \
+			action mirred egress redirect dev $vx
+	else
+		$TC filter add dev $redirect protocol ip  parent ffff: prio 2 flower $offload \
+			src_mac $local_vm_mac	\
+			dst_mac $remote_vm_mac	\
+			action tunnel_key set	\
+			src_ip $link_ip		\
+			dst_ip $link_remote_ip	\
+			dst_port $vxlan_port	\
+			id $vni \
+			action mirred egress redirect dev $vx
+	fi
 
 	$TC filter add dev $vx protocol ip  parent ffff: prio 3 flower $offload	\
 		src_mac $remote_vm_mac	\
