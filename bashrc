@@ -10535,6 +10535,18 @@ function br_pf
 	ovs-vsctl add-port $br $link
 }
 
+function br_multiport_esw
+{
+	del-br
+	ovs-vsctl add-br $br
+	ovs-vsctl add-port $br $rep2
+	ovs-vsctl add-port $br $rep3
+	ovs-vsctl add-port $br $link
+	ovs-vsctl add-port $br $link2
+	ovs-vsctl add-port $br enp4s0f1_1
+	ovs-vsctl add-port $br enp4s0f1_2
+}
+
 function br_pf_ct
 {
 	del-br
