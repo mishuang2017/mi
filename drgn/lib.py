@@ -123,9 +123,16 @@ def print_action_stats(a):
                 packets += bstats.packets
         print("percpu bytes: %d, packets: %d" % (bytes, packets))
     else:
+        # old new kernel, it is u64_stats_t
+#         bstats = a.tcfa_bstats
+#         bytes += bstats.bytes.v.a.a.counter
+#         packets += bstats.packets.v.a.a.counter
+#         print("\t\t\t\tbytes: %d, packets: %d" % (bytes, packets))
+
+        # on old kernel, it is __u64.
         bstats = a.tcfa_bstats
-        bytes += bstats.bytes.v.a.a.counter
-        packets += bstats.packets.v.a.a.counter
+        bytes += bstats.bytes
+        packets += bstats.packets
         print("\t\t\t\tbytes: %d, packets: %d" % (bytes, packets))
 
     bytes = 0
@@ -142,9 +149,9 @@ def print_action_stats(a):
                 packets += bstats.packets
         print("\t\t\t     hw percpu bytes: %d, packets: %d" % (bytes, packets))
     else:
-#         bstats = a.tcfa_bstats_hw
-#         bytes += bstats.bytes
-#         packets += bstats.packets
+        bstats = a.tcfa_bstats_hw
+        bytes += bstats.bytes
+        packets += bstats.packets
         print("\t\t\t\thw bytes: %d, packets: %d" % (bytes, packets))
  
 def print_exts(e):
@@ -182,6 +189,8 @@ def print_exts(e):
                 print(tcf_pedit.tcfp_keys_ex[i].htype)
                 print("\t\t\toffset: %x" % tcf_pedit.tcfp_keys[i].off, end='\t')
                 print("value / mask:   %08x / %08x" % (tcf_pedit.tcfp_keys[i].val, tcf_pedit.tcfp_keys[i].mask))
+            print_action_stats(a)
+#             print(a)
         if kind == "mirred":
             tcf_mirred = Object(prog, 'struct tcf_mirred', address=a.value_())
             print("\toutput: %s," % tcf_mirred.tcfm_dev.name.string_().decode(), end='\t')
