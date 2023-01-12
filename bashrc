@@ -3529,7 +3529,6 @@ set -x
 
 	# arp
 	$TC filter add dev $redirect protocol arp parent ffff: prio 1 flower skip_hw	\
-		src_mac $local_vm_mac	\
 		action tunnel_key set	\
 		src_ip $link_ip		\
 		dst_ip $link_remote_ip	\
@@ -3537,7 +3536,6 @@ set -x
 		id $vni			\
 		action mirred egress redirect dev $vx
 	$TC filter add dev $vx protocol arp parent ffff: prio 1 flower skip_hw	\
-		src_mac $remote_vm_mac \
 		enc_src_ip $link_remote_ip	\
 		enc_dst_ip $link_ip		\
 		enc_dst_port $vxlan_port	\
@@ -3548,8 +3546,6 @@ set -x
 	sample=0
 	if (( sample == 1 )); then
 		$TC filter add dev $redirect protocol ip  parent ffff: chain 0 prio 2 flower $offload \
-			src_mac $local_vm_mac	\
-			dst_mac $remote_vm_mac	\
 			ct_state -trk		\
 			action sample rate $rate group 5 \
 			action ct pipe		\
@@ -3564,8 +3560,6 @@ set -x
 	fi
 
 	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 2 flower $offload \
-		src_mac $local_vm_mac	\
-		dst_mac $remote_vm_mac	\
 		ct_state +trk+new	\
 		action ct commit	\
 		action tunnel_key set	\
@@ -3575,8 +3569,6 @@ set -x
 		id $vni			\
 		action mirred egress redirect dev $vx
 	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 2 flower $offload \
-		src_mac $local_vm_mac	\
-		dst_mac $remote_vm_mac	\
 		ct_state +trk+est	\
 		action tunnel_key set	\
 		src_ip $link_ip		\
@@ -3588,8 +3580,6 @@ set -x
 	sample=1
 	if (( sample == 1 )); then
 		$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
-			src_mac $remote_vm_mac	\
-			dst_mac $local_vm_mac	\
 			enc_src_ip $link_remote_ip	\
 			enc_dst_ip $link_ip		\
 			enc_dst_port $vxlan_port	\
@@ -3600,8 +3590,6 @@ set -x
 			action goto chain 1
 	else
 		$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
-			src_mac $remote_vm_mac	\
-			dst_mac $local_vm_mac	\
 			enc_src_ip $link_remote_ip	\
 			enc_dst_ip $link_ip		\
 			enc_dst_port $vxlan_port	\
@@ -3612,8 +3600,6 @@ set -x
 	fi
 
 	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 2 flower $offload	\
-		src_mac $remote_vm_mac	\
-		dst_mac $local_vm_mac	\
 		enc_src_ip $link_remote_ip	\
 		enc_dst_ip $link_ip		\
 		enc_dst_port $vxlan_port	\
@@ -3623,8 +3609,6 @@ set -x
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
 	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 2 flower $offload	\
-		src_mac $remote_vm_mac	\
-		dst_mac $local_vm_mac	\
 		enc_src_ip $link_remote_ip	\
 		enc_dst_ip $link_ip		\
 		enc_dst_port $vxlan_port	\
