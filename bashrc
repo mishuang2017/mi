@@ -10747,9 +10747,9 @@ set -x
 	ip link set dev $link2 down
 
 	ip link add name bond0 type bond
-# 	ip link set dev bond0 type bond mode active-backup miimon 100
+	ip link set dev bond0 type bond mode active-backup miimon 100
 # 	ip link set dev bond0 type bond mode 802.3ad
-	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer3+4
+# 	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer3+4
 # 	ip link set dev bond0 type bond mode balance-rr
 
 # 	ip link add name bond0 type bond mode active-backup miimon 100
@@ -10775,8 +10775,8 @@ function bond_br
 	restart-ovs
 	del-br
 	ovs-vsctl add-br $br
-	ovs-vsctl add-port $br bond0
-# 	vxlan1
+# 	ovs-vsctl add-port $br bond0
+	vxlan1
 # 	for (( i = 0; i < numvfs; i++)); do
 # 		local rep=$(get_rep $i)
 # 		ovs-vsctl add-port $br $rep
@@ -13136,11 +13136,11 @@ function rate_group_sf
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
+	$sfcmd port function rate set pci/$pci/32768 tx_max 100
 	$sfcmd port function rate add pci/$pci/12_group
-# 	$sfcmd port function rate set pci/$pci/12_group tx_max 100
-# 	$sfcmd port function rate set pci/$pci/32768 parent 12_group
+	$sfcmd port function rate set pci/$pci/32768 parent 12_group
 # 	$sfcmd port function rate del pci/$pci/12_group
-# 	$sfcmd port fun rate show
+	$sfcmd port fun rate show
 set +x
 }
 
@@ -13251,8 +13251,6 @@ function rate3
 }
 
 if (( bf == 1 )); then
-	alias sml='cd /workspace/linux'
-
 	function headers_install
 	{
 		sudo make headers_install ARCH=arm64 INSTALL_HDR_PATH=/usr -j -B

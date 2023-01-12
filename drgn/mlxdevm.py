@@ -21,9 +21,9 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
 #     print(port_list)
     for port in list_for_each_entry('struct mlxdevm_port', port_list.address_of_(), 'list'):
         print("%x" % port.index)
-#         print(port)
+        print(port)
         devm = port.devm
         mlx5_devm_device = cast("struct mlx5_devm_device *", devm)
         mlx5_core_dev = mlx5_devm_device.dev
         devlink = container_of(mlx5_core_dev, "struct devlink" , "priv")
-        print(devlink)
+#         print(devlink)
