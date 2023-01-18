@@ -10,16 +10,23 @@ import os
 sys.path.append(".")
 from lib import *
 
+def print_health(health):
+    print(health.failed_in_seq)
+#     print(health.fw_reporter)
+    print(health.fw_fatal_reporter)
 
 def print_esw(priv):
     print("mlx5e_priv %#x" % priv.address_of_())
     print("mlx5_core_dev %#x" % priv.mdev)
     print("mlx5_priv %#x" % priv.mdev.priv.address_of_())
+    print_health(priv.mdev.priv.health)
     esw = mlx5e_priv.mdev.priv.eswitch
     print("mlx5_eswitch %#x" % esw)
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
     print("esw->flags: %#x" % esw.flags)
     print("mode: %d" % esw.mode)
+    if esw.mode == 0:
+        return
     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags);
     print("esw->total_vports: %d" % esw.total_vports)
     print("esw->enabled_vports: %d" % esw.enabled_vports)
@@ -40,6 +47,6 @@ def print_esw(priv):
 print("===================== port 1 =======================")
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
-print("===================== port 2 =======================")
-mlx5e_priv2 = get_mlx5e_priv(pf1_name)
-print_esw(mlx5e_priv2)
+# print("===================== port 2 =======================")
+# mlx5e_priv2 = get_mlx5e_priv(pf1_name)
+# print_esw(mlx5e_priv2)

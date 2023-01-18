@@ -13867,3 +13867,11 @@ function bf2_on_sriov
 	netns n11 enp6s0f4 1.1.1.1
 	netns n12 enp6s0f5 1.1.1.2
 }
+
+#define MLX5_FW_REPORTER_PF_GRACEFUL_PERIOD 60000
+function reset1
+{
+	grace_period=$(devlink health show pci/$pci reporter fw_fatal -j |  jq '.[][][].grace_period')
+	echo "grace_period=$grace_period"
+	echo 1 > /sys/bus/pci/devices/$pci/reset
+}
