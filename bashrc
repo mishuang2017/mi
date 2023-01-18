@@ -535,7 +535,7 @@ alias m6="cd /$images/cmi/ofed-4.6/mlnx-ofa_kernel-4.0"
 alias cd-test="cd $linux_dir/tools/testing/selftests/tc-testing/"
 alias vi-action="vi $linux_dir/tools/testing/selftests/tc-testing/tc-tests/actions//tests.json"
 alias vi-filter="vi $linux_dir/tools/testing/selftests/tc-testing/tc-tests/filters//tests.json"
-alias smo="cd /$images/cmi/openvswitch"
+alias smo="cd /$images/cmi/ovs"
 alias rmswp='find . -name *.swp -exec rm {} \;'
 
 alias smc="sm; cd crash; vi net.c"
