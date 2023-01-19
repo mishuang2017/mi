@@ -13870,3 +13870,5 @@ function reset1
 	echo "grace_period=$grace_period"
 	echo 1 > /sys/bus/pci/devices/$pci/reset
 }
+
+alias mip=/opt/mellanox/iproute2/sbin/ip
