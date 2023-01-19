@@ -14,7 +14,7 @@ import time
 sys.path.append(".")
 from lib_ovs import *
 
-ofproto_dpif = get_ofproto_dpif("br")
+ofproto_dpif = get_ofproto_dpif("br1")
 
 print("ofproto_dpif: %lx" % ofproto_dpif)
 
