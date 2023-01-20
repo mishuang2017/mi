@@ -123,17 +123,17 @@ def print_action_stats(a):
                 packets += bstats.packets
         print("percpu bytes: %d, packets: %d" % (bytes, packets))
     else:
-        # old new kernel, it is u64_stats_t
-#         bstats = a.tcfa_bstats
-#         bytes += bstats.bytes.v.a.a.counter
-#         packets += bstats.packets.v.a.a.counter
-#         print("\t\t\t\tbytes: %d, packets: %d" % (bytes, packets))
+        # on new kernel, it is u64_stats_t
+        bstats = a.tcfa_bstats
+        bytes += bstats.bytes.v.a.a.counter
+        packets += bstats.packets.v.a.a.counter
+        print("\t\t\t\tbytes: %d, packets: %d" % (bytes, packets))
 
         # on old kernel, it is __u64.
-        bstats = a.tcfa_bstats
-        bytes += bstats.bytes
-        packets += bstats.packets
-        print("\t\t\t\tbytes: %d, packets: %d" % (bytes, packets))
+#         bstats = a.tcfa_bstats
+#         bytes += bstats.bytes
+#         packets += bstats.packets
+#         print("\t\t\t\tbytes: %d, packets: %d" % (bytes, packets))
 
     bytes = 0
     packets = 0
@@ -148,11 +148,11 @@ def print_action_stats(a):
                 bytes += bstats.bytes
                 packets += bstats.packets
         print("\t\t\t     hw percpu bytes: %d, packets: %d" % (bytes, packets))
-    else:
-        bstats = a.tcfa_bstats_hw
-        bytes += bstats.bytes
-        packets += bstats.packets
-        print("\t\t\t\thw bytes: %d, packets: %d" % (bytes, packets))
+#     else:
+#         bstats = a.tcfa_bstats_hw
+#         bytes += bstats.bytes
+#         packets += bstats.packets
+#         print("\t\t\t\thw bytes: %d, packets: %d" % (bytes, packets))
  
 def print_exts(e):
     print("      nr_actions: %d" % e.nr_actions)
@@ -222,7 +222,8 @@ def print_exts(e):
             print("\t\tupdate_flags: %d" % tcf_csum.params.update_flags)
         if kind == "police":
             tcf_police = Object(prog, 'struct tcf_police', address=a.value_())
-            print(tcf_police.params)
+#             print(tcf_police.params)
+            print("\t\t\tpolice index: %x" % tcf_police.common.tcfa_index)
 
 def print_cls_fl_filter(f):
     print("    cls_fl_filter %lx" % f.address_of_(), end=' ')
