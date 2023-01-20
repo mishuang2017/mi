@@ -13872,3 +13872,8 @@ function reset1
 }
 
 alias mip=/opt/mellanox/iproute2/sbin/ip
+
+function meter_list
+{
+	ovs-ofctl dump-meters br-ovs -O OpenFlow13
+}
