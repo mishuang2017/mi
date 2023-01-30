@@ -26,6 +26,6 @@ print(netdev_offload_tc)
 
 print("===")
 
-shashes = print_hmap(prog['dpif_offload_classes'].map, "shash_node", "node")
-for i, shash in enumerate(shashes):
-    print(shash)
+# shashes = print_hmap(prog['dpif_offload_classes'].map, "shash_node", "node")
+# for i, shash in enumerate(shashes):
+#     print(shash)
