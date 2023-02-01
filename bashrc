@@ -690,7 +690,7 @@ alias              vi-dpdk="vi lib/netdev-offload-dpdk.c"
 alias    vi_netdev-offload="vi lib/netdev-offload.c"
 alias      vi_dpif-netlink="vi lib/dpif-netlink.c"
 alias           vi_offload='vi lib/dpif-netdev.c lib/dpif-offload-netdev.c lib/dpif.c lib/dpif-offload-provider.h lib/dpif-offload.c lib/dpif-offload-netlink.c lib/netdev-offload-tc.c'
-alias           vi_offload='vi lib/dpif-netdev.c lib/dpif.c lib/dpif-offload-provider.h lib/dpif-offload.c lib/dpif-offload-netlink.c lib/netdev-offload-tc.c'
+alias           vi_offload='vi lib/netdev-offload-tc.c lib/dpif-netdev.c lib/dpif.c lib/dpif-offload-provider.h lib/dpif-offload.c lib/dpif-offload-netlink.c '
 alias            vi_ovs_in='vi utilities/ovs-kmod-ctl.in'
 
 alias vi_errno='vi include/uapi/asm-generic/errno.h '

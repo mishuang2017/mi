@@ -32,10 +32,18 @@ for i in range(1024):
         print("name: %10s,  n_ids: %d, id: %x" % (name, upcall_portids.n_ids, id))
         print("vport %lx" % vport)
         print("datapath %lx" % vport.dp)
+        dp = vport.dp
         print("vport_portids %lx" % upcall_portids)
         print("vport_no %d" % port_no)
         print("")
     p = p + 1
+
+print(dp.upcall_portids)
+
+for i in range(dp.upcall_portids.n_pids):
+    print(dp.upcall_portids.pids[i])
+
+exit(0)
 
 table = vport.dp.table
 # print(table)

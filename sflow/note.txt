@@ -1234,3 +1234,23 @@ add modify_hdr in sample_termtbl
 
 ftedump -d /dev/mst/mt4121_pciconf0 -a /mswg/release/host_fw/fw-4119/fw-4119-rel-16_28_1002/../etc/galil_def.adb --no_zero
 
+===upstream===
+
+netdev_tc_parse_nl_actions
+
+netdev_tc_flow_put
+
+meter_police_ids
+
+dpif_netlink_meter_set
+    dpif_netlink_meter_set__
+    meter_offload_set
+
+dpif_offload_sflow_recv
+dpif_offload_sflow_recv_wait
+
+dpif_offload_netlink_sflow_recv
+dpif_offload_netlink_sflow_recv_wait
+
+
+

@@ -13,7 +13,7 @@ import time
 sys.path.append(".")
 from lib_ovs import *
 
-xbridge = get_xbridge("br-ovs")
+xbridge = get_xbridge("br1")
 
 dpif = xbridge.dpif
 
@@ -36,6 +36,9 @@ print("%30s: %s" % ("flow_dump_next", address_to_name(hex(dpif.dpif_class.flow_d
 print("%30s: %s" % ("operate", address_to_name(hex(dpif.dpif_class.operate.value_()))))
 
 dpif_netlink = container_of(dpif, "struct dpif_netlink" , "dpif")
+print("\n===dpif_netlink===\n")
+print(dpif_netlink)
+print("user_features: %x, OVS_DP_F_DISPATCH_UPCALL_PER_CPU: %x" % (dpif_netlink.user_features, 1<<3))
 # print("===dpif_netlink.psample_sock===")
 # print(dpif_netlink.psample_sock)
 print("===dpif_netlink.port_notifier===")
@@ -56,7 +59,7 @@ for i in range(n_handlers):
     for j in range(uc_array_size):
         print(handlers[i].epoll_events[j])
     print('===============')
-    exit(0)
+#     exit(0)
 
 print('')
 
