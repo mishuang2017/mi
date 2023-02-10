@@ -1252,5 +1252,22 @@ dpif_offload_sflow_recv_wait
 dpif_offload_netlink_sflow_recv
 dpif_offload_netlink_sflow_recv_wait
 
+dpif_netlink_sflow_recv
+    sflow_offload_psample_recv
 
+udpif_upcall_handler
+    recv_offload_sflow
+
+dpif_offload_sflow_recv -> dpif_netlink_sflow_recv
+
+dpif_sflow_recv
+
+sflow_psample_recv
+
+dpif_netlink_recv
+dpif_netlink_recv_wait
+
+sflow_psample_recv_wait
+
+netdev_offload_recv
 

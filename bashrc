@@ -13877,3 +13877,5 @@ function meter_list
 {
 	ovs-ofctl dump-meters br-ovs -O OpenFlow13
 }
+
+alias m20='make -j 20'

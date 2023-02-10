@@ -32,4 +32,4 @@ ufid_tc_datas = print_hmap(prog['ufid_to_tc'], "ufid_tc_data", "ufid_to_tc_node"
 for i, ufid_tc_data in enumerate(ufid_tc_datas):
     print("=== %d ===" % i)
     print_ufid_tc_data(ufid_tc_data)
-    print(ufid_tc_data)
+#     print(ufid_tc_data)
