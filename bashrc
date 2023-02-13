@@ -12654,13 +12654,18 @@ function run_ovs_test
 function sflow_create_lo
 {
 	local rate=1
+	local bridge=$br
 
 	[[ $# == 1 ]] && rate=$1
+	if [[ $# == 2 ]]; then
+		rate=$1
+		bridge=$2
+	fi
 
 	local header=60
 	local polling=1000
 # 	ovs-vsctl -- --id=@sflow create sflow agent=lo target=\"127.0.0.1:6343\" header=$header sampling=$rate polling=$polling -- set bridge $br sflow=@sflow
-	ovs-vsctl -- --id=@sflow create sflow agent=lo target=\"127.0.0.1\" header=$header sampling=$rate polling=$polling -- set bridge $br sflow=@sflow
+	ovs-vsctl -- --id=@sflow create sflow agent=lo target=\"127.0.0.1\" header=$header sampling=$rate polling=$polling -- set bridge $bridge sflow=@sflow
 }
 
 function sflow_create

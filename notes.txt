@@ -12275,5 +12275,9 @@ Route Table <main>:
 
 ovn-sbctl list Logical_Flow
 
+===meter===
+
+ip netns exec ns0 iperf -s
+ip netns exec ns1 iperf -u -c 7.7.7.1 -t 10000 -l 1400 -b2G -i 1
 
 
