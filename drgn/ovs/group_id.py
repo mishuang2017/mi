@@ -17,6 +17,13 @@ cmap = prog['sgid_map']
 # print(cmap)
 ids = print_cmap(cmap, "sgid_node", "id_node")
 
+# print("================ sample_group_ids ====================")
+# sample_group_ids = prog['sample_group_ids']
+# print(sample_group_ids)
+# ids = print_hmap(sample_group_ids.map.address_of_(), "id_node", "node")
+# for i, id in enumerate(ids):
+#     print(id)
+ 
 # for i, id in enumerate(ids):
 #     print(id)
 
@@ -33,8 +40,8 @@ for i, id in enumerate(ids):
     len = id.sflow.action.nla_len
     attr = id.sflow.action
     print(id.refcount)
-    print("id: %d, len: %d, ref: %d, hash: %x, sflow_attr: %x, userdata(cookie): %x, actions: %x" % \
-        (id.id, len, id.refcount.count, id.hash, id.sflow.address_of_(), id.sflow.userdata, id.sflow.actions))
+    print("id: %d, len: %d, ref: %d, hash: %x, sflow_attr: %x, userdata(cookie): %x, actions: %x, actions_len: %x, tunnel: %x" % \
+        (id.id, len, id.refcount.count, id.hash, id.sflow.address_of_(), id.sflow.userdata, id.sflow.actions, id.sflow.actions_len, id.sflow.tunnel))
 #     print(id.sflow.ufid)
 #     print(id.sflow.action)
     p = Object(prog, 'unsigned char *', address=attr.address_of_())
