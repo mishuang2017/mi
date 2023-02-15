@@ -536,6 +536,7 @@ alias cd-test="cd $linux_dir/tools/testing/selftests/tc-testing/"
 alias vi-action="vi $linux_dir/tools/testing/selftests/tc-testing/tc-tests/actions//tests.json"
 alias vi-filter="vi $linux_dir/tools/testing/selftests/tc-testing/tc-tests/filters//tests.json"
 alias smo="cd /$images/cmi/ovs"
+alias smo2="cd /$images/cmi/openvswitch"
 alias rmswp='find . -name *.swp -exec rm {} \;'
 
 alias smc="sm; cd crash; vi net.c"
@@ -6570,7 +6571,7 @@ function br_sf_vxlan_ct
 
 function sf_test
 {
-	restart
+# 	restart
 	sf
 	sleep 1
 	sf_ns

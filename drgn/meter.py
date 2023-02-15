@@ -93,5 +93,6 @@ tc_action_net = Object(prog, 'struct tc_action_net', address=ptr.value_())
 idr=tc_action_net.idrinfo.action_idr
 
 for node in radix_tree_for_each(idr.idr_rt.address_of_()):
+    print(node)
     fc = Object(prog, 'struct mlx5_fc', address=node[1].value_())
     print("id: %x, packets: %d" % (fc.id, fc.cache.packets))
