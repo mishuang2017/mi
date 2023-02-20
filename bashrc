@@ -12639,7 +12639,9 @@ set +x
 
 function sflow_clear
 {
-	ovs-vsctl -- clear Bridge $br sflow
+	local bridge=$br
+	[[ $# == 1 ]] && bridge=$1
+	ovs-vsctl -- clear Bridge $bridge sflow
 }
 
 function sflow_list
