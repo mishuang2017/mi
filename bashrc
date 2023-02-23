@@ -171,7 +171,7 @@ if (( cloud == 1 )); then
 	rep1=enp8s0f0_0
 	rep2=enp8s0f0_1
 	rep3=enp8s0f0_2
-	(( host_num == 43 )) && remote_mac=0c:42:a1:d1:d1:80
+	(( host_num == 65 )) && remote_mac=10:70:fd:d9:0d:a4
 fi
 
 if (( host_num == 0 )); then
@@ -7643,7 +7643,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v21" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v22" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
@@ -10098,6 +10098,50 @@ function bond_block_id
 	id=$(tc qdisc show dev bond0 | grep ingress_block | cut -d ' ' -f 7)
 	echo $id
 }
+
+function tc_bond
+{
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+set -x
+
+	TC=/images/cmi/iproute2/tc/tc;
+
+	bond=bond0
+	block_id=22
+
+	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1;
+	ethtool -K $rep2 hw-tc-offload on;
+	$TC qdisc add dev $rep2 ingress
+
+	for i in $link $link2; do
+		$TC qdisc del dev $i ingress_block 22 ingress &>/dev/null
+		$TC qdisc del dev $i ingress > /dev/null 2>&1;
+		ethtool -K $i hw-tc-offload on;
+		$TC qdisc add dev $i ingress_block 22 ingress
+	done
+
+	mac1=02:25:d0:$host_num:01:02
+	mac2=$remote_mac
+	echo "add arp rules"
+	$TC filter add dev $rep2 ingress protocol arp prio 1 flower $offload \
+		action mirred egress redirect dev $bond
+
+	$TC filter add block $block_id ingress protocol arp prio 1 flower $offload \
+		action mirred egress redirect dev $rep2
+
+	echo "add ip rules"
+	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
+		action mirred egress redirect dev $bond
+
+	$TC filter add block $block_id ingress protocol ip chain 0 prio 2 flower $offload \
+		action mirred egress redirect dev $rep2
+
+set +x
+}
+
 
 function tc_ct_bond
 {
