@@ -419,6 +419,7 @@ alias clone-bin='git clone https://github.com/mishuang2017/bin.git'
 alias clone-c='git clone https://github.com/mishuang2017/c.git'
 alias clone-rpmbuild='git clone git@github.com:mishuang2017/rpmbuild.git'
 alias clone-ovs='git clone ssh://git@gitlab-master.nvidia.com:12051/sdn/ovs.git --branch=mlnx_ofed_5_9'
+alias clone-ovs2='git clone ssh://10.7.0.100:29418/openvswitch'
 alias clone-ovs-upstream='git clone git@github.com:openvswitch/ovs.git'
 alias clone-linux="git clone ssh://cmi@l-gerrit.lab.mtl.com:29418/upstream/linux"
 alias clone-linux-4.19-bd='git clone git@github.com:mishuang2017/linux --branch=4.19-bd'
