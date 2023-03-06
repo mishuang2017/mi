@@ -1615,7 +1615,7 @@ function install-ovs
 set -x
         make clean
         ./boot.sh
-	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc # --enable-shared CC=clang
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
 #	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
 	make -j CFLAGS="-Werror -g"
@@ -5246,6 +5246,18 @@ set -x
 set +x
 }
 
+function br2_vf
+{
+set -x
+	vs add-br $br2
+	for (( i = 0; i < numvfs; i++)); do
+		local rep=$(get_rep2 $i)
+		ifconfig $rep up
+		vs add-port $br2 $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+set +x
+}
+
 function br_dpdk
 {
 set -x
@@ -7643,7 +7655,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v22" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v24" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
