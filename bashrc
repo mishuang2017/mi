@@ -3241,19 +3241,6 @@ set -x
 		src_mac $local_vm_mac	\
 		dst_mac $remote_vm_mac	\
 		action mirred egress mirror dev $mirror	\
-		action mirred egress mirror dev $rep4	\
-		action mirred egress mirror dev $rep5	\
-		action mirred egress mirror dev $rep6	\
-		action mirred egress mirror dev $rep7	\
-		action mirred egress mirror dev $rep8	\
-		action mirred egress mirror dev $rep9	\
-		action mirred egress mirror dev $rep10	\
-		action mirred egress mirror dev $rep11	\
-		action mirred egress mirror dev $rep12	\
-		action mirred egress mirror dev $rep13	\
-		action mirred egress mirror dev $rep14	\
-		action mirred egress mirror dev $rep15	\
-		action mirred egress mirror dev $rep16	\
 		action tunnel_key set	\
 		src_ip $link_ip		\
 		dst_ip $link_remote_ip	\
@@ -3269,19 +3256,6 @@ set -x
 		enc_key_id $vni			\
 		action tunnel_key unset		\
 		action mirred egress mirror dev $mirror	\
-		action mirred egress mirror dev $rep4	\
-		action mirred egress mirror dev $rep5	\
-		action mirred egress mirror dev $rep6	\
-		action mirred egress mirror dev $rep7	\
-		action mirred egress mirror dev $rep8	\
-		action mirred egress mirror dev $rep9	\
-		action mirred egress mirror dev $rep10	\
-		action mirred egress mirror dev $rep11	\
-		action mirred egress mirror dev $rep12	\
-		action mirred egress mirror dev $rep13	\
-		action mirred egress mirror dev $rep14	\
-		action mirred egress mirror dev $rep15	\
-		action mirred egress mirror dev $rep16	\
 		action mirred egress redirect dev $redirect
 set +x
 }
