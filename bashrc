@@ -377,11 +377,6 @@ alias pcu="picocom -b $base_baud /dev/ttyUSB0"
 alias sw='vsconfig-sw; restart-ovs'
 alias hw='vsconfig-hw; restart-ovs'
 
-# bluefield
-# mlxdump -d 81:00.0 fsdump --type=FT --no_zero
-alias fsdump5="mlxdump -d $pci fsdump --type FT --gvmi=0 --no_zero=1"
-alias fsdump52="mlxdump -d $pci2 fsdump --type FT --gvmi=1 --no_zero=1"
-
 alias fsdump5="mlxdump -d $pci fsdump --type FT --gvmi=0 --no_zero"
 alias fsdump52="mlxdump -d $pci2 fsdump --type FT --gvmi=1 --no_zero"
 
@@ -1892,7 +1887,7 @@ function tc2
 {
 	local l
 #	for link in p2p1 $rep1 $rep2 $vx_rep; do
-	for l in $link $rep1 $rep2 $rep3 bond0; do
+	for l in $link $rep1 $rep2 $rep3 bond0 vxlan1; do
 		ip link show $l > /dev/null 2>&1 || continue
 		tc qdisc show dev $l ingress | grep ffff > /dev/null 2>&1
 		if (( $? == 0 )); then
@@ -3218,7 +3213,7 @@ set -x
 	remote_vm_mac=$vxlan_mac
 
 	# arp
-	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower skip_hw	\
+	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower $offload	\
 		src_mac $local_vm_mac	\
 		action mirred egress mirror dev $mirror	\
 		action tunnel_key set	\
@@ -3227,14 +3222,14 @@ set -x
 		dst_port $vxlan_port	\
 		id $vni			\
 		action mirred egress redirect dev $vx
-	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
+	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower $offload	\
 		src_mac $remote_vm_mac \
 		enc_src_ip $link_remote_ip	\
 		enc_dst_ip $link_ip		\
 		enc_dst_port $vxlan_port	\
 		enc_key_id $vni			\
 		action tunnel_key unset		\
-		action mirred egress mirror dev $mirror	\
+		action mirred egress mirror dev $mirror \
 		action mirred egress redirect dev $redirect
 
 	$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \

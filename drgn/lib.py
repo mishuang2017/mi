@@ -391,9 +391,12 @@ def print_mlx5_flow_handle(handle):
 def print_mlx5e_tc_flow_rules(rules):
 #     print(rules.num_rules)
     if rules[0]:
+        print("--- rule 0 ---")
         print_mlx5_flow_handle(rules[0])
     if rules[1]:
+        print("--- rule 1 ---")
         print_mlx5_flow_handle(rules[1])
+    print('')
 
 def print_mlx5_fc(fc):
     p = fc.lastpackets
