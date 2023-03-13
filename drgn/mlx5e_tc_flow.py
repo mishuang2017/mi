@@ -12,6 +12,7 @@ from lib import *
 
 print_mlx5e_tc_flow_flags()
 
+j=1
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     addr = dev.value_()
@@ -25,15 +26,16 @@ for x, dev in enumerate(get_netdevs()):
     if ppriv.value_() == 0:
         continue
 
+    print('')
     print(name)
-    print(dev.name)
     mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=ppriv.value_())
     tc_ht = mlx5e_rep_priv.tc_ht
 
     for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
 #         print(flow.attr.esw_attr[0])
-        print(" --- %d ---" % (i + 1))
+        print("============================== %d =========================" % j)
         print_mlx5e_tc_flow(flow)
+        j=j+1
 #         print(flow.attrs)
 #         for mlx5_flow_attr in list_for_each_entry('struct mlx5_flow_attr', flow.attrs.address_of_(), 'list'):
 #             print(mlx5_flow_attr)
