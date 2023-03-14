@@ -25,7 +25,7 @@ for i in range(256):
     while node.value_():
         obj = container_of(node, "struct mlx5_esw_indir_table_entry", "hlist")
         vport = obj.vport
-        print(" ======== vport: %d =========" % vport)
+        print("--- vport: %d ---" % vport)
         ft = obj.ft
         flow_table("", ft)
         node = node.next

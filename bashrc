@@ -3297,25 +3297,25 @@ set -x
 	remote_vm_mac=$vxlan_mac
 
 	# arp
-	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower skip_hw	\
-		src_mac $local_vm_mac	\
-		action mirred egress mirror dev $mirror	\
-		action tunnel_key set	\
-		src_ip $link_ip		\
-		dst_ip $link_remote_ip	\
-		dst_port $vxlan_port	\
-		id $vni			\
-		action mirred egress redirect dev $vx
-	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
-		src_mac $remote_vm_mac \
-		enc_src_ip $link_remote_ip	\
-		enc_dst_ip $link_ip		\
-		enc_dst_port $vxlan_port	\
-		enc_key_id $vni			\
-		action tunnel_key unset		\
-		action mirred egress mirror dev $mirror \
-		action mirred egress redirect dev $redirect
-
+# 	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower skip_hw	\
+# 		src_mac $local_vm_mac	\
+# 		action mirred egress mirror dev $mirror	\
+# 		action tunnel_key set	\
+# 		src_ip $link_ip		\
+# 		dst_ip $link_remote_ip	\
+# 		dst_port $vxlan_port	\
+# 		id $vni			\
+# 		action mirred egress redirect dev $vx
+# 	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
+# 		src_mac $remote_vm_mac \
+# 		enc_src_ip $link_remote_ip	\
+# 		enc_dst_ip $link_ip		\
+# 		enc_dst_port $vxlan_port	\
+# 		enc_key_id $vni			\
+# 		action tunnel_key unset		\
+# 		action mirred egress mirror dev $mirror \
+# 		action mirred egress redirect dev $redirect
+# 
 # 	$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \
 # 		src_mac $local_vm_mac	\
 # 		dst_mac $remote_vm_mac	\
@@ -12506,24 +12506,25 @@ set -x
 # 		action sample rate 10000 group 5 trunc 80 \
 #                 action police rate 200mbit burst 65536 conform-exceed drop/pipe \
 
-	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
-		action sample rate 1 group 5 trunc 80 \
-		action mirred egress redirect dev $rep3
+# 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
+# 	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
+# 		action sample rate 1 group 5 trunc 80 \
+# 		action mirred egress redirect dev $rep3
+
 # 	$TC filter add dev $rep2 ingress protocol arp prio 2 flower $offload \
 # 		action mirred egress redirect dev $rep3
-	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
+# 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 
 	src_mac=02:25:d0:$host_num:01:03
 	dst_mac=02:25:d0:$host_num:01:02
-# 		action sample rate $rate group 6 trunc 80 \
+# 	$TC filter add dev $rep3 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 	$TC filter add dev $rep3 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
 		action sample rate 1 group 6 trunc 80 \
 		action mirred egress redirect dev $rep2
+
 # 	$TC filter add dev $rep3 ingress protocol arp prio 2 flower $offload \
 # 		action mirred egress redirect dev $rep2
-	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
-	$TC filter add dev $rep3 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
+# 	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
 set +x
 }
 

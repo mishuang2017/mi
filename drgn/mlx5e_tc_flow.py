@@ -36,7 +36,9 @@ for x, dev in enumerate(get_netdevs()):
         print("============================== %d =========================" % j)
         print_mlx5e_tc_flow(flow)
         j=j+1
-#         print(flow.attrs)
-#         for mlx5_flow_attr in list_for_each_entry('struct mlx5_flow_attr', flow.attrs.address_of_(), 'list'):
-#             print(mlx5_flow_attr)
+        print(flow.attrs)
+        for mlx5_flow_attr in list_for_each_entry('struct mlx5_flow_attr', flow.attrs.address_of_(), 'list'):
+            print(mlx5_flow_attr.action)
+            print(mlx5_flow_attr.post_act_handle)
+#             print(mlx5_flow_attr.parse_attr)
 #             print(mlx5_flow_attr.esw_attr[0])

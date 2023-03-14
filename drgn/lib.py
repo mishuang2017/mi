@@ -182,13 +182,23 @@ def print_exts(e):
         if kind == "pedit":
             tcf_pedit = Object(prog, 'struct tcf_pedit', address=a.value_())
 #             print("%lx" % a.value_())
-            n = tcf_pedit.tcfp_nkeys
+
+#             n = tcf_pedit.tcfp_nkeys
+#             print("\t\ttcf_pedit.tcfp_nkeys: %d" % n)
+#             for i in range(n):
+#                 print("\t\t%d:\t" % i, end='')
+#                 print(tcf_pedit.tcfp_keys_ex[i].htype)
+#                 print("\t\t\toffset: %x" % tcf_pedit.tcfp_keys[i].off, end='\t')
+#                 print("value / mask:   %08x / %08x" % (tcf_pedit.tcfp_keys[i].val, tcf_pedit.tcfp_keys[i].mask))
+
+            n = tcf_pedit.parms.tcfp_nkeys
             print("\t\ttcf_pedit.tcfp_nkeys: %d" % n)
             for i in range(n):
                 print("\t\t%d:\t" % i, end='')
-                print(tcf_pedit.tcfp_keys_ex[i].htype)
-                print("\t\t\toffset: %x" % tcf_pedit.tcfp_keys[i].off, end='\t')
-                print("value / mask:   %08x / %08x" % (tcf_pedit.tcfp_keys[i].val, tcf_pedit.tcfp_keys[i].mask))
+                print(tcf_pedit.parms.tcfp_keys_ex[i].htype)
+                print("\t\t\toffset: %x" % tcf_pedit.parms.tcfp_keys[i].off, end='\t')
+                print("value / mask:   %08x / %08x" % (tcf_pedit.parms.tcfp_keys[i].val, tcf_pedit.parms.tcfp_keys[i].mask))
+ 
             print_action_stats(a)
 #             print(a)
         if kind == "mirred":
