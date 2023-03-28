@@ -13444,6 +13444,24 @@ if (( host_num == 200 )); then
 	link=wlp2s0
 fi
 
+function cloud_setup0
+{
+	mkdir -p /images/cmi
+	chown cmi.mtl /images/cmi
+	ln -s ~cmi/mi /images/cmi
+
+	apt install -y cscope tmux screen exuberant-ctags rsync  iperf3 htop pciutils vim diffstat texinfo gdb
+
+	if ! test -f ~/.tmux.conf; then
+		mv ~/.bashrc bashrc.orig
+		ln -s ~cmi/.bashrc
+		ln -s ~cmi/.tmux.conf
+		ln -s ~cmi/.vimrc
+		ln -s ~cmi/.vim
+		/bin/cp ~cmi/.crash /root
+	fi
+}
+
 function root-login
 {
 	file=/etc/ssh/sshd_config
