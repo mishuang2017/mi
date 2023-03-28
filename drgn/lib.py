@@ -690,7 +690,7 @@ def flow_table(name, table):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
             print_match(fs_fte, mask)
             if fs_fte.action.action & 0x40:
-                print("modify_hdr id: %x" % fs_fte.action.modify_hdr.id)
+                print("modify_hdr id: %#x" % fs_fte.action.modify_hdr.id)
             dest_addr = fte.children.address_of_()
             for dest in list_for_each_entry('struct fs_node', dest_addr, 'list'):
                 rule = Object(prog, 'struct mlx5_flow_rule', address=dest.value_())

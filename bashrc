@@ -3297,36 +3297,36 @@ set -x
 	remote_vm_mac=$vxlan_mac
 
 	# arp
-# 	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower skip_hw	\
-# 		src_mac $local_vm_mac	\
-# 		action mirred egress mirror dev $mirror	\
-# 		action tunnel_key set	\
-# 		src_ip $link_ip		\
-# 		dst_ip $link_remote_ip	\
-# 		dst_port $vxlan_port	\
-# 		id $vni			\
-# 		action mirred egress redirect dev $vx
-# 	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
-# 		src_mac $remote_vm_mac \
-# 		enc_src_ip $link_remote_ip	\
-# 		enc_dst_ip $link_ip		\
-# 		enc_dst_port $vxlan_port	\
-# 		enc_key_id $vni			\
-# 		action tunnel_key unset		\
-# 		action mirred egress mirror dev $mirror \
-# 		action mirred egress redirect dev $redirect
-# 
-# 	$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \
-# 		src_mac $local_vm_mac	\
-# 		dst_mac $remote_vm_mac	\
-# 		action mirred egress mirror dev $mirror	\
-# 		action tunnel_key set	\
-# 		src_ip $link_ip		\
-# 		dst_ip $link_remote_ip	\
-# 		dst_port $vxlan_port	\
-# 		id $vni			\
-#                 action pedit ex munge ip ttl set 63 pipe \
-# 		action mirred egress redirect dev $vx
+	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $local_vm_mac	\
+		action mirred egress mirror dev $mirror	\
+		action tunnel_key set	\
+		src_ip $link_ip		\
+		dst_ip $link_remote_ip	\
+		dst_port $vxlan_port	\
+		id $vni			\
+		action mirred egress redirect dev $vx
+	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $remote_vm_mac \
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress mirror dev $mirror \
+		action mirred egress redirect dev $redirect
+
+	$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \
+		src_mac $local_vm_mac	\
+		dst_mac $remote_vm_mac	\
+		action mirred egress mirror dev $mirror	\
+		action tunnel_key set	\
+		src_ip $link_ip		\
+		dst_ip $link_remote_ip	\
+		dst_port $vxlan_port	\
+		id $vni			\
+                action pedit ex munge ip ttl set 63 pipe \
+		action mirred egress redirect dev $vx
 	$TC filter add dev $vx protocol ip  parent ffff: prio 1 flower $offload	\
 		src_mac $remote_vm_mac	\
 		dst_mac $local_vm_mac	\
@@ -9748,6 +9748,25 @@ function br_veths
 		local rep=veth_rep$i
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
+	sflow_create_lo
+	ovs-ofctl del-flows $br
+	ovs-ofctl add-flow $br "ipv6,action=drop"
+	ovs-ofctl add-flow $br "arp,action=normal"
+	ovs-ofctl add-flow $br "ipv4,action=normal"
+}
+
+function br_veths_vxlan
+{
+	del-br
+	restart-ovs
+	veths_delete 2
+	veths 1
+	vs add-br $br
+	for (( i = 1; i <= 1; i++)); do
+		local rep=veth_rep$i
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+        vxlan1
 	sflow_create_lo
 	ovs-ofctl del-flows $br
 	ovs-ofctl add-flow $br "ipv6,action=drop"

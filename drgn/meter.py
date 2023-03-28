@@ -85,12 +85,18 @@ print_meter(mlx5e_priv)
 
 print("\n-------------------------------\n")
 gen = prog['init_net'].gen
-id = prog['police_net_id']
+act_police_ops = prog['act_police_ops']
+# id = prog['police_net_id']
+print(act_police_ops)
+id = act_police_ops.id
 print("police_id: %d" % id)
+print(gen)
 ptr = gen.ptr[id]
+print(ptr)
 tc_action_net = Object(prog, 'struct tc_action_net', address=ptr.value_())
-# print(tc_action_net)
+print(tc_action_net)
 idr=tc_action_net.idrinfo.action_idr
+print(idr)
 
 for node in radix_tree_for_each(idr.idr_rt.address_of_()):
     print(node)
