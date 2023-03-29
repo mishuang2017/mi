@@ -7714,7 +7714,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v24" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v25" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
@@ -13443,6 +13443,34 @@ alias vig='sudo vim /boot/grub/grub.cfg'
 if (( host_num == 200 )); then
 	link=wlp2s0
 fi
+
+function build_dpdk
+{
+	sm
+	git clone git@github.com:Mellanox/dpdk.org.git
+	cd dpdk.org
+	git checkout mlnx_dpdk_22.11_last_stable
+	meson -Denable_drivers=bus/auxiliary,*/mlx5,mempool/* -Dtests=false --buildtype=debug -Dc_args='-O0 -g3' --prefix=/var/dpdk-install build
+	sudo ninja -C build install
+}
+
+function build_doca
+{
+	sm
+	git clone http://l-gerrit.mtl.labs.mlnx:8080/doca
+	cd doca
+	export PKG_CONFIG_PATH=/var/dpdk-install/lib/aarch64-linux-gnu/pkgconfig
+	export LD_LIBRARY_PATH=/var/dpdk-install/lib/aarch64-linux-gnu/
+
+	source ./devtools/scripts/set_env_variables.sh
+	sudo meson -Dc_args='-O0 -g3' -Dunit_test=false -Denable_grpc_support=false  \
+		-Dis_simx=false -Denable_driver_flexio=false -Ddisable_lib_apsh=true  \
+		-Ddisable_lib_comm_channel=true -Ddisable_lib_devemu=true -Ddisable_lib_dma=true \
+		-Ddisable_lib_dpa=true -Ddisable_lib_dpi=true -Ddisable_lib_sha=true \
+		-Ddisable_lib_telemetry=true -Ddisable_all_tools=true  -Ddisable_all_services=true \
+		-Dverification_disable_testsuit=true --prefix=/var/doca-install --buildtype=debug  build
+	sudo ninja -C build install
+}
 
 function cloud_setup
 {
