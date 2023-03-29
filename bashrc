@@ -13460,6 +13460,7 @@ function cloud_setup
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
 	sudo apt install -y python3-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
 
+	# sudo update-alternatives --config python3
 	install_libkdumpfile
 	sm
 	clone-drgn
