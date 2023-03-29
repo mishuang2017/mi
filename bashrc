@@ -7714,7 +7714,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v25" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v26" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
@@ -10531,10 +10531,41 @@ function br_ct
 	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
 
 	ovs-ofctl dump-flows $br
-
-	sflow_create_lo
 }
 
+function br_ct_meter
+{
+        local proto
+
+	/usr/bin/ovs-ofctl -O OpenFlow13 add-meter $br meter=50,kbps,band=type=drop,rate=1044413
+
+	del-br
+	ovs-vsctl add-br $br
+	ovs-vsctl add-port $br $rep2
+	ovs-vsctl add-port $br $rep3
+
+	ovs-ofctl -O OpenFlow13 add-flow $br in_port=$rep2,dl_type=0x0806,actions=output:$rep3
+	ovs-ofctl -O OpenFlow13 add-flow $br in_port=$rep3,dl_type=0x0806,actions=output:$rep2
+
+	proto=udp
+	ovs-ofctl -O OpenFlow13 add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl -O OpenFlow13 add-flow $br "table=1, $proto,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl -O OpenFlow13 add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
+
+	proto=tcp
+	ovs-ofctl -O OpenFlow13 add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl -O OpenFlow13 add-flow $br "table=1, $proto,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl -O OpenFlow13 add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
+# 	ovs-ofctl -O OpenFlow13 add-flow $br "table=1, $proto,ct_state=+trk+new actions=meter:50,ct(commit),normal"
+# 	ovs-ofctl -O OpenFlow13 add-flow $br "table=1, $proto,ct_state=+trk+est actions=meter:50,normal"
+
+	proto=icmp
+	ovs-ofctl -O OpenFlow13 add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl -O OpenFlow13 add-flow $br "table=1, $proto,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl -O OpenFlow13 add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
+
+	ovs-ofctl dump-flows $br
+}
 
 function br_qa_ct
 {
