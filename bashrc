@@ -13444,6 +13444,42 @@ if (( host_num == 200 )); then
 	link=wlp2s0
 fi
 
+function cloud_setup
+{
+	local branch=$1
+	local build_kernel=0
+
+	if (( UID == 0 )); then
+		echo "please run as non-root user"
+		return
+	fi
+# 	build_ctags
+	sudo apt install -y cscope tmux screen rsync iperf3 htop pciutils vim diffstat texinfo gdb \
+		dh-autoreconf kexec-tools
+# 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
+	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
+	sudo apt -y install libdw-dev # drgn
+
+	install_libkdumpfile
+	sm
+	clone-drgn
+	cd drgn
+	sudo ./setup.py build
+	sudo ./setup.py install
+
+	cloud_grub
+
+# 	sm
+# 	git clone https://github.com/iovisor/bcc.git
+# 	install_bcc
+	apt install -y bpfcc-tools
+
+	sm
+	clone-crash
+	cd crash
+	make lzo -j 4
+}
+
 function cloud_setup0
 {
 	mkdir -p /images/cmi
