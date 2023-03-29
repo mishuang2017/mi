@@ -13458,7 +13458,7 @@ function cloud_setup
 		dh-autoreconf kexec-tools
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
-	sudo apt -y install libdw-dev # drgn
+	sudo apt install -y python3-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
 
 	install_libkdumpfile
 	sm

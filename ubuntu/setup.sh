@@ -32,7 +32,7 @@ sudo apt -y install texinfo
 sudo apt -y install libunwind-dev libslang2-dev binutils-dev libnuma-dev libbabeltrace-ctf-dev libiberty-dev libperl-dev libreadline-dev 
 # sudo apt install openjdk-8-jdk
 
-# apt install linux-crashdump
+sudo apt install -y linux-crashdump
 # dpkg-reconfigure kdump-tools
 # /usr/sbin/kdump-config
 # /etc/default/grub.d/kdump-tools.cfg
@@ -56,7 +56,7 @@ sudo apt install -y python3-dev liblzma-dev elfutils libbz2-dev python3-pip liba
 sudo apt install -y pkg-config
 
 # install libvirt for debian
-sudo apt install -y qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils libguestfs-tools genisoimage virtinst libosinfo-bin
+# sudo apt install -y qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils libguestfs-tools genisoimage virtinst libosinfo-bin
 # sudo apt install libvirt-daemon*
 
 
@@ -67,7 +67,7 @@ sudo apt install -y qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils 
 # network-manager-openconnect        /usr/lib/NetworkManager/nm-openconnect-service
 # network-manager-openconnect-gnome  /usr/lib/NetworkManager/nm-openconnect-auth-dialog
 # reboot
-sudo apt install -y libopenconnect5:amd64 openconnect vpnc-scripts network-manager-openconnect network-manager-openconnect-gnome
+# sudo apt install -y libopenconnect5:amd64 openconnect vpnc-scripts network-manager-openconnect network-manager-openconnect-gnome
 
 # apt install -y *pinyin*
 
