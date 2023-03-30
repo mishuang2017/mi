@@ -12048,11 +12048,11 @@ set +x
 function get-fs
 {
 set -x
-	if (( ofed == 1 )); then
-		cat /sys/class/net/$link/compat/devlink/steering_mode
-	else
+# 	if (( ofed == 1 )); then
+# 		cat /sys/class/net/$link/compat/devlink/steering_mode
+# 	else
 		devlink dev  param show pci/$pci name flow_steering_mode
-	fi
+# 	fi
 set +x
 }
 

@@ -12280,4 +12280,19 @@ ovn-sbctl list Logical_Flow
 ip netns exec ns0 iperf -s
 ip netns exec ns1 iperf -u -c 7.7.7.1 -t 10000 -l 1400 -b2G -i 1
 
+===doca==
+
+init_doca_device
+	/* Enable DOCA Flow HWS mode */
+	dv_flow_en=2
+
+==dpdk===
+
+dv_xmeta_en=4
+
+/* Only valid in HWS, 32bits extended META without MARK support in FDB. */
+#define MLX5_XMETA_MODE_META32_HWS 4
+
+
+
 

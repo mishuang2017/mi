@@ -30,8 +30,6 @@ set encoding=utf-8
 " set autoindent
 " set textwidth=80
 " set smartindent
-syntax off
-syntax on
 
 " set winwidth=80
 " set ignorecase
@@ -161,17 +159,20 @@ set term=screen
 " cs add cscope.out
 
 " For debian, add the following lines in /etc/vim/vimrc
-" if has("cscope") && filereadable("/usr/bin/cscope")
-"    set csprg=/usr/bin/cscope
-"    set csto=0
-"    set cst
-"    set nocsverb
-"    if filereadable("cscope.out")
-"       cs add $PWD/cscope.out
-"    elseif $CSCOPE_DB != ""
-"       cs add $CSCOPE_DB
-"    endif
-"    set csverb
-" endif
+if has("cscope") && filereadable("/usr/bin/cscope")
+   set csprg=/usr/bin/cscope
+   set csto=0
+   set cst
+   set nocsverb
+   if filereadable("cscope.out")
+      cs add $PWD/cscope.out
+   elseif $CSCOPE_DB != ""
+      cs add $CSCOPE_DB
+   endif
+   set csverb
+endif
 
 " color desert
+
+syntax off
+syntax on
