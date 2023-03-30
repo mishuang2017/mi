@@ -239,7 +239,7 @@ export LC_ALL=en_US.UTF-8
 
 #	 --add-kernel-support		    --upstream-libs --dpdk
 # export DPDK_DIR=/images/cmi/dpdk-stable-17.11.2
-export DPDK_DIR=/root/dpdk-stable-17.11.4
+# export DPDK_DIR=/root/dpdk-stable-17.11.4
 # export RTE_SDK=$DPDK_DIR
 # export MLX5_GLUE_PATH=/lib
 # export DPDK_TARGET=x86_64-native-linuxapp-gcc
@@ -13485,22 +13485,26 @@ function build_dpdk
 	sudo ninja -C build install
 }
 
+alias clone_doca='git clone http://l-gerrit.mtl.labs.mlnx:8080/doca'
+
+export LD_LIBRARY_PATH=/var/doca-install/lib/aarch64-linux-gnu/:/var/dpdk-install/lib/aarch64-linux-gnu/
+
 function build_doca
 {
 	sm
-	git clone http://l-gerrit.mtl.labs.mlnx:8080/doca
+# 	git clone http://l-gerrit.mtl.labs.mlnx:8080/doca
 	cd doca
+
 	export PKG_CONFIG_PATH=/var/dpdk-install/lib/aarch64-linux-gnu/pkgconfig
 	export LD_LIBRARY_PATH=/var/dpdk-install/lib/aarch64-linux-gnu/
-
 	source ./devtools/scripts/set_env_variables.sh
-	sudo meson -Dc_args='-O0 -g3' -Dunit_test=false -Denable_grpc_support=false  \
-		-Dis_simx=false -Denable_driver_flexio=false -Ddisable_lib_apsh=true  \
+	meson -Dc_args='-O0 -g3' -Dunit_test=false -Denable_grpc_support=false  \
+		-Denable_driver_flexio=false -Ddisable_lib_apsh=true  \
 		-Ddisable_lib_comm_channel=true -Ddisable_lib_devemu=true -Ddisable_lib_dma=true \
 		-Ddisable_lib_dpa=true -Ddisable_lib_dpi=true -Ddisable_lib_sha=true \
 		-Ddisable_lib_telemetry=true -Ddisable_all_tools=true  -Ddisable_all_services=true \
 		-Dverification_disable_testsuit=true --prefix=/var/doca-install --buildtype=debug  build
-	sudo ninja -C build install
+	ninja -C build install
 }
 
 function cloud_setup
