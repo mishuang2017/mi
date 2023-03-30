@@ -13518,7 +13518,7 @@ function cloud_setup
 	fi
 # 	build_ctags
 	sudo apt install -y cscope tmux screen rsync iperf3 htop pciutils vim diffstat texinfo gdb \
-		dh-autoreconf kexec-tools
+		dh-autoreconf kexec-tools zip
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
 	sudo apt install -y python3-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
@@ -13550,7 +13550,7 @@ function cloud_setup0
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-	apt install -y cscope tmux screen exuberant-ctags rsync  iperf3 htop pciutils vim diffstat texinfo gdb
+	apt install -y cscope tmux screen exuberant-ctags rsync  iperf3 htop pciutils vim diffstat texinfo gdb zip
 
 	if ! test -f ~/.tmux.conf; then
 		mv ~/.bashrc bashrc.orig
