@@ -6566,7 +6566,7 @@ sf2=en8f0pf0sf2
 # sf1=eth2
 # sf2=eth3
 
-alias mlx_sf='mlxconfig -d $pci s PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=236 PF_SF_BAR_SIZE=10'
+alias mlx_sf='mlxconfig -d $pci s PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_SF_BAR_SIZE=10'
 
 function sf
 {
