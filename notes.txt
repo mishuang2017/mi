@@ -12280,6 +12280,9 @@ ovn-sbctl list Logical_Flow
 ip netns exec ns0 iperf -s
 ip netns exec ns1 iperf -u -c 7.7.7.1 -t 10000 -l 1400 -b2G -i 1
 
+./build/samples/doca_flow_drop -c 0x2 -n 4 -a 0000:03:00.0,dv_xmeta_en=4,dv_flow_en=2 -a 0000:03:00.1,dv_xmeta_en=4,dv_flow_en=2
+
+
 ===doca==
 
 init_doca_device
