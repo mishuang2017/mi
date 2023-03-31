@@ -140,10 +140,6 @@ set vb t_vb=     " no visual bell & flas
 
 set laststatus=2
 
-if &diff
-	colorscheme evening
-endif
-
 " highlight Normal term=none cterm=none ctermfg=White ctermbg=Black gui=none guifg=White guibg=Black
 " highlight DiffAdd cterm=none ctermfg=fg ctermbg=Blue gui=none guifg=fg guibg=Blue
 " highlight DiffDelete cterm=none ctermfg=fg ctermbg=Blue gui=none guifg=fg guibg=Blue
