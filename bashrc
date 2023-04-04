@@ -8701,6 +8701,7 @@ alias ofed-configure-5.14="./configure --with-mlx5-core-and-ib-and-en-mod --with
 alias ofed-configure-5.15="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15 "
 alias ofed-configure-5.16="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.16-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.16-rc7 "
 alias ofed-configure-5.17="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.17-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.17-rc7 "
+alias ofed-configure-6.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.2-rc6 "
 
 alias ofed-configure-4.14.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.14.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.14.3 "
 alias ofed-configure-693="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod --with-memtrack -j $cpu_num2 \

@@ -12280,10 +12280,12 @@ ovn-sbctl list Logical_Flow
 ip netns exec ns0 iperf -s
 ip netns exec ns1 iperf -u -c 7.7.7.1 -t 10000 -l 1400 -b2G -i 1
 
-./build/samples/doca_flow_drop -c 0x2 -n 4 -a 0000:03:00.0,dv_xmeta_en=4,dv_flow_en=2 -a 0000:03:00.1,dv_xmeta_en=4,dv_flow_en=2
 
 
 ===doca==
+
+echo 2048 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+./build/samples/doca_flow_drop -c 0x2 -n 4 -a 0000:03:00.0,dv_xmeta_en=4,dv_flow_en=2 -a 0000:03:00.1,dv_xmeta_en=4,dv_flow_en=2
 
 init_doca_device
 	/* Enable DOCA Flow HWS mode */
@@ -12296,6 +12298,7 @@ dv_xmeta_en=4
 /* Only valid in HWS, 32bits extended META without MARK support in FDB. */
 #define MLX5_XMETA_MODE_META32_HWS 4
 
-
-
+mlx5_common_pci_probe
+	mlx5_common_dev_probe
+		drivers_probe
 

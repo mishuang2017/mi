@@ -12,7 +12,7 @@ import socket
 
 # print(__name__)
 
-# prog = drgn.program_from_core_dump("/var/crash/vmcore.2")
+# prog = drgn.program_from_core_dump("/var/crash/vmcore.1")
 prog = drgn.program_from_kernel()
 
 def kernel(name):
@@ -1027,7 +1027,6 @@ def print_mlx5e_tc_flow_flags():
     print("MLX5E_TC_FLOW_FLAG_NOT_READY      %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_NOT_READY'].value_()))
     print("MLX5E_TC_FLOW_FLAG_DELETED        %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_DELETED'].value_()))
     print('')
-    print("MLX5E_TC_FLOW_FLAG_CT             %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_CT'].value_()))
     print("MLX5E_TC_FLOW_FLAG_L3_TO_L2_DECAP %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_L3_TO_L2_DECAP'].value_()))
     print("MLX5E_TC_FLOW_FLAG_TUN_RX         %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_TUN_RX'].value_()))
     print("MLX5E_TC_FLOW_FLAG_FAILED         %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_FAILED'].value_()))

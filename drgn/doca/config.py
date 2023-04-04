@@ -27,15 +27,42 @@ def LIST_FOREACH(head):
 		devs.append(var)
 		var = LIST_NEXT(var)
 	return devs
-
 dev_ctx_list = prog['dev_ctx_list']
 # LIST_FOREACH(dev_ctx_list)
 
-# static LIST_HEAD(mlx5_dev_ctx_list, mlx5_dev_ctx_shared) dev_ctx_list = LIST_HEAD_INITIALIZER();
-# static LIST_HEAD(mlx5_phdev_list, mlx5_physical_device) phdev_list = LIST_HEAD_INITIALIZER();
+# for x, dev in enumerate(LIST_FOREACH(dev_ctx_list)):
+# 	print(dev)
+# exit(0)
 
-phdev_list = prog['phdev_list']
-# LIST_FOREACH(phdev_list)
+# phdev_list = prog['phdev_list']
+# for x, dev in enumerate(LIST_FOREACH(phdev_list)):
+# 	print(dev.ctx)
 
-for x, dev in enumerate(LIST_FOREACH(phdev_list)):
-	print(dev.ctx)
+drivers_list = prog['drivers_list']
+print(drivers_list)
+
+devices_list = prog['devices_list']
+print(devices_list)
+
+def TAILQ_FIRST(head):
+	return head.tqh_first
+
+def TAILQ_NEXT(head):
+	return head.next.tqe_next
+
+def TAILQ_FOREACH(head):
+	devs = []
+	var = TAILQ_FIRST(head)
+	while var:
+		devs.append(var)
+		var = TAILQ_NEXT(var)
+	return devs
+
+for x, dev in enumerate(TAILQ_FOREACH(drivers_list)):
+	print(dev)
+
+mlx5_glue = prog['mlx5_glue']
+print(mlx5_glue)
+
+rte_eth_devices = prog['rte_eth_devices']
+print(rte_eth_devices[0])
