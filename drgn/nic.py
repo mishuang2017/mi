@@ -15,7 +15,7 @@ print_mlx5e_tc_flow_flags()
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     addr = dev.value_()
-    if name != "eth4":
+    if name != "eth2":
         continue;
     print(name)
 
@@ -30,9 +30,22 @@ for x, dev in enumerate(get_netdevs()):
 #         print(flow.attr.esw_attr[0])
         print(" --- %d ---" % (i + 1))
         print_mlx5e_tc_flow(flow)
+        attr = flow.attr
+        print("mlx5_flow_attr %x" % attr)
+        mlx5_ct_ft = attr.ct_attr.ft
+        print(mlx5_ct_ft.refcount)
+        print(attr.ct_attr)
+
+        pre_ct = mlx5_ct_ft.pre_ct
+        flow_table("pre_ct", pre_ct.ft)
+
+        pre_ct_nat = mlx5_ct_ft.pre_ct_nat
+        flow_table("pre_ct_nat", pre_ct_nat.ft)
+
 #         print(flow.attrs)
-#         for mlx5_flow_attr in list_for_each_entry('struct mlx5_flow_attr', flow.attrs.address_of_(), 'list'):
-#             print(mlx5_flow_attr)
+        for mlx5_flow_attr in list_for_each_entry('struct mlx5_flow_attr', flow.attrs.address_of_(), 'list'):
+            print("mlx5_flow_attr %x" % mlx5_flow_attr)
+            print(mlx5_flow_attr.ct_attr)
 #             print(mlx5_flow_attr.esw_attr[0])
 
 
@@ -65,4 +78,20 @@ for x, dev in enumerate(get_netdevs()):
             table = prio.ft
             flow_table("", table)
 
+    print("\n=== hairpin ===\n")
+    hairpin_tbl = mlx5e_priv.fs.tc.hairpin_tbl
+    for i in range(65536):
+        node = hairpin_tbl[i].first
+        while node.value_():
+            obj = container_of(node, "struct mlx5e_hairpin_entry", "hairpin_hlist")
+            hpe = Object(prog, 'struct mlx5e_hairpin_entry', address=obj.value_())
+#             print(hpe)
+            node = node.next
+
+    zone_ht = mlx5e_priv.fs.tc.ct.zone_ht
+    for i, mlx5_ct_ft in enumerate(hash(zone_ht, 'struct mlx5_ct_ft', 'node')):
+        print("mlx5_ct_ft.ct_entries_ht:")
+        ct_entries_ht = mlx5_ct_ft.ct_entries_ht
+        for j, mlx5_ct_entry in enumerate(hash(ct_entries_ht, 'struct mlx5_ct_entry', 'node')):
+            print("mlx5_ct_entry %lx" % mlx5_ct_entry)
 

@@ -933,6 +933,20 @@ ptype /o struct shash_node
 
 explore all_ofproto_dpifs
 
+(gdb) p *((struct rte_device*) 0xaaaac3a84570)
+$8 = {
+  next = {
+    tqe_next = 0x0,
+    tqe_prev = 0x0
+  },
+  name = 0xaaaac3a86778 "0000:03:00.1",
+  bus_info = 0xaaaac3a82bd0 "vendor_id=15b3, device_id=a2d6",
+  driver = 0xffff828f2890 <mlx5_common_pci_driver+16>,
+  bus = 0xffff8293a358 <rte_pci_bus>,
+  numa_node = -1,
+  devargs = 0xaaaac3a86760
+}
+
 ===chrome===
 
 chrome://settings/content

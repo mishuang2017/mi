@@ -64,5 +64,5 @@ for x, dev in enumerate(TAILQ_FOREACH(drivers_list)):
 mlx5_glue = prog['mlx5_glue']
 print(mlx5_glue)
 
-rte_eth_devices = prog['rte_eth_devices']
-print(rte_eth_devices[0])
+# rte_eth_devices = prog['rte_eth_devices']
+# print(rte_eth_devices[0])
