@@ -1038,8 +1038,8 @@ function cloud_setup
 	sudo yum install -y platform-python-devel
 # 	sudo yum install -y memstrack busybox
 
-	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering
-	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s
+	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering --ovn
+	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s --ovn
 	sm
 set -x
 	if (( build_kernel == 1 )); then
@@ -1094,6 +1094,8 @@ alias cl_setup=cloud_setup
 function cloud_ofed_cp
 {
 	test -d /images/cmi/mlnx-ofa_kernel-4.0 || cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
+	cd /images/cmi/mlnx-ofa_kernel-4.0
+	git pull
 }
 alias cl_ofed_cp=cloud_ofed_cp
 
@@ -9415,7 +9417,8 @@ alias sendm="/labhome/cmi/prg/python/scapy/m.py"
 
 alias ofed_debian='./mlnxofedinstall --without-fw-update  --force-dkms --force --add-kernel-support'
 # ./mlnxofedinstall  --upstream-libs --dpdk --without-fw-update
-alias ofed_dpdk='./mlnxofedinstall  --upstream-libs --dpdk --without-fw-update --force --with-mft --with-mstflint'
+alias ofed_dpdk='./mlnxofedinstall  --upstream-libs --dpdk --without-fw-update --force --with-mft --with-mstflint --add-kernel-support'
+alias ofed_install='./mlnxofedinstall --without-fw-update --force --with-mft --with-mstflint --add-kernel-support'
 
 # edit config/common_base  to enable mlx5
 # CONFIG_RTE_LIBRTE_MLX5_PMD=y 
