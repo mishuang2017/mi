@@ -528,6 +528,7 @@ def parse_ct_status(status):
 
 def get_tcp_state(state):
     TCP_CONNTRACK_ESTABLISHED = prog['TCP_CONNTRACK_ESTABLISHED'].value_()
+    TCP_CONNTRACK_SYN_RECV = prog['TCP_CONNTRACK_SYN_RECV'].value_()
     TCP_CONNTRACK_TIME_WAIT = prog['TCP_CONNTRACK_TIME_WAIT'].value_()
     TCP_CONNTRACK_FIN_WAIT = prog['TCP_CONNTRACK_FIN_WAIT'].value_()
     TCP_CONNTRACK_CLOSE_WAIT = prog['TCP_CONNTRACK_CLOSE_WAIT'].value_()
@@ -535,6 +536,8 @@ def get_tcp_state(state):
 
     if state == TCP_CONNTRACK_ESTABLISHED:
         return "TCP_CONNTRACK_ESTABLISHED"
+    elif state == TCP_CONNTRACK_SYN_RECV:
+        return "TCP_CONNTRACK_SYN_RECV"
     elif state == TCP_CONNTRACK_TIME_WAIT:
         return "TCP_CONNTRACK_TIME_WAIT"
     elif state == TCP_CONNTRACK_FIN_WAIT:
@@ -559,15 +562,18 @@ def print_tuple(tuple, ct):
     if protonum == IPPROTO_UDP:
         dport = ntohs(tuple.tuple.dst.u.udp.port.value_())
         sport = ntohs(tuple.tuple.src.u.udp.port.value_())
-    if dport != 8080:
+    if dport != 5001:
         return
 
+    print("============================================================")
+    print(ct.ext)
+    print(ct.cpu)
     print("nf_conn %lx" % ct.value_())
 #     print("nf_conntrack_tuple %lx" % tuple.value_())
 
-#     if protonum == IPPROTO_TCP and dir == IP_CT_DIR_ORIGINAL:
+    if protonum == IPPROTO_TCP and dir == IP_CT_DIR_ORIGINAL:
 #     if protonum == IPPROTO_UDP and dir == IP_CT_DIR_ORIGINAL:
-    if protonum == IPPROTO_UDP:
+#     if protonum == IPPROTO_UDP:
         print("\tsrc ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.src.u3.ip.value_())), sport), end=' ')
         print("dst ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.dst.u3.ip.value_())), dport), end=' ')
         print("protonum: %3d" % protonum, end=' ')

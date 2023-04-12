@@ -84,6 +84,7 @@ MLX5_MAPPED_OBJ_SAMPLE = prog['MLX5_MAPPED_OBJ_SAMPLE']
 MLX5_MAPPED_OBJ_CHAIN = prog['MLX5_MAPPED_OBJ_CHAIN']
 
 def print_mapping_mapping(mapping):
+    print(mapping)
     if MLX5_MAPPED_OBJ_SAMPLE == mapping.type:
 #         print(mapping.type)
         print("\tgroup_id: %d, %x, rate: %d, trunc_size: %d" % \
