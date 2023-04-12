@@ -2052,6 +2052,8 @@ set -x
 
 	TC=/images/cmi/iproute2/tc/tc
 	TC=tc
+	TC=/usr/sbin/tc
+	TC=/images/cmi/iproute2/tc/tc
 
 	$TC qdisc del dev $rep2 ingress
 	$TC qdisc del dev $rep3 ingress

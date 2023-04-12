@@ -82,6 +82,11 @@ for node in radix_tree_for_each(tuple_ids):
     mlx5_ct_zone_rule = Object(prog, 'struct mlx5_ct_zone_rule', address=node[1].value_())
     print("tupleid: %x" % mlx5_ct_zone_rule.tupleid)
 
+# ct_tuples_ht = mlx5e_rep_priv.uplink_priv.ct_priv.ct_tuples_ht
+# print("=== mlx5e_rep_priv.uplink_priv.ct_priv.ct_tuples_ht ===")
+# for i, entry in enumerate(hash(ct_tuples_ht, 'struct mlx5_ct_entry', 'node')):
+#     print(entry)
+
 ################################
 
 # print(ct_priv)
@@ -97,6 +102,12 @@ for i, mlx5_ct_ft in enumerate(hash(zone_ht, 'struct mlx5_ct_ft', 'node')):
     print("mlx5_ct_ft.ct_entries_ht:")
     ct_entries_ht = mlx5_ct_ft.ct_entries_ht
     for j, mlx5_ct_entry in enumerate(hash(ct_entries_ht, 'struct mlx5_ct_entry', 'node')):
+        print("src: %s, dst: %s, port src: %d, port dst: %d" % \
+            (ipv4(ntohl(mlx5_ct_entry.tuple.ip.src_v4.value_())), \
+             ipv4(ntohl(mlx5_ct_entry.tuple.ip.dst_v4.value_())),
+             ntohs(mlx5_ct_entry.tuple.port.src.value_()),
+             ntohs(mlx5_ct_entry.tuple.port.dst.value_())))
+#         print(mlx5_ct_entry)
         print("mlx5_ct_entry %lx" % mlx5_ct_entry)
         print("\tcookie is flow_offload_tuple %lx" % mlx5_ct_entry.cookie)
         print("\trestore_cookie is 'ct | ctinfo' %lx" % mlx5_ct_entry.restore_cookie)

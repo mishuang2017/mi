@@ -24,14 +24,14 @@ define print_dev
 		printf "\n=== mlx5_priv ===\n"
 
 		set $mlx5_priv = (struct mlx5_priv *) $dev_private
-# 		print *$mlx5_priv
-		set $txqs_n = $mlx5_priv->txqs_n
-		print $txqs_n
-		set $mlx5_txq_data = *$mlx5_priv->txqs
-		print (*$mlx5_txq_data[0]).elts_head
-		print (*$mlx5_txq_data[0]).elts_tail
-		print (*$mlx5_txq_data[1]).elts_head
-		print (*$mlx5_txq_data[1]).elts_tail
+		print *$mlx5_priv->dr_ctx->send_queue
+# 		set $txqs_n = $mlx5_priv->txqs_n
+# 		print $txqs_n
+# 		set $mlx5_txq_data = *$mlx5_priv->txqs
+# 		print (*$mlx5_txq_data[0]).elts_head
+# 		print (*$mlx5_txq_data[0]).elts_tail
+# 		print (*$mlx5_txq_data[1]).elts_head
+# 		print (*$mlx5_txq_data[1]).elts_tail
 
 		set $i = $i + 1
 	end
