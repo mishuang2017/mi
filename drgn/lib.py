@@ -529,6 +529,7 @@ def parse_ct_status(status):
 def get_tcp_state(state):
     TCP_CONNTRACK_ESTABLISHED = prog['TCP_CONNTRACK_ESTABLISHED'].value_()
     TCP_CONNTRACK_SYN_RECV = prog['TCP_CONNTRACK_SYN_RECV'].value_()
+    TCP_CONNTRACK_SYN_SENT = prog['TCP_CONNTRACK_SYN_SENT'].value_()
     TCP_CONNTRACK_TIME_WAIT = prog['TCP_CONNTRACK_TIME_WAIT'].value_()
     TCP_CONNTRACK_FIN_WAIT = prog['TCP_CONNTRACK_FIN_WAIT'].value_()
     TCP_CONNTRACK_CLOSE_WAIT = prog['TCP_CONNTRACK_CLOSE_WAIT'].value_()
@@ -536,6 +537,8 @@ def get_tcp_state(state):
 
     if state == TCP_CONNTRACK_ESTABLISHED:
         return "TCP_CONNTRACK_ESTABLISHED"
+    elif state == TCP_CONNTRACK_SYN_SENT:
+        return "TCP_CONNTRACK_SYN_SENT"
     elif state == TCP_CONNTRACK_SYN_RECV:
         return "TCP_CONNTRACK_SYN_RECV"
     elif state == TCP_CONNTRACK_TIME_WAIT:

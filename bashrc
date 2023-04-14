@@ -11118,6 +11118,9 @@ alias n1_udp_client="ip netns exec n11 /labhome/cmi/mi/prg/c/udp-client/udp-clie
 alias ns1_udp_server="ip netns exec ns1 /labhome/cmi/mi/prg/c/udp-server/udp-server"
 alias ns0_udp_client="ip netns exec ns0 /labhome/cmi/mi/prg/c/udp-client/udp-client -t 10000 -c"
 
+alias ns0_tcpdump='ip netns exec ns0 tcpdump -nnnei'
+alias ns1_tcpdump='ip netns exec ns1 tcpdump -nnnei'
+
 # nf_ct_tcp_be_liberal
 function jd-proc
 {
