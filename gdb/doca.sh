@@ -1,5 +1,7 @@
 # source ~cmi/mi/gdb/doca.sh
 
+set max-value-size unlimited
+
 define print_dev
 # 	print *rte_eth_devices@2
 	set $i = 0
@@ -23,8 +25,10 @@ define print_dev
 		set $dev_private = $data.dev_private
 		printf "\n=== mlx5_priv ===\n"
 
+		print $dev_private
 		set $mlx5_priv = (struct mlx5_priv *) $dev_private
-		print *$mlx5_priv->dr_ctx->send_queue
+		print *$mlx5_priv
+# 		print *$mlx5_priv->dr_ctx->send_queue
 # 		set $txqs_n = $mlx5_priv->txqs_n
 # 		print $txqs_n
 # 		set $mlx5_txq_data = *$mlx5_priv->txqs

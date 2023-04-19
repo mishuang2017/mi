@@ -62,7 +62,25 @@ for x, dev in enumerate(TAILQ_FOREACH(drivers_list)):
 	print(dev)
 
 mlx5_glue = prog['mlx5_glue']
-print(mlx5_glue)
+# print(mlx5_glue)
 
 # rte_eth_devices = prog['rte_eth_devices']
-# print(rte_eth_devices[0])
+
+def get_mlx5_priv(addr, index):
+	addr = addr + prog.type('struct rte_eth_dev').size * index
+	rte_eth_devices = Object(prog, 'struct rte_eth_dev', address=addr)
+	print(rte_eth_devices.data)
+	private = rte_eth_devices.data.dev_private
+	print(private)
+	mlx5_priv = Object(prog, 'struct mlx5_priv', address=private)
+	return mlx5_priv
+
+mlx5_priv = get_mlx5_priv(0xfffff783cb80, 0)
+print(mlx5_priv)
+
+# rte_pci_bus = prog['rte_pci_bus']
+# print(rte_pci_bus.device_list.tqh_first.device)
+# print(rte_pci_bus.device_list.tqh_first.device.driver)
+
+# eth_dev_shared_data = prog['eth_dev_shared_data']
+# print(eth_dev_shared_data)

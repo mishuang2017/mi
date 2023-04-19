@@ -12315,4 +12315,11 @@ dv_xmeta_en=4
 mlx5_common_pci_probe
 	mlx5_common_dev_probe
 		drivers_probe
+			mlx5_os_net_probe
+				mlx5_os_pci_probe
+					mlx5_os_pci_probe_pf
+						mlx5_dev_spawn
+
+				mlx5_os_auxiliary_probe
+
 

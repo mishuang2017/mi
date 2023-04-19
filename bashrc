@@ -756,11 +756,7 @@ function ethtool-rxvlan-on
 
 alias restart-virt='systemctl restart libvirtd.service'
 
-if (( ofed == 1 )); then
-	export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
-else
-	export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
-fi
+export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
 unset PROMPT_COMMAND
@@ -7700,7 +7696,8 @@ function git_patch
 		n=$((n+1))
 	fi
 	b=$(git branch | grep \* | cut -d ' ' -f2)
-	commit=$(git slog -50 | grep origin/$b | head -1 | cut -f 1 -d " ")
+	echo $b
+	commit=$(git slog -50 | grep origin/.*$b | head -1 | cut -f 1 -d " ")
 	echo $commit
 	git format-patch -o $dir/$n $commit
 }
@@ -8669,6 +8666,7 @@ alias ofed-configure-memtrack='./configure --with-mlx5-core-and-en-mod --with-me
 alias ofed-configure="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2"
 alias ofed-configure-memtrack="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
 alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2"
+alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2 --with-mlx5-ipsec"
 
 alias vi_m4='vi compat/config/rdma.m4'
 
