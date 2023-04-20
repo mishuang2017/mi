@@ -7884,8 +7884,8 @@ enum {
         MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH = 0x100,
         MLX5_FLOW_CONTEXT_ACTION_VLAN_POP_2  = 0x400,
         MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH_2 = 0x800,
-        MLX5_FLOW_CONTEXT_ACTION_IPSEC_DECRYPT = 0x1000,
-        MLX5_FLOW_CONTEXT_ACTION_IPSEC_ENCRYPT = 0x2000,
+        MLX5_FLOW_CONTEXT_ACTION_CRYPTO_DECRYPT = 0x1000,
+        MLX5_FLOW_CONTEXT_ACTION_CRYPTO_ENCRYPT = 0x2000,
         MLX5_FLOW_CONTEXT_ACTION_EXECUTE_ASO = 0x4000,
 };
 
@@ -12323,3 +12323,16 @@ mlx5_common_pci_probe
 				mlx5_os_auxiliary_probe
 
 
+===ipsec===
+
+/opt/mellanox/iproute2/sbin/ip address flush enp8s0f0
+/opt/mellanox/iproute2/sbin/ip -4 address add 172.16.0.1/16 dev enp8s0f0
+/opt/mellanox/iproute2/sbin/ip -4 address add 172.16.0.2/16 dev enp8s0f0
+/opt/mellanox/iproute2/sbin/ip link set enp8s0f0 up
+/opt/mellanox/iproute2/sbin/ip xfrm state flush
+/opt/mellanox/iproute2/sbin/ip xfrm policy flush
+/opt/mellanox/iproute2/sbin/ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead "rfc4106(gcm(aes))" 0x3873444e3a0f66e88b2596eebf2a6a4130e4d0c5 128 mode transport
+/opt/mellanox/iproute2/sbin/ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead "rfc4106(gcm(aes))" 0x69e87ffae244e2ecbe3101b259a101bcb3bd73fd 128 mode transport
+/opt/mellanox/iproute2/sbin/ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir out tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10000 mode transport
+/opt/mellanox/iproute2/sbin/ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir  in tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
+/opt/mellanox/iproute2/sbin/ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport

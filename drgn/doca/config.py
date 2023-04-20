@@ -69,14 +69,18 @@ mlx5_glue = prog['mlx5_glue']
 def get_mlx5_priv(addr, index):
 	addr = addr + prog.type('struct rte_eth_dev').size * index
 	rte_eth_devices = Object(prog, 'struct rte_eth_dev', address=addr)
-	print(rte_eth_devices.data)
+# 	print(rte_eth_devices.data)
 	private = rte_eth_devices.data.dev_private
-	print(private)
+# 	print(private)
 	mlx5_priv = Object(prog, 'struct mlx5_priv', address=private)
 	return mlx5_priv
 
-mlx5_priv = get_mlx5_priv(0xfffff783cb80, 0)
-print(mlx5_priv)
+def print_mlx5_priv(priv):
+	print(priv.sh.groups)
+
+for i in range(2):
+	mlx5_priv = get_mlx5_priv(0xfffff783cb80, i)
+	print_mlx5_priv(mlx5_priv)
 
 # rte_pci_bus = prog['rte_pci_bus']
 # print(rte_pci_bus.device_list.tqh_first.device)
