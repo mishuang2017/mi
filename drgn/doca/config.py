@@ -76,7 +76,15 @@ def get_mlx5_priv(addr, index):
 	return mlx5_priv
 
 def print_mlx5_priv(priv):
-	print(priv.sh.groups)
+	print(priv.rxqs_n)
+	print(priv.rxq_privs)
+	rxq_privs = Object(prog, 'void *', address=priv.rxq_privs)
+	print(rxq_privs)
+# 	rxq_privs = Object(prog, 'void *', address=rxq_privs)
+# 	print(rxq_privs)
+	rxq_priv = Object(prog, 'struct mlx5_rxq_priv', address=rxq_privs)
+	print(rxq_priv.ctrl.rxq.stats)
+# 	print(priv.sh.groups)
 
 for i in range(2):
 	mlx5_priv = get_mlx5_priv(0xfffff783cb80, i)
@@ -88,3 +96,35 @@ for i in range(2):
 
 # eth_dev_shared_data = prog['eth_dev_shared_data']
 # print(eth_dev_shared_data)
+
+config1 = prog['config1']
+# print(config1.mbuf_pool)
+# print(config1.mbuf_pool.elt_list)
+# print(config1.mbuf_pool.elt_list.stqh_first)
+print(config1)
+
+def get_rte_eth_dev_data(addr, index):
+	addr = addr + prog.type('struct rte_eth_dev').size * index
+	rte_eth_devices = Object(prog, 'struct rte_eth_dev', address=addr)
+	return rte_eth_devices.data
+
+def print_rxq(rxq):
+	print(rxq)
+	print(rxq.elts_n)
+	print(rxq.cqes)
+	print(rxq.cq_ci)
+
+data = get_rte_eth_dev_data(0xfffff783cb80, 0)
+
+mlx5_rxq_ctrl = Object(prog, 'struct mlx5_rxq_ctrl', address=data.rx_queues[0])
+# print_rxq(mlx5_rxq_ctrl.rxq)
+# mlx5_rxq_ctrl = Object(prog, 'struct mlx5_rxq_ctrl', address=data.rx_queues[1])
+# print_rxq(mlx5_rxq_ctrl.rxq)
+
+pipe1 = prog['pipe1']
+print(pipe1)
+# print(pipe1.dpdk_pipe)
+print(pipe1.port)
+print(pipe1.port.dpdk_port)
+print(pipe1.port.dpdk_port.queue_array[0])
+print(pipe1.port.dpdk_port.queue_array[1])

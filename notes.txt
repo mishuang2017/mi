@@ -12294,8 +12294,6 @@ ovn-sbctl list Logical_Flow
 ip netns exec ns0 iperf -s
 ip netns exec ns1 iperf -u -c 7.7.7.1 -t 10000 -l 1400 -b2G -i 1
 
-
-
 ===doca==
 
 echo 2048 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
@@ -12322,6 +12320,15 @@ mlx5_common_pci_probe
 
 				mlx5_os_auxiliary_probe
 
+mlx5_rx_queue_setup
+
+mlx5_stats_get
+
+    net/mlx5/hws: add command layer
+
+mlx5_ifc_flow_table_prop_layout_bits
+
+mlx5dr_cmd_flow_table_create
 
 ===ipsec===
 
