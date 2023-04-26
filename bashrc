@@ -444,7 +444,7 @@ alias evolution_mark_read='gsettings set org.gnome.evolution.mail mark-seen-time
 
 alias contains="git tag --contains"
 alias git-log='git log --tags --source'
-alias v5.17='git checkout v5.17-rc7; git checkout -b 5.17-rc7'
+alias v6.3='git checkout v6.3-rc3; git checkout -b 6.3-rc3'
 alias v5.15='git checkout v5.15; git checkout -b 5.15' # ofed 5.4.3
 alias gs='git status'
 alias gc='git commit -a'
@@ -990,13 +990,14 @@ function cloud_setup0
 
 function bf2_linux
 {
-	cd /workspace
-	cp /swgwork/cmi/linux.tar.gz .
-	tar zxf linux.tar.gz
+	cd /images/cmi
+	cp /swgwork/cmi/bf2/linux.tar.gz .
+	tar zvxf linux.tar.gz
+	/bin/rm -f linux.tar.gz &
 	cd linux
-	git remote set-url origin ssh://cmi@bu-gerrit.mtbu.labs.mlnx:29418/linux-bluefield
-	git fetch origin master-next-nvidia && git checkout FETCH_HEAD && git checkout -b master-next-nvidia
-	/bin/cp -f ~cmi/config.bluefield-bodong-devlink-rate.arm .config
+	/bin/cp -f /swgwork/cmi/config.bf .config
+	sml
+
 	make-all all
 }
 
@@ -2050,8 +2051,6 @@ set -x
 
 	TC=/images/cmi/iproute2/tc/tc
 	TC=tc
-	TC=/usr/sbin/tc
-	TC=/images/cmi/iproute2/tc/tc
 
 	$TC qdisc del dev $rep2 ingress
 	$TC qdisc del dev $rep3 ingress
