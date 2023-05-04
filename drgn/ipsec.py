@@ -20,6 +20,9 @@ def print_sadb(sadb):
             obj = container_of(node, "struct mlx5e_ipsec_sa_entry", "hlist")
             sa = Object(prog, 'struct mlx5e_ipsec_sa_entry', address=obj.value_())
             print(sa)
+            print(sa.ipsec.aso)
+            print(sa.ipsec.aso.maso)
+            print(sa.ipsec.aso.umr)
             
             print_mlx5_flow_handle(sa.ipsec_rule.rule)
 
@@ -50,3 +53,13 @@ print("\n======================== ipsec_fdb_crypto_tx ==========================
 flow_table("ipsec_fdb_crypto_tx", ipsec_priv.ipsec_fdb_crypto_tx)
 print("\n======================== ipsec_fdb_tx_chk ===========================\n")
 flow_table("ipsec_fdb_tx_chk", ipsec_priv.ipsec_fdb_tx_chk)
+
+uar = mlx5e_priv.mdev.priv.uar
+print(uar)
+
+net = prog['init_net']
+netns_xfrm = net.xfrm
+
+for x in list_for_each_entry('struct xfrm_state', netns_xfrm.state_all.address_of_(), 'km.all'):
+    print(x.id)
+    print(x.xso)

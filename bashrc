@@ -1057,6 +1057,7 @@ set +x
 	cd drgn
 	sudo ./setup.py build
 	sudo ./setup.py install
+	sudo ln -s /usr/bin/drgn /usr/local/bin/drgn
 
 	cloud_grub
 
