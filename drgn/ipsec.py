@@ -19,6 +19,7 @@ def print_sadb(sadb):
         while node.value_():
             obj = container_of(node, "struct mlx5e_ipsec_sa_entry", "hlist")
             sa = Object(prog, 'struct mlx5e_ipsec_sa_entry', address=obj.value_())
+            print("sa->attrs->flags, MLX5_ACCEL_ESP_FLAGS_TUNNEL 1, MLX5_ACCEL_ESP_FLAGS_FULL_OFFLOAD 8\n")
             print(sa)
             print(sa.ipsec.aso)
             print(sa.ipsec.aso.maso)
@@ -49,17 +50,56 @@ flow_table("ipsec_fdb_crypto_rx", ipsec_priv.ipsec_fdb_crypto_rx)
 print("\n======================== ipsec_fdb_decap_rx ===========================\n")
 flow_table("ipsec_fdb_decap_rx", ipsec_priv.ipsec_fdb_decap_rx)
 
-print("\n======================== ipsec_fdb_crypto_tx ===========================\n")
+print("\n======================== ipsec_fdb_ike_tx,    level 1 ===========================\n")
+flow_table("ipsec_fdb_ike_tx", ipsec_priv.ipsec_fdb_ike_tx)
+print("\n======================== ipsec_fdb_crypto_tx, level 2 ===========================\n")
 flow_table("ipsec_fdb_crypto_tx", ipsec_priv.ipsec_fdb_crypto_tx)
-print("\n======================== ipsec_fdb_tx_chk ===========================\n")
+print("\n======================== ipsec_fdb_tx_chk,    level 3 ===========================\n")
 flow_table("ipsec_fdb_tx_chk", ipsec_priv.ipsec_fdb_tx_chk)
 
 uar = mlx5e_priv.mdev.priv.uar
-print(uar)
+# print(uar)
+
+def print_net_xfrm_state(net):
+    netns_xfrm = net.xfrm
+
+    print("\n======================== net.xfrm.state ===========================\n")
+
+    i=1
+    for x in list_for_each_entry('struct xfrm_state', netns_xfrm.state_all.address_of_(), 'km.all'):
+        print(" --- %d ---\n" % i)
+        print(x)
+        print(x.id)
+        print("x.xso.flags: XFRM_OFFLOAD_IPV6 1, XFRM_OFFLOAD_INBOUND 2, XFRM_OFFLOAD_FULL, 4")
+        print(x.xso)
+        i+=1
+
+def print_net_xfrm_policy(net):
+    netns_xfrm = net.xfrm
+
+    print("\n======================== net.xfrm.policy ===========================\n")
+
+    i=1
+    for x in list_for_each_entry('struct xfrm_policy_walk_entry', netns_xfrm.policy_all.address_of_(), 'all'):
+        print(" --- %d ---\n" % i)
+#         print(x)
+        policy = container_of(x, "struct xfrm_policy", "walk")
+        print(policy)
+        i+=1
 
 net = prog['init_net']
-netns_xfrm = net.xfrm
+# print_net_xfrm_state(net)
+# print_net_xfrm_policy(net)
 
-for x in list_for_each_entry('struct xfrm_state', netns_xfrm.state_all.address_of_(), 'km.all'):
-    print(x.id)
-    print(x.xso)
+def print_counters():
+    fc = ipsec_priv.decap_rule_counter
+    print("decap_rule_counter       id: %x, packets: %d" % (fc.id, fc.cache.packets))
+    fc = ipsec_priv.decap_miss_rule_counter
+    print("decap_miss_rule_counter  id: %x, packets: %d" % (fc.id, fc.cache.packets))
+
+    fc = ipsec_priv.tx_chk_rule_counter
+    print("tx_chk_rule_counter      id: %x, packets: %d" % (fc.id, fc.cache.packets))
+    fc = ipsec_priv.tx_chk_drop_rule_counter
+    print("tx_chk_drop_rule_counter id: %x, packets: %d" % (fc.id, fc.cache.packets))
+
+# print_counters()

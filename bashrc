@@ -14152,3 +14152,57 @@ function meter_list
 }
 
 alias m20='make -j 20'
+
+function ipsec_rand_hex_key() {
+    local size=$1
+    local key=`dd if=/dev/urandom count=$size bs=1 2>/dev/null | xxd -p -c $size 2>/dev/null`
+    [ -z "$key" ] && return
+    echo 0x$key
+}
+
+KEY_IN_128=`ipsec_rand_hex_key 20`
+KEY_OUT_128=`ipsec_rand_hex_key 20`
+
+function ipsec1
+{
+set -x
+	ip xfrm state flush
+	ip xfrm policy flush
+	sleep 1
+	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
+	devlink dev eswitch set pci/$pci mode legacy
+	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
+	devlink dev eswitch set pci/$pci mode switchdev
+	devlink dev eswitch set pci/$pci encap disable
+	ip address flush enp8s0f0
+	ip -4 address add 172.16.0.1/16 dev enp8s0f0
+	ip link set enp8s0f0 up
+	ip xfrm state flush
+	ip xfrm policy flush
+
+	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport full_offload dev enp8s0f0 dir out
+	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport full_offload dev enp8s0f0 dir in
+	ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
+	ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
+
+	ssh root@10.237.115.84 "
+	ip xfrm state flush
+	ip xfrm policy flush
+	sleep 1
+	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
+	devlink dev eswitch set pci/$pci mode legacy
+	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
+	devlink dev eswitch set pci/$pci mode switchdev
+	devlink dev eswitch set pci/$pci encap disable
+	ip address flush enp8s0f0
+	ip -4 address add 172.16.0.2/16 dev enp8s0f0
+	ip link set enp8s0f0 up
+	ip xfrm state flush
+	ip xfrm policy flush
+
+	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport full_offload dev enp8s0f0 dir out
+	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport full_offload dev enp8s0f0 dir in
+	ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir in  tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport
+	ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir fwd tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport"
+set +x
+}
