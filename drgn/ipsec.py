@@ -31,11 +31,11 @@ def print_sadb(sadb):
 
 sadb = ipsec.sadb_tx
 print("\n======================== tx ===========================\n")
-print_sadb(sadb)
+# print_sadb(sadb)
 
 sadb = ipsec.sadb_rx
 print("\n======================== rx ===========================\n")
-print_sadb(sadb)
+# print_sadb(sadb)
 
 # print(ipsec.aso)
 # print(ipsec.aso.maso)
@@ -45,16 +45,16 @@ esw = mlx5e_priv.mdev.priv.eswitch
 ipsec_priv = esw.fdb_table.offloads.esw_ipsec_priv
 print(ipsec_priv)
 
-print("\n======================== ipsec_fdb_crypto_rx ===========================\n")
+print("\n======================== ipsec_fdb_crypto_rx, FDB_CRYPTO_INGRESS, level 1 ===========================\n")
 flow_table("ipsec_fdb_crypto_rx", ipsec_priv.ipsec_fdb_crypto_rx)
-print("\n======================== ipsec_fdb_decap_rx ===========================\n")
+print("\n======================== ipsec_fdb_decap_rx,  FDB_CRYPTO_INGRESS, level 2 ===========================\n")
 flow_table("ipsec_fdb_decap_rx", ipsec_priv.ipsec_fdb_decap_rx)
 
-print("\n======================== ipsec_fdb_ike_tx,    level 1 ===========================\n")
+print("\n======================== ipsec_fdb_ike_tx,    FDB_CRYPTO_EGRESS,  level 1 ===========================\n")
 flow_table("ipsec_fdb_ike_tx", ipsec_priv.ipsec_fdb_ike_tx)
-print("\n======================== ipsec_fdb_crypto_tx, level 2 ===========================\n")
+print("\n======================== ipsec_fdb_crypto_tx, FDB_CRYPTO_EGRESS,  level 2 ===========================\n")
 flow_table("ipsec_fdb_crypto_tx", ipsec_priv.ipsec_fdb_crypto_tx)
-print("\n======================== ipsec_fdb_tx_chk,    level 3 ===========================\n")
+print("\n======================== ipsec_fdb_tx_chk,    FDB_CRYPTO_EGRESS,  level 3 ===========================\n")
 flow_table("ipsec_fdb_tx_chk", ipsec_priv.ipsec_fdb_tx_chk)
 
 uar = mlx5e_priv.mdev.priv.uar
@@ -92,6 +92,8 @@ net = prog['init_net']
 # print_net_xfrm_policy(net)
 
 def print_counters():
+    print("\n======================== counters ===========================\n")
+
     fc = ipsec_priv.decap_rule_counter
     print("decap_rule_counter       id: %x, packets: %d" % (fc.id, fc.cache.packets))
     fc = ipsec_priv.decap_miss_rule_counter

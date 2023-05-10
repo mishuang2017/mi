@@ -7690,6 +7690,7 @@ function git_reset_hard
 
 function git_patch
 {
+set -x
 	dir=$1
 	mkdir -p $dir
 	local n=$2
@@ -7699,9 +7700,11 @@ function git_patch
 	fi
 	b=$(git branch | grep \* | cut -d ' ' -f2)
 	echo $b
-	commit=$(git slog -50 | grep origin/.*$b | head -1 | cut -f 1 -d " ")
+# 	commit=$(git slog -50 | grep origin/.*$b | head -1 | cut -f 1 -d " ")
+	commit=$(git slog -50 | grep origin | head -1 | cut -f 1 -d " ")
 	echo $commit
 	git format-patch -o $dir/$n $commit
+set +x
 }
 
 function git-format-patch
@@ -8668,7 +8671,11 @@ alias ofed-configure-memtrack='./configure --with-mlx5-core-and-en-mod --with-me
 alias ofed-configure="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2"
 alias ofed-configure-memtrack="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
 alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2"
-alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2 --with-mlx5-ipsec"
+alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2 --with-mlx5-ipsec"
+alias ofed-configure-all="./configure -j \
+    --with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
+    --with-ipoib-mod --with-mlxfw-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-nvmf_host-mod --with-nvmf_target-mod \
+    --with-gds --with-mdev-mod --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv"
 
 alias vi_m4='vi compat/config/rdma.m4'
 
@@ -14185,7 +14192,7 @@ set -x
 	ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
 	ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
 
-	ssh root@10.237.115.84 "
+	ssh root@10.237.10.6 "
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -14205,4 +14212,9 @@ set -x
 	ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir in  tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport
 	ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir fwd tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport"
 set +x
+}
+
+function ipsec_counters
+{
+	ethtool -S $link | grep ipsec_full
 }
