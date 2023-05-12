@@ -8674,8 +8674,7 @@ alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --wit
 alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2 --with-mlx5-ipsec"
 alias ofed-configure-all="./configure -j \
     --with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
-    --with-ipoib-mod --with-mlxfw-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-nvmf_host-mod --with-nvmf_target-mod \
-    --with-gds --with-mdev-mod --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv"
+    --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv"
 
 alias vi_m4='vi compat/config/rdma.m4'
 
@@ -14217,4 +14216,28 @@ set +x
 function ipsec_counters
 {
 	ethtool -S $link | grep ipsec_full
+}
+
+function ipsec2
+{
+set -x
+	ip xfrm state flush
+	ip xfrm policy flush
+	sleep 1
+	devlink dev eswitch set pci/$pci mode legacy
+	devlink dev eswitch set pci/$pci mode switchdev
+	devlink dev eswitch set pci/$pci encap disable
+
+	ip address flush enp8s0f0
+	ip -4 address add 172.16.0.1/16 dev enp8s0f0
+	ip link set enp8s0f0 up
+	ip xfrm state flush
+	ip xfrm policy flush
+
+        ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir out && 
+        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in &&
+        ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir out tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10000 mode transport  &&
+        ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport  &&
+        ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
+set +x
 }

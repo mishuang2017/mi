@@ -16,6 +16,7 @@ j=1
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     addr = dev.value_()
+    print(name)
     if "enp" not in name:
         continue;
 

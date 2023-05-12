@@ -19,12 +19,14 @@ def print_esw(priv):
     print("mlx5e_priv %#x" % priv.address_of_())
     print("mlx5_core_dev %#x" % priv.mdev)
     print("mlx5_priv %#x" % priv.mdev.priv.address_of_())
-    print_health(priv.mdev.priv.health)
+#     print_health(priv.mdev.priv.health)
     esw = mlx5e_priv.mdev.priv.eswitch
     print("mlx5_eswitch %#x" % esw)
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
     print("esw->flags: %#x" % esw.flags)
     print("mode: %d" % esw.mode)
+    print(esw.offloads.reg_c0_obj_pool)
+    print(esw.offloads.ft_offloads)
     if esw.mode == 0:
         return
     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags);
