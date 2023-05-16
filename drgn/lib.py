@@ -638,8 +638,8 @@ def print_mlx5_esw_flow_attr(attr):
     print('')
 
 def flow_table2(name, table):
-    print("\nflow table name: %s\nflow table id: %x leve: %x, type: %x (FS_FT_FDB: %d, FS_FT_NIC_RX: %d)" % \
-        (name, table.id.value_(), table.level.value_(), table.type, prog['FS_FT_FDB'], prog['FS_FT_NIC_RX']))
+    print("\nflow table name: %s\nflow table id: %x leve: %x, type: %x (FS_FT_FDB: %d, FS_FT_NIC_RX: %d, FS_FT_NIC_TX: %d)" % \
+        (name, table.id.value_(), table.level.value_(), table.type, prog['FS_FT_FDB'], prog['FS_FT_NIC_RX'], prog['FS_FT_NIC_TX']))
     print("mlx5_flow_table %lx" % table.address_of_())
 #     print("flow table address")
 #     print("%lx" % table.value_())
@@ -669,9 +669,11 @@ def print_mlx5_flow_group_dr(group):
 
 def flow_table(name, table):
     print("\nflow table name: %s\nflow table id: %x table_level: %x, \
-        type: %x (FS_FT_FDB: %d, FS_FT_NIC_RX: %d, max_fte: %d, %x), refcount: %d" % \
+        type: %x (FS_FT_FDB: %d, FS_FT_NIC_RX: %d, FS_FT_NIC_TX, %d, \
+        max_fte: %d, %x), refcount: %d" % \
         (name, table.id.value_(), table.level.value_(), table.type, \
-        prog['FS_FT_FDB'], prog['FS_FT_NIC_RX'], table.max_fte, table.max_fte, \
+        prog['FS_FT_FDB'], prog['FS_FT_NIC_RX'], prog['FS_FT_NIC_TX'], \
+        table.max_fte, table.max_fte, \
         table.node.refcount.refs.counter))
     print("mlx5_flow_table %lx" % table.value_())
 #     print("flow table address")
