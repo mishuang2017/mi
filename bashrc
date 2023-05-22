@@ -1862,7 +1862,7 @@ function make-all
 	unset CONFIG_LOCALVERSION_AUTO
 	[[ "$1" == "all" ]] && make olddefconfig
 	make -j $cpu_num2 || return
-	sudo make modules_install -j $cpu_num2
+	sudo INSTALL_MOD_STRIP=1 make modules_install -j $cpu_num2
 	sudo make install
 	[[ "$1" == "all" ]] && sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B > /dev/null
 
@@ -1870,6 +1870,7 @@ function make-all
 }
 alias m=make-all
 alias mm='sudo make modules_install -j; sudo make install; headers_install'
+alias mm1='sudo INSTALL_MOD_STRIP=1 make modules_install -j; sudo make install'
 alias mm='sudo make modules_install -j; sudo make install'
 
 function mi
@@ -13807,6 +13808,7 @@ function build_makedumpfile
 
 	sm
 	sudo yum install -y snappy-devel bzip2-devel lzo-devel libzstd-devel
+	sudo apt-get install libsnappy-dev libzstd-dev
 	git clone https://github.com/makedumpfile/makedumpfile.git
 	cd makedumpfile
 	make USEZSTD=on USESNAPPY=on USELZO=on LINKTYPE=dynamic

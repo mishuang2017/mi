@@ -84,3 +84,6 @@ sudo python3 -m ensurepip
 sudo apt install -y libpcre3 libpcre3-dev
 
 sudo apt install -y rsync net-tools htop
+
+# for makedumpfile
+sudo apt-get install libsnappy-dev libzstd-dev
