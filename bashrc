@@ -14280,3 +14280,8 @@ function br_bf
 	ovs-vsctl add-port ovsbr1 en3f0pf0sf0
 	ovs-vsctl add-port ovsbr1 pf0hpf
 }
+
+function update-python
+{
+	sudo update-alternatives --config python
+}
