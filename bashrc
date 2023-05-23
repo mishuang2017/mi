@@ -14266,3 +14266,17 @@ set +x
 
 set +x
 }
+
+function br_bf
+{
+	del-br
+	ovs-vsctl add-br ovsbr1
+	ovs-vsctl add-br ovsbr2
+
+	for (( i = 0; i < 31; i++)); do
+		ovs-vsctl add-port ovsbr1 pf0vf$i
+	done;
+	ovs-vsctl add-port ovsbr1 p0
+	ovs-vsctl add-port ovsbr1 en3f0pf0sf0
+	ovs-vsctl add-port ovsbr1 pf0hpf
+}
