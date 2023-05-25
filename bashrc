@@ -1610,6 +1610,8 @@ set +x
 function install-ovs
 {
 set -x
+	pip uninstall docutils
+	pip install ovs-sphinx-theme docutils
         make clean
         ./boot.sh
 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc # --enable-shared CC=clang
