@@ -6,9 +6,8 @@ import time
 import sys
 import os
 
-libpath = os.path.dirname(os.path.realpath("__file__"))
-sys.path.append(libpath)
-import lib
+sys.path.append("..")
+from lib import *
 
 gen = prog['init_net'].gen
 id = prog['ovs_net_id']
