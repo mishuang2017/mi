@@ -10,7 +10,7 @@ test -f /usr/bin/lsb_release && debian=1
 ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
-numvfs=3
+numvfs=4
 ports=2
 ports=1
 
@@ -171,7 +171,9 @@ if (( cloud == 1 )); then
 	rep1=enp8s0f0_0
 	rep2=enp8s0f0_1
 	rep3=enp8s0f0_2
-	(( host_num == 65 )) && remote_mac=10:70:fd:d9:0d:a4
+	rep4=enp8s0f0_3
+	(( host_num == 83 )) && remote_mac=10:70:fd:d9:0e:38
+	(( host_num == 63 )) && remote_mac=e8:eb:d3:98:24:ac
 fi
 
 if (( host_num == 0 )); then
@@ -1610,8 +1612,8 @@ set +x
 function install-ovs
 {
 set -x
-	pip uninstall docutils
-	pip install ovs-sphinx-theme docutils
+	sudo pip uninstall docutils
+	sudo pip install ovs-sphinx-theme docutils
         make clean
         ./boot.sh
 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc # --enable-shared CC=clang
@@ -1864,7 +1866,8 @@ function make-all
 	unset CONFIG_LOCALVERSION_AUTO
 	[[ "$1" == "all" ]] && make olddefconfig
 	make -j $cpu_num2 || return
-	sudo INSTALL_MOD_STRIP=1 make modules_install -j $cpu_num2
+# 	sudo INSTALL_MOD_STRIP=1 make modules_install -j $cpu_num2
+	sudo make modules_install -j $cpu_num2
 	sudo make install
 	[[ "$1" == "all" ]] && sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B > /dev/null
 
@@ -5123,22 +5126,38 @@ function mirror-br
 {
 set -x
 	local rep
+	del-br
 	ovs-vsctl add-br $br
 #	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip options:key=$vni
 
 	ip link set $rep1 up
-	ovs-vsctl add-port $br $rep1	\
-	    -- --id=@p get port $rep1	\
-	    -- --id=@m create mirror name=m0 select-all=true output-port=@p \
-	    -- set bridge $br mirrors=@m
 
-	for (( i = 1; i < numvfs; i++)); do
+# 	ovs-vsctl \
+# 	    -- --id=@p1 get port $rep1	\
+# 	    -- --id=@m1 create mirror name=m1 select-all=true output-port=@p1 \
+# 	    -- set bridge $br mirrors=@m1
+
+	for (( i = 0; i < numvfs; i++)); do
 		rep=$(get_rep $i)
 #		vs add-port $br $rep tag=$vid
 		vs add-port $br $rep
 		ip link set $rep up
 	done
+
+	ovs-vsctl -- set Bridge $br mirrors=@m1 \
+              -- --id=@p1 get Port $rep1 \
+              -- --id=@m1 create Mirror name=mymirror select-all=true output-port=@p1
+	ovs-vsctl -- set Bridge $br mirrors=@m2 \
+              -- --id=@p4 get Port $rep4 \
+              -- --id=@m2 create Mirror name=mymirror2 select-all=true output-port=@p4
+
+# 	ovs-vsctl -- set Bridge $br mirrors=@m \
+#               -- --id=@p1 get Port $rep1 \
+#               -- --id=@p4 get Port $rep4 \
+#               -- --id=@m create Mirror name=mymirror select-all=true output-port=@p1,@p4
+
 	vs add-port $br $link
+	ifconfig eth2 up
 
 #	ovs-vsctl add-port $br $rep1 tag=$vid\
 # set +x
@@ -5558,6 +5577,10 @@ function tc_stack_devices
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
+	TC=tc
+	TC=/images/cmi/iproute2/tc/tc
+	TC=/opt/mellanox/iproute2/sbin/tc
+
 	$TC qdisc del dev $rep1 ingress
 	$TC qdisc del dev $rep2 ingress
 	$TC qdisc del dev $rep3 ingress
@@ -5572,10 +5595,6 @@ function tc_stack_devices
 	$TC qdisc add dev $rep2 ingress
 	$TC qdisc add dev $rep3 ingress
 	$TC qdisc add dev $link ingress
-
-	TC=tc
-	TC=/images/cmi/iproute2/tc/tc
-	TC=/opt/mellanox/iproute2/sbin/tc
 
 	del-br
 
@@ -5680,6 +5699,47 @@ set -x
 		options:remote_ip=$link_remote_ip \
 		options:key=$vni \
 		options:dst_port=$vxlan_port
+set +x
+}
+
+function br_stack_devices_ct
+{
+set -x
+	del-br
+	vs add-br $br
+	vf1=$(get_vf $host_num 1 1)
+	vf3=$(get_vf $host_num 1 3)
+	for (( i = 0; i < numvfs; i++)); do
+#	for (( i = 1; i < 2; i++)); do
+		local rep=$(get_rep $i)
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+	vs add-port $br $link
+
+	ip addr flush $link
+	ip addr flush $vf1
+	ip addr flush $vf3
+	ip addr add dev $vf1 $link_ip/24
+	ip addr add $link_ipv6/64 dev $vf1
+	ip link set $vf1 up
+
+	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan \
+		options:remote_ip=$link_remote_ip \
+		options:key=$vni \
+		options:dst_port=$vxlan_port
+
+	ovs-ofctl del-flows $br
+	ovs-ofctl add-flow $br arp,actions=NORMAL 
+	ovs-ofctl add-flow $br icmp,actions=NORMAL 
+
+	ovs-ofctl add-flow $br "table=0,udp,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow $br "table=1,udp,ct_state=+trk+est actions=normal"
+
+	ovs-ofctl add-flow $br "table=0,tcp,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow $br "table=1,tcp,ct_state=+trk+est actions=normal"
+
 set +x
 }
 
@@ -7725,7 +7785,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v26" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v27" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 
@@ -8678,6 +8738,10 @@ alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --wit
 alias ofed-configure-all="./configure -j \
     --with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
     --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv"
+
+alias ofed-configure-4.1="./configure -j --kernel-version 4.1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.1 \
+    --with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
+    --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv "
 
 alias vi_m4='vi compat/config/rdma.m4'
 
