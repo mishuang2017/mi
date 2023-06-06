@@ -5093,8 +5093,6 @@ function mirror-dst
 	ovs-vsctl list mirror
 }
 
-alias mirror2="mirror $rep2 $br"
-
 alias set-mirror="ovs-vsctl -- --id=@p get port $rep1 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m"
 alias set-mirror2="ovs-vsctl -- --id=@p get port $rep2 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m"	# panic test
 alias set-mirror-dst="ovs-vsctl -- --id=@p get port $rep1 -- --id=@p2 get port $rep2  -- --id=@m create mirror name=m0 select-dst-port=@p2 output-port=@p -- set bridge $br mirrors=@m"
@@ -5144,12 +5142,11 @@ set -x
 		ip link set $rep up
 	done
 
-	ovs-vsctl -- set Bridge $br mirrors=@m1 \
+	ovs-vsctl -- set Bridge $br mirrors=@m1,@m4 \
               -- --id=@p1 get Port $rep1 \
-              -- --id=@m1 create Mirror name=mymirror select-all=true output-port=@p1
-	ovs-vsctl -- set Bridge $br mirrors=@m2 \
               -- --id=@p4 get Port $rep4 \
-              -- --id=@m2 create Mirror name=mymirror2 select-all=true output-port=@p4
+              -- --id=@m1 create Mirror name=mymirror select-all=true output-port=@p1 \
+              -- --id=@m4 create Mirror name=mymirror4 select-all=true output-port=@p4
 
 # 	ovs-vsctl -- set Bridge $br mirrors=@m \
 #               -- --id=@p1 get Port $rep1 \
@@ -5164,6 +5161,48 @@ set -x
 #	return
 
 #	ovs-ofctl add-flow $br 'nw_dst=1.1.1.14 action=drop'
+set +x
+}
+
+function mirror2
+{
+	ovs-vsctl -- set Bridge br-int mirrors=@m1,@m4 \
+              -- --id=@p1 get Port $rep1 \
+              -- --id=@p4 get Port $rep4 \
+              -- --id=@m4 create Mirror name=mymirror4 select-all=true output-port=@p4 \
+              -- --id=@m1 create Mirror name=mymirror select-all=true output-port=@p1 
+}
+
+function mirror1
+{
+	ovs-vsctl -- set Bridge br-int mirrors=@m1 \
+              -- --id=@p1 get Port $rep1 \
+              -- --id=@m1 create Mirror name=mymirror select-all=true output-port=@p1
+}
+
+alias mirror_clear2="ovs-vsctl clear bridge br-int mirrors"
+
+function mirror-int-port
+{
+    del-br
+set -x
+    ovs-vsctl add-br br-phy
+    ovs-vsctl add-port br-phy $link
+#     ovs-vsctl add-port br-phy p0 tag=$vlan -- set interface p0 type=internal
+    ovs-vsctl add-port br-phy p0 -- set interface p0 type=internal
+    ifconfig $link 0
+    ifconfig p0 $link_ip/16 up
+
+    ovs-vsctl add-br br-int
+    ovs-vsctl add-port br-int $rep1
+    ovs-vsctl add-port br-int $rep2
+    ovs-vsctl add-port br-int $rep3
+    ovs-vsctl add-port br-int $rep4
+    ovs-vsctl add-port br-int $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit
+
+    mirror1
+    ifconfig eth2 up 
+
 set +x
 }
 
