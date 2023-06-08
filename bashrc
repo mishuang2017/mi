@@ -156,6 +156,7 @@ link_remote_ipv6=1::$rhost_num
 if (( cloud == 1 )); then
 	link_name=1
 	link=enp8s0f0
+	[[ "$HOSTNAME" == "qa-h-vrt-103" ]] && link=enp5s0f0
 	link2=enp8s0f1
 
 	link_remote_ip=192.168.1.$rhost_num
@@ -172,6 +173,12 @@ if (( cloud == 1 )); then
 	rep2=enp8s0f0_1
 	rep3=enp8s0f0_2
 	rep4=enp8s0f0_3
+
+	rep1=${link}_0
+	rep2=${link}_1
+	rep3=${link}_2
+	rep4=${link}_3
+
 	(( host_num == 83 )) && remote_mac=10:70:fd:d9:0e:38
 	(( host_num == 63 )) && remote_mac=e8:eb:d3:98:24:ac
 fi
@@ -227,7 +234,7 @@ shopt -s histappend
 [[ $(hostname -s) != vnc14 ]] && shopt -s autocd
 
 sfcmd='devlink'
-(( ofed == 1 )) && sfcmd='mlxdevm'
+# (( ofed == 1 )) && sfcmd='mlxdevm'
 
 centos=0
 centos72=0
@@ -6674,7 +6681,7 @@ alias mlx_sf='mlxconfig -d $pci s PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=4
 
 function sf
 {
-	n=2
+	n=1
         [[ $# == 1 ]] && n=$1
 	debug=0
 
@@ -6682,7 +6689,7 @@ set -x
         devlink dev eswitch set pci/$pci mode switchdev
 	for (( i = 1; i <= n; i++ )); do
 		$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $i
-		mac=02:25:00:$host_num:01:$i
+		mac=02:25:00:$host_num:02:$i
 		(( debug == 1 )) && read
 		local start=32768
 		local num=$((start+i-1))
@@ -8776,7 +8783,7 @@ alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --wit
 alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2 --with-mlx5-ipsec"
 alias ofed-configure-all="./configure -j \
     --with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
-    --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv"
+    --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv --with-mlxfw-mod"
 
 alias ofed-configure-4.1="./configure -j --kernel-version 4.1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.1 \
     --with-memtrack --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
@@ -10629,6 +10636,7 @@ function br_ct
 
 	del-br
 	ovs-vsctl add-br $br
+	ovs-vsctl add-port $br $rep1
 	ovs-vsctl add-port $br $rep2
 	ovs-vsctl add-port $br $rep3
 
@@ -10641,7 +10649,8 @@ function br_ct
 	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
 
 	proto=tcp
-	ovs-ofctl add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
+# 	ovs-ofctl add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1),$rep1"
 	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+new actions=ct(commit),normal"
 	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
 
@@ -10651,6 +10660,29 @@ function br_ct
 	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
 
 	ovs-ofctl dump-flows $br
+}
+
+function br_ct_bf
+{
+        local proto
+
+#  table=0, priority=100,ct_state=-trk, tcp, actions=ct(table=1), output:en3f0pf0sf4
+#  table=0, priority=10 actions=NORMAL
+#  table=1, ct_state=+new+trk-est,tcp,in_port=p0 actions=ct(commit),output:pf0hpf,output:en3f0pf0sf4
+#  table=1, ct_state=+new+trk-est,tcp,in_port=pf0hpf actions=ct(commit),output:p0,output:en3f0pf0sf4
+#  table=1, ct_state=+est+trk,tcp actions=NORMAL
+
+set -x
+	del-br
+	ovs-vsctl add-br ovsbr1
+	ovs-vsctl add-port ovsbr1 pf0hpf
+	ovs-vsctl add-port ovsbr1 en3f0pf0sf0
+	ovs-vsctl add-port ovsbr1 p0
+
+# 	ovs-ofctl add-flow ovsbr1 "table=0, tcp,ct_state=-trk actions=ct(table=1),en3f0pf0sf0"
+# 	ovs-ofctl add-flow ovsbr1 "table=1, tcp,ct_state=+trk+new actions=ct(commit),normal"
+# 	ovs-ofctl add-flow ovsbr1 "table=1, tcp,ct_state=+trk+est actions=normal"
+set +x
 }
 
 function br_ct_meter
@@ -14389,4 +14421,18 @@ function br_bf
 function update-python
 {
 	sudo update-alternatives --config python
+}
+
+function br_meter
+{
+set -x
+	ovs-ofctl  add-meter -O OpenFlow13 br1 meter=1,kbps,band=type=drop,rate=1000000
+
+	ovs-ofctl  del-flows br1
+
+	ovs-ofctl -O OpenFlow13 add-flow br1 arp,action=normal
+	ovs-ofctl -O OpenFlow13 add-flow br1 icmp,action=normal 
+	ovs-ofctl -O OpenFlow13 add-flow br1 in_port=$rep2,ip,tcp,actions=meter:1,output:$rep3
+	ovs-ofctl -O OpenFlow13 add-flow br1 in_port=$rep3,ip,tcp,actions=meter:1,output:$rep2
+set +x
 }
