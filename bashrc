@@ -5189,7 +5189,7 @@ function mirror1
 
 alias mirror_clear2="ovs-vsctl clear bridge br-int mirrors"
 
-function mirror-int-port
+function br_int_port
 {
     del-br
 set -x
@@ -14357,7 +14357,7 @@ function ipsec_counters
 	ethtool -S $link | grep ipsec_full
 }
 
-function ipsec2
+function ipsec_crypto
 {
 set -x
 	ip xfrm state flush
@@ -14373,15 +14373,14 @@ set -x
 	ip xfrm policy flush
 
         ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir out && 
-#         ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in &&
-#         ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir out tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10000 mode transport  &&
-#         ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport  &&
-#         ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
-set +x
-	return
+        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in &&
+        ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir out tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10000 mode transport  &&
+        ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport  &&
+        ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
+# set +x
+# 	return
 
-# 	ssh root@10.237.115.84 "
-	ssh root@10.234.183.64 "
+	ssh root@10.237.115.84 "
 
 	ip xfrm state flush
 	ip xfrm policy flush
