@@ -5213,6 +5213,37 @@ set -x
 set +x
 }
 
+function br_int_port_ct
+{
+    del-br
+set -x
+    ovs-vsctl add-br br-phy
+    ovs-vsctl add-port br-phy $link
+#     ovs-vsctl add-port br-phy p0 tag=$vlan -- set interface p0 type=internal
+    ovs-vsctl add-port br-phy p0 -- set interface p0 type=internal
+    ifconfig $link 0
+    ifconfig p0 $link_ip/16 up
+
+    ovs-vsctl add-br br-int
+    ovs-vsctl add-port br-int $rep1
+    ovs-vsctl add-port br-int $rep2
+    ovs-vsctl add-port br-int $rep3
+    ovs-vsctl add-port br-int $rep4
+    ovs-vsctl add-port br-int $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit
+
+    ovs-ofctl add-flow br-int "priority=100,in_port=$rep2,ip,tcp,actions=ct(table=200,zone=201,nat)"
+    ovs-ofctl add-flow br-int "table=200,priority=100,in_port=$rep2,ip,tcp,ct_state=+new+trk,actions=ct(commit,zone=201,nat),normal"
+    ovs-ofctl add-flow br-int "table=200,priority=100,in_port=$rep2,ip,tcp,ct_state=+est+trk,actions=normal"
+
+    ovs-ofctl add-flow br-int "priority=100,in_port=$vx,ip,tcp,actions=ct(table=202,zone=201,nat)"
+    ovs-ofctl add-flow br-int "table=202,priority=100,in_port=$vx,ip,tcp,ct_state=+est+trk,actions=normal"
+
+    mirror1
+    ifconfig eth2 up 
+
+set +x
+}
+
 function mirror-br-vlan
 {
 set -x
