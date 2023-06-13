@@ -1,0 +1,134 @@
+From d48036c08ec538fac51292aebb551e2c075827bf Mon Sep 17 00:00:00 2001
+From: Chris Mi <cmi@nvidia.com>
+Date: Fri, 18 Nov 2022 08:15:04 +0200
+Subject: [PATCH 4/5] cmd_flow
+
+Signed-off-by: Chris Mi <cmi@nvidia.com>
+---
+ defs.h        |  1 +
+ global_data.c |  1 +
+ net.c         | 80 ++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 81 insertions(+), 1 deletion(-)
+
+diff --git a/defs.h b/defs.h
+index 766bec9..6730c65 100644
+--- a/defs.h
++++ b/defs.h
+@@ -5289,6 +5289,7 @@ void cmd_extend(void);       /* extensions.c */
+ 
+ /* cmi@nvidia.com */
+ void cmd_flow(void);         /* net.c */
++void cmd_table(void);         /* net.c */
+ void cmd_mlx(void);          /* net.c */
+ void cmd_miniflow(void);     /* net.c */
+ void cmd_pci(void);          /* net.c */
+diff --git a/global_data.c b/global_data.c
+index 5d06737..0828d47 100644
+--- a/global_data.c
++++ b/global_data.c
+@@ -124,6 +124,7 @@ struct command_table_entry linux_command_table[] = {
+ 	{"wr",      cmd_wr,      help_wr,      0},
+ /* cmi@nvidia.com */
+         {"flow",    cmd_flow,    help_net,      REFRESH_TASK_TABLE},
++        {"table",   cmd_table,   help_net,      REFRESH_TASK_TABLE},
+         {"mlx",     cmd_mlx,     help_net,      REFRESH_TASK_TABLE},
+         {"miniflow",cmd_miniflow,help_net,      REFRESH_TASK_TABLE},
+         {"pci",     cmd_pci,     help_net,      REFRESH_TASK_TABLE},
+diff --git a/net.c b/net.c
+index a498c01..35fdffd 100644
+--- a/net.c
++++ b/net.c
+@@ -1925,7 +1925,7 @@ read_char(ulong addr)
+ }
+ 
+ void
+-cmd_flow(void)
++cmd_table(void)
+ {
+ 	int c;
+ 	char *addr = NULL;
+@@ -3028,3 +3028,81 @@ cmd_rtnl(void)
+ 	handlers = read_pointer1(symbol_value("rtnl_msg_handlers") + 0x10);
+ 	fprintf(fp, "array %lx -s rtnl_link -n 50 -p\n", handlers);
+ }
++
++void show_flow_hash(ulong a)
++{
++	ulong rhash_head, offset, mlx5e_tc_flow, attr, esw_attr;
++	char *opt_s = "mlx5e_tc_flow";
++	char *opt_m = "node";
++	int i = 0;
++
++	a = read_pointer1(a);
++	fprintf(fp, "bucket_table %lx -x\n", a);
++
++	unsigned int size = read_pointer2(a, "bucket_table", "size");
++	ulong buckets = a + MEMBER_OFFSET("bucket_table", "buckets");
++
++	offset = MEMBER_OFFSET(opt_s, opt_m);
++	fprintf(fp, "size %x, offset %x\n", size, offset);
++	fprintf(fp, "buckets %lx\n", buckets);
++
++	for (i = 0; i < size; i++) {
++		rhash_head = read_pointer1(buckets + i * 8);
++		if (!rhash_head)
++			continue;
++		while (1)  {
++			if (rhash_head & 1)
++				break;
++
++			mlx5e_tc_flow = rhash_head - offset;
++			fprintf(fp, "mlx5e_tc_flow %lx\n", mlx5e_tc_flow);
++/* 			print_struct("mlx5e_tc_flow", mlx5e_tc_flow); */
++
++			attr = read_pointer2(mlx5e_tc_flow, "mlx5e_tc_flow", "attr");
++			fprintf(fp, "mlx5_flow_attr %lx\n", attr);
++/* 			print_struct("mlx5_flow_attr", attr); */
++
++			esw_attr = attr + MEMBER_OFFSET("mlx5_flow_attr", "esw_attr");
++			fprintf(fp, "mlx5_esw_flow_attr %lx\n", esw_attr);
++/* 			print_struct("mlx5_esw_flow_attr", esw_attr); */
++
++			rhash_head = read_pointer1(rhash_head);
++		}
++	}
++}
++
++static void
++show_flow(ulong net_addr)
++{
++	ulong mlx5e_priv = net_addr + SIZE(net_device);
++	int i;
++
++	fprintf(fp, "mlx5e_priv  %lx\n", mlx5e_priv);
++	ulong  ppriv = read_pointer2(mlx5e_priv, "mlx5e_priv", "ppriv");
++	if (ppriv != 0) {
++		fprintf(fp, "mlx5e_rep_priv  %lx\n", ppriv);
++		ulong tc_ht = ppriv + MEMBER_OFFSET("mlx5e_rep_priv", "tc_ht");
++		show_flow_hash(tc_ht);
++	}
++}
++
++void
++cmd_flow(void)
++{
++	char *ptr;
++	char *name = NULL;
++	ulong addr;
++
++	name = args[1];
++	if (name == NULL) {
++		fprintf(fp, "name is NULL\n");
++		return;
++	}
++
++	if (strstr(name, "ffff88"))
++		addr = strtoul(name, &ptr, 16);
++	else
++		addr = get_netdev_addr(name);
++	if (addr)
++		show_flow(addr);
++}
+-- 
+2.26.3
+

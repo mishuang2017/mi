@@ -1,0 +1,37 @@
+From 78c85e00bfaf87bfa98df9233bc8a1c9ecaaaca9 Mon Sep 17 00:00:00 2001
+From: Chris Mi <cmi@nvidia.com>
+Date: Fri, 28 Oct 2022 12:13:23 +0300
+Subject: [PATCH 2/5] update
+
+---
+ net.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/net.c b/net.c
+index a92e1ce..d535ecd 100644
+--- a/net.c
++++ b/net.c
+@@ -2324,7 +2324,7 @@ void show_ingress(ulong net_addr)
+ static void show_mlx5e_attach_encap(ulong mlx5_esw_offload)
+ {
+ 	ulong encap_tbl = mlx5_esw_offload + MEMBER_OFFSET("mlx5_esw_offload", "encap_tbl");
+-	ulong head;
++	ulong head, entry, pkt_reformat;
+ 	int i;
+ 
+ 	fprintf(fp, "encap_tbl  %lx\n", encap_tbl);
+@@ -2332,6 +2332,11 @@ static void show_mlx5e_attach_encap(ulong mlx5_esw_offload)
+ 		head = read_pointer1(encap_tbl + i * 8);
+ 		if (head) {
+ 			fprintf(fp, "list %lx -s mlx5e_encap_entry -l mlx5e_encap_entry.encap_hlist\n", head);
++			entry = head - MEMBER_OFFSET("mlx5e_encap_entry", "encap_hlist");
++			pkt_reformat = entry + MEMBER_OFFSET("mlx5e_encap_entry", "pkt_reformat");
++			pkt_reformat = read_pointer1(pkt_reformat);
++			fprintf(fp, "mlx5e_encap_entry.pkt_reformat %lx, %lx\n", entry, pkt_reformat);
++			print_struct("mlx5_pkt_reformat", pkt_reformat);
+ 		}
+ 	}
+ }
+-- 
+2.26.3
+
