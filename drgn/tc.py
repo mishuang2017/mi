@@ -12,11 +12,10 @@ from lib import *
 
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
-    print(name)
 #     if "enp4s0f0" not in name and "vxlan_sys_4789" != name:
-#     if "enp4s0f0_1" != name:
+    if "enp8s0f0_1" != name:
 #     if "enp8s0f1" == name:
-#         continue
+        continue
 #     if "vxlan_sys_4789" != name:
 #         continue
     ingress_queue = dev.ingress_queue
