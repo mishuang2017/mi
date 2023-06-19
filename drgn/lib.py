@@ -121,7 +121,7 @@ def print_action_stats(a):
                 bstats = per_cpu_ptr(a.cpu_bstats, cpu).bstats
                 bytes += bstats.bytes
                 packets += bstats.packets
-        print("percpu bytes: %d, packets: %d" % (bytes, packets))
+        print("\t\t\t\tpercpu bytes: %d, packets: %d" % (bytes, packets))
     else:
         # on new kernel, it is u64_stats_t
         bstats = a.tcfa_bstats
@@ -178,6 +178,7 @@ def print_exts(e):
 #             params = tcf_ct.params
 #             print("\tzone: %d\ttcf_ct_flow_table %x\tnf_flowtable %x" % (params.zone, params.ct_ft, params.nf_ft))
 #             print(tcf_ct.params)
+            print_action_stats(a)
 
         if kind == "pedit":
             tcf_pedit = Object(prog, 'struct tcf_pedit', address=a.value_())
@@ -203,7 +204,7 @@ def print_exts(e):
 #             print(a)
         if kind == "mirred":
             tcf_mirred = Object(prog, 'struct tcf_mirred', address=a.value_())
-            print("\toutput: %s," % tcf_mirred.tcfm_dev.name.string_().decode(), end='\t')
+            print("\toutput: %s," % tcf_mirred.tcfm_dev.name.string_().decode(), end='\n')
             print_action_stats(a)
         if kind == "gact":
             print("\tgact action: %d (TC_ACT_SHOT = 2)" % a.tcfa_action)
@@ -1042,11 +1043,12 @@ def print_mlx5e_tc_flow_flags():
     print("MLX5E_TC_FLOW_FLAG_FAILED         %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_FAILED'].value_()))
     print('')
     print("MLX5E_TC_FLOW_FLAG_SAMPLE         %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_SAMPLE'].value_()))
+    print("MLX5E_TC_FLOW_FLAG_USE_ACT_STATS  %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_USE_ACT_STATS'].value_()))
 
 def print_mlx5e_tc_flow_parse_attr(parse_attr):
     print("--- mlx5e_tc_flow_parse_attr---")
     print("parse_attr.mirred_ifindex[0]: %d" % parse_attr.mirred_ifindex[0])
-    print("parse_attr.mirred_ifindex[1]: %d" % parse_attr.mirred_ifindex[1])
+#     print("parse_attr.mirred_ifindex[1]: %d" % parse_attr.mirred_ifindex[1])
     tun_info = parse_attr.tun_info[0]
     if tun_info.value_():
         print("parse_attr.tun_info[0]")
@@ -1067,10 +1069,10 @@ def print_mlx5e_tc_flow(flow):
     MLX5_ESW_DEST_ENCAP_VALID = prog['MLX5_ESW_DEST_ENCAP_VALID']
     MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE = prog['MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE']
 
+
     name = flow.priv.netdev.name.string_().decode()
 #     print(flow.decap_route)
     flow_attr = flow.attr
-    print("flow_attr.flags %x" % flow_attr.flags)
     esw_attr = flow_attr.esw_attr[0]
 #     if not esw_attr.dests[0].flags & MLX5_ESW_DEST_ENCAP_VALID:
 #         print("not encap, return")
@@ -1084,6 +1086,11 @@ def print_mlx5e_tc_flow(flow):
     print("dest_ft: %x" % flow_attr.dest_ft, end='\t')
     print("ct_state: %x/%x" % (parse_attr.spec.match_value[57] >> 8, parse_attr.spec.match_criteria[57] >> 8))
 #     print("mlx5_flow_spec %lx" % parse_attr.spec.address_of_())
+
+    print("flow.attr: %x" % flow.attr)
+    print("flow_attr.flags %x" % flow_attr.flags)
+    # usualy 0 
+#     print("flow.attr.tc_act_cookies_count: %d" % flow.attr.tc_act_cookies_count)
 
     MLX5_FLOW_CONTEXT_ACTION_DECAP = prog['MLX5_FLOW_CONTEXT_ACTION_DECAP']
     MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT = prog['MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT']
@@ -1124,7 +1131,7 @@ def print_mlx5e_tc_flow(flow):
 #     print(flow_attr.parse_attr.mod_hdr_acts)
 #     print("tunnel_id: %x" % flow.tunnel_id)
 
-    print_mlx5e_tc_flow_parse_attr(parse_attr)
+#     print_mlx5e_tc_flow_parse_attr(parse_attr)
     print("")
 
     return

@@ -16,7 +16,7 @@ mlx5e_rep_priv = get_mlx5e_rep_priv()
 uplink_priv = mlx5e_rep_priv.uplink_priv
 # print(uplink_priv)
 handle = uplink_priv.action_stats_handle
-print(handle)
+# print(handle)
 
 for i, stat in enumerate(hash(handle.ht, 'struct mlx5e_tc_act_stats', 'hash')):
     print(stat.lastpackets)

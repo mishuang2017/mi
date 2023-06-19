@@ -10251,7 +10251,7 @@ set -x
 # set +x
 # 	return
 
-	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
+	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower skip_hw \
 		dst_mac $mac2 ct_state +trk+new \
 		action ct commit \
 		action mirred egress redirect dev $rep3
@@ -10266,7 +10266,7 @@ set -x
 		dst_mac $mac1 ct_state -trk \
 		action ct pipe action goto chain 1
 
-	$TC filter add dev $rep3 ingress protocol ip chain 1 prio 2 flower $offload \
+	$TC filter add dev $rep3 ingress protocol ip chain 1 prio 2 flower skip_hw \
 		dst_mac $mac1 ct_state +trk+new \
 		action ct commit \
 		action mirred egress redirect dev $rep2
