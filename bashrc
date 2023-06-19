@@ -1104,7 +1104,7 @@ function cloud_ofed_cp
 {
 	test -d /images/cmi/mlnx-ofa_kernel-4.0 || cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
 	cd /images/cmi/mlnx-ofa_kernel-4.0
-	git pull
+	git pull origin mlnx_ofed_23_07
 }
 alias cl_ofed_cp=cloud_ofed_cp
 
@@ -5575,6 +5575,7 @@ set -x
 		local rep=$(get_rep $i)
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
+	ip1
 	vxlan1
 # 	ifconfig $vf1 1.1.1.1/24 up
 # 	sflow_create
@@ -7862,7 +7863,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v27" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v28" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 

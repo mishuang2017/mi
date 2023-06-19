@@ -16,7 +16,7 @@ def print_health(health):
     print(health.fw_fatal_reporter)
 
 def print_esw(priv):
-    print(priv.netdev.xfrmdev_ops)
+#     print(priv.netdev.xfrmdev_ops)
     print("mlx5e_priv %#x" % priv.address_of_())
     print("mlx5_core_dev %#x" % priv.mdev)
     print("mlx5_priv %#x" % priv.mdev.priv.address_of_())
@@ -26,8 +26,8 @@ def print_esw(priv):
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
     print("esw->flags: %#x" % esw.flags)
     print("mode: %d" % esw.mode)
-    print(esw.offloads.reg_c0_obj_pool)
-    print(esw.offloads.ft_offloads)
+#     print(esw.offloads.reg_c0_obj_pool)
+#     print(esw.offloads.ft_offloads)
     if esw.mode == 0:
         return
     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags);
@@ -43,9 +43,9 @@ def print_esw(priv):
     print("user_count: %d" % esw.user_count.counter)
     print("num_flows %d" % esw.offloads.num_flows.counter)
 
-    print(esw.offloads.peer_flows)
-    for flow in list_for_each_entry('struct mlx5e_tc_flow', esw.offloads.peer_flows.address_of_(), 'peer'):
-        print("%x" % flow)
+#     print(esw.offloads.peer_flows)
+#     for flow in list_for_each_entry('struct mlx5e_tc_flow', esw.offloads.peer_flows.address_of_(), 'peer'):
+#         print("%x" % flow)
 
 print("===================== port 1 =======================")
 mlx5e_priv = get_mlx5e_priv(pf0_name)

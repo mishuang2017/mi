@@ -3657,6 +3657,8 @@ static const struct dpctl_command all_commands[] = {
 
 ===ovs===
 
+ovs-appctl revalidator/purge
+
 https://docs.openvswitch.org/en/latest/topics/testing/
 
 make check TESTSUITEFLAGS=--list
