@@ -12,7 +12,7 @@ from lib import *
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 ipsec = mlx5e_priv.ipsec
 print(ipsec)
-exit(0)
+# exit(0)
 print(mlx5e_priv.netdev.xfrmdev_ops)
 
 def print_sadb(sadb):

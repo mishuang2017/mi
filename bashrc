@@ -14391,6 +14391,8 @@ function ipsec_counters
 function ipsec_crypto
 {
 set -x
+	[[ "$HOSTNAME" == "c-237-115-160-163" ]] && ip=10.237.115.164
+	[[ "$HOSTNAME" == "c-237-115-80-083" ]] && ip=10.237.115.84
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -14411,7 +14413,7 @@ set -x
 # set +x
 # 	return
 
-	ssh root@10.237.115.84 "
+	ssh root@$ip "
 
 	ip xfrm state flush
 	ip xfrm policy flush
