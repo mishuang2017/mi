@@ -412,7 +412,7 @@ alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/et
 alias clone-ofed='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_23_04; cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone ssh://l-gerrit.mtl.labs.mlnx:29418/asap_dev_reg; cp ~/config_chrism_cx5.sh asap_dev_reg; cp ~cmi/commit-msg asap_dev_reg/.git/hooks/'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
-alias clone-iproute2='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/iproute2 --branch=mlnx_ofed_23_04'
+alias clone-iproute2='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/iproute2 --branch=mlnx_ofed_23_07'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
 alias clone-systemtap='git clone git://sourceware.org/git/systemtap.git'
 alias clone-systemd='git clone git@github.com:systemd/systemd.git'
@@ -14342,26 +14342,32 @@ KEY_OUT_128=`ipsec_rand_hex_key 20`
 function ipsec1
 {
 set -x
+	[[ "$HOSTNAME" == "c-236-0-240-241" ]] && ip=10.236.0.242
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci mode legacy
 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
+# 	devlink dev eswitch set pci/$pci encap disable
 	devlink dev eswitch set pci/$pci mode switchdev
-	devlink dev eswitch set pci/$pci encap disable
 	ip address flush enp8s0f0
 	ip -4 address add 172.16.0.1/16 dev enp8s0f0
 	ip link set enp8s0f0 up
 	ip xfrm state flush
 	ip xfrm policy flush
 
-	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport full_offload dev enp8s0f0 dir out
-	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport full_offload dev enp8s0f0 dir in
+# 	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport full_offload dev enp8s0f0 dir out
+# 	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport full_offload dev enp8s0f0 dir in
+	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport offload packet dev enp8s0f0 dir out
+	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport offload packet dev enp8s0f0 dir in
 	ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
 	ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
 
-	ssh root@10.237.10.6 "
+set +x
+	return
+
+	ssh root@$ip "
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -14376,8 +14382,8 @@ set -x
 	ip xfrm state flush
 	ip xfrm policy flush
 
-	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport full_offload dev enp8s0f0 dir out
-	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport full_offload dev enp8s0f0 dir in
+	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport offload packet dev enp8s0f0 dir out
+	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport offload packet dev enp8s0f0 dir in
 	ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir in  tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport
 	ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir fwd tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport"
 set +x
