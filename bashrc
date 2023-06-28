@@ -14343,29 +14343,31 @@ function ipsec1
 {
 set -x
 	[[ "$HOSTNAME" == "c-236-0-240-241" ]] && ip=10.236.0.242
+	[[ "$HOSTNAME" == "c-237-115-160-163" ]] && ip=10.237.115.164
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci mode legacy
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 # 	devlink dev eswitch set pci/$pci encap disable
 	devlink dev eswitch set pci/$pci mode switchdev
 	ip address flush enp8s0f0
-	ip -4 address add 172.16.0.1/16 dev enp8s0f0
+	ip -4 address add 2.2.1.1/8 dev enp8s0f0
 	ip link set enp8s0f0 up
 	ip xfrm state flush
 	ip xfrm policy flush
 
-# 	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport full_offload dev enp8s0f0 dir out
-# 	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport full_offload dev enp8s0f0 dir in
-	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport offload packet dev enp8s0f0 dir out
-	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport offload packet dev enp8s0f0 dir in
-	ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
-	ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
 
-set +x
-	return
+	ip xfrm state add src 2.2.1.1 dst 2.1.0.0 proto esp spi 10001 reqid 100001 aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport sel src 2.2.1.1 dst 2.1.0.0 offload packet dev enp8s0f0 dir out
+
+	ip xfrm state add src 2.1.0.0 dst 2.2.1.1 proto esp spi 10000 reqid 100000 aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport sel src 2.1.0.0 dst 2.2.1.1 offload packet dev enp8s0f0 dir in
+
+	ip xfrm policy add src 2.2.1.1 dst 2.1.0.0 dir out tmpl src 2.2.1.1 dst 2.1.0.0 proto esp reqid 100001 mode transport offload packet dev enp8s0f0
+	ip xfrm policy add src 2.1.0.0 dst 2.2.1.1 dir in tmpl src 2.1.0.0 dst 2.2.1.1 proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+	ip xfrm policy add src 2.1.0.0 dst 2.2.1.1 dir fwd tmpl src 2.1.0.0 dst 2.2.1.1 proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+
 
 	ssh root@$ip "
 	ip xfrm state flush
@@ -14373,19 +14375,27 @@ set +x
 	sleep 1
 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci mode legacy
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci mode switchdev
-	devlink dev eswitch set pci/$pci encap disable
 	ip address flush enp8s0f0
-	ip -4 address add 172.16.0.2/16 dev enp8s0f0
+	ip -4 address add 2.1.0.0/8 dev enp8s0f0
 	ip link set enp8s0f0 up
 	ip xfrm state flush
 	ip xfrm policy flush
 
-	ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128 mode transport offload packet dev enp8s0f0 dir out
-	ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' $KEY_IN_128  128 mode transport offload packet dev enp8s0f0 dir in
-	ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir in  tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport
-	ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir fwd tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport"
+        ip xfrm state add src 2.2.1.1 dst 2.1.0.0 proto esp spi 10001 reqid 100001 \
+		aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
+		sel src 2.2.1.1 dst 2.1.0.0 offload packet dev enp8s0f0 dir in
+
+        ip xfrm state add src 2.1.0.0 dst 2.2.1.1 proto esp spi 10000 reqid 100000 \
+		aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
+		sel src 2.1.0.0 dst 2.2.1.1 offload packet dev enp8s0f0 dir out
+
+        ip xfrm policy add src 2.2.1.1 dst 2.1.0.0 dir in tmpl src 2.2.1.1 dst 2.1.0.0 proto esp reqid 100001 mode transport offload packet dev enp8s0f0
+        ip xfrm policy add src 2.1.0.0 dst 2.2.1.1 dir out tmpl src 2.1.0.0 dst 2.2.1.1 proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+        ip xfrm policy add src 2.2.1.1 dst 2.1.0.0 dir fwd tmpl src 2.1.0.0 dst 2.2.1.1 proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+	"
 set +x
 }
 
