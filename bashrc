@@ -982,7 +982,6 @@ function cloud_setup0
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-	yum install -y cscope tmux screen ctags rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb
 
 	if ! test -f ~/.tmux.conf; then
 # 		mv ~/.bashrc bashrc.orig
@@ -993,6 +992,7 @@ function cloud_setup0
 		/bin/cp ~cmi/.crash /root
 	fi
 
+	yum -y install cscope tmux screen ctags rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb
 	yum -y install python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel ibutils
 	yum_bcc
 }
@@ -13704,7 +13704,7 @@ function cloud_setup
 	fi
 # 	build_ctags
 	sudo apt install -y cscope tmux screen rsync iperf3 htop pciutils vim diffstat texinfo gdb \
-		dh-autoreconf kexec-tools zip
+		dh-autoreconf kexec-tools zip bison flex
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
 	sudo apt install -y python3-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn

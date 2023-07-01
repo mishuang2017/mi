@@ -54,7 +54,7 @@ def print_net_xfrm_policy(net):
         print(" --- %d ---\n" % i)
 #         print(x)
         policy = container_of(x, "struct xfrm_policy", "walk")
-        print(policy)
+        print(policy.xdo)
         i+=1
 
 net = prog['init_net']
