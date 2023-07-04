@@ -23,7 +23,7 @@ chains_ht =   esw_chains_priv.chains_ht
 prios_ht =    esw_chains_priv.prios_ht
 mapping_ctx = esw_chains_priv.chains_mapping
 # tc_end_ft =  esw_chains_priv.tc_end_ft # net/mlx5: fs_chains: Refactor to detach chains from tc usage
-tc_end_ft =  esw_chains_priv.chains_end_ft
+# tc_end_ft =  esw_chains_priv.chains_end_ft
 
 # print("tc_end_ft %lx, slow_fdb: %lx" % (tc_end_ft, slow_fdb))
 # print(esw_chains_priv)

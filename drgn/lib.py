@@ -27,6 +27,16 @@ def kernel(name):
     else:
         return False
 
+def is_arm():
+    m = os.popen('uname -m')
+    text = m.read()
+    m.close()
+
+    if "aarch64" in text:
+        return True
+    else:
+        return False
+
 def hostname(name):
     b = os.popen('hostname -s')
     text = b.read()
@@ -50,6 +60,9 @@ pf1_name = "enp4s0f1"
 if hostname.find("c-") == 0:
     pf0_name = "enp8s0f0"
     pf1_name = "enp8s0f1"
+
+if is_arm():
+    pf0_name = "p0"
 
 print("pf0_name: %s" % pf0_name)
 

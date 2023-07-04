@@ -11,6 +11,7 @@ sys.path.append(".")
 from lib import *
 
 mlx5e_rep_priv = get_mlx5e_rep_priv()
+# print(mlx5e_rep_priv.uplink_priv)
 post_act = mlx5e_rep_priv.uplink_priv.post_act
 # print(post_act)
 flow_table("", post_act.ft)

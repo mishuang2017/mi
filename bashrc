@@ -6719,7 +6719,7 @@ function sf
 
 set -x
         devlink dev eswitch set pci/$pci mode switchdev
-	for (( i = 1; i <= n; i++ )); do
+	for (( i = 0; i < n; i++ )); do
 		$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $i
 		mac=02:25:00:$host_num:02:$i
 		(( debug == 1 )) && read
