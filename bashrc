@@ -10,7 +10,7 @@ test -f /usr/bin/lsb_release && debian=1
 ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
-numvfs=4
+numvfs=3
 ports=2
 ports=1
 
@@ -10339,6 +10339,172 @@ set -x
 		dst_mac $mac1 ct_state +trk+est \
 		action mirred egress redirect dev $rep2
 
+set +x
+}
+
+function tc_ct_bf
+{
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+set -x
+
+	TC=/images/cmi/iproute2/tc/tc;
+	TC=tc
+
+	$TC qdisc del dev pf0hpf ingress > /dev/null 2>&1;
+	ethtool -K pf0hpf hw-tc-offload on;
+	$TC qdisc add dev pf0hpf ingress
+
+	$TC qdisc del dev p0 ingress > /dev/null 2>&1;
+	ethtool -K p0 hw-tc-offload on;
+	$TC qdisc add dev p0 ingress
+
+	echo "add arp rules"
+	$TC filter add dev pf0hpf ingress protocol arp prio 1 flower skip_hw \
+		action mirred egress redirect dev p0
+
+	$TC filter add dev p0 ingress protocol arp prio 1 flower skip_hw \
+		action mirred egress redirect dev pf0hpf
+
+	echo "add ct rules"
+	$TC filter add dev pf0hpf ingress protocol ip chain 0 prio 2 flower $offload \
+		ct_state -trk \
+		action ct pipe action goto chain 1
+
+	$TC filter add dev pf0hpf ingress protocol ip chain 1 prio 2 flower $offload \
+		ct_state +trk+new \
+		action ct commit \
+		action mirred egress redirect dev p0
+
+	$TC filter add dev pf0hpf ingress protocol ip chain 1 prio 2 flower $offload \
+		ct_state +trk+est \
+		action mirred egress redirect dev p0
+
+
+	$TC filter add dev p0 ingress protocol ip chain 0 prio 2 flower $offload \
+		ct_state -trk \
+		action ct pipe action goto chain 1
+
+	$TC filter add dev p0 ingress protocol ip chain 1 prio 2 flower $offload \
+		ct_state +trk+new \
+		action ct commit \
+		action mirred egress redirect dev pf0hpf
+
+	$TC filter add dev p0 ingress protocol ip chain 1 prio 2 flower $offload \
+		ct_state +trk+est \
+		action mirred egress redirect dev pf0hpf
+
+set +x
+}
+
+function tc_ct_bf_wrong
+{
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+set -x
+
+	TC=/images/cmi/iproute2/tc/tc;
+	TC=tc
+
+	$TC qdisc del dev pf0hpf ingress > /dev/null 2>&1;
+	ethtool -K pf0hpf hw-tc-offload on;
+	$TC qdisc add dev pf0hpf ingress
+
+	$TC qdisc del dev p0 ingress > /dev/null 2>&1;
+	ethtool -K p0 hw-tc-offload on;
+	$TC qdisc add dev p0 ingress
+
+	echo "add arp rules"
+	$TC filter add dev pf0hpf ingress protocol arp prio 1 flower skip_hw \
+		action mirred egress redirect dev p0
+
+	$TC filter add dev p0 ingress protocol arp prio 1 flower skip_hw \
+		action mirred egress redirect dev pf0hpf
+
+	echo "add ct rules"
+	$TC filter add dev pf0hpf ingress protocol ip chain 0 prio 2 flower $offload \
+		ct_state -trk \
+		action ct pipe action goto chain 1
+
+	$TC filter add dev pf0hpf ingress protocol ip chain 1 prio 2 flower $offload \
+		ct_state +trk+new \
+		action ct commit \
+		action mirred egress redirect dev p0
+
+	$TC filter add dev pf0hpf ingress protocol ip chain 1 prio 2 flower $offload \
+		ct_state +trk+est \
+		action mirred egress redirect dev p0
+
+
+	$TC filter add dev p0 ingress protocol ip chain 0 prio 2 flower $offload \
+		ct_state -trk \
+		action mirred egress redirect dev en3f0pf0sf0 \
+		action ct pipe action goto chain 1
+
+	$TC filter add dev p0 ingress protocol ip chain 1 prio 2 flower $offload \
+		ct_state +trk+new \
+		action ct commit \
+		action mirred egress redirect dev pf0hpf
+
+	$TC filter add dev p0 ingress protocol ip chain 1 prio 2 flower $offload \
+		ct_state +trk+est \
+		action mirred egress redirect dev pf0hpf
+
+set +x
+}
+
+function tc_bf1
+{
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+set -x
+
+	TC=/images/cmi/iproute2/tc/tc;
+	TC=tc
+
+	$TC qdisc del dev pf0hpf ingress > /dev/null 2>&1;
+	ethtool -K pf0hpf hw-tc-offload on;
+	$TC qdisc add dev pf0hpf ingress
+
+	$TC qdisc del dev p0 ingress > /dev/null 2>&1;
+	ethtool -K p0 hw-tc-offload on;
+	$TC qdisc add dev p0 ingress
+
+	$TC filter add dev p0 ingress protocol ip chain 0 prio 2 flower $offload \
+		ct_state -trk \
+		action ct pipe action goto chain 1
+set +x
+}
+
+function tc_bf2
+{
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+set -x
+
+	TC=/images/cmi/iproute2/tc/tc;
+	TC=tc
+
+	$TC qdisc del dev pf0hpf ingress > /dev/null 2>&1;
+	ethtool -K pf0hpf hw-tc-offload on;
+	$TC qdisc add dev pf0hpf ingress
+
+	$TC qdisc del dev p0 ingress > /dev/null 2>&1;
+	ethtool -K p0 hw-tc-offload on;
+	$TC qdisc add dev p0 ingress
+
+	$TC filter add dev p0 ingress protocol ip chain 0 prio 2 flower $offload \
+		ct_state -trk \
+		action mirred egress redirect dev en3f0pf0sf0 \
+		action ct pipe action goto chain 1
 set +x
 }
 
