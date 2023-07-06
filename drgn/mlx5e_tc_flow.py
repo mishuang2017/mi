@@ -32,14 +32,14 @@ for x, dev in enumerate(get_netdevs()):
 
     for i, flow in enumerate(hash(tc_ht, 'struct mlx5e_tc_flow', 'node')):
 #         print(flow.attr.esw_attr[0])
-        print("============================== %d =========================" % j)
+        print("============================== %d, %x =========================" % (j, flow))
         print_mlx5e_tc_flow(flow)
         print(flow.attr.esw_attr[0])
         j=j+1
 #         print(flow.attrs)
         k=1
         for mlx5_flow_attr in list_for_each_entry('struct mlx5_flow_attr', flow.attrs.address_of_(), 'list'):
-            print("--- flow.attrs: %d ---" % k)
+            print("--- flow.attrs: %d, %x ---" % (k, mlx5_flow_attr))
             k=k+1
             print("mlx5_flow_attr.action: %x" % mlx5_flow_attr.action)
             print("flow.attr.tc_act_cookies_count: %d" % mlx5_flow_attr.tc_act_cookies_count)
@@ -49,4 +49,4 @@ for x, dev in enumerate(get_netdevs()):
 #             print("flow.attr: %x" % mlx5_flow_attr)
 #             print(mlx5_flow_attr.post_act_handle)
 #             print(mlx5_flow_attr.parse_attr)
-#             print(mlx5_flow_attr.esw_attr[0])
+            print(mlx5_flow_attr.esw_attr[0])

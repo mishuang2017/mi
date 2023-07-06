@@ -866,7 +866,7 @@ def print_match(fte, mask):
 
     reg_c2 = ntohl(val[57].value_())
     if reg_c2:
-        print(" reg_c2 (ct_state|ct_zone, est=2, trk=4, nat=8): %4x" % reg_c2, end='')
+        print(" reg_c2 (ct_state|ct_zone, est=2, trk=4, nat=8, new=80, MLX5_CT_STATE_NEW_BIT): %4x" % reg_c2, end='')
 
     reg_c1 = ntohl(val[58].value_())
     if reg_c1:
@@ -963,8 +963,11 @@ def print_flow_offload(flow, dir):
         print("\tdir = 1")
     print("\t\tnf_conn %lx" % flow.ct)
     print("\t\tflags: %x, timeout: %x, type: %d" % (flow.flags, flow.timeout, flow.type), end='\t')
+    print("(NF_FLOW_HW_ESTABLISHED: %x)" % (1 << prog['NF_FLOW_HW_ESTABLISHED'].value_()), end=' ')
+    print("(NF_FLOW_HW_BIDIRECTIONAL: %x)" % (1 << prog['NF_FLOW_HW_BIDIRECTIONAL'].value_()), end=' ')
+    print("(NF_FLOW_HW: %x)" % (1 << prog['NF_FLOW_HW'].value_()), end=' ')
     print("(NF_FLOW_SNAT: %x)" % (1 << prog['NF_FLOW_SNAT'].value_()), end=' ')
-    print("(NF_FLOW_HW: %x)" % (1 << prog['NF_FLOW_HW'].value_()))
+    print('')
 #     print(flow)
 
 def print_tuple_rhash_tuple(tuple_rhash):

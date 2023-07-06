@@ -179,8 +179,7 @@ if (( cloud == 1 )); then
 	rep3=${link}_2
 	rep4=${link}_3
 
-	(( host_num == 83 )) && remote_mac=10:70:fd:d9:0e:38
-	(( host_num == 63 )) && remote_mac=e8:eb:d3:98:24:ac
+	(( host_num == 21 )) && remote_mac=b8:ce:f6:82:d5:54
 fi
 
 if (( host_num == 0 )); then
@@ -1098,15 +1097,14 @@ set +x
 	cd crash
 	make lzo -j 4
 }
-alias cl_setup=cloud_setup
 
 function cloud_ofed_cp
 {
 	test -d /images/cmi/mlnx-ofa_kernel-4.0 || cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
 	cd /images/cmi/mlnx-ofa_kernel-4.0
 	git pull origin mlnx_ofed_23_07
+	git fetch --tags
 }
-alias cl_ofed_cp=cloud_ofed_cp
 
 function bind5
 {
@@ -1902,7 +1900,7 @@ function tc2
 {
 	local l
 #	for link in p2p1 $rep1 $rep2 $vx_rep; do
-	for l in $link $rep1 $rep2 $rep3 bond0 vxlan1; do
+	for l in $link $rep1 $rep2 $rep3 bond0 vxlan1 p0; do
 		ip link show $l > /dev/null 2>&1 || continue
 		tc qdisc show dev $l ingress | grep ffff > /dev/null 2>&1
 		if (( $? == 0 )); then
@@ -5084,110 +5082,17 @@ function mirror
 {
 	[[ $# != 2 ]] && return
 
-	clear-mirror
-	ovs-vsctl -- --id=@p get port $1 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $2 mirrors=@m
+	ovs-vsctl clear bridge $1 mirrors
+	ovs-vsctl -- --id=@p get port $2 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $1 mirrors=@m
 }
 
-function mirror-dst
-{
-	clear-mirror
-	ovs-vsctl -- set Bridge $br mirrors=@m \
-	      -- --id=@p get Port $rep2 \
-	      -- --id=@p3 get Port $rep3 \
-	      -- --id=@p4 get Port $rep4 \
-	      -- --id=@p5 get Port $rep5 \
-	      -- --id=@m create Mirror name=mymirror select-dst-port=@p3,@p4,@p5 select-src-port=@p3,@p4,@p5 output-port=@p
-	ovs-vsctl list mirror
-}
-
-alias set-mirror="ovs-vsctl -- --id=@p get port $rep1 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m"
-alias set-mirror2="ovs-vsctl -- --id=@p get port $rep2 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m"	# panic test
 alias set-mirror-dst="ovs-vsctl -- --id=@p get port $rep1 -- --id=@p2 get port $rep2  -- --id=@m create mirror name=m0 select-dst-port=@p2 output-port=@p -- set bridge $br mirrors=@m"
 alias set-mirror-src="ovs-vsctl -- --id=@p get port $rep1 -- --id=@p2 get port $rep2  -- --id=@m create mirror name=m0 select-src-port=@p2 output-port=@p -- set bridge $br mirrors=@m"
 
-alias set-mirror-all="ovs-vsctl -- --id=@p get port $rep1 -- --id=@p2 get port $rep2  -- --id=@m create mirror name=m0 select-dst-port=@p2 select-src-port=@p2 output-port=@p -- set bridge $br mirrors=@m"
-alias set-mirror-all2="ovs-vsctl -- --id=@p get port $rep1 -- --id=@p2 get port $rep2 -- --id=@p3 get port $rep3   -- --id=@m create mirror name=m0 select-dst-port=@p2 select-src-port=@p2 select-dst-port=@p3 select-src-port=@p3 output-port=@p -- set bridge $br mirrors=@m"
-
 alias set-mirror-vlan="ovs-vsctl -- --id=@p get port $rep1 -- --id=@p2 get port $rep2  -- --id=@m create mirror name=m0 select-dst-port=@p2 select-src-port=@p2 output-port=@p output-vlan=5 -- set bridge $br mirrors=@m"
-alias clear-mirror="ovs-vsctl clear bridge $br mirrors"
-alias clear-mirror2="ovs-vsctl clear bridge $br2 mirrors"
-
-alias set-mirror3="ovs-vsctl -- --id=@p get port $rep3 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m"
-alias clear-mirror3="ovs-vsctl clear bridge $br mirrors"
 
 alias mirror_list='ovs-vsctl list mirror'
 alias mirror_clear="ovs-vsctl clear bridge $br mirrors"
-
-function mirror_set
-{
-	ovs-vsctl clear bridge $br mirrors;
-
-	ovs-vsctl add-port $br $rep1
-	ifconfig $vf1 up
-	ovs-vsctl -- --id=@p get port $rep1 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m
-}
-
-function mirror-br
-{
-set -x
-	local rep
-	del-br
-	ovs-vsctl add-br $br
-#	ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip options:key=$vni
-
-	ip link set $rep1 up
-
-# 	ovs-vsctl \
-# 	    -- --id=@p1 get port $rep1	\
-# 	    -- --id=@m1 create mirror name=m1 select-all=true output-port=@p1 \
-# 	    -- set bridge $br mirrors=@m1
-
-	for (( i = 0; i < numvfs; i++)); do
-		rep=$(get_rep $i)
-#		vs add-port $br $rep tag=$vid
-		vs add-port $br $rep
-		ip link set $rep up
-	done
-
-	ovs-vsctl -- set Bridge $br mirrors=@m1,@m4 \
-              -- --id=@p1 get Port $rep1 \
-              -- --id=@p4 get Port $rep4 \
-              -- --id=@m1 create Mirror name=mymirror select-all=true output-port=@p1 \
-              -- --id=@m4 create Mirror name=mymirror4 select-all=true output-port=@p4
-
-# 	ovs-vsctl -- set Bridge $br mirrors=@m \
-#               -- --id=@p1 get Port $rep1 \
-#               -- --id=@p4 get Port $rep4 \
-#               -- --id=@m create Mirror name=mymirror select-all=true output-port=@p1,@p4
-
-	vs add-port $br $link
-	ifconfig eth2 up
-
-#	ovs-vsctl add-port $br $rep1 tag=$vid\
-# set +x
-#	return
-
-#	ovs-ofctl add-flow $br 'nw_dst=1.1.1.14 action=drop'
-set +x
-}
-
-function mirror2
-{
-	ovs-vsctl -- set Bridge br-int mirrors=@m1,@m4 \
-              -- --id=@p1 get Port $rep1 \
-              -- --id=@p4 get Port $rep4 \
-              -- --id=@m4 create Mirror name=mymirror4 select-all=true output-port=@p4 \
-              -- --id=@m1 create Mirror name=mymirror select-all=true output-port=@p1 
-}
-
-function mirror1
-{
-	ovs-vsctl -- set Bridge br-int mirrors=@m1 \
-              -- --id=@p1 get Port $rep1 \
-              -- --id=@m1 create Mirror name=mymirror select-all=true output-port=@p1
-}
-
-alias mirror_clear2="ovs-vsctl clear bridge br-int mirrors"
 
 function br_int_port
 {
@@ -10303,8 +10208,6 @@ set -x
 	ethtool -K $link hw-tc-offload on;
 	$TC qdisc add dev $link ingress
 
-	mac1=02:25:d0:$host_num:01:02
-	mac2=$remote_mac
 	echo "add arp rules"
 	$TC filter add dev $rep2 ingress protocol arp prio 1 flower skip_hw \
 		action mirred egress redirect dev $link
@@ -10314,29 +10217,31 @@ set -x
 
 	echo "add ct rules"
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
-		dst_mac $mac2 ct_state -trk \
+		ct_state -trk \
 		action ct pipe action goto chain 1
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
-		dst_mac $mac2 ct_state +trk+new \
+		ct_state +trk+new \
 		action ct commit \
 		action mirred egress redirect dev $link
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
-		dst_mac $mac2 ct_state +trk+est \
+		ct_state +trk+est \
 		action mirred egress redirect dev $link
 
+
 	$TC filter add dev $link ingress protocol ip chain 0 prio 2 flower $offload \
-		dst_mac $mac1 ct_state -trk \
+		ct_state -trk \
+		action mirred egress redirect dev $rep1 \
 		action ct pipe action goto chain 1
 
 	$TC filter add dev $link ingress protocol ip chain 1 prio 2 flower $offload \
-		dst_mac $mac1 ct_state +trk+new \
+		ct_state +trk+new \
 		action ct commit \
 		action mirred egress redirect dev $rep2
 
 	$TC filter add dev $link ingress protocol ip chain 1 prio 2 flower $offload \
-		dst_mac $mac1 ct_state +trk+est \
+		ct_state +trk+est \
 		action mirred egress redirect dev $rep2
 
 set +x
@@ -10622,7 +10527,6 @@ set -x
 set +x
 }
 
-alias spf=tc_ct_pf_sample
 function tc_ct_pf_sample
 {
 	rate=1
@@ -13870,7 +13774,7 @@ function cloud_setup
 	fi
 # 	build_ctags
 	sudo apt install -y cscope tmux screen rsync iperf3 htop pciutils vim diffstat texinfo gdb \
-		dh-autoreconf kexec-tools zip bison flex
+		dh-autoreconf kexec-tools zip bison flex cmake llvm
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
 	sudo apt install -y python3-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
