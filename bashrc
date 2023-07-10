@@ -10763,6 +10763,40 @@ function br_ct
 	ovs-ofctl dump-flows $br
 }
 
+function br_ct_drop
+{
+        local proto
+
+	del-br
+	ovs-vsctl add-br $br
+	ovs-vsctl add-port $br $rep1
+	ovs-vsctl add-port $br $rep2
+	ovs-vsctl add-port $br $rep3
+
+	ovs-ofctl add-flow $br in_port=$rep2,dl_type=0x0806,actions=output:$rep3
+	ovs-ofctl add-flow $br in_port=$rep3,dl_type=0x0806,actions=output:$rep2
+
+	mac1=02:25:d0:$host_num:01:02
+	mac2=02:25:d0:$host_num:01:03
+
+	proto=udp
+	ovs-ofctl add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
+
+	proto=tcp
+	ovs-ofctl add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=drop"
+
+	proto=icmp
+	ovs-ofctl add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
+
+	ovs-ofctl dump-flows $br
+}
+
 function br_ct_bf
 {
         local proto
@@ -14046,7 +14080,7 @@ function build_makedumpfile
 
 	sm
 	sudo yum install -y snappy-devel bzip2-devel lzo-devel libzstd-devel
-	sudo apt-get install libsnappy-dev libzstd-dev
+	sudo apt-get -y install libsnappy-dev libzstd-dev
 	git clone https://github.com/makedumpfile/makedumpfile.git
 	cd makedumpfile
 	make USEZSTD=on USESNAPPY=on USELZO=on LINKTYPE=dynamic
