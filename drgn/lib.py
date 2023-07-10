@@ -579,17 +579,18 @@ def print_tuple(tuple, ct):
     if protonum == IPPROTO_UDP:
         dport = ntohs(tuple.tuple.dst.u.udp.port.value_())
         sport = ntohs(tuple.tuple.src.u.udp.port.value_())
-    if dport != 5001:
+    if dport != 5001 and dport != 4000:
         return
 
     print("============================================================")
-    print(ct.ext)
+#     print(ct.ext)
     print("nf_conn %lx" % ct.value_())
 #     print("nf_conntrack_tuple %lx" % tuple.value_())
 
-    if protonum == IPPROTO_TCP and dir == IP_CT_DIR_ORIGINAL:
+#     if protonum == IPPROTO_TCP and dir == IP_CT_DIR_ORIGINAL:
 #     if protonum == IPPROTO_UDP and dir == IP_CT_DIR_ORIGINAL:
 #     if protonum == IPPROTO_UDP:
+    if True:
         print("\tsrc ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.src.u3.ip.value_())), sport), end=' ')
         print("dst ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.dst.u3.ip.value_())), dport), end=' ')
         print("protonum: %3d" % protonum, end=' ')
