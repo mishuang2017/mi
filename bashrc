@@ -7141,9 +7141,9 @@ function tcm2
 #	TC=/auto/mtbcswgwork/cmi/iproute2/tc/tc
 #	tc2
 	TC=tc
-	sudo $TC qdisc add dev $link ingress
-	sudo $TC filter add  dev $link prio 1 protocol ip handle 0x4 parent ffff: flower skip_hw src_mac e4:11:0:0:0:4 dst_mac e4:12:0:0:0:4 action drop
-#	sudo tc filter add  dev $link prio 1 protocol ip handle 2 parent ffff: flower skip_hw src_mac e4:11:0:0:0:2 dst_mac e4:12:0:0:0:2 action drop
+	local l=$rep2
+	sudo $TC qdisc add dev $l ingress
+	sudo $TC filter add  dev $l prio 1 protocol ip handle 0x4 parent ffff: flower skip_sw src_mac e4:11:0:0:0:4 dst_mac e4:12:0:0:0:4 action drop
 }
 
 alias tdc="cd-test; sudo ./tdc.py -f tc-tests/filters/tests.json -d $link"
