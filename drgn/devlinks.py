@@ -25,7 +25,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #     print(devlink.ops)
 
     print("========================== devlink.dev.kobj.name: %s index: %d =========================" % (pci_name, devlink.index))
-#     print(devlink)
+    print("devlink %x" % devlink.address_of_())
 #     if pci_name.find("mlx5_core.sf") == 0:
 #         auxiliary_device = container_of(devlink.dev, 'struct auxiliary_device', "dev")
 #         print("\tauxiliary_device.name: %s" % auxiliary_device.name.string_().decode())
@@ -64,11 +64,15 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #              print(port.attrs)
 
     continue
-    print("=== devlink.param_list ===")
-    print(devlink.param_list)
-    for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
+    for node in radix_tree_for_each(devlink.params.address_of_()):
+#         print(node)
+        param = Object(prog, 'struct devlink_param_item', address=node[1].value_())
+        if param.driverinit_value_valid:
+            print(param)
+            print(param.param)
+#     print("=== devlink.param_list ===")
+#     print(devlink.param_list)
+#     for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
         print("-------------------------------------------------------------")
 #         print(item)
-        print(item.param.id)
-
-
+#         print(item.param.id)

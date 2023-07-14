@@ -21,6 +21,9 @@ print("devlink_list %x" % devlink_list.address_of_())
 for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(), 'list'):
     print('')
     print("devlink %x" % devlink)
+#     print(devlink.dev)
+    if not devlink.dev:
+        continue
     pci_name = devlink.dev.kobj.name.string_().decode()
     print(pci_name)
 #     print(devlink)
@@ -56,14 +59,14 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
-        print(port.attrs)
+#         print(port.attrs)
 
-#     print("=== devlink.param_list ===")
+    print("=== devlink.param_list ===")
 #     print(devlink.param_list)
-#     for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
-#         print("-------------------------------------------------------------")
+    for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
+        print("-------------------------------------------------------------")
 #         print(item)
-#         print(item.param)
+        print(item.param)
 
 # DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH = prog['DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH']
 # print(DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH.value_())
