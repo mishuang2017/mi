@@ -1,0 +1,20 @@
+#!/usr/local/bin/stap -v
+
+global start
+function timestamp:long() { return gettimeofday_us() - start }
+probe begin { start = gettimeofday_us() }
+global n = 1;
+
+/* # stap -L 'kernel.function("netif_receive_skb_internal")' */
+/* kernel.function("netif_receive_skb_internal@net/core/dev.c:5151") $skb:struct sk_buff* $ret:int */
+
+probe kernel.function("netif_receive_skb_internal")
+{
+	if ((execname() == "") || "" == "") {
+/* 		print_backtrace() */
+/* 		printf("parms: %s\n", $$parms); */
+/* 		printf("execname: %s\n", execname()); */
+		printf("skb: %d, ret: %d\n", $skb->protocol, $ret);
+/* 		print_ubacktrace() */
+	}
+}

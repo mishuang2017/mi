@@ -1,0 +1,37 @@
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_cmd.c
+index 08a891f9aade..abe6fadd04a6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_cmd.c
+@@ -403,6 +403,8 @@ static int mlx5_cmd_set_fte(struct mlx5_core_dev *dev,
+ 			list_size++;
+ 		}
+ 
++		if (fte->action.vlan[0].vid)
++			pr_info("%s: dest_list_size: %x\n", __func__, list_size);
+ 		MLX5_SET(flow_context, in_flow_context, destination_list_size,
+ 			 list_size);
+ 	}
+@@ -428,10 +430,18 @@ static int mlx5_cmd_set_fte(struct mlx5_core_dev *dev,
+ 			goto err_out;
+ 		}
+ 
++		if (fte->action.vlan[0].vid)
++			pr_info("%s: counter_list_size: %x\n", __func__, list_size);
+ 		MLX5_SET(flow_context, in_flow_context, flow_counter_list_size,
+ 			 list_size);
+ 	}
+ 
++	if (fte->action.vlan[0].vid) {
++		pr_info("%s: group_id: %x\n", __func__, group_id);
++		pr_info("%s: action: %x\n", __func__, fte->action.action);
++		print_hex_dump(KERN_WARNING, "dump: ", DUMP_PREFIX_ADDRESS, 32, 4, in, inlen, 0);
++	}
++
+ 	err = mlx5_cmd_exec(dev, in, inlen, out, sizeof(out));
+ err_out:
+ 	kvfree(in);
+
+
+	print_hex_dump(KERN_WARNING, "dump: ", DUMP_PREFIX_ADDRESS, 16, 1, skb->head + skb->mac_header, 14, 0);
+	print_hex_dump(KERN_WARNING, "dump: ", DUMP_PREFIX_ADDRESS, 16, 1, skb->head + skb->mac_header + 14, 20, 0);
+	print_hex_dump(KERN_WARNING, "dump: ", DUMP_PREFIX_ADDRESS, 16, 1, skb->head + skb->mac_header + 34, 20, 0);

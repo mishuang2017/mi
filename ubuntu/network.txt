@@ -1,0 +1,56 @@
+1. systemd
+
+root@dev-r630-03:~# cat /etc/systemd/network/static-eno1.network
+[Match]
+Name=eno1
+[Network]
+Address=10.12.205.13/24
+Gateway=10.12.205.1
+DNS=10.12.68.102
+DNS=10.12.68.101
+
+systemctl enable systemd-networkd
+systemctl start systemd-networkd
+
+2. netplan
+
+# cat /etc/netplan/01-network-manager-all.yaml
+# Let NetworkManager manage all devices on this system
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    enp0s31f6:
+      dhcp4: no
+      addresses: [1.1.1.1/24]
+
+3. interfaces
+
+pi@raspberrypi:/etc/network $ cat interfaces
+# interfaces(5) file used by ifup(8) and ifdown(8)
+
+# Please note that this file is written to be used with dhcpcd
+# For static IP, consult /etc/dhcpcd.conf and 'man dhcpcd.conf'
+
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+
+auto eth0
+iface eth0 inet static
+address 1.1.1.2
+netmask 255.255.255.0
+
+sudo systemctl restart networking
+
+4. br0
+
+No need to change anything else
+https://www.cyberciti.biz/faq/how-to-configuring-bridging-in-debian-linux/
+
+# cat /etc/network/interfaces.d/br0
+## DHCP ip config file for br0 ##
+auto br0
+ 
+# Bridge setup
+ iface br0 inet dhcp
+    bridge_ports eno1

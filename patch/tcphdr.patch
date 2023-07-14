@@ -1,0 +1,40 @@
+diff --git a/lib/list_debug.c b/lib/list_debug.c
+index 5d5424b51b74..0cda4129898a 100644
+--- a/lib/list_debug.c
++++ b/lib/list_debug.c
+@@ -53,8 +53,10 @@ bool __list_del_entry_valid(struct list_head *entry)
+ 			entry, prev->next) ||
+ 	    CHECK_DATA_CORRUPTION(next->prev != entry,
+ 			"list_del corruption. next->prev should be %px, but was %px\n",
+-			entry, next->prev))
++			entry, next->prev)) {
++		BUG_ON(1);
+ 		return false;
++	}
+ 
+ 	return true;
+ 
+diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
+index 9b9324d5f8bf..5ebd76827e65 100644
+--- a/net/sched/act_ct.c
++++ b/net/sched/act_ct.c
+@@ -330,6 +330,19 @@ static int __tcf_conntrack(struct sk_buff *skb,
+ 	}
+ 
+ 	ct = nf_ct_get(skb, &ctinfo);
++	if (!(ctinfo & IP_CT_ESTABLISHED) && !(ctinfo & IP_CT_NEW)) {
++		struct iphdr *iph;
++		struct tcphdr *tcph;
++
++		iph = ip_hdr(skb);
++		tcph = tcp_hdr(skb);
++
++		if (tcph->fin) {
++			skb->_nfct |= IP_CT_ESTABLISHED;
++			pr_info("%s: ctinfo: %x\n", __func__, ctinfo);
++		}
++	}
++
+ 	if (!ct)
+ 		goto out;
+ 

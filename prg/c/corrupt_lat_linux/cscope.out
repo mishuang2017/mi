@@ -1,0 +1,2370 @@
+cscope 15 $HOME/public_html/sdp/tests/corrupt_lat               0000012366
+	@corrupt.c
+
+13 
+	~<°dio.h
+>
+
+14 
+	~<°rög.h
+>
+
+15 
+	~<°rögs.h
+>
+
+16 
+	~<uni°d.h
+>
+
+17 
+	~<°dlib.h
+>
+
+18 
+	~<±hªad.h
+>
+
+19 
+	~<√tdb.h
+>
+
+20 
+	~<f˙é.h
+>
+
+21 
+	~<uni°d.h
+>
+
+22 
+	~<sys/°©.h
+>
+
+23 
+	~<√töë/ö.h
+>
+
+24 
+	~<√töë/t˝.h
+>
+
+25 
+	~<sys/sockë.h
+>
+
+26 
+	~<sig«l.h
+>
+
+27 
+	~<sys/ty≥s.h
+>
+
+28 
+	~<î∫o.h
+>
+
+30 #ifde‡
+SDP
+
+
+31 
+	#PROTO_TEST
+ 
+PROTO_SDP
+
+
+	)
+
+33 
+	#PROTO_TEST
+ 
+IPPROTO_TCP
+
+
+	)
+
+36 
+	#MAX_THREAD_CNT
+ 1000
+
+	)
+
+37 
+	#BUFFER_SIZE
+ (1)
+
+	)
+
+39 
+î∫o
+;
+
+41 
+uöt64_t
+ 
+	gno
+ = 0;
+
+43 
+	ga
+ = '0';
+
+51 
+	gdebug
+ = 0;
+
+53 
+	g⁄ly
+ = 0;
+
+64 
+boﬁón_t
+ 
+	gdñay
+ = 
+B_FALSE
+;
+
+67 *
+	gp‹t
+ = "4000";
+
+68 *
+	gböd_«me
+ = 
+NULL
+;
+
+69 *
+	gvîsi⁄
+ = "IPv4";
+
+71 
+	s£rvî_¨g
+ {
+
+72 
+	mfd
+;
+
+73 *
+	mfûíame
+;
+
+74 
+	mthªad_no
+;
+
+75 } 
+	t£rvî_¨g_t
+;
+
+77 
+	s˛õ¡_¨g
+ {
+
+78 
+	mrun_time
+;
+
+79 
+	m∑ckës_£nd
+;
+
+80 *
+	mfûíame
+;
+
+81 
+addröfo
+ *
+	mc_ªs
+;
+
+82 
+addröfo
+ *
+	mc_böd_ªs
+;
+
+83 
+	mthªad_no
+;
+
+84 } 
+	t˛õ¡_¨g_t
+;
+
+87 
+	$ußge
+()
+
+89 
+	`¥ötf
+("client usage: <b:c:hl:n:p:t:v:x:>\n"
+
+108 
+	`exô
+(1);
+
+109 
+	}
+}
+
+112 
+	$ªlübÀ_wrôe
+(
+fd
+, *
+buf„r
+, 
+buf„r_size
+)
+
+114 
+ªt
+;
+
+115 
+£¡
+ = 0;
+
+116 
+size
+ = 
+buf„r_size
+;
+
+117 
+ªmaö
+ = 
+buf„r_size
+;
+
+119 
+ªt
+ = 
+	`wrôe
+(
+fd
+, 
+buf„r
+, 
+ªmaö
+);
+
+121 i‡(
+ªt
+ == 0) {
+
+122  (
+ªt
+);
+
+125 i‡(
+ªt
+ == -1) {
+
+126 
+	`≥º‹
+("client write()Érror");
+
+127  (
+ªt
+);
+
+131 
+£¡
+ = síà+ 
+ªt
+;
+
+132 
+buf„r
+ +
+ªt
+;
+
+133 
+ªmaö
+ -
+ªt
+;
+
+135 i‡(
+£¡
+ !
+size
+ && 
+debug
+ >= 1)
+
+136 
+	`¥ötf
+("ret = %d\tsent = %d\tremain = %d\n",
+
+137 
+ªt
+, 
+£¡
+, 
+ªmaö
+);
+
+139 i‡(
+£¡
+ =
+size
+) {
+
+140 i‡(
+debug
+ >= 1)
+
+141 
+	`¥ötf
+("ret = %d\tsent = %d\tremain = %d\n",
+
+142 
+ªt
+, 
+£¡
+, 
+ªmaö
+);
+
+143  (
+£¡
+);
+
+145 
+	}
+}
+
+148 
+	$ªlübÀ_ªad
+(
+fd
+, *
+buf„r
+, 
+buf„r_size
+)
+
+150 
+ªt
+;
+
+151 
+gŸ
+ = 0;
+
+152 
+size
+ = 
+buf„r_size
+;
+
+153 
+ªmaö
+ = 
+buf„r_size
+;
+
+156 
+ªt
+ = 
+	`ªad
+(
+fd
+, 
+buf„r
+, 
+ªmaö
+);
+
+158 i‡(
+ªt
+ == 0) {
+
+159  (
+ªt
+);
+
+162 i‡(
+ªt
+ == -1) {
+
+163 
+	`≥º‹
+("serverÑead()Érror");
+
+164  (
+gŸ
+);
+
+167 
+gŸ
+ = gŸ + 
+ªt
+;
+
+168 
+buf„r
+ +
+ªt
+;
+
+169 
+ªmaö
+ -
+ªt
+;
+
+171 i‡(
+gŸ
+ !
+size
+ && 
+debug
+ >= 1)
+
+172 
+	`¥ötf
+("ret = %d\tgot = %d\tremain = %d\n",
+
+173 
+ªt
+, 
+gŸ
+, 
+ªmaö
+);
+
+175 i‡(
+gŸ
+ =
+size
+) {
+
+176 i‡(
+debug
+ >= 1)
+
+177 
+	`¥ötf
+("ret = %d\tgot = %d\tremain = %d\n",
+
+178 
+ªt
+, 
+gŸ
+, 
+ªmaö
+);
+
+179  (
+gŸ
+);
+
+182 
+	}
+}
+
+185 
+	$sdp_£nd_buf„r
+(
+˛õ¡
+, 
+size
+, *
+fûíame
+, 
+fûóscii
+)
+
+187 
+ªt
+ = 0, 
+£¡
+ = 0;
+
+188 
+i
+ = 0;
+
+189 
+cou¡
+, 
+ödex
+;
+
+190 
+FILE
+ *
+out_fûe
+;
+
+191 
+buf„r
+[
+BUFFER_SIZE
+];
+
+192 
+	`mem£t
+(
+buf„r
+, 
+a
+, 
+BUFFER_SIZE
+);
+
+193 
+a
+ = (a++) % 0xff;
+
+195 
+¸c
+;
+
+196 
+¸c
+ = 0xFFFFFFFF;
+
+198 i‡(
+debug
+ >= 2) {
+
+199 
+out_fûe
+ = 
+	`f›í
+(
+fûíame
+, "a");
+
+201 i‡(
+out_fûe
+ =
+NULL
+) {
+
+202 (Ë
+	`Ârötf
+(
+°dîr
+, "CanÇot open output file\n");
+
+203 
+	`exô
+(8);
+
+207 
+ªt
+ = 
+	`ªlübÀ_wrôe
+(
+˛õ¡
+, 
+buf„r
+, 1);
+
+208 i‡(
+ªt
+ == -1)
+
+210 i‡(
+debug
+ >= 2) {
+
+211 
+	`fwrôe
+(&
+¸c
+, 1,  (¸c), 
+out_fûe
+);
+
+212 
+	`f˛o£
+(
+out_fûe
+);
+
+216 
+	}
+}
+
+219 *
+	$sdp_£rvî_thªad
+(*
+¨g
+)
+
+221 
+lo›
+ = 0;
+
+222 
+fd
+;
+
+223 
+thªad_no
+;
+
+224 
+£rvî_¨g_t
+ *
+s_¨g
+;
+
+225 *
+fûíame
+;
+
+226 
+i
+;
+
+227 
+fú°_¸c
+ = 1;
+
+229 
+ödex
+ = 0, 
+ch¨s_ªad
+, 
+ch¨s_tŸÆ
+ = 0;
+
+230 
+FILE
+ *
+ö_fûe
+;
+
+231 
+buf„r
+[1];
+
+232 
+¸c
+, 
+¸c_ªad
+;
+
+234 
+s_¨g
+ = (
+£rvî_¨g_t
+ *)
+¨g
+;
+
+235 
+fd
+ = 
+s_¨g
+->fd;
+
+236 
+thªad_no
+ = 
+s_¨g
+->thread_no;
+
+237 
+fûíame
+ = 
+s_¨g
+->filename;
+
+239 
+	`¥ötf
+("£rvîÅhªad: %-4dÖ‹t: %s\n", 
+thªad_no
+, 
+p‹t
+);
+
+241 i‡(
+debug
+ >= 2) {
+
+242 
+ö_fûe
+ = 
+	`f›í
+(
+fûíame
+, "a");
+
+244 i‡(
+ö_fûe
+ =
+NULL
+) {
+
+245 (Ë
+	`Ârötf
+(
+°dîr
+,
+
+247 
+	`exô
+(8);
+
+252 
+ch¨s_ªad
+ = 
+	`ªlübÀ_ªad
+(
+fd
+, 
+buf„r
+, 1);
+
+254 i‡(
+ch¨s_ªad
+ == 0) {
+
+255 
+	`˛o£
+(
+fd
+);
+
+256 i‡(
+debug
+ >= 2)
+
+257 (Ë
+	`f˛o£
+(
+ö_fûe
+);
+
+258  (
+NULL
+);
+
+261 i‡(
+ch¨s_ªad
+ != 1) {
+
+262 
+	`¥ötf
+("reliable_read()Érror, chars_read = %d\n",
+
+263 
+ch¨s_ªad
+);
+
+264 
+	`exô
+(1);
+
+267 i‡(!
+⁄ly
+)
+
+268 
+	`sdp_£nd_buf„r
+(
+fd
+, 1, 
+NULL
+, 'a');
+
+270 
+	}
+}
+
+273 
+	$run_c‹ru±
+(
+fd
+, 
+˛õ¡_¨g_t
+ *
+c_¨g
+)
+
+275 
+size
+;
+
+276 
+fûóscii
+;
+
+277 
+num_fûes
+;
+
+278 
+wrŸe_¸c
+;
+
+279 
+time_t
+ 
+°¨t_time
+;
+
+280 
+time_t
+ 
+cuºít_time
+;
+
+281 
+ªt
+;
+
+282 
+lo›
+ = 0;
+
+283 *
+fûíame
+;
+
+285 
+run_time
+;
+
+286 
+∑ckës_£nd
+;
+
+287 
+thªad_no
+;
+
+289 
+fûíame
+ = 
+c_¨g
+->filename;
+
+290 
+run_time
+ = 
+c_¨g
+->run_time;
+
+291 
+∑ckës_£nd
+ = 
+c_¨g
+->packets_send;
+
+292 
+thªad_no
+ = 
+c_¨g
+->thread_no;
+
+294 
+buf„r
+[1];
+
+296 (Ë
+	`time
+(&
+°¨t_time
+);
+
+297 (Ë
+	`time
+(&
+cuºít_time
+);
+
+299 
+fûóscii
+ = 0;
+
+301 i‡(
+debug
+ >= 1) {
+
+302 
+	`¥ötf
+("SèπÅimêi†%d\n", ()
+°¨t_time
+);
+
+303 
+	`¥ötf
+("run_timê%d\à∑ckës_£nd = %d\n", 
+run_time
+,
+
+304 
+∑ckës_£nd
+);
+
+305 
+	`¥ötf
+("Clõ¡ sèπög wôhÜog_fûê%s\n", 
+fûíame
+);
+
+308 
+	`¥ötf
+("˛õ¡Åhªad: %-4dÖ‹t: %s\n", 
+thªad_no
+, 
+p‹t
+);
+
+309 ()(
+cuºít_time
+ - 
+°¨t_time
+Ë< 
+run_time
+) {
+
+311 
+ªt
+ = 
+	`sdp_£nd_buf„r
+(
+fd
+, 1, 
+fûíame
+, 
+fûóscii
+);
+
+313 i‡(
+debug
+ >= 1) {
+
+314 
+	`¥ötf
+("%d: wrôê¸¯%x\n", 
+lo›
+ ++, 
+ªt
+);
+
+317 i‡(
+∑ckës_£nd
+ != 0)
+
+318 i‡(
+lo›
+ =
+∑ckës_£nd
+)
+
+320 
+no
+++;
+
+322 i‡(!
+⁄ly
+) {
+
+323 
+	`ªlübÀ_ªad
+(
+fd
+, 
+buf„r
+, 1);
+
+324 
+no
+++;
+
+327 (Ë
+	`time
+(&
+cuºít_time
+);
+
+331 i‡(
+debug
+ >= 1) {
+
+332 (Ë
+	`¥ötf
+("EndÅimêi†%d\n", ()
+cuºít_time
+);
+
+335 
+	`¥ötf
+("run_time: %d\n", 
+run_time
+);
+
+336 
+	`¥ötf
+("no: %Œd\n", 
+no
+);
+
+337 
+	`¥ötf
+("œãncy %f\n", (()
+run_time
+Ë* 1000000000 / 
+no
+);
+
+338 
+	`˛o£
+(
+fd
+);
+
+339 
+	}
+}
+
+342 *
+	$sdp_˛õ¡_thªad
+(*
+¨g
+)
+
+344 
+i
+, 
+fd
+;
+
+345 
+addröfo
+ *
+ai
+;
+
+346 
+˛õ¡_¨g_t
+ *
+c_¨g
+;
+
+347 
+nodñay
+ = 1;
+
+348 
+ªsu…
+;
+
+350 
+c_¨g
+ = (
+˛õ¡_¨g_t
+ *)
+¨g
+;
+
+352 
+ai
+ = 
+c_¨g
+->
+c_ªs
+;
+
+353 i‡((
+fd
+ = 
+	`sockë
+(
+ai
+->
+ai_Ámûy
+,ái->
+ai_sockty≥
+, 
+PROTO_TEST
+)) == -1) {
+
+354 
+	`≥º‹
+("client socket()Érror");
+
+355  (
+NULL
+);
+
+358 i‡(!
+dñay
+) {
+
+359 
+ªsu…
+ = 
+	`£tsock›t
+(
+fd
+,
+
+360 
+IPPROTO_TCP
+,
+
+361 
+TCP_NODELAY
+,
+
+362 (*Ë&
+nodñay
+,
+
+364 i‡(
+ªsu…
+ < 0) {
+
+365 
+	`≥º‹
+("clientÅcp_nodelayÉrror");
+
+366 
+	`exô
+(1);
+
+370 
+ai
+ = 
+c_¨g
+->
+c_böd_ªs
+;
+
+371 i‡(
+ai
+ !
+NULL
+) {
+
+372 i‡(
+	`böd
+(
+fd
+, 
+ai
+->
+ai_addr
+,ái->
+ai_addæí
+) == -1) {
+
+373 
+	`≥º‹
+("client bind()Érror");
+
+374  (
+NULL
+);
+
+378 
+ai
+ = 
+c_¨g
+->
+c_ªs
+;
+
+379 i‡(
+	`c⁄√˘
+(
+fd
+, 
+ai
+->
+ai_addr
+,ái->
+ai_addæí
+) == -1) {
+
+380 
+	`≥º‹
+("client connect()Érror");
+
+381  (
+NULL
+);
+
+384 
+	`run_c‹ru±
+(
+fd
+, 
+c_¨g
+);
+
+385 
+	}
+}
+
+388 
+	$£rvî_c‹ru±
+(*
+p‹t
+, 
+lwp
+, 
+v6
+)
+
+390 
+i
+, 
+fd
+, 
+£rvî
+, 
+ªu£addr
+ = 1;
+
+391 
+addæí
+;
+
+392 *
+log_dú_£rvî
+ = "/tmp/server";
+
+393 *
+log_fûe
+;
+
+394 
+sockaddr_°‹age
+ 
+˛üddr
+;
+
+395 
+addröfo
+ 
+höts
+, *
+ªs
+ = 
+NULL
+, *
+ªsßve
+ = NULL;
+
+396 
+±hªad_t
+ 
+t_£rvî
+[
+MAX_THREAD_CNT
+];
+
+397 
+£rvî_¨g_t
+ *
+s_¨g
+;
+
+398 
+nodñay
+ = 1;
+
+399 
+ªsu…
+;
+
+401 
+	`¥ötf
+("%†£rvî sèπög...Öid: %d\n", 
+vîsi⁄
+, 
+	`gëpid
+());
+
+402 
+	`bzîo
+(&
+höts
+,  (
+addröfo
+));
+
+403 
+höts
+.
+ai_Ámûy
+ = 
+AF_UNSPEC
+;
+
+404 
+höts
+.
+ai_sockty≥
+ = 
+SOCK_STREAM
+;
+
+405 
+höts
+.
+ai_Êags
+ = 
+AI_PASSIVE
+;
+
+407 i‡(
+	`gëaddröfo
+(
+böd_«me
+, 
+p‹t
+, &
+höts
+, &
+ªs
+) != 0) {
+
+408 
+	`≥º‹
+("server bind_name getaddrinfo()Érror");
+
+409 
+	`exô
+(1);
+
+412 
+ªs
+ !
+NULL
+) {
+
+413 i‡(
+v6
+ =4 && 
+ªs
+->
+ai_Ámûy
+ =
+AF_INET
+) {
+
+414 
+ªsßve
+ = 
+ªs
+;
+
+417 i‡(
+v6
+ =6 && 
+ªs
+->
+ai_Ámûy
+ =
+AF_INET6
+) {
+
+418 
+ªsßve
+ = 
+ªs
+;
+
+421 
+ªs
+ =Ñes->
+ai_√xt
+;
+
+424 i‡(
+ªsßve
+ =
+NULL
+) {
+
+425 
+	`¥ötf
+("please specify correct hostname\n");
+
+426 
+	`exô
+(1);
+
+429 i‡((
+£rvî
+ = 
+	`sockë
+(
+v6
+ =6 ? 
+PF_INET6
+ : 
+PF_INET
+, 
+SOCK_STREAM
+,
+
+430 
+PROTO_TEST
+)) == -1) {
+
+431 
+	`≥º‹
+("server socket()Érror");
+
+432 
+	`exô
+(1);
+
+435 
+	`£tsock›t
+(
+£rvî
+, 
+SOL_SOCKET
+, 
+SO_REUSEADDR
+, &
+ªu£addr
+,
+
+436  (
+ªu£addr
+));
+
+438 i‡(!
+dñay
+) {
+
+439 
+ªsu…
+ = 
+	`£tsock›t
+(
+£rvî
+,
+
+440 
+IPPROTO_TCP
+,
+
+441 
+TCP_NODELAY
+,
+
+442 (*Ë&
+nodñay
+,
+
+444 i‡(
+ªsu…
+ < 0) {
+
+445 
+	`≥º‹
+("serverÅcp_nodelayÉrror");
+
+446 
+	`exô
+(1);
+
+451 i‡(
+	`böd
+(
+£rvî
+, 
+ªsßve
+->
+ai_addr
+,Ñesßve->
+ai_addæí
+) == -1) {
+
+452 
+	`≥º‹
+("server bind()Érror");
+
+453 
+	`exô
+(1);
+
+456 i‡(
+	`li°í
+(
+£rvî
+, 50) == -1) {
+
+457 
+	`≥º‹
+("serverÜisten()Érror");
+
+458 
+	`exô
+(1);
+
+461 
+i
+ = 0; i < 
+lwp
+; i ++) {
+
+462 
+addæí
+ =  (
+˛üddr
+);
+
+463 i‡((
+fd
+ = 
+	`ac˚±
+(
+£rvî
+, (
+sockaddr
+ *)&
+˛üddr
+,
+
+464 &
+addæí
+)) == -1) {
+
+465 
+	`≥º‹
+("serveráccept()Érror");
+
+466 
+	`exô
+(1);
+
+469 
+log_fûe
+ = 
+	`mÆloc
+(100);
+
+470 
+	`mkdú
+(
+log_dú_£rvî
+, 
+S_IRWXU
+ | 
+S_IRWXG
+ | 
+S_IRWXO
+);
+
+471 
+	`•rötf
+(
+log_fûe
+, "%s/%0.4d", 
+log_dú_£rvî
+, 
+i
+);
+
+472 
+	`ªmove
+(
+log_fûe
+);
+
+473 
+s_¨g
+ = 
+	`mÆloc
+( (
+£rvî_¨g
+));
+
+474 
+s_¨g
+->
+fd
+ = fd;
+
+475 
+s_¨g
+->
+thªad_no
+ = 
+i
+ + 1;
+
+476 
+s_¨g
+->
+fûíame
+ = 
+log_fûe
+;
+
+478 i‡((
+	`±hªad_¸óã
+(&
+t_£rvî
+[
+i
+], 
+NULL
+,
+
+479 
+sdp_£rvî_thªad
+, (*)
+s_¨g
+)) != 0) {
+
+480 
+	`≥º‹
+("pthread_create()Érror");
+
+481 
+	`exô
+(1);
+
+485 
+i
+ = 0; i < 
+lwp
+; i ++) {
+
+486 
+	`±hªad_joö
+(
+t_£rvî
+[
+i
+], 
+NULL
+);
+
+489 
+	`˛o£
+(
+£rvî
+);
+
+490 
+	}
+}
+
+493 
+	$˛õ¡_c‹ru±
+(*
+p‹t
+, 
+lwp
+, 
+v6
+, 
+∑ckës_£nd
+, 
+run_time
+,
+
+494 *
+£rvî_«me
+)
+
+496 
+i
+;
+
+497 *
+log_dú_˛õ¡
+ = "/tmp/client";
+
+498 *
+log_fûe
+;
+
+499 
+addröfo
+ 
+höts
+, *
+ªs
+ = 
+NULL
+;
+
+500 
+addröfo
+ *
+ªsßve
+ = 
+NULL
+, *
+böd_ªsßve
+ = NULL;
+
+501 
+±hªad_t
+ 
+t_˛õ¡
+[
+MAX_THREAD_CNT
+];
+
+502 
+˛õ¡_¨g_t
+ *
+c_¨g
+;
+
+503 
+siga˘i⁄
+ 
+a˘
+, 
+ﬂ˘
+;
+
+505 
+	`¥ötf
+("%†˛õ¡ sèπög...Öid: %d\n", 
+vîsi⁄
+, 
+	`gëpid
+());
+
+507 
+	`bzîo
+(&
+höts
+,  (hints));
+
+509 
+höts
+.
+ai_Ámûy
+ = 
+AF_UNSPEC
+;
+
+510 
+höts
+.
+ai_sockty≥
+ = 
+SOCK_STREAM
+;
+
+511 
+höts
+.
+ai_Êags
+ |
+AI_CANONNAME
+;
+
+512 
+höts
+.
+ai_¥Ÿocﬁ
+ = 
+PROTO_TEST
+;
+
+514 i‡(
+	`gëaddröfo
+(
+£rvî_«me
+, 
+p‹t
+, &
+höts
+, &
+ªs
+) != 0) {
+
+515 
+	`≥º‹
+("client server_name getaddrinfo()Érror");
+
+516 
+	`exô
+(1);
+
+519 
+ªs
+ !
+NULL
+) {
+
+520 i‡(
+v6
+ =4 && 
+ªs
+->
+ai_Ámûy
+ =
+AF_INET
+) {
+
+521 
+ªsßve
+ = 
+ªs
+;
+
+524 i‡(
+v6
+ =6 && 
+ªs
+->
+ai_Ámûy
+ =
+AF_INET6
+) {
+
+525 
+ªsßve
+ = 
+ªs
+;
+
+528 
+ªs
+ =Ñes->
+ai_√xt
+;
+
+531 i‡(
+ªsßve
+ =
+NULL
+) {
+
+532 
+	`¥ötf
+("please specify correct hostname\n");
+
+533 
+	`exô
+(1);
+
+537 i‡(
+böd_«me
+ !
+NULL
+) {
+
+538 i‡(
+	`gëaddröfo
+(
+böd_«me
+, 
+NULL
+, &
+höts
+, &
+ªs
+) != 0) {
+
+539 
+	`≥º‹
+("client bind_name getaddrinfo()Érror");
+
+540 
+	`exô
+(1);
+
+543 
+ªs
+ !
+NULL
+) {
+
+544 i‡(
+v6
+ =4 && 
+ªs
+->
+ai_Ámûy
+ =
+AF_INET
+) {
+
+545 
+böd_ªsßve
+ = 
+ªs
+;
+
+548 i‡(
+v6
+ =6 && 
+ªs
+->
+ai_Ámûy
+ =
+AF_INET6
+) {
+
+549 
+böd_ªsßve
+ = 
+ªs
+;
+
+552 
+ªs
+ =Ñes->
+ai_√xt
+;
+
+555 i‡(
+böd_ªsßve
+ =
+NULL
+) {
+
+556 
+	`¥ötf
+("please specify correct hostname for bind()\n");
+
+557 
+	`exô
+(1);
+
+561 
+i
+ = 0; i < 
+lwp
+; i ++) {
+
+563 
+c_¨g
+ = 
+	`mÆloc
+( (
+˛õ¡_¨g
+));
+
+564 
+log_fûe
+ = 
+	`mÆloc
+(100);
+
+565 
+	`•rötf
+(
+log_fûe
+, "%s/%0.4d", 
+log_dú_˛õ¡
+, 
+i
+);
+
+567 
+c_¨g
+->
+fûíame
+ = 
+log_fûe
+;
+
+568 
+c_¨g
+->
+run_time
+ =Ñun_time;
+
+569 
+c_¨g
+->
+c_ªs
+ = 
+ªsßve
+;
+
+570 
+c_¨g
+->
+c_böd_ªs
+ = 
+böd_ªsßve
+;
+
+571 
+c_¨g
+->
+thªad_no
+ = 
+i
+ + 1;
+
+572 
+c_¨g
+->
+∑ckës_£nd
+ =Öackets_send;
+
+574 i‡(
+debug
+ >= 1) {
+
+575 
+	`¥ötf
+("run_time = %d\tpackets_send = %d\n",
+
+576 
+run_time
+, 
+∑ckës_£nd
+);
+
+579 i‡(
+debug
+ >= 2) {
+
+580 
+	`mkdú
+(
+log_dú_˛õ¡
+, 
+S_IRWXU
+ | 
+S_IRWXG
+ |
+
+581 
+S_IRWXO
+);
+
+582 
+	`ªmove
+(
+log_fûe
+);
+
+585 i‡((
+	`±hªad_¸óã
+(&
+t_˛õ¡
+[
+i
+], 
+NULL
+,
+
+586 
+sdp_˛õ¡_thªad
+, (*)
+c_¨g
+)) != 0) {
+
+587 
+	`≥º‹
+("pthread_create()Érror");
+
+588 
+	`exô
+(1);
+
+592 
+i
+ = 0; i < 
+lwp
+; i ++) {
+
+593 
+	`±hªad_joö
+(
+t_˛õ¡
+[
+i
+], 
+NULL
+);
+
+595 
+	}
+}
+
+598 
+	$maö
+(
+¨gc
+, *
+¨gv
+[])
+
+600 
+c
+;
+
+602 
+boﬁón_t
+ 
+˛õ¡_Êag
+ = 
+B_FALSE
+;
+
+603 
+boﬁón_t
+ 
+£rvî_Êag
+ = 
+B_FALSE
+;
+
+605 
+v6
+ = 4;
+
+608 
+∑ckës_£nd
+ = 0;
+
+610 
+run_time
+ = 120;
+
+612 *
+£rvî_«me
+ = "localhost";
+
+614 
+lwp
+ = 1;
+
+616 *
+›èrg
+;
+
+618 (
+c
+ = 
+	`gë›t
+(
+¨gc
+, 
+¨gv
+, "b:c:dhl:n:op:st:v:x:")) != -1) {
+
+619 
+c
+) {
+
+621 
+böd_«me
+ = 
+›èrg
+;
+
+624 
+˛õ¡_Êag
+ = 
+B_TRUE
+;
+
+625 
+£rvî_«me
+ = 
+›èrg
+;
+
+628 
+dñay
+ = 
+B_TRUE
+;
+
+631 
+	`ußge
+();
+
+634 
+	`ssˇnf
+(
+›èrg
+, "%d", &
+lwp
+);
+
+637 
+	`ssˇnf
+(
+›èrg
+, "%d", &
+∑ckës_£nd
+);
+
+640 
+p‹t
+ = 
+›èrg
+;
+
+643 
+£rvî_Êag
+ = 
+B_TRUE
+;
+
+646 
+	`ssˇnf
+(
+›èrg
+, "%d", &
+run_time
+);
+
+649 
+	`ssˇnf
+(
+›èrg
+, "%d", &
+v6
+);
+
+650 i‡(
+v6
+ == 6) {
+
+651 
+vîsi⁄
+ = "IPv6";
+
+655 
+	`ssˇnf
+(
+›èrg
+, "%d", &
+debug
+);
+
+658 
+⁄ly
+ = 1;
+
+661 
+	`ußge
+();
+
+664 
+	`exô
+(1);
+
+668 i‡(
+lwp
+ > 
+MAX_THREAD_CNT
+) {
+
+669 
+	`¥ötf
+("lw∞> %d\n", 
+MAX_THREAD_CNT
+);
+
+670 
+	`exô
+(1);
+
+673 i‡(
+˛õ¡_Êag
+ =
+B_FALSE
+ && 
+£rvî_Êag
+ == B_FALSE) {
+
+674 
+	`¥ötf
+("Please specifyÅhe server orÅhe client\n");
+
+675 
+	`exô
+(1);
+
+678 i‡(
+˛õ¡_Êag
+ =
+B_TRUE
+ && 
+£rvî_Êag
+ == B_TRUE) {
+
+679 
+	`¥ötf
+("Please don't specify both serveránd client\n");
+
+680 
+	`exô
+(1);
+
+683 i‡(
+£rvî_Êag
+ =
+B_TRUE
+) {
+
+684 
+	`£rvî_c‹ru±
+(
+p‹t
+, 
+lwp
+, 
+v6
+);
+
+687 i‡(
+˛õ¡_Êag
+ =
+B_TRUE
+) {
+
+688 
+	`˛õ¡_c‹ru±
+(
+p‹t
+, 
+lwp
+, 
+v6
+, 
+∑ckës_£nd
+, 
+run_time
+,
+
+689 
+£rvî_«me
+);
+
+691 
+	}
+}
+
+	@
+1
+.
+0
+1
+10
+corrupt.c

@@ -1,0 +1,228 @@
+alias stap='/usr/local/bin/stap --all-modules -v'
+stap_str_common="--all-modules -d /usr/sbin/ovs-vswitchd -d /usr/sbin/tc -d /usr/bin/ping -d /usr/sbin/ip -d /sbin/udevadm"
+STAP="/usr/local/bin/stap -v"
+stap_str="--all-modules -d /usr/sbin/ovs-vswitchd -d /usr/sbin/tc -d /usr/bin/ping -d /usr/sbin/ip -d /sbin/udevadm -d kernel -d /usr/lib64/libpthread-2.26.so"
+
+alias sta="$STAP $stap_str -DDEBUG_UNWIND"
+alias sta-usr="/usr/bin/stap -v $stap_str"
+function stm
+{
+	dir=/root/stap
+	mkdir -p $dir
+
+	if [[ $# == 1 ]]; then
+		module=mlx5_core
+		function=$1
+		file=$dir/$1.stp
+	elif [[ $# == 2 ]]; then
+		module=$1
+		function=$2
+		file=$dir/$2.stp
+	else
+		return
+	fi
+
+	cat << EOF > $file
+#!$STAP
+global start
+function timestamp:long() { return gettimeofday_us() - start }
+probe begin { start = gettimeofday_us() }
+global n = 1;
+
+global i=0;
+probe module("$module").function("$function")
+{
+	if ((execname() == argv_1) || argv_1 == "") {
+		print_backtrace()
+		printf("parms: %s\n", \$\$parms);
+		printf("execname: %s\n", execname());
+		printf("ts: %d, %d\n", timestamp()/1000000, n++);
+		print_ubacktrace()
+		printf("%d\n", i++);
+	}
+}
+EOF
+
+set -x
+	cat $file
+	cd $dir
+	chmod +x $file
+	$STAP -k $stap_str $file
+set +x
+}
+
+function stmr
+{
+	dir=/root/stap
+	mkdir -p $dir
+
+	if [[ $# == 1 ]]; then
+		module=mlx5_core
+		function=$1
+		file=$dir/$1.stp
+	elif [[ $# == 2 ]]; then
+		module=$1
+		function=$2
+		file=$dir/$1.stp
+	else
+		return
+	fi
+
+	cat << EOF > $file
+#!$STAP
+/* global start */
+/* function timestamp:long() { return gettimeofday_us() - start } */
+/* probe begin { start = gettimeofday_us() } */
+
+/* global i=0; */
+probe module("$module").function("$function").return
+{
+/*	print_backtrace() */
+/*	printf("execname: %s\n", execname()); */
+/*	printf("ts: %d\n", timestamp() / 1000000); */
+/*	print_ubacktrace() */
+/*	printf("%d\n", i++); */
+	printf("%x\t%d\n", \$return, \$return);
+}
+EOF
+
+set -x
+	cat $file
+	cd $dir
+	chmod +x $file
+	$STAP -k $stap_str $file
+set +x
+}
+
+function st
+{
+	[[ $# != 1 ]] && return
+
+	dir=/root/stap
+	mkdir -p $dir
+	file=$dir/$1.stp
+
+
+	mod=$(grep -w $1 /proc/kallsyms | sed -n '1p' | awk '{print $4}' | tr -d ] | tr -d [)
+	echo $mod
+
+	if [[ "$mod" == "" ]]; then
+		cat << EOF > $file
+#!$STAP
+
+global start
+function timestamp:long() { return gettimeofday_us() - start }
+probe begin { start = gettimeofday_us() }
+global n = 1;
+
+probe kernel.function("$1")
+{
+	if ((execname() == argv_1) || argv_1 == "") {
+		print_backtrace()
+		printf("parms: %s\n", \$\$parms);
+		printf("execname: %s\n", execname());
+		printf("ts: %d, %d\n", timestamp()/1000000, n++);
+		print_ubacktrace()
+		printf("\n");
+	}
+}
+EOF
+	else
+		cat << EOF > $file
+#!$STAP
+
+global start
+function timestamp:long() { return gettimeofday_us() - start }
+probe begin { start = gettimeofday_us() }
+global n = 1;
+
+probe module("$mod").function("$1")
+{
+	if ((execname() == argv_1) || argv_1 == "") {
+		print_backtrace()
+		printf("parms: %s\n", \$\$parms);
+		printf("execname: %s\n", execname());
+		printf("ts: %d, %d\n", timestamp()/1000000, n++);
+		print_ubacktrace()
+		printf("\n");
+	}
+}
+EOF
+	fi
+
+set -x
+	cat $file
+	cd $dir
+	chmod +x $file
+	$STAP -k $stap_str $file
+set +x
+}
+
+function str
+{
+	dir=/root/stap
+	mkdir -p $dir
+	file=$dir/$1.stp
+
+	if [[ $# == 2 ]]; then
+		mod=$1
+		fun=$2
+		file=$dir/$2.stp
+	fi
+	if [[ $# == 1 ]]; then
+		file=$dir/$1.stp
+		fun=$1
+	fi
+
+
+	[[ $# == 1 ]] && {
+		mod=$(grep -w $1 /proc/kallsyms | sed -n '1p' | awk '{print $4}' | tr -d ] | tr -d [)
+		echo $mod
+	}
+
+	if [[ "$mod" == "" ]]; then
+		cat << EOF > $file
+#!$STAP
+
+global start
+function timestamp:long() { return gettimeofday_us() - start }
+probe begin { start = gettimeofday_us() }
+global n = 1;
+
+probe kernel.function("$fun").return
+{
+	print_backtrace()
+	printf("%x\t%d\t", \$return, \$return);
+	printf("ts: %d, %d\n", timestamp()/1000000, n++);
+}
+EOF
+	else
+		cat << EOF > $file
+#!/usr/local/bin/stap -v
+ 
+global start
+function timestamp:long() { return gettimeofday_us() - start }
+probe begin { start = gettimeofday_us() }
+global n = 1;
+
+probe module("$mod").function("$fun").return
+{
+	print_backtrace()
+	printf("%x\t%d\n", \$return, \$return);
+	printf("ts: %d, %d\n", timestamp()/1000000, n++);
+}
+EOF
+	fi
+
+set -x
+	cat $file
+	cd $dir
+	chmod +x $file
+	$STAP -k $stap_str $file
+set +x
+}
+
+function stap_test
+{
+	stap -ve 'probe begin { log("hello world") exit () }'
+}

@@ -1,0 +1,53 @@
+static void nla_display(const struct nlattr *nla)
+{
+    uint32_t max_size = nla->nla_len;
+    char *output, *cur;
+    uint32_t i;
+
+    output = (char*)malloc(sizeof(char)*(max_size*6)+1);
+    if (!output)
+        return;
+
+    cur = output;
+    for ( i = 0; i < nla->nla_len; ++i) {
+        // snprintf(cur, 5, " %02x ",((uint8_t*)nla)[i]);
+        // cur += 4;
+        if( i % 16 ) {
+            snprintf(cur, 4, "%02x ",((uint8_t*)nla)[i]);
+            cur += 3;
+        } else {
+            snprintf(cur, 5, "\n%02x ",((uint8_t*)nla)[i]);
+            cur += 4;
+        }
+    }
+    *cur = '\0';
+
+    VLOG_ERR("\n%s\n", output);
+    free(output);
+}
+
+static void packet_display(const struct dp_packet *packet)
+{
+    uint32_t max_size = packet->size_;
+    char *output, *cur;
+    uint32_t i;
+
+    output = (char*)malloc(sizeof(char)*(max_size*6)+1);
+    if (!output)
+        return;
+
+    cur = output;
+    for ( i = 0; i < max_size; ++i) {
+        if( i % 16 ) {
+            snprintf(cur, 4, "%02x ",((uint8_t*)packet->base_)[i]);
+            cur += 3;
+        } else {
+            snprintf(cur, 5, "\n%02x ",((uint8_t*)packet->base_)[i]);
+            cur += 4;
+        }
+    }
+    *cur = '\0';
+
+    VLOG_ERR("\n%s\n", output);
+    free(output);
+}

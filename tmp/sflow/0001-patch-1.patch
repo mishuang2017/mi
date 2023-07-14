@@ -1,0 +1,1473 @@
+From fa90b9cfa1b98f44164ceab8a19b8fb598b43c8a Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Mon, 11 May 2020 13:20:22 +0800
+Subject: [PATCH] patch 1
+
+---
+ lib/automake.mk               |   2 +
+ lib/dpif-gid.c                | 249 ++++++++++++++++++++++++++++++++++
+ lib/dpif-gid.h                |  53 ++++++++
+ lib/dpif-netdev.c             |   2 +
+ lib/dpif-netlink.c            | 167 +++++++++++++++++++++++
+ lib/dpif-netlink.h            |  12 ++
+ lib/dpif-provider.h           |   7 +
+ lib/dpif.c                    |   9 ++
+ lib/dpif.h                    |   8 ++
+ lib/netdev-offload-tc.c       |  47 +++++++
+ lib/netdev-offload.h          |   1 +
+ lib/tc.c                      |  67 +++++++++
+ lib/tc.h                      |   6 +
+ ofproto/ofproto-dpif-upcall.c | 153 +++++++++++++++++++--
+ ofproto/ofproto-dpif-xlate.c  |  26 ++++
+ ofproto/ofproto-dpif-xlate.h  |   2 +
+ ofproto/ofproto-dpif.c        |   1 +
+ 17 files changed, 803 insertions(+), 9 deletions(-)
+ create mode 100644 lib/dpif-gid.c
+ create mode 100644 lib/dpif-gid.h
+
+diff --git a/lib/automake.mk b/lib/automake.mk
+index 95925b57c..2d83c2058 100644
+--- a/lib/automake.mk
++++ b/lib/automake.mk
+@@ -79,6 +79,8 @@ lib_libopenvswitch_la_SOURCES = \
+ 	lib/dp-packet.h \
+ 	lib/dp-packet.c \
+ 	lib/dpdk.h \
++	lib/dpif-gid.c \
++	lib/dpif-gid.h \
+ 	lib/dpif-netdev-lookup-generic.c \
+ 	lib/dpif-netdev.c \
+ 	lib/dpif-netdev.h \
+diff --git a/lib/dpif-gid.c b/lib/dpif-gid.c
+new file mode 100644
+index 000000000..25ba96207
+--- /dev/null
++++ b/lib/dpif-gid.c
+@@ -0,0 +1,249 @@
++/*
++ * Copyright (c) 2020 Mellanox Technologies, Ltd.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at:
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#include <config.h>
++
++#include "dpif-gid.h"
++#include "openvswitch/vlog.h"
++
++VLOG_DEFINE_THIS_MODULE(dpif_gid);
++
++static struct ovs_mutex mutex = OVS_MUTEX_INITIALIZER;
++
++static struct cmap group_id_map = CMAP_INITIALIZER;
++static struct cmap group_metadata_map = CMAP_INITIALIZER;
++
++static struct ovs_list group_expiring OVS_GUARDED_BY(mutex)
++    = OVS_LIST_INITIALIZER(&group_expiring);
++static struct ovs_list expired OVS_GUARDED_BY(mutex)
++    = OVS_LIST_INITIALIZER(&expired);
++
++static uint32_t next_group_id OVS_GUARDED_BY(mutex) = 1; /* Possible next free id. */
++static void group_id_node_free(struct group_id_node *);
++
++/* This should be called by the revalidator once at each round (every 500ms or
++ * more). */
++void
++group_run(void)
++{
++    static long long int last = 0;
++    long long int now = time_msec();
++
++    /* Do maintenance at most 4 times / sec. */
++    ovs_mutex_lock(&mutex);
++    if (now - last > 250) {
++        struct group_id_node *node;
++
++        last = now;
++
++        LIST_FOR_EACH_POP (node, exp_node, &expired) {
++            cmap_remove(&group_id_map, &node->id_node, node->id);
++            ovsrcu_postpone(group_id_node_free, node);
++        }
++
++        if (!ovs_list_is_empty(&group_expiring)) {
++            /* 'expired' is now empty, move nodes in 'group_expiring' to it. */
++            ovs_list_splice(&expired, ovs_list_front(&group_expiring),
++                            &group_expiring);
++        }
++    }
++    ovs_mutex_unlock(&mutex);
++}
++
++/* We use the id as the hash value, which works due to cmap internal rehashing.
++ * We also only insert nodes with unique IDs, so all possible hash collisions
++ * remain internal to the cmap. */
++static struct group_id_node *
++group_find__(uint32_t id)
++    OVS_REQUIRES(mutex)
++{
++    struct cmap_node *node = cmap_find_protected(&group_id_map, id);
++
++    return node ? CONTAINER_OF(node, struct group_id_node, id_node) : NULL;
++}
++
++/* Lockless RCU protected lookup.  If node is needed accross RCU quiescent
++ * state, caller should copy the contents. */
++const struct group_id_node *
++group_id_node_find(uint32_t id)
++{
++    const struct cmap_node *node = cmap_find(&group_id_map, id);
++
++    return node
++        ? CONTAINER_OF(node, const struct group_id_node, id_node)
++        : NULL;
++}
++
++static uint32_t
++userspace_action_hash(const struct userspace_action *action)
++{
++    uint32_t hash;
++
++    hash = uuid_hash(&action->cookie.ofproto_uuid);
++    hash = hash_int(action->cookie.type, hash);
++    hash = hash_int(action->cookie.ofp_in_port, hash);
++    hash = hash_int(action->cookie.sflow.vlan_tci, hash);
++    hash = hash_int(action->cookie.sflow.output, hash);
++    hash = hash_int(action->pid, hash);
++
++    return hash;
++}
++
++static bool
++userspace_action_equal(const struct userspace_action *a,
++                       const struct userspace_action *b)
++{
++    return (a->cookie.type == b->cookie.type
++            && a->cookie.ofp_in_port == b->cookie.ofp_in_port
++            && uuid_equals(&a->cookie.ofproto_uuid, &b->cookie.ofproto_uuid)
++            && a->cookie.sflow.vlan_tci == b->cookie.sflow.vlan_tci
++            && a->cookie.sflow.output == b->cookie.sflow.output
++            && a->pid == b->pid);
++}
++
++/* Lockless RCU protected lookup.  If node is needed accross RCU quiescent
++ * state, caller should take a reference. */
++static struct group_id_node *
++group_find_equal(const struct userspace_action *target, uint32_t hash)
++{
++    struct group_id_node *node;
++
++    CMAP_FOR_EACH_WITH_HASH (node, metadata_node, hash, &group_metadata_map) {
++        if (userspace_action_equal(&node->action, target)) {
++            return node;
++        }
++    }
++    return NULL;
++}
++
++static struct group_id_node *
++group_ref_equal(const struct userspace_action *target, uint32_t hash)
++{
++    struct group_id_node *node;
++
++    do {
++        node = group_find_equal(target, hash);
++
++        /* Try again if the node was released before we get the reference. */
++    } while (node && !ovs_refcount_try_ref_rcu(&node->refcount));
++
++    return node;
++}
++
++static void
++userspace_action_clone(struct userspace_action *new,
++                       const struct userspace_action *old)
++{
++    *new = *old;
++}
++
++/* Allocate a unique group id for the given set of flow metadata.
++ * The ID space is 2^^32, so there should never be a situation in which all
++ * the IDs are used up.  We loop until we find a free one. */
++static struct group_id_node *
++group_alloc_id__(const struct userspace_action *action, uint32_t hash)
++{
++    struct group_id_node *node = xzalloc(sizeof *node);
++
++    node->hash = hash;
++    ovs_refcount_init(&node->refcount);
++    userspace_action_clone(CONST_CAST(struct userspace_action *, &node->action), action);
++
++    ovs_mutex_lock(&mutex);
++    for (;;) {
++        node->id = next_group_id++;
++        if (OVS_UNLIKELY(!node->id)) {
++            next_group_id = 1;
++            node->id = next_group_id++;
++        }
++        /* Find if the id is free. */
++        if (OVS_LIKELY(!group_find__(node->id))) {
++            break;
++        }
++    }
++    cmap_insert(&group_id_map, &node->id_node, node->id);
++    cmap_insert(&group_metadata_map, &node->metadata_node, node->hash);
++    ovs_mutex_unlock(&mutex);
++    return node;
++}
++
++/* Allocate a unique recirculation id for the given set of flow metadata and
++   optional actions. */
++uint32_t
++group_alloc_id_ctx(const struct userspace_action *action)
++{
++    uint32_t hash = userspace_action_hash(action);
++    struct group_id_node *node = group_ref_equal(action, hash);
++    if (!node) {
++        node = group_alloc_id__(action, hash);
++    }
++    return node->id;
++}
++
++static void
++group_id_node_free(struct group_id_node *node)
++{
++    free(node);
++}
++
++void
++group_id_node_unref(const struct group_id_node *node_)
++    OVS_EXCLUDED(mutex)
++{
++    struct group_id_node *node = CONST_CAST(struct group_id_node *, node_);
++
++    if (node && ovs_refcount_unref(&node->refcount) == 1) {
++        ovs_mutex_lock(&mutex);
++        /* Prevent re-use of this node by removing the node from 'metadata_map'
++         */
++        cmap_remove(&group_metadata_map, &node->metadata_node, node->hash);
++        /* We keep the node in the 'group_id_map' so that it can be found as long
++         * as it lingers, and add it to the 'group_expiring' list. */
++        ovs_list_insert(&group_expiring, &node->exp_node);
++        ovs_mutex_unlock(&mutex);
++    }
++}
++
++void
++group_free_id(uint32_t id)
++{
++    const struct group_id_node *node;
++
++    node = group_id_node_find(id);
++    if (node) {
++        group_id_node_unref(node);
++    } else {
++        VLOG_ERR("Freeing nonexistent recirculation ID: %"PRIu32, id);
++    }
++}
++
++/* Called when 'ofproto' is destructed.  Checks for and clears any
++ * group_id leak.
++ * No other thread may have access to the 'ofproto' being destructed.
++ * All related datapath flows must be deleted before calling this. */
++void
++group_free_ofproto(struct ofproto_dpif *ofproto, const char *ofproto_name)
++{
++    struct group_id_node *n;
++
++    CMAP_FOR_EACH (n, metadata_node, &group_metadata_map) {
++        if (uuid_equals(&n->action.cookie.ofproto_uuid, &ofproto->uuid)) {
++            VLOG_ERR("group_id %"PRIu32
++                     " left allocated when ofproto (%s)"
++                     " is destructed", n->id, ofproto_name);
++        }
++    }
++}
+diff --git a/lib/dpif-gid.h b/lib/dpif-gid.h
+new file mode 100644
+index 000000000..20299a305
+--- /dev/null
++++ b/lib/dpif-gid.h
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (c) 2020 Mellanox Technologies, Ltd.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at:
++ *
++ *     http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#ifndef OFPROTO_DPIF_GID_H
++#define OFPROTO_DPIF_GID_H
++
++#include <stddef.h>
++#include <stdint.h>
++
++#include "cmap.h"
++#include "openvswitch/list.h"
++#include "uuid.h"
++#include "odp-util.h"
++#include "ofproto/ofproto-dpif.h"
++
++struct userspace_action {
++    uint32_t pid;
++    struct user_action_cookie cookie;
++};
++
++/* This maps a group ID and struct userspace_action for sflow */
++struct group_id_node {
++    struct ovs_list exp_node OVS_GUARDED;
++    struct cmap_node id_node;
++    struct cmap_node metadata_node;
++    uint32_t id;
++    uint32_t hash;
++    struct ovs_refcount refcount;
++
++    const struct userspace_action action;
++};
++
++uint32_t group_alloc_id_ctx(const struct userspace_action *);
++void group_free_id(uint32_t group_id);
++void group_free_ofproto(struct ofproto_dpif *, const char *ofproto_name);
++const struct group_id_node *group_id_node_find(uint32_t group_id);
++void group_id_node_unref(const struct group_id_node *);
++void group_run(void);
++
++#endif
+diff --git a/lib/dpif-netdev.c b/lib/dpif-netdev.c
+index e456cc9be..a1e757b8e 100644
+--- a/lib/dpif-netdev.c
++++ b/lib/dpif-netdev.c
+@@ -7820,6 +7820,8 @@ const struct dpif_class dpif_netdev_class = {
+     dpif_netdev_meter_set,
+     dpif_netdev_meter_get,
+     dpif_netdev_meter_del,
++    NULL,                       /* psample_poll */
++    NULL,                       /* psample_poll_wait */
+ };
+ 
+ static void
+diff --git a/lib/dpif-netlink.c b/lib/dpif-netlink.c
+index dc642100f..8a91c166a 100644
+--- a/lib/dpif-netlink.c
++++ b/lib/dpif-netlink.c
+@@ -25,6 +25,7 @@
+ #include <net/if.h>
+ #include <linux/types.h>
+ #include <linux/pkt_sched.h>
++#include <linux/psample.h>
+ #include <poll.h>
+ #include <stdlib.h>
+ #include <strings.h>
+@@ -207,6 +208,7 @@ struct dpif_netlink {
+ 
+     /* Change notification. */
+     struct nl_sock *port_notifier; /* vport multicast group subscriber. */
++    struct nl_sock *psample_sock;
+     bool refresh_channels;
+ };
+ 
+@@ -224,11 +226,13 @@ static int ovs_flow_family;
+ static int ovs_packet_family;
+ static int ovs_meter_family;
+ static int ovs_ct_limit_family;
++static int psample_family;
+ 
+ /* Generic Netlink multicast groups for OVS.
+  *
+  * Initialized by dpif_netlink_init(). */
+ static unsigned int ovs_vport_mcgroup;
++static unsigned int psample_mcgroup;
+ 
+ /* If true, tunnel devices are created using OVS compat/genetlink.
+  * If false, tunnel devices are created with rtnetlink and using light weight
+@@ -247,6 +251,8 @@ static void dpif_netlink_vport_to_ofpbuf(const struct dpif_netlink_vport *,
+                                          struct ofpbuf *);
+ static int dpif_netlink_vport_from_ofpbuf(struct dpif_netlink_vport *,
+                                           const struct ofpbuf *);
++static int dpif_netlink_psample_from_ofpbuf(struct dpif_netlink_psample *,
++                                            const struct ofpbuf *);
+ static int dpif_netlink_port_query__(const struct dpif_netlink *dpif,
+                                      odp_port_t port_no, const char *port_name,
+                                      struct dpif_port *dpif_port);
+@@ -371,6 +377,39 @@ dpif_netlink_open(const struct dpif_class *class OVS_UNUSED, const char *name,
+     return error;
+ }
+ 
++bool dpif_psample_sock_exist(struct dpif *dpif_)
++{
++    struct dpif_netlink *dpif = dpif_netlink_cast(dpif_);
++
++    return dpif->psample_sock != NULL;
++}
++
++static int open_dpif_psample(struct dpif_netlink *dpif)
++{
++    struct nl_sock *sock;
++    int error;
++
++    dpif->psample_sock = NULL;
++
++    if (!netdev_is_flow_api_enabled() || !psample_mcgroup) {
++        return 0;
++    }
++
++    error = nl_sock_create(NETLINK_GENERIC, &sock);
++    if (error) {
++        return error;
++    }
++
++    error = nl_sock_join_mcgroup(sock, psample_mcgroup);
++    if (error) {
++        nl_sock_destroy(sock);
++        return error;
++    }
++    dpif->psample_sock = sock;
++
++    return 0;
++}
++
+ static int
+ open_dpif(const struct dpif_netlink_dp *dp, struct dpif **dpifp)
+ {
+@@ -378,6 +417,7 @@ open_dpif(const struct dpif_netlink_dp *dp, struct dpif **dpifp)
+ 
+     dpif = xzalloc(sizeof *dpif);
+     dpif->port_notifier = NULL;
++    open_dpif_psample(dpif);
+     fat_rwlock_init(&dpif->upcall_lock);
+ 
+     dpif_init(&dpif->dpif, &dpif_netlink_class, dp->name,
+@@ -615,6 +655,7 @@ dpif_netlink_close(struct dpif *dpif_)
+     struct dpif_netlink *dpif = dpif_netlink_cast(dpif_);
+ 
+     nl_sock_destroy(dpif->port_notifier);
++    nl_sock_destroy(dpif->psample_sock);
+ 
+     fat_rwlock_wrlock(&dpif->upcall_lock);
+     destroy_all_channels(dpif);
+@@ -1300,6 +1341,85 @@ dpif_netlink_port_poll_wait(const struct dpif *dpif_)
+     }
+ }
+ 
++static int parse_psample_packet(struct dpif_netlink_psample *psample,
++                                struct dpif_upcall_psample *dupcall)
++{
++
++    memset(&dupcall->packet, 0, sizeof (struct dp_packet));
++
++    dp_packet_use_stub(&dupcall->packet,
++                       CONST_CAST(struct nlattr *,
++                                  nl_attr_get(psample->packet)) - 1,
++                       nl_attr_get_size(psample->packet) +
++                       sizeof(struct nlattr));
++    dp_packet_set_data(&dupcall->packet,
++                       (char *)dp_packet_data(&dupcall->packet) +
++                       sizeof(struct nlattr));
++    dp_packet_set_size(&dupcall->packet, nl_attr_get_size(psample->packet));
++
++    return 0;
++}
++
++static int
++dpif_netlink_psample_poll(const struct dpif *dpif_,
++                          struct dpif_upcall_psample *dupcall)
++{
++    struct dpif_netlink *dpif = dpif_netlink_cast(dpif_);
++    struct dpif_netlink_psample psample;
++
++    if (!dpif_psample_sock_exist(&dpif->dpif)) {
++        return 0;
++    }
++
++    for (;;) {
++        static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
++        uint64_t buf_stub[4096 / 8];
++        struct ofpbuf buf;
++        int error;
++
++        ofpbuf_use_stub(&buf, buf_stub, sizeof buf_stub);
++        error = nl_sock_recv(dpif->psample_sock, &buf, NULL, false);
++
++        if (!error) {
++
++            error = dpif_netlink_psample_from_ofpbuf(&psample, &buf);
++            if (!error) {
++                    ofpbuf_uninit(&buf);
++                    VLOG_ERR("%s is called, group: %d, len: %d, iifindex: %d, "
++                        "group_seq: %d",
++                        __func__, psample.dp_group_id, psample.packet->nla_len,
++                        psample.iifindex, psample.group_seq);
++                    parse_psample_packet(&psample, dupcall);
++                    dupcall->group_id = psample.dp_group_id;
++                    dupcall->iifindex = psample.iifindex;
++                    return 0;
++            }
++        } else if (error != EAGAIN) {
++            VLOG_WARN_RL(&rl, "error reading or parsing netlink (%s)",
++                         ovs_strerror(error));
++            nl_sock_drain(dpif->port_notifier);
++            error = ENOBUFS;
++        }
++
++        ofpbuf_uninit(&buf);
++        if (error) {
++            return error;
++        }
++    }
++}
++
++static void
++dpif_netlink_psample_poll_wait(const struct dpif *dpif_)
++{
++    const struct dpif_netlink *dpif = dpif_netlink_cast(dpif_);
++
++    if (dpif->psample_sock) {
++        nl_sock_wait(dpif->psample_sock, POLLIN);
++    } else {
++        poll_immediate_wake();
++    }
++}
++
+ static void
+ dpif_netlink_flow_init_ufid(struct dpif_netlink_flow *request,
+                             const ovs_u128 *ufid, bool terse)
+@@ -2097,6 +2217,7 @@ parse_flow_put(struct dpif_netlink *dpif, struct dpif_flow_put *put)
+     info.recirc_id_shared_with_tc = (dpif->user_features
+                                      & OVS_DP_F_TC_RECIRC_SHARING);
+     info.tc_modify_flow_deleted = false;
++    info.group_id = put->group_id;
+     err = netdev_flow_put(dev, &match,
+                           CONST_CAST(struct nlattr *, put->actions),
+                           put->actions_len,
+@@ -4003,6 +4124,8 @@ const struct dpif_class dpif_netlink_class = {
+     dpif_netlink_meter_set,
+     dpif_netlink_meter_get,
+     dpif_netlink_meter_del,
++    dpif_netlink_psample_poll,
++    dpif_netlink_psample_poll_wait,
+ };
+ 
+ static int
+@@ -4044,6 +4167,9 @@ dpif_netlink_init(void)
+                       "Please update the Open vSwitch kernel module to enable "
+                       "the conntrack limit feature.", OVS_CT_LIMIT_FAMILY);
+         }
++        nl_lookup_genl_family(PSAMPLE_GENL_NAME, &psample_family);
++        nl_lookup_genl_mcgroup(PSAMPLE_GENL_NAME, PSAMPLE_NL_MCGRP_SAMPLE_NAME,
++                               &psample_mcgroup);
+ 
+         ovs_tunnels_out_of_tree = dpif_netlink_rtnl_probe_oot_tunnels();
+ 
+@@ -4134,6 +4260,40 @@ dpif_netlink_vport_from_ofpbuf(struct dpif_netlink_vport *vport,
+     return 0;
+ }
+ 
++static int
++dpif_netlink_psample_from_ofpbuf(struct dpif_netlink_psample *psample,
++                                 const struct ofpbuf *buf)
++{
++    static const struct nl_policy ovs_psample_policy[] = {
++        [PSAMPLE_ATTR_SAMPLE_GROUP] = { .type = NL_A_U32 },
++        [PSAMPLE_ATTR_DATA] = { .type = NL_A_UNSPEC },
++        [PSAMPLE_ATTR_IIFINDEX] = { .type = NL_A_U16 },
++        [PSAMPLE_ATTR_GROUP_SEQ] = { .type = NL_A_U32 },
++    };
++
++    struct ofpbuf b = ofpbuf_const_initializer(buf->data, buf->size);
++    struct nlmsghdr *nlmsg = ofpbuf_try_pull(&b, sizeof *nlmsg);
++    struct genlmsghdr *genl = ofpbuf_try_pull(&b, sizeof *genl);
++
++    struct nlattr *a[ARRAY_SIZE(ovs_psample_policy)];
++    if (!nlmsg || !genl || nlmsg->nlmsg_type != psample_family
++        || !nl_policy_parse(&b, 0, ovs_psample_policy, a,
++                            ARRAY_SIZE(ovs_psample_policy))) {
++        return EINVAL;
++    }
++
++    dpif_netlink_psample_init(psample);
++
++    psample->dp_group_id = nl_attr_get_u32(a[PSAMPLE_ATTR_SAMPLE_GROUP]);
++    psample->packet = a[PSAMPLE_ATTR_DATA];
++    psample->iifindex = nl_attr_get_u16(a[PSAMPLE_ATTR_IIFINDEX]);
++    psample->group_seq = nl_attr_get_u16(a[PSAMPLE_ATTR_GROUP_SEQ]);
++    psample->len = psample->packet->nla_len;
++    psample->data = nl_attr_get_unspec(psample->packet, 1);
++
++    return 0;
++}
++
+ /* Appends to 'buf' (which must initially be empty) a "struct ovs_header"
+  * followed by Netlink attributes corresponding to 'vport'. */
+ static void
+@@ -4185,6 +4345,13 @@ dpif_netlink_vport_init(struct dpif_netlink_vport *vport)
+     vport->port_no = ODPP_NONE;
+ }
+ 
++/* Clears 'psample' to "empty" values. */
++void
++dpif_netlink_psample_init(struct dpif_netlink_psample *psample)
++{
++    memset(psample, 0, sizeof *psample);
++}
++
+ /* Executes 'request' in the kernel datapath.  If the command fails, returns a
+  * positive errno value.  Otherwise, if 'reply' and 'bufp' are null, returns 0
+  * without doing anything else.  If 'reply' and 'bufp' are nonnull, then the
+diff --git a/lib/dpif-netlink.h b/lib/dpif-netlink.h
+index 24294bc42..3d76f78d3 100644
+--- a/lib/dpif-netlink.h
++++ b/lib/dpif-netlink.h
+@@ -22,6 +22,7 @@
+ #include <stdint.h>
+ 
+ #include "flow.h"
++#include "lib/dpif-provider.h"
+ 
+ struct ofpbuf;
+ 
+@@ -48,7 +49,17 @@ struct dpif_netlink_vport {
+     size_t options_len;
+ };
+ 
++struct dpif_netlink_psample {
++    int dp_group_id;
++    int iifindex;
++    int group_seq;
++    struct nlattr *packet;
++    const void *data;
++    int len;
++};
++
+ void dpif_netlink_vport_init(struct dpif_netlink_vport *);
++void dpif_netlink_psample_init(struct dpif_netlink_psample *);
+ 
+ int dpif_netlink_vport_transact(const struct dpif_netlink_vport *request,
+                                 struct dpif_netlink_vport *reply,
+@@ -57,6 +68,7 @@ int dpif_netlink_vport_get(const char *name, struct dpif_netlink_vport *reply,
+                            struct ofpbuf **bufp);
+ 
+ bool dpif_netlink_is_internal_device(const char *name);
++bool dpif_psample_sock_exist(struct dpif *);
+ 
+ enum ovs_vport_type netdev_to_ovs_vport_type(const char *type);
+ 
+diff --git a/lib/dpif-provider.h b/lib/dpif-provider.h
+index b77317bca..5c3ebb622 100644
+--- a/lib/dpif-provider.h
++++ b/lib/dpif-provider.h
+@@ -616,6 +616,13 @@ struct dpif_class {
+      * zero. */
+     int (*meter_del)(struct dpif *, ofproto_meter_id meter_id,
+                      struct ofputil_meter_stats *, uint16_t n_bands);
++
++    int (*psample_poll)(const struct dpif *dpif,
++                        struct dpif_upcall_psample *dupcall);
++
++    /* Arranges for the poll loop to wake up when 'psample_poll' will return a
++     * value other than EAGAIN. */
++    void (*psample_poll_wait)(const struct dpif *dpif);
+ };
+ 
+ extern const struct dpif_class dpif_netlink_class;
+diff --git a/lib/dpif.c b/lib/dpif.c
+index 9d9c716c1..2ddb09924 100644
+--- a/lib/dpif.c
++++ b/lib/dpif.c
+@@ -883,6 +883,7 @@ dpif_port_poll_wait(const struct dpif *dpif)
+     dpif->dpif_class->port_poll_wait(dpif);
+ }
+ 
++
+ /* Extracts the flow stats for a packet.  The 'flow' and 'packet'
+  * arguments must have been initialized through a call to flow_extract().
+  * 'used' is stored into stats->used. */
+@@ -1611,6 +1612,14 @@ dpif_recv_wait(struct dpif *dpif, uint32_t handler_id)
+     }
+ }
+ 
++void
++dpif_psample_poll_wait(struct dpif *dpif)
++{
++    if (dpif->dpif_class->psample_poll_wait) {
++        dpif->dpif_class->psample_poll_wait(dpif);
++    }
++}
++
+ /*
+  * Return the datapath version. Caller is responsible for freeing
+  * the string.
+diff --git a/lib/dpif.h b/lib/dpif.h
+index 4df8f7c8b..ae61048a8 100644
+--- a/lib/dpif.h
++++ b/lib/dpif.h
+@@ -666,6 +666,7 @@ struct dpif_flow_put {
+     size_t actions_len;             /* Length of 'actions' in bytes. */
+     const ovs_u128 *ufid;           /* Optional unique flow identifier. */
+     unsigned pmd_id;                /* Datapath poll mode driver id. */
++    uint32_t group_id;
+ 
+     /* Output. */
+     struct dpif_flow_stats *stats;  /* Optional flow statistics. */
+@@ -825,6 +826,12 @@ struct dpif_upcall {
+     struct nlattr *actions;    /* Argument to OVS_ACTION_ATTR_USERSPACE. */
+ };
+ 
++struct dpif_upcall_psample {
++    struct dp_packet packet;
++    uint32_t group_id;
++    uint32_t iifindex;
++};
++
+ /* A callback to notify higher layer of dpif about to be purged, so that
+  * higher layer could try reacting to this (e.g. grabbing all flow stats
+  * before they are gone).  This function is currently implemented only by
+@@ -877,6 +884,7 @@ int dpif_recv(struct dpif *, uint32_t handler_id, struct dpif_upcall *,
+               struct ofpbuf *);
+ void dpif_recv_purge(struct dpif *);
+ void dpif_recv_wait(struct dpif *, uint32_t handler_id);
++void dpif_psample_poll_wait(struct dpif *);
+ void dpif_enable_upcall(struct dpif *);
+ void dpif_disable_upcall(struct dpif *);
+ 
+diff --git a/lib/netdev-offload-tc.c b/lib/netdev-offload-tc.c
+index 875ebef71..ff04584d2 100644
+--- a/lib/netdev-offload-tc.c
++++ b/lib/netdev-offload-tc.c
+@@ -39,6 +39,7 @@
+ #include "unaligned.h"
+ #include "util.h"
+ #include "dpif-provider.h"
++#include "dpif-gid.h"
+ 
+ VLOG_DEFINE_THIS_MODULE(netdev_offload_tc);
+ 
+@@ -662,6 +663,34 @@ parse_tc_flower_to_match(struct tc_flower *flower,
+         action = flower->actions;
+         for (i = 0; i < flower->action_count; i++, action++) {
+             switch (action->type) {
++            case TC_ACT_SAMPLE: {
++                const struct group_id_node *node;
++                size_t sample_offset;
++                size_t action_offset;
++                size_t userspace_offset;
++
++                sample_offset =
++                    nl_msg_start_nested(buf, OVS_ACTION_ATTR_SAMPLE);
++/*                 VLOG_ERR("%s: prob: %x, group_id: %x", __func__, */
++/*                     action->sample.probability, */
++/*                     action->sample.group_id); */
++                nl_msg_put_u32(buf, OVS_SAMPLE_ATTR_PROBABILITY,
++                               UINT32_MAX / action->sample.probability);
++                action_offset =
++                    nl_msg_start_nested(buf, OVS_SAMPLE_ATTR_ACTIONS);
++                userspace_offset =
++                    nl_msg_start_nested(buf, OVS_ACTION_ATTR_USERSPACE);
++                node = group_id_node_find(action->sample.group_id);
++                nl_msg_put_be32(buf, OVS_USERSPACE_ATTR_PID, node->action.pid);
++                nl_msg_put_unspec(buf, OVS_USERSPACE_ATTR_USERDATA,
++                                  &node->action.cookie,
++                                  sizeof (struct user_action_cookie));
++                nl_msg_put_flag(buf, OVS_USERSPACE_ATTR_ACTIONS);
++                nl_msg_end_nested(buf, userspace_offset);
++                nl_msg_end_nested(buf, action_offset);
++                nl_msg_end_nested(buf, sample_offset);
++            }
++            break;
+             case TC_ACT_VLAN_POP: {
+                 nl_msg_put_flag(buf, OVS_ACTION_ATTR_POP_VLAN);
+             }
+@@ -1376,6 +1405,8 @@ netdev_tc_flow_put(struct netdev *netdev, struct match *match,
+     int ifindex;
+     int err;
+ 
++    VLOG_ERR("%s: dl_type: %x\n", __func__, match->flow.dl_type);
++
+     ifindex = netdev_get_ifindex(netdev);
+     if (ifindex < 0) {
+         VLOG_ERR_RL(&error_rl, "flow_put: failed to get ifindex for %s: %s",
+@@ -1645,6 +1676,8 @@ netdev_tc_flow_put(struct netdev *netdev, struct match *match,
+                 return ENODEV;
+             }
+             action->out.ifindex_out = netdev_get_ifindex(outdev);
++/*             VLOG_ERR("%s: ifindex: %d, action_count: %d", __func__, */
++/*                 action->out.ifindex_out, flower.action_count); */
+             action->out.ingress = is_internal_port(netdev_get_type(outdev));
+             action->type = TC_ACT_OUTPUT;
+             flower.action_count++;
+@@ -1712,6 +1745,20 @@ netdev_tc_flow_put(struct netdev *netdev, struct match *match,
+             action->chain = nl_attr_get_u32(nla);
+             flower.action_count++;
+             recirc_act = true;
++        } else if (nl_attr_type(nla) == OVS_ACTION_ATTR_SAMPLE) {
++            const struct nlattr *sample = nl_attr_get(nla);
++
++/*             if (!info->group_id) { */
++/*                 VLOG_ERR("%s: group_id is 0", __func__); */
++/*                 return EOPNOTSUPP; */
++/*             } */
++
++            action->type = TC_ACT_SAMPLE;
++            action->sample.probability = UINT32_MAX / nl_attr_get_u32(sample);
++            action->sample.group_id = info->group_id;
++            VLOG_ERR("%s: OVS_ACTION_ATTR_SAMPLE not support, prob: %x, group_id: %d, action_count: %d",
++                __func__, action->sample.probability, action->sample.group_id, flower.action_count);
++            flower.action_count++;
+         } else {
+             VLOG_DBG_RL(&rl, "unsupported put action type: %d",
+                         nl_attr_type(nla));
+diff --git a/lib/netdev-offload.h b/lib/netdev-offload.h
+index b4b882a56..98606c7ed 100644
+--- a/lib/netdev-offload.h
++++ b/lib/netdev-offload.h
+@@ -77,6 +77,7 @@ struct offload_info {
+ 
+     bool tc_modify_flow_deleted; /* Indicate the tc modify flow put success
+                                   * to delete the original flow. */
++    uint32_t group_id;
+ };
+ 
+ int netdev_flow_flush(struct netdev *);
+diff --git a/lib/tc.c b/lib/tc.c
+index 12af0192b..9c6df088f 100644
+--- a/lib/tc.c
++++ b/lib/tc.c
+@@ -31,6 +31,7 @@
+ #include <linux/tc_act/tc_tunnel_key.h>
+ #include <linux/tc_act/tc_vlan.h>
+ #include <linux/tc_act/tc_ct.h>
++#include <linux/tc_act/tc_sample.h>
+ #include <linux/gen_stats.h>
+ #include <net/if.h>
+ #include <unistd.h>
+@@ -1220,6 +1221,46 @@ nl_parse_act_gact(struct nlattr *options, struct tc_flower *flower)
+     return 0;
+ }
+ 
++static const struct nl_policy sample_policy[] = {
++    [TCA_SAMPLE_PARMS] = { .type = NL_A_UNSPEC,
++                           .min_len = sizeof(struct tc_sample),
++                           .optional = false, },
++    [TCA_SAMPLE_PSAMPLE_GROUP] = { .type = NL_A_U32,
++                                   .optional = false, },
++    [TCA_SAMPLE_RATE] = { .type = NL_A_U32,
++                          .optional = false, },
++};
++
++static int
++nl_parse_act_sample(struct nlattr *options, struct tc_flower *flower)
++{
++
++    struct nlattr *sample_attrs[ARRAY_SIZE(sample_policy)];
++    const struct tc_sample *m;
++    const struct nlattr *sample_parms;
++    struct tc_action *action;
++
++    if (!nl_parse_nested(options, sample_policy, sample_attrs,
++                         ARRAY_SIZE(sample_policy))) {
++        VLOG_ERR_RL(&error_rl, "failed to parse sample action options");
++        return EPROTO;
++    }
++
++    sample_parms = sample_attrs[TCA_SAMPLE_PARMS];
++    m = nl_attr_get_unspec(sample_parms, sizeof *m);
++
++    action = &flower->actions[flower->action_count++];
++    action->type = TC_ACT_SAMPLE;
++    action->sample.group_id =
++        nl_attr_get_u32(sample_attrs[TCA_SAMPLE_PSAMPLE_GROUP]);
++    action->sample.probability = nl_attr_get_u32(sample_attrs[TCA_SAMPLE_RATE]);
++
++/*     VLOG_ERR("%s: prob: %x, group_id: %x", __func__, action->sample.probability, */
++/*         action->sample.group_id); */
++
++    return 0;
++}
++
+ static const struct nl_policy mirred_policy[] = {
+     [TCA_MIRRED_PARMS] = { .type = NL_A_UNSPEC,
+                            .min_len = sizeof(struct tc_mirred),
+@@ -1624,6 +1665,8 @@ nl_parse_single_action(struct nlattr *action, struct tc_flower *flower)
+         /* Added for TC rule only (not in OvS rule) so ignore. */
+     } else if (!strcmp(act_kind, "ct")) {
+         nl_parse_act_ct(act_options, flower);
++    } else if (!strcmp(act_kind, "sample")) {
++        nl_parse_act_sample(act_options, flower);
+     } else {
+         VLOG_ERR_RL(&error_rl, "unknown tc action kind: %s", act_kind);
+         err = EINVAL;
+@@ -2199,6 +2242,23 @@ nl_msg_put_act_mirred(struct ofpbuf *request, int ifindex, int action,
+     nl_msg_end_nested(request, offset);
+ }
+ 
++static void
++nl_msg_put_act_sample(struct ofpbuf *request, uint32_t probability, uint32_t group_id)
++{
++    size_t offset;
++
++    nl_msg_put_string(request, TCA_ACT_KIND, "sample");
++    offset = nl_msg_start_nested(request, TCA_ACT_OPTIONS | NLA_F_NESTED);
++    {
++        struct tc_sample parm = { .action = TC_ACT_PIPE };
++
++        nl_msg_put_unspec(request, TCA_SAMPLE_PARMS, &parm, sizeof parm);
++        nl_msg_put_u32(request, TCA_SAMPLE_RATE, probability);
++        nl_msg_put_u32(request, TCA_SAMPLE_PSAMPLE_GROUP, group_id);
++    }
++    nl_msg_end_nested(request, offset);
++}
++
+ static inline void
+ nl_msg_put_act_cookie(struct ofpbuf *request, struct tc_cookie *ck) {
+     if (ck->len) {
+@@ -2458,6 +2518,13 @@ nl_msg_put_flower_acts(struct ofpbuf *request, struct tc_flower *flower)
+                 nl_msg_end_nested(request, act_offset);
+             }
+             break;
++            case TC_ACT_SAMPLE: {
++                act_offset = nl_msg_start_nested(request, act_index++);
++                nl_msg_put_act_sample(request, action->sample.probability,
++                                        action->sample.group_id);
++                nl_msg_end_nested(request, act_offset);
++            }
++            break;
+             case TC_ACT_OUTPUT: {
+                 if (!released && flower->tunnel) {
+                     act_offset = nl_msg_start_nested(request, act_index++);
+diff --git a/lib/tc.h b/lib/tc.h
+index 24a4994fd..0b086489d 100644
+--- a/lib/tc.h
++++ b/lib/tc.h
+@@ -163,6 +163,7 @@ enum tc_action_type {
+     TC_ACT_MPLS_SET,
+     TC_ACT_GOTO,
+     TC_ACT_CT,
++    TC_ACT_SAMPLE,
+ };
+ 
+ enum nat_type {
+@@ -245,6 +246,11 @@ struct tc_action {
+             bool force;
+             bool commit;
+         } ct;
++
++        struct {
++            uint32_t probability;
++            uint32_t group_id;
++        } sample;
+      };
+ 
+      enum tc_action_type type;
+diff --git a/ofproto/ofproto-dpif-upcall.c b/ofproto/ofproto-dpif-upcall.c
+index 8dfa05b71..747ca35ec 100644
+--- a/ofproto/ofproto-dpif-upcall.c
++++ b/ofproto/ofproto-dpif-upcall.c
+@@ -34,6 +34,7 @@
+ #include "ofproto-dpif-ipfix.h"
+ #include "ofproto-dpif-sflow.h"
+ #include "ofproto-dpif-xlate.h"
++#include "lib/dpif-gid.h"
+ #include "ofproto-dpif-xlate-cache.h"
+ #include "ofproto-dpif-trace.h"
+ #include "ovs-rcu.h"
+@@ -44,6 +45,7 @@
+ #include "unixctl.h"
+ #include "openvswitch/vlog.h"
+ #include "lib/netdev-provider.h"
++#include "lib/dpif-netlink.h"
+ 
+ #define UPCALL_MAX_BATCH 64
+ #define REVALIDATE_MAX_BATCH 50
+@@ -65,6 +67,12 @@ struct handler {
+     uint32_t handler_id;               /* Handler id. */
+ };
+ 
++struct sflow_handler {
++    struct udpif *udpif;               /* Parent udpif. */
++    pthread_t thread;                  /* Thread ID. */
++    uint32_t handler_id;               /* Handler id. */
++};
++
+ /* In the absence of a multiple-writer multiple-reader datastructure for
+  * storing udpif_keys ("ukeys"), we use a large number of cmaps, each with its
+  * own lock for writing. */
+@@ -129,6 +137,8 @@ struct udpif {
+     struct handler *handlers;          /* Upcall handlers. */
+     size_t n_handlers;
+ 
++    struct sflow_handler shandler;
++
+     struct revalidator *revalidators;  /* Flow revalidators. */
+     size_t n_revalidators;
+ 
+@@ -316,6 +326,8 @@ struct udpif_key {
+     long long int flow_time;		/* last pps update time */
+     uint64_t flow_packets;		/* #pkts seen in interval */
+     uint64_t flow_backlog_packets;	/* prev-mode #pkts (offl or kernel) */
++
++    uint32_t key_group_id;
+ };
+ 
+ /* Datapath operation with optional ukey attached. */
+@@ -329,6 +341,7 @@ static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
+ static struct ovs_list all_udpifs = OVS_LIST_INITIALIZER(&all_udpifs);
+ 
+ static size_t recv_upcalls(struct handler *);
++static size_t recv_psample(struct sflow_handler *);
+ static int process_upcall(struct udpif *, struct upcall *,
+                           struct ofpbuf *odp_actions, struct flow_wildcards *);
+ static void handle_upcalls(struct udpif *, struct upcall *, size_t n_upcalls);
+@@ -338,6 +351,7 @@ static void udpif_start_threads(struct udpif *, size_t n_handlers,
+ static void udpif_pause_revalidators(struct udpif *);
+ static void udpif_resume_revalidators(struct udpif *);
+ static void *udpif_upcall_handler(void *);
++static void *udpif_sflow_handler(void *);
+ static void *udpif_revalidator(void *);
+ static unsigned long udpif_get_n_flows(struct udpif *);
+ static void revalidate(struct revalidator *);
+@@ -529,6 +543,7 @@ udpif_stop_threads(struct udpif *udpif, bool delete_flows)
+         for (i = 0; i < udpif->n_revalidators; i++) {
+             xpthread_join(udpif->revalidators[i].thread, NULL);
+         }
++        xpthread_join(udpif->shandler.thread, NULL);
+         dpif_disable_upcall(udpif->dpif);
+         ovsrcu_quiesce_end();
+ 
+@@ -593,6 +608,14 @@ udpif_start_threads(struct udpif *udpif, size_t n_handlers_,
+             revalidator->thread = ovs_thread_create(
+                 "revalidator", udpif_revalidator, revalidator);
+         }
++
++        if (dpif_psample_sock_exist(udpif->dpif)) {
++            struct sflow_handler *shandler = &udpif->shandler;
++            shandler->udpif = udpif;
++            shandler->thread = ovs_thread_create(
++                "sflow_handler", udpif_sflow_handler, shandler);
++            VLOG_ERR("%s: enabled\n", __func__);
++        }
+         ovsrcu_quiesce_end();
+     }
+ }
+@@ -757,6 +780,67 @@ udpif_upcall_handler(void *arg)
+     return NULL;
+ }
+ 
++static void *
++udpif_sflow_handler(void *arg)
++{
++    struct sflow_handler *handler = arg;
++    struct udpif *udpif = handler->udpif;
++
++    while (!latch_is_set(&handler->udpif->exit_latch)) {
++        if (recv_psample(handler)) {
++            poll_immediate_wake();
++        } else {
++            dpif_psample_poll_wait(udpif->dpif);
++            latch_wait(&udpif->exit_latch);
++        }
++        poll_block();
++    }
++
++    return NULL;
++}
++
++static size_t
++recv_psample(struct sflow_handler *handler)
++{
++    struct dpif *dpif = handler->udpif->dpif;
++
++    if (dpif->dpif_class->psample_poll) {
++        struct dpif_upcall_psample dupcall;
++        const struct group_id_node *node;
++        uint32_t iifindex;
++
++        dpif->dpif_class->psample_poll(dpif, &dupcall);
++        iifindex = dupcall.iifindex;
++        node = group_id_node_find(dupcall.group_id);
++
++        if (node) {
++/*             VLOG_ERR("%s: group: %d\n", __func__, node->id); */
++
++            struct ofproto_dpif *ofproto = ofproto_dpif_lookup_by_uuid(
++                &node->action.cookie.ofproto_uuid);
++            struct dpif_sflow *sflow;
++            struct flow flow;
++
++            if (!ofproto) {
++                VLOG_INFO_RL(&rl, "upcall could not find ofproto");
++                return ENODEV;
++/*             } else { */
++/*                 VLOG_ERR("%s: ofproto: %x\n", __func__, (long)ofproto); */
++            }
++            sflow = ofproto->sflow;
++/*             VLOG_ERR("%s: sflow: %x\n", __func__, (long)sflow); */
++            memset(&flow, 0, sizeof (flow));
++            flow.vlans[0].tci = 0;
++            dpif_sflow_received(sflow, &dupcall.packet, &flow,
++                                netdev_ifindex_to_odp_port(iifindex),
++                                &node->action.cookie,
++                                NULL);
++        }
++    }
++
++    return 0;
++}
++
+ static size_t
+ recv_upcalls(struct handler *handler)
+ {
+@@ -895,6 +979,7 @@ udpif_revalidator(void *arg)
+             uint64_t reval_seq;
+ 
+             recirc_run(); /* Recirculation cleanup. */
++            group_run();
+ 
+             reval_seq = seq_read(udpif->reval_seq);
+             last_reval_seq = reval_seq;
+@@ -1556,6 +1641,7 @@ handle_upcalls(struct udpif *udpif, struct upcall *upcalls,
+     struct ukey_op ops[UPCALL_MAX_BATCH * 2];
+     size_t n_ops, n_opsp, i;
+ 
++
+     /* Handle the packets individually in order of arrival.
+      *
+      *   - For SLOW_CFM, SLOW_LACP, SLOW_STP, SLOW_BFD, and SLOW_LLDP,
+@@ -1572,11 +1658,15 @@ handle_upcalls(struct udpif *udpif, struct upcall *upcalls,
+         const struct dp_packet *packet = upcall->packet;
+         struct ukey_op *op;
+ 
++        VLOG_ERR("%s: upcall->xout.group_id: %d\n", __func__, upcall->xout.xout_group_id);
++
+         if (should_install_flow(udpif, upcall)) {
+             struct udpif_key *ukey = upcall->ukey;
+ 
++            ukey->key_group_id = upcall->xout.xout_group_id;
+             if (ukey_install(udpif, ukey)) {
+                 upcall->ukey_persists = true;
++                ops[n_ops].dop.flow_put.group_id = upcall->xout.xout_group_id;
+                 put_op_init(&ops[n_ops++], ukey, DPIF_FP_CREATE);
+             }
+         }
+@@ -1706,6 +1796,7 @@ ukey_create__(const struct nlattr *key, size_t key_len,
+ 
+     ukey->key_recirc_id = key_recirc_id;
+     recirc_refs_init(&ukey->recircs);
++/*     group_refs_init(&ukey->groups); */
+     if (xout) {
+         /* Take ownership of the action recirc id references. */
+         recirc_refs_swap(&ukey->recircs, &xout->recircs);
+@@ -2005,6 +2096,10 @@ ukey_delete__(struct udpif_key *ukey)
+             recirc_free_id(ukey->key_recirc_id);
+         }
+         recirc_refs_unref(&ukey->recircs);
++        if (ukey->key_group_id) {
++            VLOG_ERR("%s free group_id %d", __func__, ukey->key_group_id);
++            group_free_id(ukey->key_group_id);
++        }
+         xlate_cache_delete(ukey->xcache);
+         ofpbuf_delete(ovsrcu_get(struct ofpbuf *, &ukey->actions));
+         ovs_mutex_destroy(&ukey->mutex);
+@@ -2111,6 +2206,7 @@ xlate_key(struct udpif *udpif, const struct nlattr *key, unsigned int len,
+     }
+     xin.xcache = ctx->xcache;
+     xlate_actions(&xin, &ctx->xout);
++    VLOG_ERR("%s: group_id: %d", __func__, ctx->xout.xout_group_id);
+     if (fitness == ODP_FIT_TOO_LITTLE) {
+         ctx->xout.slow |= SLOW_MATCH;
+     }
+@@ -2125,12 +2221,13 @@ xlate_ukey(struct udpif *udpif, const struct udpif_key *ukey,
+     struct dpif_flow_stats push = {
+         .tcp_flags = tcp_flags,
+     };
++    VLOG_ERR("%s: is called", __func__);
+     return xlate_key(udpif, ukey->key, ukey->key_len, &push, ctx);
+ }
+ 
+ static int
+ populate_xcache(struct udpif *udpif, struct udpif_key *ukey,
+-                uint16_t tcp_flags)
++                uint16_t tcp_flags, uint32_t *group_id)
+     OVS_REQUIRES(ukey->mutex)
+ {
+     struct reval_context ctx = {
+@@ -2143,6 +2240,8 @@ populate_xcache(struct udpif *udpif, struct udpif_key *ukey,
+     ovs_assert(!ukey->xcache);
+     ukey->xcache = ctx.xcache = xlate_cache_new();
+     error = xlate_ukey(udpif, ukey, tcp_flags, &ctx);
++    *group_id = ctx.xout.xout_group_id;
++    VLOG_ERR("%s: new group_id: %d", __func__, *group_id);
+     if (error) {
+         return error;
+     }
+@@ -2154,7 +2253,8 @@ populate_xcache(struct udpif *udpif, struct udpif_key *ukey,
+ static enum reval_result
+ revalidate_ukey__(struct udpif *udpif, const struct udpif_key *ukey,
+                   uint16_t tcp_flags, struct ofpbuf *odp_actions,
+-                  struct recirc_refs *recircs, struct xlate_cache *xcache)
++                  struct recirc_refs *recircs, struct xlate_cache *xcache,
++                  uint32_t *group_id)
+ {
+     struct xlate_out *xoutp;
+     struct netflow *netflow;
+@@ -2166,15 +2266,21 @@ revalidate_ukey__(struct udpif *udpif, const struct udpif_key *ukey,
+         .xcache = xcache,
+         .wc = &wc,
+     };
++    int ret;
+ 
+     result = UKEY_DELETE;
+     xoutp = NULL;
+     netflow = NULL;
+ 
+-    if (xlate_ukey(udpif, ukey, tcp_flags, &ctx)) {
++    ret = xlate_ukey(udpif, ukey, tcp_flags, &ctx);
++
++    xoutp = &ctx.xout;
++    *group_id = xoutp->xout_group_id;
++    VLOG_ERR("%s: new group_id: %d", __func__, *group_id);
++
++    if (ret) {
+         goto exit;
+     }
+-    xoutp = &ctx.xout;
+ 
+     if (xoutp->avoid_caching) {
+         goto exit;
+@@ -2255,7 +2361,8 @@ static enum reval_result
+ revalidate_ukey(struct udpif *udpif, struct udpif_key *ukey,
+                 const struct dpif_flow_stats *stats,
+                 struct ofpbuf *odp_actions, uint64_t reval_seq,
+-                struct recirc_refs *recircs, bool offloaded)
++                struct recirc_refs *recircs, bool offloaded,
++                uint32_t *group_id)
+     OVS_REQUIRES(ukey->mutex)
+ {
+     bool need_revalidate = ukey->reval_seq != reval_seq;
+@@ -2281,10 +2388,11 @@ revalidate_ukey(struct udpif *udpif, struct udpif_key *ukey,
+                 xlate_cache_clear(ukey->xcache);
+             }
+             result = revalidate_ukey__(udpif, ukey, push.tcp_flags,
+-                                       odp_actions, recircs, ukey->xcache);
++                                       odp_actions, recircs, ukey->xcache,
++                                       group_id);
+         } /* else delete; too expensive to revalidate */
+     } else if (!push.n_packets || ukey->xcache
+-               || !populate_xcache(udpif, ukey, push.tcp_flags)) {
++               || !populate_xcache(udpif, ukey, push.tcp_flags, group_id)) {
+         result = UKEY_KEEP;
+     }
+ 
+@@ -2354,6 +2462,11 @@ push_dp_ops(struct udpif *udpif, struct ukey_op *ops, size_t n_ops)
+     ovs_assert(n_ops <= REVALIDATE_MAX_BATCH);
+     for (i = 0; i < n_ops; i++) {
+         opsp[i] = &ops[i].dop;
++        if (opsp[i]->type == DPIF_OP_FLOW_PUT
++            && opsp[i]->flow_put.flags & DPIF_FP_MODIFY) {
++            VLOG_ERR("%s: modify", __func__);
++            opsp[i]->flow_put.group_id = ops[i].ukey->key_group_id;
++        }
+     }
+     dpif_operate(udpif->dpif, opsp, n_ops, DPIF_OFFLOAD_AUTO);
+ 
+@@ -2575,6 +2688,22 @@ udpif_update_flow_pps(struct udpif *udpif, struct udpif_key *ukey,
+     ukey->flow_time = udpif->dpif->current_ms;
+ }
+ 
++static void
++reval_swap_group_id(struct udpif_key *ukey, uint32_t group_id)
++{
++    if (!group_id) {
++        return;
++    }
++    if (ukey->key_group_id) {
++        VLOG_ERR("%s free group_id %x, new group_id %d", __func__,
++            ukey->key_group_id, group_id);
++        group_free_id(ukey->key_group_id);
++        ukey->key_group_id = group_id;
++    } else {
++        ukey->key_group_id = group_id;
++    }
++}
++
+ static void
+ revalidate(struct revalidator *revalidator)
+ {
+@@ -2632,6 +2761,7 @@ revalidate(struct revalidator *revalidator)
+             struct recirc_refs recircs = RECIRC_REFS_EMPTY_INITIALIZER;
+             enum reval_result result;
+             struct udpif_key *ukey;
++            uint32_t group_id = 0;
+             bool already_dumped;
+             int error;
+ 
+@@ -2681,7 +2811,9 @@ revalidate(struct revalidator *revalidator)
+             } else {
+                 result = revalidate_ukey(udpif, ukey, &f->stats, &odp_actions,
+                                          reval_seq, &recircs,
+-                                         f->attrs.offloaded);
++                                         f->attrs.offloaded, &group_id);
++/*                 VLOG_ERR("%s: group_id: %d", __func__, group_id); */
++                reval_swap_group_id(ukey, group_id);
+             }
+             ukey->dump_seq = dump_seq;
+ 
+@@ -2743,6 +2875,7 @@ revalidator_sweep__(struct revalidator *revalidator, bool purge)
+ 
+         CMAP_FOR_EACH(ukey, cmap_node, &umap->cmap) {
+             enum ukey_state ukey_state;
++            uint32_t group_id;
+ 
+             /* Handler threads could be holding a ukey lock while it installs a
+              * new flow, so don't hang around waiting for access to it. */
+@@ -2766,7 +2899,9 @@ revalidator_sweep__(struct revalidator *revalidator, bool purge)
+                     COVERAGE_INC(revalidate_missed_dp_flow);
+                     memset(&stats, 0, sizeof stats);
+                     result = revalidate_ukey(udpif, ukey, &stats, &odp_actions,
+-                                             reval_seq, &recircs, false);
++                                             reval_seq, &recircs, false,
++                                             &group_id);
++                    reval_swap_group_id(ukey, group_id);
+                 }
+                 if (result != UKEY_KEEP) {
+                     /* Clears 'recircs' if filled by revalidate_ukey(). */
+diff --git a/ofproto/ofproto-dpif-xlate.c b/ofproto/ofproto-dpif-xlate.c
+index 042c50a63..c473d7730 100644
+--- a/ofproto/ofproto-dpif-xlate.c
++++ b/ofproto/ofproto-dpif-xlate.c
+@@ -66,6 +66,9 @@
+ #include "tunnel.h"
+ #include "util.h"
+ #include "uuid.h"
++#include "lib/netdev-provider.h"
++#include "lib/dpif-gid.h"
++#include "lib/dpif-netlink.h"
+ 
+ COVERAGE_DEFINE(xlate_actions);
+ COVERAGE_DEFINE(xlate_actions_oversize);
+@@ -3328,6 +3331,7 @@ fix_sflow_action(struct xlate_ctx *ctx, unsigned int user_cookie_offset)
+ 
+     /* See http://www.sflow.org/sflow_version_5.txt (search for "Input/output
+      * port information") for the interpretation of cookie->output. */
++/*     VLOG_ERR("%s: ctx->sflow_n_outputs: %d", __func__, ctx->sflow_n_outputs); */
+     switch (ctx->sflow_n_outputs) {
+     case 0:
+         /* 0x40000000 | 256 means "packet dropped for unknown reason". */
+@@ -3337,6 +3341,7 @@ fix_sflow_action(struct xlate_ctx *ctx, unsigned int user_cookie_offset)
+     case 1:
+         cookie->sflow.output = dpif_sflow_odp_port_to_ifindex(
+             ctx->xbridge->sflow, ctx->sflow_odp_port);
++        VLOG_ERR("%s: ifindex: %d", __func__, cookie->sflow.output);
+         if (cookie->sflow.output) {
+             break;
+         }
+@@ -3346,6 +3351,20 @@ fix_sflow_action(struct xlate_ctx *ctx, unsigned int user_cookie_offset)
+         cookie->sflow.output = 0x80000000 | ctx->sflow_n_outputs;
+         break;
+     }
++
++    if (dpif_psample_sock_exist(ctx->xin->ofproto->backer->dpif)) {
++        odp_port_t odp_port = ofp_port_to_odp_port(
++            ctx->xbridge, ctx->xin->flow.in_port.ofp_port);
++        uint32_t pid = dpif_port_get_pid(ctx->xbridge->dpif, odp_port);
++        struct userspace_action action;
++
++        action.cookie = *cookie;
++        action.pid = pid;
++
++        ctx->xout->xout_group_id = group_alloc_id_ctx(&action);
++        VLOG_ERR("%s: ctx->xout->group_id: %d, output: 0x%x", __func__,
++            ctx->xout->xout_group_id, cookie->sflow.output);
++    }
+ }
+ 
+ static bool
+@@ -4263,6 +4282,8 @@ compose_output_action__(struct xlate_ctx *ctx, ofp_port_t ofp_port,
+ 
+         ctx->sflow_odp_port = odp_port;
+         ctx->sflow_n_outputs++;
++        VLOG_ERR("%s: ctx->sflow_n_outputs: %d, odp_port: %d\n", __func__,
++            ctx->sflow_n_outputs, odp_port);
+         ctx->nf_output_iface = ofp_port;
+     }
+ 
+@@ -7180,6 +7201,7 @@ xlate_out_uninit(struct xlate_out *xout)
+ {
+     if (xout) {
+         recirc_refs_unref(&xout->recircs);
++/*         group_refs_unref(&xout->groups); */
+     }
+ }
+ 
+@@ -7424,8 +7446,11 @@ xlate_actions(struct xlate_in *xin, struct xlate_out *xout)
+     *xout = (struct xlate_out) {
+         .slow = 0,
+         .recircs = RECIRC_REFS_EMPTY_INITIALIZER,
++        .xout_group_id = 0,
+     };
+ 
++    VLOG_ERR("%s: group_id: %d", __func__, xout->xout_group_id);
++
+     struct xlate_cfg *xcfg = ovsrcu_get(struct xlate_cfg *, &xcfgp);
+     struct xbridge *xbridge = xbridge_lookup(xcfg, xin->ofproto);
+     if (!xbridge) {
+@@ -7746,6 +7771,7 @@ xlate_actions(struct xlate_in *xin, struct xlate_out *xout)
+ 
+         if (user_cookie_offset) {
+             fix_sflow_action(&ctx, user_cookie_offset);
++            VLOG_ERR("%s: group_id: %d", __func__, xout->xout_group_id);
+         }
+     }
+ 
+diff --git a/ofproto/ofproto-dpif-xlate.h b/ofproto/ofproto-dpif-xlate.h
+index 3426a27b2..4137a2eb0 100644
+--- a/ofproto/ofproto-dpif-xlate.h
++++ b/ofproto/ofproto-dpif-xlate.h
+@@ -22,6 +22,7 @@
+ #include "openvswitch/ofpbuf.h"
+ #include "ofproto-dpif-mirror.h"
+ #include "ofproto-dpif-rid.h"
++#include "lib/dpif-gid.h"
+ #include "ofproto-dpif.h"
+ #include "ofproto.h"
+ #include "stp.h"
+@@ -61,6 +62,7 @@ struct xlate_out {
+ 
+     /* Recirc action IDs on which references are held. */
+     struct recirc_refs recircs;
++    uint32_t xout_group_id;
+ };
+ 
+ struct xlate_in {
+diff --git a/ofproto/ofproto-dpif.c b/ofproto/ofproto-dpif.c
+index d21874b46..b50dcf96a 100644
+--- a/ofproto/ofproto-dpif.c
++++ b/ofproto/ofproto-dpif.c
+@@ -1772,6 +1772,7 @@ destruct(struct ofproto *ofproto_, bool del)
+     guarded_list_destroy(&ofproto->ams);
+ 
+     recirc_free_ofproto(ofproto, ofproto->up.name);
++    group_free_ofproto(ofproto, ofproto->up.name);
+ 
+     mbridge_unref(ofproto->mbridge);
+ 
+-- 
+2.21.1
+

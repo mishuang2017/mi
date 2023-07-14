@@ -1,0 +1,27 @@
+From 614828fe9148093227ab464cb6f14d7c4117ac40 Mon Sep 17 00:00:00 2001
+From: Chris Mi <cmi@nvidia.com>
+Date: Fri, 25 Nov 2022 05:17:21 +0200
+Subject: [PATCH 5/5] update
+
+---
+ net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net.c b/net.c
+index 35fdffd..a633d3d 100644
+--- a/net.c
++++ b/net.c
+@@ -2337,8 +2337,8 @@ static void show_mlx5e_attach_encap(ulong mlx5_esw_offload)
+ 			entry = head - MEMBER_OFFSET("mlx5e_encap_entry", "encap_hlist");
+ 			pkt_reformat = entry + MEMBER_OFFSET("mlx5e_encap_entry", "pkt_reformat");
+ 			pkt_reformat = read_pointer1(pkt_reformat);
+-			fprintf(fp, "mlx5e_encap_entry.pkt_reformat %lx, %lx\n", entry, pkt_reformat);
+-			print_struct("mlx5_pkt_reformat", pkt_reformat);
++			fprintf(fp, "mlx5e_encap_entry %lx\n", entry);
++/* 			print_struct("mlx5_pkt_reformat", pkt_reformat); */
+ 			flows = entry + MEMBER_OFFSET("mlx5e_encap_entry", "flows");
+ 			fprintf(fp, "list %lx -s encap_flow_item -l encap_flow_item.list\n", flows);
+ 		}
+-- 
+2.26.3
+

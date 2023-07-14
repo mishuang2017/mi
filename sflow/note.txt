@@ -1,0 +1,1273 @@
+
+GA的版本XX.29.0158以上开始支持
+all GA after GA_2020_Dec_from_29_0614应该都支持了
+XX.29.0614
+
+===upstream===
+
+f94d6389f6a8 net/mlx5e: TC, Add support to offload sample action
+be9dc0047450 net/mlx5e: TC, Handle sampled packets
+7319a1cc3ca9 net/mlx5e: TC, Refactor tc update skb function
+36a3196256bf net/mlx5e: TC, Add sampler restore handle API
+11ecd6c60b4e net/mlx5e: TC, Add sampler object API
+2a9ab10a5689 net/mlx5e: TC, Add sampler termination table API
+41c2fd949803 net/mlx5e: TC, Parse sample action
+c935568271b5 net/mlx5: Instantiate separate mapping objects for FDB and NIC tables
+a91d98a0a2b8 net/mlx5: Map register values to restore objects
+c1904360dde8 net/mlx5: E-switch, Set per vport table default group number
+c796bb7cd230 net/mlx5: E-switch, Generalize per vport table API
+0a9e2307870b net/mlx5: E-switch, Rename functions to follow naming convention.
+4c7f40287aa5 net/mlx5: E-switch, Move vport table functions to a new file
+
+2741f2230905 net/mlx5e: TC, Support sample offload action for tunneled traffic
+ee950e5db1b9 net/mlx5e: TC, Restore tunnel info for sample offload
+d12e20ac0661 net/mlx5e: TC, Remove CONFIG_NET_TC_SKB_EXT dependency when restoring tunnel
+f0da4daa3413 net/mlx5e: Refactor ct to use post action infrastructure
+6f0b692a5aa9 net/mlx5e: Introduce post action infrastructure
+2799797845db net/mlx5e: CT, Use xarray to manage fte ids
+bcd6740c6b6d net/mlx5e: Move sample attribute to flow attribute
+0027d70c73c9 net/mlx5e: Move esw/sample to en/tc/sample
+
+
+sFlow was merge in kernel 5.12
+
+ git clone https://github.com/mishuang2017/linux.git --branch=5.4-ct
+ git clone https://github.com/mishuang2017/ovs.git --branch=2.13.0-ct
+
+sFlow ct demo link
+
+https://nvidia-my.sharepoint.com/:v:/p/cmi/EQIIRQm3qCRGrJGGlYuOlegB6FGDz9pj-bORcaSzMAWEow
+
+
+5b7cb7451585f83d414512a70b79b2086b8c6ed1 f8ab30477690bb156536a76686a5a766efe587f8
+
+
+[root@dev-r630-03 ~]# ovs-vsctl list sflow
+_uuid               : 1a79913e-670d-4cf8-982e-e4e96621cc25
+agent               : "eno1"
+external_ids        : {}
+header              : 128
+polling             : 10
+sampling            : 10
+targets             : ["10.75.205.14:8087"]
+
+tcpdump -ni eno1 udp port 8087
+
+[root@dev-r630-03 ~]# sudo ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.75.205.14:8087\" header=128 sampling=10 polling=10 -- set bridge br sflow=@sflow
+1a79913e-670d-4cf8-982e-e4e96621cc25
+
+ovs-vsctl -- clear Bridge br sflow
+
+sudo ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.75.205.13:8087\" header=128 sampling=10 polling=10 -- set bridge br sflow=@sflow
+
+ovs-vsctl -- --id=@sflow create sflow agent=eno1 target=\"10.75.205.14:6343\" header=128 sampling=10 polling=10 -- set bridge br sflow=@sflow
+
+
+crash> rd -8 0xffff8c4d81cac29c 0x54
+ffff8c4d81cac29c:  54 00 06 00 0c 00 04 00 01 58 25 93 99 99 99 19   T........X%.....
+ffff8c4d81cac2ac:  44 00 02 00 08 00 01 00 09 d1 07 aa 34 00 02 00   D...........4...
+ffff8c4d81cac2bc:  01 00 00 00 03 00 00 00 02 f2 cd 6b e5 4c f6 99   ...........k.L..
+ffff8c4d81cac2cc:  30 38 63 bf 2e 63 eb d1 00 00 00 00 48 00 00 00   08c..c......H...
+ffff8c4d81cac2dc:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+ffff8c4d81cac2ec:  04 00 04 00                                       ....
+crash>
+
+
+enum ovs_userspace_attr {
+        OVS_USERSPACE_ATTR_UNSPEC,
+1        OVS_USERSPACE_ATTR_PID,       /* u32 Netlink PID to receive upcalls. */
+2        OVS_USERSPACE_ATTR_USERDATA,  /* Optional user-specified cookie. */
+3        OVS_USERSPACE_ATTR_EGRESS_TUN_PORT,  /* Optional, u32 output port
+                                              * to get tunnel info. */
+4        OVS_USERSPACE_ATTR_ACTIONS,   /* Optional flag to get actions. */
+        __OVS_USERSPACE_ATTR_MAX
+};
+
+         0x54    0xc                 0x44
+crash> # actions:sample(sample=10.0%,actions(      userspace(pid=2852638985,  sFlow(vid=0,pcp=0,output=72),  actions)    )),enp4s0f0_1
+
+/* user_action_cookie is passed as argument to OVS_ACTION_ATTR_USERSPACE. */
+struct user_action_cookie {
+    uint16_t type;              /* enum user_action_cookie_type. */
+    ofp_port_t ofp_in_port;     /* OpenFlow in port, or OFPP_NONE. */
+    struct uuid ofproto_uuid;   /* UUID of ofproto-dpif. */
+
+    union {
+        struct {
+            /* USER_ACTION_COOKIE_SFLOW. */
+            ovs_be16 vlan_tci;      /* Destination VLAN TCI. */
+            uint32_t output;        /* SFL_FLOW_SAMPLE_TYPE 'output' value. */
+        } sflow;
+    };
+};
+
+
+/* The first action is always 'OVS_SAMPLE_ATTR_ARG'. */
+
+                          OVS_ACTION_ATTR_SAMPLE = 6
+                                             OVS_SAMPLE_ATTR_PROBABILITY = 1 (58 25 93 are random number for padding)
+ffff8c4d81cac29c:  (54 00 06 00 (0c 00 04 00 01 58 25 93 99 99 99 19)   T........X%.....
+                                       OVS_SAMPLE_ATTR_ARG
+
+0x19999999 = 429496729 = 419430.40K = 409.60M = 0.40G
+
+[root@dev-r630-04 ~]# qalc
+> 0x19999999/0xffffffff
+
+  429496729 / 4294967295 = approx. 0.1
+
+means sampling=10 = %10
+
+                                       OVS_USERSPACE_ATTR_PID (aa07d109)  
+ffff8c4d81cac2ac:  (44 00 02 00 (08 00 01 00 09 d1 07 aa)           (34 00 02 00   D...........4...
+                          OVS_ACTION_ATTR_USERSPACE                        OVS_ACTION_ATTR_USERSPACE ?
+
+                               port=3      uuid 16 bytes
+ffff8c4d81cac2bc:  01 00 00 00 03 00 00 00 02 f2 cd 6b e5 4c f6 99   ...........k.L..
+                   USER_ACTION_COOKIE_SFLOW
+
+                                           vlan_tci
+ffff8c4d81cac2cc:  30 38 63 bf 2e 63 eb d1 00 00 00 00 48 00 00 00   08c..c......H...
+                                                       output=72
+
+
+ffff8c4d81cac2dc:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00)   ................
+
+ffff8c4d81cac2ec:  04 00 04 00))
+                         OVS_USERSPACE_ATTR_ACTIONS
+
+
+
+
+crash> rd -8 0xffff8c4d7c6fd71c 0x5c
+ffff8c4d7c6fd71c:  54 00 06 00 0c 00 04 00 01 58 25 93 99 99 99 19   T........X%.....
+ffff8c4d7c6fd72c:  44 00 02 00 08 00 01 00 83 2d 23 d0 34 00 02 00   D........-#.4...
+ffff8c4d7c6fd73c:  01 00 00 00 02 00 00 00 02 f2 cd 6b e5 4c f6 99   ...........k.L..
+ffff8c4d7c6fd74c:  30 38 63 bf 2e 63 eb d1 00 00 00 00 49 00 00 00   08c..c......I...
+ffff8c4d7c6fd75c:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+ffff8c4d7c6fd76c:  04 00 04 00 08 00 01 00 03 00 00 00               ............
+
+
+
+a[root@dev-r630-04 ~]# trace tcf_sample_init -K
+TIME     PID     TID     COMM            FUNC
+5.173285 4273    4273    tc              tcf_sample_init
+        tcf_sample_init+0x1 [act_sample]
+        tcf_action_init+0x115 [kernel]
+        tcf_exts_validate+0xcb [kernel]
+        mall_change+0x168 [cls_matchall]
+        tc_new_tfilter+0x861 [kernel]
+        rtnetlink_rcv_msg+0x369 [kernel]
+        netlink_rcv_skb+0x50 [kernel]
+        rtnetlink_rcv+0x15 [kernel]
+        netlink_unicast+0x1a8 [kernel]
+        netlink_sendmsg+0x233 [kernel]
+        sock_sendmsg+0x65 [kernel]
+        ____sys_sendmsg+0x215 [kernel]
+        ___sys_sendmsg+0x81 [kernel]
+        __sys_sendmsg+0x5c [kernel]
+        __x64_sys_sendmsg+0x1f [kernel]
+        do_syscall_64+0x5a [kernel]
+        entry_SYSCALL_64_after_hwframe+0x44 [kernel]
+
+
+===ct===
+
+nf_flow_offload_init init flow_cls_offload.cookie
+
+CONFIG_NET_TC_SKB_EXT
+mlx5e_tc_rep_update_skb
+
+new:
+mlx5e_rep_tc_update_skb
+
+
+[root@dev-r630-04 kernel]# ./flowtables.py
+hostname: dev-r630-04
+
+nf_flowtable ffff8bf33c2dac70
+nf_ft.gc_work.work.func: nf_flow_offload_work_gc
+        cb: mlx5_tc_ct_block_flow_offload
+        mlx5_ct_ft ffff8bf2c61d4e00
+
+
+
+3.341207 21000   21000   kworker/0:0     mlx5_fc_query_cached
+        mlx5_fc_query_cached+0x1 [mlx5_core]
+        nf_flow_offload_tuple.isra.0+0xd4 [nf_flow_table]
+        flow_offload_work_handler+0x15e [nf_flow_table]
+        process_one_work+0x240 [kernel]
+        worker_thread+0x50 [kernel]
+        kthread+0x109 [kernel]
+        ret_from_fork+0x35 [kernel]
+
+
+nf_flow_offload_add
+flow_offload_queue_work
+        schedule_work(&nf_flow_offload_work);
+
+8.859243 9718    9718    kworker/u34:2   tcf_ct_flow_table_fill_actions
+        tcf_ct_flow_table_fill_actions +0x1 [act_ct]
+        flow_offload_work_handler +0xbe [nf_flow_table]
+        process_one_work +0x240 [kernel]
+        worker_thread+0x50 [kernel]
+        kthread+0x109 [kernel]
+        ret_from_fork+0x35 [kernel]
+
+tcf_ct_act
+	tcf_ct_flow_table_process_conn
+		tcf_ct_flow_table_add
+			test_and_set_bit( IPS_OFFLOAD_BIT , &ct->status)
+			struct flow_offload *flow = flow_offload_alloc
+				flow_offload_fill_dir(FLOW_OFFLOAD_DIR_ORIGINAL)
+					set flow_offload_tuple which is mlx5_ct_entry.cookie
+				flow_offload_fill_dir(FLOW_OFFLOAD_DIR_REPLY)
+			flow_offload_add
+				rhashtable_insert_fast
+				rhashtable_insert_fast
+				__set_bit(NF_FLOW_HW, &flow->flags);
+				nf_flow_offload_add
+					flow_offload_queue_work
+						schedule_work(&nf_flow_offload_work);
+							flow_offload_work_handler
+								flow_offload_work_stats
+								flow_offload_work_del
+									clear_bit (IPS_HW_OFFLOAD_BIT, &offload->flow->ct->status);
+									flow_offload_tuple_del (offload, FLOW_OFFLOAD_DIR_ORIGINAL);
+										nf_flow_offload_tuple
+											mlx5_tc_ct_block_flow_offload (FLOW_CLS_DESTROY)
+												mlx5_tc_ct_block_flow_offload_del
+									flow_offload_tuple_del (offload, FLOW_OFFLOAD_DIR_REPLY);
+									set_bit( NF_FLOW_HW_DEAD , &offload->flow->flags);
+								flow_offload_work_add
+									nf_flow_offload_alloc
+										nf_flow_offload_rule_alloc (FLOW_OFFLOAD_DIR_ORIGINAL) alloc nf_flow_rule
+											flowtable->type->action / tcf_ct_flow_table_fill_actions
+												tcf_ct_flow_table_add_action_nat
+													tcf_ct_flow_table_add_action_nat_ipv4
+														tcf_ct_add_mangle_action
+													tcf_ct_flow_table_add_action_nat_ipv6
+													tcf_ct_flow_table_add_action_nat_tcp
+													tcf_ct_flow_table_add_action_nat_udp
+												tcf_ct_flow_table_add_action_meta
+										nf_flow_offload_rule_alloc (FLOW_OFFLOAD_DIR_REPLY)    alloc nf_flow_rule
+											flowtable->type->action / tcf_ct_flow_table_fill_actions
+									flow_offload_rule_add
+										flow_offload_tuple_add
+											nf_flow_offload_tuple
+												nf_flow_offload_init init flow_cls_offload
+												list_for_each_entry(block_cb, block_cb_list, list)
+													mlx5_tc_ct_block_flow_offload
+														mlx5_tc_ct_block_flow_offload_stats
+														mlx5_tc_ct_block_flow_offload_add
+															alloc mlx5_ct_entry
+															mlx5_tc_ct_entry_add_rules
+																mlx5_tc_ct_entry_add_rule
+																	xa_alloc(&tupleid)
+																	mlx5_eswitch_add_offloaded_rule
+																mlx5_tc_ct_entry_add_rule(nat)
+																	xa_alloc(&tupleid)
+																	mlx5_eswitch_add_offloaded_rule
+										set_bit(IPS_HW_OFFLOAD_BIT, &offload->flow->ct->status)
+									nf_flow_offload_destroy
+
+
+
+					nf_flow_offload_tuple
+						nf_flow_offload_init
+							cls_flow->cookie
+mlx5_tc_ct_flow_offload
+	__mlx5_tc_ct_flow_offload
+		mlx5_tc_ct_add_ft_cb
+			nf_flow_table_offload_add_cb
+
+mlx5e_tc_unoffload_fdb_rules
+	mlx5_tc_ct_delete_flow
+		__mlx5_tc_ct_delete_flow
+			mlx5_tc_ct_del_ft_cb
+				nf_flow_table_offload_del_cb
+					list_del(&block_cb->list)
+
+flow_offload_del
+	rhashtable_remove_fast
+	rhashtable_remove_fast
+	clear_bit( IPS_OFFLOAD_BIT , &flow->ct->status)
+
+nf_flow_offload_del is called because test_bit(NF_FLOW_TEARDOWN, &flow->flags)
+NF_FLOW_TEARDOWN is set because of FIN is received in
+	tcf_ct_act()->tcf_ct_flow_table_lookup()->flow_offload_teardown()
+
+[Wed Apr  8 14:27:24 2020] nf_flow_offload_gc_step: expried: 0, dying: 0, teardown: 1
+
+nf_flow_offload_gc_step
+	nf_flow_offload_del
+		NF_FLOW_HW_DYING
+		flow_offload_queue_work(offload)
+			schedule_work(&nf_flow_offload_work)
+
+flow_offload_work_handler(FLOW_CLS_DESTROY)
+	flow_offload_work_del(FLOW_OFFLOAD_DIR_ORIGINAL)
+	flow_offload_work_delFLOW_OFFLOAD_DIR_REPLY)
+	set_bit(NF_FLOW_HW_DEAD)
+
+7.037005 8055    8055    kworker/4:1     mlx5_eswitch_del_offloaded_rule
+        mlx5_eswitch_del_offloaded_rule+0x1 [mlx5_core]
+        mlx5_tc_ct_entry_del_rules+0x29 [mlx5_core]
+        mlx5_tc_ct_block_flow_offload
+        nf_flow_offload_tuple
+        flow_offload_tuple_del
+        flow_offload_work_handler
+        process_one_work+0x240 [kernel]
+        worker_thread+0x50 [kernel]
+        kthread+0x109 [kernel]
+        ret_from_fork+0x35 [kernel]
+
+[root@dev-r630-04 ~]# trace flow_offload_teardown -K
+TIME     PID     TID     COMM            FUNC
+8.002926 0       0       swapper/11      flow_offload_teardown
+        flow_offload_teardown+0x1 [nf_flow_table]
+        tcf_ct_act+0x6ea [act_ct]
+        tcf_action_exec+0x82 [kernel]
+        fl_classify+0x6d4 [cls_flower]
+        tcf_classify_ingress+0x81 [kernel]
+        __netif_receive_skb_core+0x441 [kernel]
+        __netif_receive_skb_list_core+0x126 [kernel]
+        netif_receive_skb_list_internal+0x1f6 [kernel]
+        gro_normal_list.part.0+0x1e [kernel]
+        napi_complete_done+0x91 [kernel]
+        mlx5e_napi_poll+0x1a0 [mlx5_core]
+        net_rx_action+0x13b [kernel]
+        __softirqentry_text_start+0xf5 [kernel]
+        irq_exit+0xdf [kernel]
+        do_IRQ+0x5a [kernel]
+        ret_from_intr+0x0 [kernel]
+        cpuidle_enter_state+0xc2 [kernel]
+        cpuidle_enter+0x2e [kernel]
+        call_cpuidle+0x23 [kernel]
+        do_idle+0x1cd [kernel]
+        cpu_startup_entry+0x20 [kernel]
+        start_secondary+0x15a [kernel]
+        secondary_startup_64+0xa4 [kernel]
+
+
+
+[root@dev-r630-04 kernel]# ./mlx5e_tc_flow.py
+hostname: dev-r630-04
+
+MLX5E_TC_FLOW_FLAG_INGRESS            1
+MLX5E_TC_FLOW_FLAG_ESWITCH            8
+MLX5E_TC_FLOW_FLAG_OFFLOADED         20
+MLX5E_TC_FLOW_FLAG_CT              1000
+
+MLX5_MATCH_OUTER_HEADERS              1
+MLX5_MATCH_MISC_PARAMETERS            2
+MLX5_MATCH_MISC_PARAMETERS_2          8
+
+enp4s0f0np0    mlx5e_tc_flow ffff8bf33c2da800, cookie: ffff8bf3162a5000, flags: 1029
+chain: 0        dest_chain: b   fdb: 0  dest_ft: 0      ct_state: 0/4
+mlx5_flow_spec ffff8bf3162a1818
+
+enp4s0f0np0_1  mlx5e_tc_flow ffff8bf33c2db800, cookie: ffff8bf3162a4800, flags: 1029
+chain: 0        dest_chain: a   fdb: 0  dest_ft: 0      ct_state: 0/4
+mlx5_flow_spec ffff8bf3162a2818
+
+enp4s0f0np0_1  mlx5e_tc_flow ffff8bf31895cc00, cookie: ffff8bf3162a3800, flags: 29
+chain: a        dest_chain: 0   fdb: 0  dest_ft: 0      ct_state: 6/6
+mlx5_flow_spec ffff8bf3162a0818
+
+enp4s0f0np0    mlx5e_tc_flow ffff8beaff04b800, cookie: ffff8bf2897bc000, flags: 29
+chain: b        dest_chain: 0   fdb: 0  dest_ft: 0      ct_state: 6/6
+mlx5_flow_spec ffff8bf2897ba818
+
+[root@dev-r630-04 kernel]# dpd
+ct_state(+est+trk),recirc_id(0xa),in_port(enp4s0f0np0_1),eth(src=02:25:d0:14:01:02,dst=b8:59:9f:bb:31:66),eth_type(0x0800),ipv4(proto=6,frag=no), packets:1733099551, bytes:2537255428754, used:0.560s, actions:enp4s0f0np0
+ct_state(+est+trk),recirc_id(0xb),in_port(enp4s0f0np0),eth(src=b8:59:9f:bb:31:66,dst=02:25:d0:14:01:02),eth_type(0x0800),ipv4(proto=6,frag=no), packets:29013837, bytes:1916513026, used:0.560s, actions:enp4s0f0np0_1
+ct_state(-trk),recirc_id(0),in_port(enp4s0f0np0),eth_type(0x0800),ipv4(proto=6,frag=no), packets:29013837, bytes:1916513026, used:0.560s, actions:ct,recirc(0xb)
+ct_state(-trk),recirc_id(0),in_port(enp4s0f0np0_1),eth_type(0x0800),ipv4(proto=6,frag=no), packets:1733099552, bytes:2537255429046, used:0.560s, actions:ct,recirc(0xa)
+
+1. If the rule has ct action, MLX5E_TC_FLOW_FLAG_CT is set.
+
+parse_tc_fdb_actions
+	flow_flag_set(flow, CT)
+
+__mlx5_tc_ct_flow_offload() will be called.
+
+The dest ft will be mlx5e_rep_priv.uplink_priv.ct_priv.ct.
+
+19.41299 3798    30693   handler66       __mlx5_tc_ct_flow_offload
+        __mlx5_tc_ct_flow_offload+0x1 [mlx5_core]
+        mlx5e_tc_offload_fdb_rules+0x6b [mlx5_core]
+        mlx5e_tc_add_fdb_flow+0x179 [mlx5_core]
+        __mlx5e_add_fdb_flow+0x16a [mlx5_core]
+        mlx5e_tc_add_flow+0x170 [mlx5_core]
+        mlx5e_configure_flower+0x2c8 [mlx5_core]
+        mlx5e_rep_setup_tc_cls_flower+0x39 [mlx5_core]
+        mlx5e_rep_setup_tc_cb+0x40 [mlx5_core]
+        tc_setup_cb_add+0xdb [kernel]
+        fl_hw_replace_filter+0x17a [cls_flower]
+        fl_change+0xc0e [cls_flower]
+        tc_new_tfilter+0x861 [kernel]
+        rtnetlink_rcv_msg+0x369 [kernel]
+        netlink_rcv_skb+0x50 [kernel]
+        rtnetlink_rcv+0x15 [kernel]
+        netlink_unicast+0x1a8 [kernel]
+        netlink_sendmsg+0x233 [kernel]
+        sock_sendmsg+0x65 [kernel]
+        ____sys_sendmsg+0x215 [kernel]
+        ___sys_sendmsg+0x81 [kernel]
+        __sys_sendmsg+0x5c [kernel]
+        __x64_sys_sendmsg+0x1f [kernel]
+        do_syscall_64+0x5a [kernel]
+        entry_SYSCALL_64_after_hwframe+0x44 [kernel]
+
+
+
+mask is 0x5, the match val is 0. That means if it is FIN or RST (PRM page 1965),
+don't match, go through slow path.
+
+[root@dev-r630-04 kernel]# ./mlx5_tc_ct_priv.py
+hostname: dev-r630-04
+
+=== mlx5e_rep_priv.uplink_priv.ct_priv.ct ===
+mlx5_flow_table ffff94e74442dc00
+
+flow table name: ct_priv.ct
+flow table id: 6 leve: 1, type: 4
+mlx5_flow_table ffff94e74442dc00
+mlx5_flow_group ffff94f512f41568	(tcp_flags: 0x5)
+fs_fte ffff94f552b22428
+       0:  s: 00:00:00:00:00:00 d: 00:00:00:00:00:00 et: 800 ip: 6  sport: 47672 dport:   5001 src_ip:      1.1.3.1 dst_ip:    1.1.1.200 action   4c:
+                mlx5_flow_rule ffff94f558a5bc00
+                        dest: counter_id: 801005
+                mlx5_flow_rule ffff94f558a5a200
+                        dest: ft: ffff94e744428400
+fs_fte ffff94f552b250a8
+       1:  s: 00:00:00:00:00:00 d: 00:00:00:00:00:00 et: 800 ip: 6  sport:  5001 dport:  47672 src_ip:    1.1.1.200 dst_ip:      1.1.3.1 action   4c:
+                mlx5_flow_rule ffff94f558a5ba00
+                        dest: counter_id: 801006
+                mlx5_flow_rule ffff94f558a59400
+                        dest: ft: ffff94e744428400
+
+
+
+
+[Sat Apr 11 18:05:44 2020] mlx5e_configure_flower                  : enp4s0f0np0_1       : is called
+[Sat Apr 11 18:05:44 2020] __parse_cls_flower                      : enp4s0f0np0_1       : is called, 800
+[Sat Apr 11 18:05:44 2020] __mlx5_tc_ct_flow_offload               : enp4s0f0np0_1       : is called
+
+[Sat Apr 11 18:05:44 2020] mlx5e_configure_flower                  : enp4s0f0np0_1       : is called
+[Sat Apr 11 18:05:44 2020] __parse_cls_flower                      : enp4s0f0np0_1       : is called, 800
+
+[Sat Apr 11 18:05:44 2020] mlx5e_configure_flower                  : enp4s0f0np0         : is called
+[Sat Apr 11 18:05:44 2020] __parse_cls_flower                      : enp4s0f0np0         : is called, 800
+[Sat Apr 11 18:05:44 2020] __mlx5_tc_ct_flow_offload               : enp4s0f0np0         : is called
+
+[Sat Apr 11 18:05:44 2020] mlx5e_configure_flower                  : enp4s0f0np0         : is called
+[Sat Apr 11 18:05:44 2020] __parse_cls_flower                      : enp4s0f0np0         : is called, 800
+
+[Sat Apr 11 18:05:44 2020] mlx5e_configure_flower                  : enp4s0f0np0_1       : is called
+[Sat Apr 11 18:05:44 2020] __parse_cls_flower                      : enp4s0f0np0_1       : is called, 800
+
+[Sat Apr 11 18:05:44 2020] mlx5_tc_ct_entry_add_rules              : enp4s0f0np0         : is called
+[Sat Apr 11 18:05:44 2020] mlx5_tc_ct_entry_add_rules              : enp4s0f0np0         : is called
+
+using jd-ovs, mlx5e_tc_ct_restore_flow is called once
+
+[root@dev-r630-04 bin]# trace mlx5e_tc_ct_restore_flow -K
+TIME     PID     TID     COMM            FUNC
+21.67996 0       0       swapper/5       mlx5e_tc_ct_restore_flow
+        mlx5e_tc_ct_restore_flow+0x1 [mlx5_core]
+        mlx5e_handle_rx_cqe_mpwrq_rep+0x118 [mlx5_core]
+        mlx5e_poll_rx_cq+0x97f [mlx5_core]
+        mlx5e_napi_poll+0xda [mlx5_core]
+        net_rx_action+0x13b [kernel]
+        __softirqentry_text_start+0xf5 [kernel]
+        irq_exit+0xdf [kernel]
+        do_IRQ+0x5a [kernel]
+        ret_from_intr+0x0 [kernel]
+        cpuidle_enter_state+0xc2 [kernel]
+        cpuidle_enter+0x2e [kernel]
+        call_cpuidle+0x23 [kernel]
+        do_idle+0x1cd [kernel]
+        cpu_startup_entry+0x20 [kernel]
+        start_secondary+0x15a [kernel]
+        secondary_startup_64+0xa4 [kernel]
+
+===misc===
+
+mlx5e_build_rx_skb
+	skb->mark = be32_to_cpu(cqe->sop_drop_qpn) & MLX5E_TC_FLOW_ID_MASK
+
+commit 82e91ffef60e6eba9848fe149ce1eecd2b5aef12
+Author: Thomas Graf <tgraf@suug.ch>
+Date:   Thu Nov 9 15:19:14 2006 -0800
+
+    [NET]: Turn nfmark into generic mark
+
+    nfmark is being used in various subsystems and has become
+    the defacto mark field for all kinds of packets. Therefore
+    it makes sense to rename it to `mark' and remove the
+    dependency on CONFIG_NETFILTER.
+
+    Signed-off-by: Thomas Graf <tgraf@suug.ch>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+===psample===
+
+        netlink_broadcast_filtered
+netlink_broadcast
+        psample_sample_packet
+        tcf_sample_act
+        tcf_action_exec
+        mall_classify+0x3e [cls_matchall]
+        tcf_classify_ingress+0x81 [kernel]
+        __netif_receive_skb_core+0x441 [kernel]
+        __netif_receive_skb_list_core+0x126 [kernel]
+        netif_receive_skb_list_internal+0x1f6 [kernel]
+        gro_normal_list.part.0+0x1e [kernel]
+        napi_complete_done+0x91 [kernel]
+        mlx5e_napi_poll+0x1a0 [mlx5_core]
+        net_rx_action+0x13b [kernel]
+        __softirqentry_text_start+0xf5 [kernel]
+        irq_exit+0xdf [kernel]
+        do_IRQ+0x5a [kernel]
+        ret_from_intr+0x0 [kernel]
+        cpuidle_enter_state+0xc2 [kernel]
+        cpuidle_enter+0x2e [kernel]
+        call_cpuidle+0x23 [kernel]
+        do_idle+0x1cd [kernel]
+        cpu_startup_entry+0x20 [kernel]
+        start_secondary+0x15a [kernel]
+        secondary_startup_64+0xa4 [kernel]
+
+===tc===
+
+main
+do_cmd
+do_filter
+tc_filter_modify
+
+	sizeof (struct mlmsghdr) = 16
+	sizeof (struct tcmsg) = 20
+
+flower_parse_opt
+parse_sample
+
+===dump===
+
+format_odp_sample_action
+format_odp_userspace_action
+
+parse_tc_flower_to_match
+
+===poll===
+
+vport_add_channel
+	event.events = EPOLLIN | EPOLLEXCLUSIVE;
+	event.data.u32 = port_idx
+	epoll_ctl (handler->epoll_fd, EPOLL_CTL_ADD, nl_sock_fd(sock), &event))
+
+PID: 85622  TASK: ffff88bdca2c2580  CPU: 15  COMMAND: "handler34"
+ #0 [ffffb10c0983f940] __schedule at ffffffff8cb1ef32
+ #1 [ffffb10c0983f9d0] schedule at ffffffff8cb1f418
+ #2 [ffffb10c0983f9f0] schedule_hrtimeout_range_clock at ffffffff8cb24959
+ #3 [ffffb10c0983fa78] schedule_hrtimeout_range at ffffffff8cb24aa3
+ #4 [ffffb10c0983fa88] do_poll.constprop.0 at ffffffff8c350afb
+ #5 [ffffb10c0983fb30] do_sys_poll at ffffffff8c350e23
+ #6 [ffffb10c0983ff00] __x64_sys_poll at ffffffff8c3516b5
+ #7 [ffffb10c0983ff38] do_syscall_64 at ffffffff8cb13b68
+ #8 [ffffb10c0983ff50] entry_SYSCALL_64_after_hwframe at ffffffff8cc0007c
+    RIP: 00007fc53380caaf  RSP: 00007fc5336daa40  RFLAGS: 00000293
+    RAX: ffffffffffffffda  RBX: 7fffffffffffffff  RCX: 00007fc53380caaf
+    RDX: 000000007fffffff  RSI: 0000000000000003  RDI: 00007fc504006960
+    RBP: 00007fc5336daa90   R8: 0000000000000000   R9: 0000000000000011
+    R10: 00007ffe703de080  R11: 0000000000000293  R12: 431bde82d7b634db
+    R13: 000000007fffffff  R14: 00007fc504006960  R15: 0000000000000003
+    ORIG_RAX: 0000000000000007  CS: 0033  SS: 002b
+
+ep_insert
+	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc)
+
+ep_ptable_queue_proc
+	init_waitqueue_func_entry(&pwq->wait, ep_poll_callback);
+
+27.13857 85533   85533   ovs-vswitchd    ep_ptable_queue_proc
+        ep_ptable_queue_proc
+        sock_poll
+        ep_item_poll
+        ep_insert
+        b'do_epoll_ctl+0x32d [kernel]'
+        b'__x64_sys_epoll_ctl+0x61 [kernel]'
+        b'do_syscall_64+0x38 [kernel]'
+        b'entry_SYSCALL_64_after_hwframe+0x44 [kernel]'
+
+25.46674 85533   89774   handler38       ep_poll_callback
+        ep_poll_callback
+        __wake_up_common_lock
+        __wake_up_sync_key
+        sock_def_readable
+        netlink_unicast
+        b'queue_userspace_packet+0x4a2 [openvswitch]'
+        b'ovs_dp_upcall+0x40 [openvswitch]'
+        b'output_userspace.isra.0+0x15f [openvswitch]'
+        b'do_execute_actions+0x3fb [openvswitch]'
+        b'ovs_execute_actions+0x48 [openvswitch]'
+        b'ovs_dp_process_packet+0xad [openvswitch]'
+        b'ovs_vport_receive+0x77 [openvswitch]'
+        b'netdev_port_receive+0xc5 [openvswitch]'
+        b'netdev_frame_hook+0x1f [openvswitch]'
+        b'__netif_receive_skb_core+0x2ba [kernel]'
+        b'__netif_receive_skb_list_core+0x12a [kernel]'
+        b'__netif_receive_skb_list+0x102 [kernel]'
+        b'netif_receive_skb_list_internal+0x138 [kernel]'
+        b'napi_complete_done+0x7a [kernel]'
+        b'mlx5e_napi_poll+0x1b2 [mlx5_core]'
+        b'__napi_poll+0x31 [kernel]'
+        b'net_rx_action+0x27b [kernel]'
+        b'__softirqentry_text_start+0xc6 [kernel]'
+        b'__irq_exit_rcu+0xcf [kernel]'
+        b'irq_exit_rcu+0xe [kernel]'
+        b'common_interrupt+0x4f [kernel]'
+        b'asm_common_interrupt+0x1e [kernel]'
+
+do_poll
+	do_pollfd
+		vfs_poll
+			file->f_op->poll (eventpoll_fops->poll ep_eventpoll_poll)
+				ep_eventpoll_poll
+					__ep_eventpoll_poll
+						list_for_each_entry_safe(eventpoll->rdllink)
+							ep_item_poll
+								vfs_poll
+									file->f_op->poll (netlink_ops->poll datagram_poll)
+
+===ovs===
+
+kernel poll function: do_pollfd
+
+process_offload_sflow
+sflow_read_set_action
+
+udpif_upcall_handler
+
+group_alloc_id_ctx
+
+udpif_create
+
+dpif_print_packet
+
+ofproto_dpif_class
+
+netdev_tc_flow_put
+
+netdev_is_flow_api_enabled
+
+join multicast group
+dpif_netlink_init(void)
+	nl_lookup_genl_mcgroup
+
+open_dpif_backer
+	backer->udpif = udpif_create
+		dpif_register_upcall_cb(dpif, upcall_cb, udpif);
+
+nl_sock_create
+
+pid is set by getsockname()
+
+in kernel, it is set by netlink_bind netlink_autobind
+
+
+dpif_netlink_operate
+try_send_to_netdev
+parse_flow_put
+flow_api->flow_put
+
+netdev_tc_flow_put
+tc_replace_flower
+nl_msg_put_flower_options
+nl_msg_put_flower_acts
+nl_msg_put_act_mirred
+
+===ovs_vport_mcgroup===
+
+main
+	bridge_wait
+		ofproto_wait
+			port_poll_wait
+				dpif_port_poll_wait
+					dpif_netlink_port_poll_wait
+						nl_sock_wait (dpif->port_notifier)
+							poll_fd_wait
+main
+	bridge_run
+		bridge_run__
+			ofproto_type_run
+				type_run
+					process_dpif_port_changes
+						dpif_port_poll
+							dpif_netlink_port_poll
+								nl_sock_create
+								nl_sock_join_mcgroup
+						process_dpif_port_change
+
+===netlink===
+
+ofproto_port_add
+
+dpif_port_add
+dpif_netlink_port_add
+	dpif_netlink_rtnl_port_create_and_add
+		dpif_netlink_refresh_channels for restart
+		dpif_netlink_port_add__
+			create_nl_sock
+				nl_sock_create (NETLINK_GENERIC)
+
+===revalidate===
+
+Thread 17 "revalidator16" hit Breakpoint 1, fix_sflow_action (user_cookie_offset=0x20, ctx=0x7fab3dff5fe0) at ofproto/ofproto-dpif-xlate.c:3325
+3325        cookie = ofpbuf_at(ctx->odp_actions, user_cookie_offset, sizeof *cookie);
+(gdb) bt
+#0  fix_sflow_action (user_cookie_offset=0x20, ctx=0x7fab3dff5fe0) at ofproto/ofproto-dpif-xlate.c:3325
+#1  xlate_actions (xin=xin@entry=0x7fab3dff6470, xout=xout@entry=0x7fab3dff6830) at ofproto/ofproto-dpif-xlate.c:7760
+#2  0x000000000043e24c in xlate_key (key=<optimized out>, len=<optimized out>, push=push@entry=0x7fab3dff67f0, ctx=ctx@entry=0x7fab3dff6810, udpif=<optimized out>)
+    at ofproto/ofproto-dpif-upcall.c:2193
+#3  0x000000000043e2cd in xlate_ukey (ctx=0x7fab3dff6810, tcp_flags=<optimized out>, ukey=0x7fab5c005d00, udpif=0x1d94400) at ofproto/ofproto-dpif-upcall.c:2208
+#4  populate_xcache (udpif=udpif@entry=0x1d94400, ukey=ukey@entry=0x7fab5c005d00, tcp_flags=<optimized out>) at ofproto/ofproto-dpif-upcall.c:2225
+#5  0x000000000043e798 in revalidate_ukey (udpif=udpif@entry=0x1d94400, ukey=ukey@entry=0x7fab5c005d00, stats=stats@entry=0x7fab3dff9268, odp_actions=odp_actions@entry=0x7fab3dff6c20,
+    reval_seq=reval_seq@entry=0x4ac, recircs=recircs@entry=0x7fab3dff6c10, offloaded=0x0) at ofproto/ofproto-dpif-upcall.c:2378
+#6  0x00000000004414be in revalidate (revalidator=<optimized out>) at ofproto/ofproto-dpif-upcall.c:2762
+#7  0x0000000000442278 in udpif_revalidator (arg=0x1d54978) at ofproto/ofproto-dpif-upcall.c:1012
+#8  0x00000000004f7231 in ovsthread_wrapper (aux_=<optimized out>) at lib/ovs-thread.c:383
+#9  0x00007fab6a6544c0 in start_thread () from /lib64/libpthread.so.0
+#10 0x00007fab6a430163 in clone () from /lib64/libc.so.6
+
+udpif_revalidator
+	revalidate
+		netdev_tc_flow_dump_create
+			tc_dump_flower_start
+		dpif_flow_dump_next
+			dpif_netlink_flow_dump_next
+				dpif_netlink_flow_from_ofpbuf
+				netdev_flow_dump_next
+					netdev_tc_flow_dump_next
+						parse_netlink_to_tc_flower
+						parse_tc_flower_to_match
+
+udpif_revalidator
+	revalidate
+		revalidate_ukey
+			revalidate_ukey__
+				xlate_ukey
+					xlate_key
+						xlate_actions(in, out)
+							fix_sflow_action
+		push_dp_ops
+			dpif_operate
+
+===upcall===
+
+user_action_cookie was composed in ovs and send to kernel.
+kernel sends back exactly the same user_action_cookie.
+So kernel needn't to know what is USER_ACTION_COOKIE_SFLOW.
+
+udpif_upcall_handler
+	recv_upcalls
+		dpif_recv
+			dpif_netlink_recv
+				dpif_netlink_recv__
+					epoll_wait
+					nl_sock_recv
+						nl_sock_recv__
+							recvmsg
+					parse_odp_packet
+						dp_packet_use_stub (initialize dp_packet)
+						OVS_PACKET_ATTR_USERDATA
+		odp_flow_key_to_flow
+			odp_flow_key_to_flow__
+				parse_flow_nlattrs
+				odp_tun_key_from_attr__
+		upcall_receive
+			classify_upcall
+				if USER_ACTION_COOKIE_SFLOW
+					return SFLOW_UPCALL
+			if MISS_UPCALL
+				xlate_lookup
+					upcall->sflow = xport->xbridge->sflow
+		pkt_metadata_from_flow
+		flow_extract
+			miniflow_extract
+			miniflow_expand
+		process_upcall
+			xlate_in_init
+				recirc_id_node_find
+			MISS_UPCALL
+				upcall_xlate
+					xlate_actions
+						compose_sflow_action
+							compose_sample_action
+								odp_put_userspace_action(pid)
+						do_xlate_actions
+							OFPACT_OUTPUT
+								xlate_output_action
+									OFPP_TABLE
+										xlate_table_action
+											rule_dpif_lookup_from_table
+									OFPP_NORMAL
+									OFPP_LOCAL
+							OFPACT_CT
+								compose_conntrack_action
+									compose_recirculate_and_fork
+										finish_freezing__
+											recirc_alloc_id_ctx
+												recirc_alloc_id__
+						fix_sflow_action
+				ukey_create_from_upcall
+					ukey_create__
+
+			SFLOW_UPCALL
+				dpif_sflow_received
+		handle_upcalls
+			ukey_install
+			ops[n_ops].dop.flow_put.group_id = upcall->xout.group_id;
+			dpif_operate
+				dpif_netlink_operate
+					try_send_to_netdev
+						parse_flow_put
+							parse_key_and_mask_to_match
+								odp_flow_key_to_flow
+								odp_flow_key_to_mask
+							info.group_id = put->group_id;
+							netdev_flow_put
+								netdev_tc_flow_put
+									tc_replace_flower (RTM_NEWTFILTER)
+					dpif_netlink_operate_chunks
+						dpif_netlink_operate__
+
+	dpif_recv_wait
+		dpif_netlink_recv_wait
+			dpif_netlink_recv_wait__
+				poll_fd_wait / poll_fd_wait_at
+					poll_create_node
+	poll_block
+		time_poll
+			poll
+
+
+parse_odp_packet
+    int type = (genl->cmd == OVS_PACKET_CMD_MISS ? DPIF_UC_MISS
+                : genl->cmd == OVS_PACKET_CMD_ACTION ? DPIF_UC_ACTION
+                : -1);
+
+===sflow===
+
+dpif_sflow_received
+sfl_sampler_writeFlowSample
+sfl_receiver_writeFlowSample
+sendSample
+*receiver->agent->sendFn \ sflow_agent_send_packet_cb
+collectors_send
+send
+
+
+set_sflow
+	dpif_sflow_add_port
+
+===hw-offload===
+
+bridge_run
+    netdev_set_flow_api_enabled
+        netdev_flow_api_enabled = true;
+        netdev_ports_flow_init
+            for each port_to_netdev
+                netdev_init_flow_api (netdev)
+
+===datapath===
+
+do_execute_actions
+	OVS_ACTION_ATTR_SAMPLE
+	sample
+		clone_execute
+			do_execute_actions
+				OVS_ACTION_ATTR_USERSPACE
+				output_userspace
+					ovs_dp_upcall
+						queue_userspace_packet
+
+===recirc===
+
+struct recirc_id_node
+
+do_xlate_actions
+OFPACT_CT
+compose_conntrack_action
+compose_recirculate_and_fork
+finish_freezing__
+recirc_alloc_id_ctx
+recirc_alloc_id__
+
+===nat===
+
+MLX5_CT_STATE_NAT_BIT
+
+===termtbl===
+
+p 1948
+
+termination_table
+
+./test-vxlan-rx-vlan-push-offload.sh
+
+mlx5_eswitch_termtbl_create
+mlx5_eswitch_termtbl_put
+mlx5_eswitch_add_termtbl_rule
+
+===cmd===
+
+genl-ctrl-list -d
+
+===libmnl===
+
+https://www.infradead.org/~tgr/libnl/doc/api/ctrl_8c_source.html
+https://raw.githubusercontent.com/cisco/ampnetworkflow/master/test_client/test_client.c
+
+===jianbo===
+
+[chrism@dev-r630-04 linux]$ git show 92ab1eb392c6a
+commit 92ab1eb392c6ac6f7fdeee4bfdfb39aa860a371f
+Author: Jianbo Liu <jianbol@mellanox.com>
+Date:   Tue Jun 25 17:48:14 2019 +0000
+
+    net/mlx5: E-Switch, Enable vport metadata matching if firmware supports it
+
+    As the ingress ACL rules save vhca id and vport number to packet's
+    metadata REG_C_0, and the metadata matching for the rules in both fast
+    path and slow path are all added, enable this feature if supported.
+
+    Signed-off-by: Jianbo Liu <jianbol@mellanox.com>
+    Reviewed-by: Roi Dayan <roid@mellanox.com>
+    Reviewed-by: Mark Bloch <markb@mellanox.com>
+    Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+
+commit 1e62e222db2e0dc7af0a89c225311d319c5d1c4f
+Author: Majd Dibbiny <majd@mellanox.com>
+Date:   Mon Jan 27 15:50:29 2020 +0200
+
+    net/mlx5: E-Switch, Use vport metadata matching only when mandatory
+
+    Multi-port RoCE mode requires tagging traffic that passes through the
+    vport.
+    This matching can cause performance degradation, therefore disable it
+    and use the legacy matching on vhca_id and source_port when possible.
+
+    Fixes: 92ab1eb392c6 ("net/mlx5: E-Switch, Enable vport metadata matching if firmware supports it")
+    Signed-off-by: Majd Dibbiny <majd@mellanox.com>
+    Reviewed-by: Mark Bloch <markb@mellanox.com>
+    Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+
+
+
+MLX5_ESWITCH_VPORT_MATCH_METADATA
+
+===table===
+
+mlx5_eswitch_add_offloaded_rule
+mlx5_esw_chains_get_table
+mlx5_esw_chains_get_table
+mlx5_esw_chains_create_fdb_prio
+
+===code===
+
+void print_nlmsghdr(void *n, size_t len)
+{
+    int i = 0;
+
+    printf("%04x: ", i);
+    for (i = 0; i < len; i++) {
+        printf("%02x " , ((char *)n)[i] & 0xff);
+        if ((i+1) % 16 == 0)
+            printf("\n%04x: ", i);
+    }
+    printf("\n");
+}
+
+
+ovs
+lib/util.c
+
+void print_nlmsghdr(void *n, size_t len)
+{
+    int i = 0;
+
+    VLOG_ERR("%04x: ", i);
+    for (i = 0; i < len; i++) {
+        VLOG_ERR("%02x " , ((char *)n)[i] & 0xff);
+        if ((i+1) % 16 == 0)
+            VLOG_ERR("\n%04x: ", i);
+    }
+    VLOG_ERR("\n");
+}
+
+==switch===
+
+mlxsw_sp_port_del_cls_matchall_sample
+mlxsw_sp_port_sample
+
+==tunnel===
+
+ip_tunnel_info_af
+metadata_dst
+_skb_refdst
+
+skb_tunnel_info
+	skb_metadata_dst
+
+ip_tun_to_nlattr
+
+odp_tun_key_from_attr__
+
+-------------
+
+mlx5e_get_flow_tunnel_id
+
+==obj===
+
+mlx5_create_encryption_key
+mlx5_ifc_create_encryption_key_in_bits
+
+mlx5_create_sampler_obj
+mlx5_ifc_sampler_obj_bits
+
+mlx5_flow_destination_type
+mlx5_flow_destination
+
+==restore===
+
+esw_create_restore_table
+	esw->offloads.restore_copy_hdr_id
+		copy MLX5_ACTION_IN_FIELD_METADATA_REG_C_1 to MLX5_ACTION_IN_FIELD_METADATA_REG_B
+
+create_fdb_chain_restore
+
+
+esw_add_restore_rule
+	flow_context->flow_tag = tag;
+
+==mlxsw===
+
+mlxsw_pci_aqs_init
+	mlxsw_pci_queue_group_init	mlxsw_pci_eq_ops	mlxsw_pci_cq_ops	mlxsw_pci_sdq_ops	mlxsw_pci_rdq_ops
+		mlxsw_pci_queue_init
+
+static const struct mlxsw_pci_queue_ops mlxsw_pci_cq_ops = {
+        .type           = MLXSW_PCI_QUEUE_TYPE_CQ,
+        .pre_init       = mlxsw_pci_cq_pre_init,
+        .init           = mlxsw_pci_cq_init,
+        .fini           = mlxsw_pci_cq_fini,
+        .tasklet        = mlxsw_pci_cq_tasklet,
+        .elem_count_f   = mlxsw_pci_cq_elem_count,
+        .elem_size_f    = mlxsw_pci_cq_elem_size
+};
+
+mlxsw_pci_cq_tasklet
+	mlxsw_pci_cqe_rdq_handle
+		mlxsw_core_skb_receive
+			mlxsw_core->rx_listener_list
+				rxl->func
+
+MLXSW_TRAP_ID_MAX
+
+mlxsw_sp1_driver
+
+mlxsw_sp1_init
+	mlxsw_sp_init
+		mlxsw_sp_traps_init (mlxsw_sp_listener)
+			mlxsw_sp_traps_register
+				mlxsw_core_trap_register
+					mlxsw_core_listener_register
+						mlxsw_core_rx_listener_register
+							list_add_rcu(&rxl_item->list, &mlxsw_core->rx_listener_list)
+
+
+struct mlxsw_listener mlxsw_sp_listener[]
+	MLXSW_RXL (MLXSW_TRAP_ID_PKT_SAMPLE)
+		mlxsw_sp_rx_listener_sample_func
+			psample_sample_packet
+
+mlxsw_pci_init
+	request_irq  (mlxsw_pci_eq_irq_handler)
+		mlxsw_pci_queue_tasklet_schedule
+			tasklet_schedule(&q->tasklet)
+
+mlxsw_pci_eq_tasklet
+		mlxsw_pci_queue_tasklet_schedule
+			tasklet_schedule(&q->tasklet)
+
+==func===
+
+mlx5_tc_sample_offload
+
+mlx5e_tc_match_to_reg_match
+mlx5e_tc_match_to_reg_set
+
+mlx5e_rep_tc_update_skb
+	psample_sample_packet
+
+mlx5e_tc_esw_init
+
+mlx5e_tc_get_flow_tun_id
+mlx5e_get_flow_tunnel_id
+
+mlx5e_handle_rx_cqe_mpwrq_rep
+
+mlx5e_tc_update_skb
+
+mlx5_esw_create_sample_mapping_id
+mlx5_esw_reg_c0_chain_obj_create
+mlx5_esw_reg_c0_sample_obj_create
+mlx5_esw_reg_c0_obj_delete
+mlx5_esw_reg_c0_obj_create
+
+mlx5e_tc_offload_fdb_rules
+parse_tc_fdb_actions
+
+mlx5_tc_ct_flow_offload
+__mlx5_tc_ct_flow_offload
+
+mlx5_tc_ct_match_add
+
+
+===gdb===
+
+(gdb) x/84b 0x7fabfc019aa0
+0x7fabfc019aa0: 0x54    0x0     0x6     0x0     0x8     0x0     0x1     0x0
+0x7fabfc019aa8: 0x99    0x99    0x99    0x19    0x48    0x0     0x2     0x0
+0x7fabfc019ab0: 0x44    0x0     0x2     0x0     0x8     0x0     0x1     0x0
+0x7fabfc019ab8: 0x7a    0xbf    0x7f    0xbc    0x34    0x0     0x2     0x0
+0x7fabfc019ac0: 0x1     0x0     0x0     0x0     0x3     0x0     0x0     0x0
+0x7fabfc019ac8: 0xb2    0x36    0xd     0xa8    0x67    0x4b    0x7     0x44
+0x7fabfc019ad0: 0xca    0xd9    0xc     0xab    0xee    0x21    0x49    0xf9
+0x7fabfc019ad8: 0x0     0x0     0x0     0x0     0x8c    0x0     0x0     0x0
+0x7fabfc019ae0: 0x0     0x0     0x0     0x0     0x0     0x0     0x0     0x0
+0x7fabfc019ae8: 0x0     0x0     0x0     0x0     0x0     0x0     0x0     0x0
+0x7fabfc019af0: 0x4     0x0     0x4     0x0
+
+sample(sample=50.0%,actions(userspace(pid=2410334920,sFlow(vid=0,pcp=0,output=62),actions)))
+
+OVS_SAMPLE_ATTR_ARG (6)
+        OVS_SAMPLE_ATTR_PROBABILITY (1) or OVS_SAMPLE_ATTR_ARG (4) for kernel
+        OVS_SAMPLE_ATTR_ACTIONS (2)
+                OVS_ACTION_ATTR_USERSPACE (2)
+                        OVS_USERSPACE_ATTR_PID (1)
+                        OVS_USERSPACE_ATTR_USERDATA (2)
+                        OVS_USERSPACE_ATTR_ACTIONS (4)
+
+==upcall_cb===
+
+netdev_sflow_attr_get
+
+udpif_start_threads
+	dpif_enable_upcall
+
+dpif_register_upcall_cb
+dpif_disable_upcall
+
+dpif_netdev_register_upcall_cb
+dpif_netdev_enable_upcall
+dpif_netdev_disable_upcall
+
+dpif_psample_poll
+dpif_netlink_psample_poll
+
+dp_netdev_upcall
+	upcall_cb
+
+==misc===
+
+/* Reg C0 usage:
+ * Reg C0 = < ESW_VHCA_ID_BITS(8) | ESW_VPORT BITS(8) | ESW_CHAIN_TAG(16) >
+ *
+ * Highest 8 bits of the reg c0 is the vhca_id, next 8 bits is vport_num,
+ * the rest (lowest 16 bits) is left for tc chain tag restoration.
+ * VHCA_ID + VPORT comprise the SOURCE_PORT matching.
+ */
+#define ESW_VHCA_ID_BITS 8
+#define ESW_VPORT_BITS 8
+#define ESW_SOURCE_PORT_METADATA_BITS (ESW_VHCA_ID_BITS + ESW_VPORT_BITS)
+#define ESW_SOURCE_PORT_METADATA_OFFSET (32 - ESW_SOURCE_PORT_METADATA_BITS)
+#define ESW_CHAIN_TAG_METADATA_BITS (32 - ESW_SOURCE_PORT_METADATA_BITS)
+#define ESW_CHAIN_TAG_METADATA_MASK GENMASK(ESW_CHAIN_TAG_METADATA_BITS - 1,\
+                                            0)
+
+
+commit 6724e66b90eebb19d146b7623b3e2af15616782b
+Author: Paul Blakey <paulb@mellanox.com>
+Date:   Sun Feb 16 12:01:35 2020 +0200
+
+    net/mlx5: E-Switch, Get reg_c1 value on miss
+
+    The HW model implicitly decapsulates tunnels on chain 0 and sets reg_c1
+    with the mapped tunnel id. On miss, the packet does not have the outer
+    header and the driver restores the tunnel information from the tunnel id.
+
+    Getting reg_c1 value in software requires enabling reg_c1 loopback and
+    copying reg_c1 to reg_b. reg_b comes up on CQE as cqe->imm_inval_pkey.
+
+    Use the reg_c0 restoration rules to also copy reg_c1 to reg_B.
+
+    Signed-off-by: Paul Blakey <paulb@mellanox.com>
+    Reviewed-by: Oz Shlomo <ozsh@mellanox.com>
+    Reviewed-by: Mark Bloch <markb@mellanox.com>
+    Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+
+[Thu Jun 18 14:20:56 2020] mlx5_eswitch_create_vport_rx_rule: vport: ffff, metadata: 0
+[Thu Jun 18 14:20:56 2020] mlx5_eswitch_create_vport_rx_rule: vport: 1, metadata: 20000
+[Thu Jun 18 14:20:56 2020] mlx5_eswitch_create_vport_rx_rule: vport: 2, metadata: 30000
+[Thu Jun 18 14:20:56 2020] mlx5_eswitch_create_vport_rx_rule: vport: 3, metadata: 40000
+
+
+[Mon Jun 15 17:04:41 2020] mlx5_core 0000:04:00.0: mlx5_cmd_check:753:(pid 6557): SET_FLOW_TABLE_ENTRY(0x936) op_mod(0x0) failed, status bad parameter(0x3), syndrome (0x4c7783)
+BAD_PARAM           | 0x4C7783 |  set_flow_table_entry: Modify action in FDB flow table can be supported only when forwarding to Vport or to FT
+
+add modify_hdr in sample_termtbl
+[Fri Jun 12 15:33:26 2020] mlx5_core 0000:04:00.0: mlx5_cmd_check:753:(pid 26682): CREATE_GENERAL_OBJECT(0xa00) op_mod(0x20) failed, status bad parameter(0x3), syndrome (0xafd05d)
+
+
+ftedump -d /dev/mst/mt4121_pciconf0 -a /mswg/release/host_fw/fw-4119/fw-4119-rel-16_28_1002/../etc/galil_def.adb --no_zero
+
+===upstream===
+
+netdev_tc_parse_nl_actions
+
+netdev_tc_flow_put
+
+meter_police_ids
+
+dpif_netlink_meter_set
+    dpif_netlink_meter_set__
+    meter_offload_set
+
+dpif_offload_sflow_recv
+dpif_offload_sflow_recv_wait
+
+dpif_offload_netlink_sflow_recv
+dpif_offload_netlink_sflow_recv_wait
+
+dpif_netlink_sflow_recv
+    sflow_offload_psample_recv
+
+udpif_upcall_handler
+    recv_offload_sflow
+
+dpif_offload_sflow_recv -> dpif_netlink_sflow_recv
+
+dpif_sflow_recv
+
+sflow_psample_recv
+
+dpif_netlink_recv
+dpif_netlink_recv_wait
+
+sflow_psample_recv_wait
+
+netdev_offload_recv
+

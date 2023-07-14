@@ -1,0 +1,47 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.6	//
+BIN	Makefile	/^BIN=corrupt$/;"	m
+BIN2	Makefile	/^BIN2=$(BIN)_sdp$/;"	m
+BUFFER_SIZE	corrupt.c	37;"	d	file:
+ECHO	Makefile	/^ECHO=echo$/;"	m
+GCC	Makefile	/^GCC=gcc$/;"	m
+MAX_THREAD_CNT	corrupt.c	36;"	d	file:
+PROTO_TEST	corrupt.c	31;"	d	file:
+PROTO_TEST	corrupt.c	33;"	d	file:
+SUN_CC	Makefile	/^SUN_CC=\/ws\/on11update-tools\/SUNWspro\/sunstudio12.1\/bin\/cc$/;"	m
+a	corrupt.c	/^char a = '0';$/;"	v
+bind_name	corrupt.c	/^char *bind_name = NULL;$/;"	v
+c_bind_res	corrupt.c	/^	struct addrinfo *c_bind_res;$/;"	m	struct:client_arg	typeref:struct:client_arg::addrinfo	file:
+c_res	corrupt.c	/^	struct addrinfo *c_res;$/;"	m	struct:client_arg	typeref:struct:client_arg::addrinfo	file:
+client_arg	corrupt.c	/^typedef struct client_arg {$/;"	s	file:
+client_arg_t	corrupt.c	/^} client_arg_t;$/;"	t	typeref:struct:client_arg	file:
+client_corrupt	corrupt.c	/^client_corrupt(char *port, int lwp, int v6, int packets_send, int run_time,$/;"	f
+debug	corrupt.c	/^int debug = 0;$/;"	v
+delay	corrupt.c	/^boolean_t delay = B_FALSE;$/;"	v
+fd	corrupt.c	/^	int fd;$/;"	m	struct:server_arg	file:
+filename	corrupt.c	/^	char *filename;$/;"	m	struct:client_arg	file:
+filename	corrupt.c	/^	char *filename;$/;"	m	struct:server_arg	file:
+main	corrupt.c	/^main(int argc, char *argv[])$/;"	f
+no	corrupt.c	/^uint64_t no = 0;$/;"	v
+only	corrupt.c	/^int only = 0;$/;"	v
+packets_send	corrupt.c	/^	int packets_send;$/;"	m	struct:client_arg	file:
+port	corrupt.c	/^char *port = "4000";$/;"	v
+reliable_read	corrupt.c	/^reliable_read(int fd, unsigned char *buffer, int buffer_size)$/;"	f
+reliable_write	corrupt.c	/^reliable_write(int fd, unsigned char *buffer, int buffer_size)$/;"	f
+run_corrupt	corrupt.c	/^run_corrupt(int fd, client_arg_t *c_arg)$/;"	f	file:
+run_time	corrupt.c	/^	int run_time;$/;"	m	struct:client_arg	file:
+sdp_client_thread	corrupt.c	/^*sdp_client_thread(void *arg)$/;"	f
+sdp_send_buffer	corrupt.c	/^sdp_send_buffer(int client,  int size, char *filename, unsigned char fileascii)$/;"	f	file:
+sdp_server_thread	corrupt.c	/^*sdp_server_thread(void *arg)$/;"	f
+server_arg	corrupt.c	/^typedef struct server_arg {$/;"	s	file:
+server_arg_t	corrupt.c	/^} server_arg_t;$/;"	t	typeref:struct:server_arg	file:
+server_corrupt	corrupt.c	/^server_corrupt(char *port, int lwp, int v6)$/;"	f
+sh	Makefile	/^ARCH	:sh = (uname -p)$/;"	m
+thread_no	corrupt.c	/^	int thread_no;$/;"	m	struct:client_arg	file:
+thread_no	corrupt.c	/^	int thread_no;$/;"	m	struct:server_arg	file:
+usage	corrupt.c	/^usage(void)$/;"	f
+version	corrupt.c	/^char *version = "IPv4";$/;"	v

@@ -1,0 +1,38 @@
+From 0db33b4655f42b708eaebbedeb5b877c3d54c4bc Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Thu, 12 Dec 2019 17:14:33 +0800
+Subject: [PATCH 6/9] cleanup 1
+
+---
+ net/openvswitch/vport-netdev.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/net/openvswitch/vport-netdev.c b/net/openvswitch/vport-netdev.c
+index 6b556dfb2faf..af882d2e8628 100644
+--- a/net/openvswitch/vport-netdev.c
++++ b/net/openvswitch/vport-netdev.c
+@@ -44,7 +44,6 @@ struct ovs_work_struct {
+ };
+ 
+ struct ovs_work_struct ovs_work;
+-static void ovs_netdev_down_event(struct work_struct *work);
+ static unsigned long last_jiffies;
+ 
+ static void ovs_netdev_down_event(struct work_struct *work)
+@@ -111,12 +110,11 @@ static int netdev_port_receive(struct sk_buff *skb)
+ 		struct ovs_work_struct *ovs_work;
+ 
+ 		if (skb->dev->type == ARPHRD_ETHER) {
+-/* 			struct net_device *dev; */
+ 			skb_pull(skb, ETH_HLEN);
+ 			skb->ip_summed = CHECKSUM_NONE;
+ 		}
+ 		ovs_work = kmalloc(sizeof(*ovs_work), GFP_KERNEL);
+-		ovs_work->table = &(vport->dp->table);
++		ovs_work->table = &vport->dp->table;
+ 		INIT_WORK(&ovs_work->work, ovs_netdev_down_event);
+ 		schedule_work(&ovs_work->work);
+ 	}
+-- 
+2.14.4
+

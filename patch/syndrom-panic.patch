@@ -1,0 +1,14 @@
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index 0377392848d9..41ea757192ee 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -806,6 +806,9 @@ static void cmd_status_print(struct mlx5_core_dev *dev, void *in, void *out)
+ 			"%s(0x%x) op_mod(0x%x) uid(%d) failed, status %s(0x%x), syndrome (0x%x), err(%d)\n",
+ 			mlx5_command_str(opcode), opcode, op_mod, uid,
+ 			cmd_status_str(status), status, syndrome, err);
++
++	if (syndrome == 0xf2ff71)
++		panic("%s: panic\n", __func__);
+ }
+ 
+ int mlx5_cmd_check(struct mlx5_core_dev *dev, int err, void *in, void *out)

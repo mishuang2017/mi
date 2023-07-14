@@ -1,0 +1,57 @@
+From 9275ee391e574fc26cfad28b10a405e6a536eb8c Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Thu, 12 Dec 2019 18:25:36 +0800
+Subject: [PATCH 9/9] refcnt
+
+---
+ net/openvswitch/datapath.c     | 5 ++++-
+ net/openvswitch/vport-netdev.c | 3 +++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index a5d7dd33745e..43824fa62a3f 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -1680,7 +1680,10 @@ static void __dp_destroy(struct datapath *dp)
+ 	 */
+ 	ovs_dp_detach_port(ovs_vport_ovsl(dp, OVSP_LOCAL));
+ 
+-	flush_workqueue(ovs_wq);
++	while (atomic_read(&dp->refcnt)) {
++		pr_info("%s: %d\n", __func__, atomic_read(&dp->refcnt));
++		flush_workqueue(ovs_wq);
++	}
+ 	/* RCU destroy the flow table */
+ 	call_rcu(&dp->rcu, destroy_dp_rcu);
+ }
+diff --git a/net/openvswitch/vport-netdev.c b/net/openvswitch/vport-netdev.c
+index 5fee3d7bfb36..5b283c282195 100644
+--- a/net/openvswitch/vport-netdev.c
++++ b/net/openvswitch/vport-netdev.c
+@@ -55,6 +55,7 @@ static void ovs_netdev_down_event(struct work_struct *work)
+ 	pr_info("%s: jiffies: %lx, last_jiffies: %lx\n", __func__, jiffies, last_jiffies);
+ 	if (last_jiffies && time_before(jiffies, last_jiffies)) {
+ 		pr_info("%s: return\n", __func__);
++		atomic_dec(&dp->refcnt);
+ 		return;
+ 	}
+ 
+@@ -74,6 +75,7 @@ static void ovs_netdev_down_event(struct work_struct *work)
+ 
+ 	ovs_lock();
+ 	ovs_flow_tbl_flush(&dp->table);
++	pr_info("%s: %d\n", __func__, atomic_read(&dp->refcnt));
+ 	atomic_dec(&dp->refcnt);
+ 	ovs_unlock();
+ 
+@@ -117,6 +119,7 @@ static int netdev_port_receive(struct sk_buff *skb)
+ 		ovs_work = kmalloc(sizeof(*ovs_work), GFP_KERNEL);
+ 		ovs_work->dp = vport->dp;
+ 		atomic_inc(&vport->dp->refcnt);
++		pr_info("%s: %d\n", __func__, atomic_read(&vport->dp->refcnt));
+ 		INIT_WORK(&ovs_work->work, ovs_netdev_down_event);
+ 		queue_work(ovs_wq, &ovs_work->work);
+ 	}
+-- 
+2.14.4
+

@@ -1,0 +1,124 @@
+From 32f5140e684847847e1754d56ecdc6deb1034ab0 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Tue, 8 Jan 2019 06:20:14 -0500
+Subject: [PATCH] mlx5_flow_stats_work
+
+---
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch.c  | 27 ++++++++++++++++++++++
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch.h  |  3 +++
+ .../ethernet/mellanox/mlx5/core/eswitch_offloads.c | 10 ++++++--
+ 3 files changed, 38 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+index 50a543a..7045573 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+@@ -1690,6 +1690,27 @@ void mlx5_eswitch_disable_sriov(struct mlx5_eswitch *esw)
+ 		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_IB);
+ }
+ 
++static void mlx5_flow_stats_work(struct work_struct *private_)
++{
++	struct mlx5_esw_offload *offloads =
++		container_of(private_, struct mlx5_esw_offload, dw.work);
++	struct mlx5_eswitch *esw = (void *)offloads - offsetof(struct mlx5_eswitch, offloads);
++	u64 add = atomic64_read(&offloads->add_flows);
++	u64 del = atomic64_read(&offloads->del_flows);
++	u64 all = atomic64_read(&offloads->num_flows);
++
++	if (add == 0 && del == 0) {
++		queue_delayed_work(esw->work_queue, &offloads->dw, HZ);
++		return;
++	}
++
++	pr_info("%s: %llu, %llu, %llu\n", __func__, add, del, all);
++	atomic64_set(&offloads->add_flows, 0);
++	atomic64_set(&offloads->del_flows, 0);
++
++	queue_delayed_work(esw->work_queue, &offloads->dw, HZ);
++}
++
+ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
+ {
+ 	int total_vports = MLX5_TOTAL_VPORTS(dev);
+@@ -1718,6 +1739,9 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
+ 		goto abort;
+ 	}
+ 
++	INIT_DELAYED_WORK(&esw->offloads.dw, mlx5_flow_stats_work);
++	queue_delayed_work(esw->work_queue, &esw->offloads.dw, HZ);
++
+ 	esw->vports = kcalloc(total_vports, sizeof(struct mlx5_vport),
+ 			      GFP_KERNEL);
+ 	if (!esw->vports) {
+@@ -1774,6 +1798,9 @@ void mlx5_eswitch_cleanup(struct mlx5_eswitch *esw)
+ 
+ 	esw_info(esw->dev, "cleanup\n");
+ 
++	flush_delayed_work(&esw->offloads.dw);
++	cancel_delayed_work(&esw->offloads.dw);
++
+ 	esw->dev->priv.eswitch = NULL;
+ 	destroy_workqueue(esw->work_queue);
+ 	esw_offloads_cleanup_reps(esw);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
+index 94de559..6136d83 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
+@@ -156,6 +156,9 @@ struct mlx5_esw_offload {
+ 	struct mutex mode_lock;
+ 	u8 inline_mode;
+ 	atomic64_t num_flows;
++	atomic64_t add_flows;
++	atomic64_t del_flows;
++	struct delayed_work dw;
+ 	u8 encap;
+ };
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index 91ccb65..90bdd5e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -62,6 +62,7 @@ void mlx5_eswitch_inc_num_flows(struct mlx5_eswitch *esw)
+ void mlx5_eswitch_dec_num_flows(struct mlx5_eswitch *esw)
+ {
+ 	atomic64_dec(&esw->offloads.num_flows);
++	atomic64_inc(&esw->offloads.del_flows);
+ }
+ 
+ struct mlx5_flow_handle *
+@@ -149,8 +150,10 @@ mlx5_eswitch_add_offloaded_rule(struct mlx5_eswitch *esw,
+ 	rule = mlx5_add_flow_rules(ft, spec, &flow_act, dest, i);
+ 	if (IS_ERR(rule))
+ 		goto out;
+-	else
++	else {
+ 		atomic64_inc(&esw->offloads.num_flows);
++		atomic64_inc(&esw->offloads.add_flows);
++	}
+ 
+ out:
+ 	return rule;
+@@ -201,8 +204,10 @@ mlx5_eswitch_add_fwd_rule(struct mlx5_eswitch *esw,
+ 
+ 	rule = mlx5_add_flow_rules(esw->fdb_table.offloads.fast_fdb, spec, &flow_act, dest, i);
+ 
+-	if (!IS_ERR(rule))
++	if (!IS_ERR(rule)) {
+ 		atomic64_inc(&esw->offloads.num_flows);
++		atomic64_inc(&esw->offloads.add_flows);
++	}
+ 
+ 	return rule;
+ }
+@@ -213,6 +218,7 @@ mlx5_eswitch_del_offloaded_rule(struct mlx5_eswitch *esw,
+ 				struct mlx5_esw_flow_attr *attr)
+ {
+ 	mlx5_del_flow_rules(rule);
++	atomic64_inc(&esw->offloads.del_flows);
+ 	atomic64_dec(&esw->offloads.num_flows);
+ }
+ 
+-- 
+1.8.3.1
+

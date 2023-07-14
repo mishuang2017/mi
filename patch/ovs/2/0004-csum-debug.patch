@@ -1,0 +1,67 @@
+From eef987adf6f0a4582603719e717e3faf19b0b5dd Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Sat, 7 Dec 2019 16:06:55 +0800
+Subject: [PATCH 4/5] csum debug
+
+---
+ net/core/skbuff.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 982d8d12830e..e3f735438670 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -41,6 +41,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/in.h>
+ #include <linux/inet.h>
++#include <linux/icmp.h>
+ #include <linux/slab.h>
+ #include <linux/tcp.h>
+ #include <linux/udp.h>
+@@ -2833,12 +2834,28 @@ EXPORT_SYMBOL(__skb_checksum_complete_head);
+  */
+ __sum16 __skb_checksum_complete(struct sk_buff *skb)
+ {
++	const struct iphdr *iph = ip_hdr(skb);
++	struct icmphdr *icp = icmp_hdr(skb);
+ 	__wsum csum;
+ 	__sum16 sum;
+ 
+ 	csum = skb_checksum(skb, 0, skb->len, 0);
+-
+ 	sum = csum_fold(csum_add(skb->csum, csum));
++
++	if (iph->saddr == 0x2010101 && iph->protocol == IPPROTO_ICMP) {
++		pr_info("%s 1: csum_valid: %d, ip_summed: %d, skb->csum: %8x, csum: %x, "
++			"sum: %x, skb->len: %d, seq: %x, checksum: %x\n",
++			__func__, skb->csum_valid, skb->ip_summed, (u32)ntohl(skb->csum),
++			(u32)ntohl(csum), (u32)sum, skb->len, ntohs(icp->un.echo.sequence),
++			(u16)ntohs(icp->checksum));
++		print_hex_dump(KERN_WARNING, "dump: ", DUMP_PREFIX_ADDRESS, 16, 1,
++			skb->head + skb->mac_header, 14, 0);
++		print_hex_dump(KERN_WARNING, "dump: ", DUMP_PREFIX_ADDRESS, 16, 1,
++			skb->head + skb->mac_header + 14, 20, 0);
++		print_hex_dump(KERN_WARNING, "dump: ", DUMP_PREFIX_ADDRESS, 16, 1,
++			skb->head + skb->mac_header + 34, 64, 0);
++	}
++
+ 	/* This check is inverted, because we already knew the hardware
+ 	 * checksum is invalid before calling this function. So, if the
+ 	 * re-computed checksum is valid instead, then we have a mismatch
+@@ -2860,6 +2877,12 @@ __sum16 __skb_checksum_complete(struct sk_buff *skb)
+ 		skb->csum_valid = !sum;
+ 	}
+ 
++	if (iph->saddr == 0x2010101) {
++		pr_info("%s 2: csum_valid: %d, ip_summed: %d, skb->csum: %8x, csum: %x, "
++			"sum: %x\n", __func__, skb->csum_valid, skb->ip_summed,
++			(u32)skb->csum, (u32)csum, (u32)sum);
++	}
++
+ 	return sum;
+ }
+ EXPORT_SYMBOL(__skb_checksum_complete);
+-- 
+2.20.1
+

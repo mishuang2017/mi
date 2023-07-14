@@ -1,0 +1,63 @@
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index f9a9067d038d..e9de4431acf6 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -2725,29 +2725,57 @@ static inline bool __skb_gro_checksum_validate_needed(struct sk_buff *skb,
+ 		(!zero_okay || check));
+ }
+ 
++struct tcphdr2 {
++	__be16 source;
++	__be16 dest;
++};
++
+ static inline __sum16 __skb_gro_checksum_validate_complete(struct sk_buff *skb,
+ 							   __wsum psum)
+ {
++	struct tcphdr2 *tcph;
++	__be16 dest;
++
++	tcph = (struct tcphdr2 *)(skb->head + skb->mac_header + 34);
++	dest = ntohs(tcph->dest);
++
+ 	if (NAPI_GRO_CB(skb)->csum_valid &&
+-	    !csum_fold(csum_add(psum, NAPI_GRO_CB(skb)->csum)))
++	    !csum_fold(csum_add(psum, NAPI_GRO_CB(skb)->csum))) {
++		if (dest == 4000)
++			pr_info("%s: return 0\n", __func__);
+ 		return 0;
++	}
+ 
+ 	NAPI_GRO_CB(skb)->csum = psum;
++	if (dest == 4000)
++		pr_info("%s: csum: %x\n", __func__, psum);
+ 
+ 	return __skb_gro_checksum_complete(skb);
+ }
+ 
+ static inline void skb_gro_incr_csum_unnecessary(struct sk_buff *skb)
+ {
++	struct tcphdr2 *tcph;
++	__be16 dest;
++
++	tcph = (struct tcphdr2 *)(skb->head + skb->mac_header + 34);
++	dest = ntohs(tcph->dest);
++
+ 	if (NAPI_GRO_CB(skb)->csum_cnt > 0) {
+ 		/* Consume a checksum from CHECKSUM_UNNECESSARY */
+ 		NAPI_GRO_CB(skb)->csum_cnt--;
++		if (dest == 4000)
++			pr_info("%s: csum_cnt: %d\n", __func__,
++				NAPI_GRO_CB(skb)->csum_cnt);
+ 	} else {
+ 		/* Update skb for CHECKSUM_UNNECESSARY and csum_level when we
+ 		 * verified a new top level checksum or an encapsulated one
+ 		 * during GRO. This saves work if we fallback to normal path.
+ 		 */
+ 		__skb_incr_checksum_unnecessary(skb);
++		if (dest == 4000)
++			pr_info("%s: ip_summed: %d, csum_level: %d\n", __func__,
++				skb->ip_summed, skb->csum_level);
+ 	}
+ }
+ 

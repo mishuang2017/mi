@@ -1,0 +1,37 @@
+#ifconfig br-ex up
+ovs-vsctl add-br br-ex
+ovs-vsctl add-br br-int
+ifconfig eth2 up
+#ifconfig eth1 0
+ovs-vsctl add-br br-int
+ifconfig br-ex 10.137.41.68/26
+ifconfig eth2 0
+ovs-vsctl add-port br-int eth1
+ovs-vsctl del-port vxlan-vtp
+ovs-vsctl add-port br-ex eth2
+ovs-vsctl add-port br-int vxlan-vtp -- set interface vxlan-vtp type=vxlan options:local_ip=10.137.41.68 options:remote_ip=10.137.41.66 options:key=100 options:dst_port=4789
+#ovs-vsctl add-port br-int vxlan-vtp -- set interface vxlan-vtp type=vxlan options:local_ip=1.1.2.5 options:remote_ip=1.1.2.4 options:key=100 options:dst_port=4789
+ovs-ofctl add-flow br-int "table=0,priority=100,in_port=eth1,action=output:vxlan-vtp"
+ovs-ofctl add-flow br-int "table=0,priority=100,in_port=vxlan-vtp,action=output:eth1"
+ifconfig eth1 up
+ifconfig eth2 0
+
+# [root@n137-041-014 logan]# ovs-vsctl show
+# 3e6093a5-8311-448d-88d1-1c0caf312c38
+#     Bridge br-int
+#         Port vxlan-vtp
+#             Interface vxlan-vtp
+#                 type: vxlan
+#                 options: {dst_port="4789", key="100", local_ip="10.137.41.68", remote_ip="10.137.41.66"}
+#         Port eth1
+#             Interface eth1
+#         Port br-int
+#             Interface br-int
+#                 type: internal
+#     Bridge br-ex
+#         Port eth2
+#             Interface eth2
+#         Port br-ex
+#             Interface br-ex
+#                 type: internal
+#     ovs_version: "2.14.3"

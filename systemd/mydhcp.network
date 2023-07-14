@@ -1,0 +1,9 @@
+# /etc/systemd/network/mydhcp.network
+
+# systemctl enable systemd-networkd
+
+[Match]
+Name=eno1
+
+[Network]
+DHCP=ipv4

@@ -1,0 +1,15 @@
+
+# /etc/systemd/system/corrupt.service
+
+Description=corrupt service
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/labhome/chrism/prg/c/corrupt/corrupt_lat_linux/corrupt -s
+
+[Install]
+WantedBy=multi-user.target

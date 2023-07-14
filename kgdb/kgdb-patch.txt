@@ -1,0 +1,120 @@
+diff --git a/Makefile b/Makefile
+index 9fce8b9..9af90b2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -366,10 +366,10 @@ HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
+ 
+ HOSTCC       = gcc
+ HOSTCXX      = g++
+-KBUILD_HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 \
+-		-fomit-frame-pointer -std=gnu89 $(HOST_LFS_CFLAGS) \
++KBUILD_HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O0 -Og -std=gnu89 -fno-inline \
++		$(HOST_LFS_CFLAGS) \
+ 		$(HOSTCFLAGS)
+-KBUILD_HOSTCXXFLAGS := -O2 $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
++KBUILD_HOSTCXXFLAGS := -O0 -Og -fno-inline $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS)
+ KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
+ KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
+ 
+@@ -669,7 +669,7 @@ else
+ ifdef CONFIG_PROFILE_ALL_BRANCHES
+ KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
+ else
+-KBUILD_CFLAGS   += -O2
++KBUILD_CFLAGS	+= -O0 -Og
+ endif
+ endif
+ 
+diff --git a/arch/x86/kernel/kgdb.c b/arch/x86/kernel/kgdb.c
+index 8e36f24..92152a8 100644
+--- a/arch/x86/kernel/kgdb.c
++++ b/arch/x86/kernel/kgdb.c
+@@ -753,7 +753,7 @@ int kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
+ 	int err;
+ 	char opc[BREAK_INSTR_SIZE];
+ 
+-	bpt->type = BP_BREAKPOINT;
++	//bpt->type = BP_BREAKPOINT;
+ 	err = probe_kernel_read(bpt->saved_instr, (char *)bpt->bpt_addr,
+ 				BREAK_INSTR_SIZE);
+ 	if (err)
+@@ -775,7 +775,7 @@ int kgdb_arch_set_breakpoint(struct kgdb_bkpt *bpt)
+ 		return err;
+ 	if (memcmp(opc, arch_kgdb_ops.gdb_bpt_instr, BREAK_INSTR_SIZE))
+ 		return -EINVAL;
+-	bpt->type = BP_POKE_BREAKPOINT;
++	//bpt->type = BP_POKE_BREAKPOINT;
+ 
+ 	return err;
+ }
+@@ -785,23 +785,24 @@ int kgdb_arch_remove_breakpoint(struct kgdb_bkpt *bpt)
+ 	int err;
+ 	char opc[BREAK_INSTR_SIZE];
+ 
+-	if (bpt->type != BP_POKE_BREAKPOINT)
+-		goto knl_write;
++	err = probe_kernel_write((char *)bpt->bpt_addr,
++		(char *)bpt->saved_instr, BREAK_INSTR_SIZE);
++	if (!err)
++		return err;
+ 	/*
+ 	 * It is safe to call text_poke() because normal kernel execution
+ 	 * is stopped on all cores, so long as the text_mutex is not locked.
+ 	 */
+ 	if (mutex_is_locked(&text_mutex))
+-		goto knl_write;
++		return -EBUSY;
+ 	text_poke((void *)bpt->bpt_addr, bpt->saved_instr, BREAK_INSTR_SIZE);
+ 	err = probe_kernel_read(opc, (char *)bpt->bpt_addr, BREAK_INSTR_SIZE);
+-	if (err || memcmp(opc, bpt->saved_instr, BREAK_INSTR_SIZE))
+-		goto knl_write;
+-	return err;
+ 
+-knl_write:
+-	return probe_kernel_write((char *)bpt->bpt_addr,
+-				  (char *)bpt->saved_instr, BREAK_INSTR_SIZE);
++	if (err)
++		return err;
++	if (memcmp(opc, bpt->saved_instr, BREAK_INSTR_SIZE))
++		return -EINVAL;
++	return err;
+ }
+ 
+ struct kgdb_arch arch_kgdb_ops = {
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 06396c1..f3e5325 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -345,16 +345,7 @@ static inline void *offset_to_ptr(const int *off)
+ # define __compiletime_error(message)
+ #endif
+ 
+-#ifdef __OPTIMIZE__
+-# define __compiletime_assert(condition, msg, prefix, suffix)		\
+-	do {								\
+-		extern void prefix ## suffix(void) __compiletime_error(msg); \
+-		if (!(condition))					\
+-			prefix ## suffix();				\
+-	} while (0)
+-#else
+ # define __compiletime_assert(condition, msg, prefix, suffix) do { } while (0)
+-#endif
+ 
+ #define _compiletime_assert(condition, msg, prefix, suffix) \
+ 	__compiletime_assert(condition, msg, prefix, suffix)
+diff --git a/include/linux/thread_info.h b/include/linux/thread_info.h
+index 8d8821b..1dd4324 100644
+--- a/include/linux/thread_info.h
++++ b/include/linux/thread_info.h
+@@ -141,10 +141,8 @@ check_copy_size(const void *addr, size_t bytes, bool is_source)
+ 	if (unlikely(sz >= 0 && sz < bytes)) {
+ 		if (!__builtin_constant_p(bytes))
+ 			copy_overflow(sz, bytes);
+-		else if (is_source)
+-			__bad_copy_from();
+ 		else
+-			__bad_copy_to();
++			dump_stack();
+ 		return false;
+ 	}
+ 	check_object_size(addr, bytes, is_source);

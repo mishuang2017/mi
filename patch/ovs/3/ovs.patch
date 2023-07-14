@@ -1,0 +1,22 @@
+diff --git a/ofproto/ofproto-dpif-upcall.c b/ofproto/ofproto-dpif-upcall.c
+index a00572063..6d2a54cbd 100644
+--- a/ofproto/ofproto-dpif-upcall.c
++++ b/ofproto/ofproto-dpif-upcall.c
+@@ -2442,6 +2442,8 @@ reval_op_init(struct ukey_op *op, enum reval_result result,
+     }
+ }
+ 
++int errors = 0;
++
+ static void
+ revalidate(struct revalidator *revalidator)
+ {
+@@ -2457,6 +2459,8 @@ revalidate(struct revalidator *revalidator)
+     reval_seq = seq_read(udpif->reval_seq);
+     atomic_read_relaxed(&udpif->flow_limit, &flow_limit);
+     dump_thread = dpif_flow_dump_thread_create(udpif->dump);
++    if (errors++ == 200)
++        vlog(NULL, 0, "%s", "a");
+     for (;;) {
+         struct ukey_op ops[REVALIDATE_MAX_BATCH];
+         int n_ops = 0;

@@ -1,0 +1,55 @@
+From 0cd556f84477ae6b822c27a97a573ad8b55c098f Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Mon, 2 Dec 2019 22:32:31 +0800
+Subject: [PATCH 3/5] bring down openvswitch port
+
+---
+ net/core/dev.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 30fc4b7db5cf..09e819312820 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4804,6 +4804,30 @@ static inline int nf_ingress(struct sk_buff *skb, struct packet_type **pt_prev,
+ 	return 0;
+ }
+ 
++static void netif_down_ovs_port_event(struct work_struct *dummy);
++static DECLARE_DELAYED_WORK(netif_down_ovs_port_work, netif_down_ovs_port_event);
++
++static void netif_down_ovs_port_event(struct work_struct *dummy)
++{
++	struct net_device *dev;
++	int ret;
++
++	rtnl_lock();
++	rcu_read_lock();
++	for_each_netdev_rcu(&init_net, dev) {
++		if (dev->priv_flags & IFF_OPENVSWITCH &&
++		    dev->flags & IFF_UP) {
++			pr_info("%s: %s: priv_flags: %x, flags: %x\n", __func__,
++				dev->name, dev->priv_flags, dev->flags);
++			ret = dev_change_flags(dev, dev->flags & ~IFF_UP, NULL);
++			pr_info("%s: %s: priv_flags: %x, flags: %x, ret: %d\n", __func__,
++				dev->name, dev->priv_flags, dev->flags, ret);
++		}
++	}
++	rcu_read_unlock();
++	rtnl_unlock();
++}
++
+ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 				    struct packet_type **ppt_prev)
+ {
+@@ -4913,6 +4937,7 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 		case RX_HANDLER_PASS:
+ 			break;
+ 		case RX_HANDLER_UPCALL_FAIL:
++			mod_delayed_work(system_wq, &netif_down_ovs_port_work, 0);
+ 			break;
+ 		default:
+ 			BUG();
+-- 
+2.20.1
+

@@ -1,0 +1,34 @@
+From c3e2e1973cc52da198513acc9e30bc40860152c2 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Wed, 11 Dec 2019 17:19:35 +0800
+Subject: [PATCH 5/9] rate_limit
+
+---
+ net/openvswitch/vport-netdev.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/net/openvswitch/vport-netdev.c b/net/openvswitch/vport-netdev.c
+index ea6814f0d693..6b556dfb2faf 100644
+--- a/net/openvswitch/vport-netdev.c
++++ b/net/openvswitch/vport-netdev.c
+@@ -52,11 +52,13 @@ static void ovs_netdev_down_event(struct work_struct *work)
+ 	struct ovs_work_struct *ovs_work = container_of(work, struct ovs_work_struct, work);
+ 	struct net_device *dev;
+ 
+-/* 	if (last_jiffies && time_after(jiffies, last_jiffies + HZ * 5)) { */
+-/* 		return; */
+-/* 	} */
+-/* 	last_jiffies = jiffies; */
++	pr_info("%s: jiffies: %lx, last_jiffies: %lx\n", __func__, jiffies, last_jiffies);
++	if (last_jiffies && time_before(jiffies, last_jiffies)) {
++		pr_info("%s: return\n", __func__);
++		return;
++	}
+ 
++	last_jiffies = jiffies + HZ;
+ 	pr_info("flow_table %px\n", ovs_work->table);
+ 
+ 	rtnl_lock();
+-- 
+2.14.4
+

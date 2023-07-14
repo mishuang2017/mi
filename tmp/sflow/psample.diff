@@ -1,0 +1,202 @@
+diff --git a/include/uapi/linux/psample.h b/include/uapi/linux/psample.h
+index ce1116cff53d..d0fed593682a 100644
+--- a/include/uapi/linux/psample.h
++++ b/include/uapi/linux/psample.h
+@@ -11,6 +11,7 @@ enum {
+ 	PSAMPLE_ATTR_GROUP_SEQ,
+ 	PSAMPLE_ATTR_SAMPLE_RATE,
+ 	PSAMPLE_ATTR_DATA,
++	PSAMPLE_ATTR_TUNNEL,
+ 
+ 	/* commands attributes */
+ 	PSAMPLE_ATTR_GROUP_REFCOUNT,
+@@ -25,6 +26,28 @@ enum psample_command {
+ 	PSAMPLE_CMD_DEL_GROUP,
+ };
+ 
++enum psample_tunnel_key_attr {
++	PSAMPLE_TUNNEL_KEY_ATTR_ID,                 /* be64 Tunnel ID */
++	PSAMPLE_TUNNEL_KEY_ATTR_IPV4_SRC,           /* be32 src IP address. */
++	PSAMPLE_TUNNEL_KEY_ATTR_IPV4_DST,           /* be32 dst IP address. */
++	PSAMPLE_TUNNEL_KEY_ATTR_TOS,                /* u8 Tunnel IP ToS. */
++	PSAMPLE_TUNNEL_KEY_ATTR_TTL,                /* u8 Tunnel IP TTL. */
++	PSAMPLE_TUNNEL_KEY_ATTR_DONT_FRAGMENT,      /* No argument, set DF. */
++	PSAMPLE_TUNNEL_KEY_ATTR_CSUM,               /* No argument. CSUM packet. */
++	PSAMPLE_TUNNEL_KEY_ATTR_OAM,                /* No argument. OAM frame.  */
++	PSAMPLE_TUNNEL_KEY_ATTR_GENEVE_OPTS,        /* Array of Geneve options. */
++	PSAMPLE_TUNNEL_KEY_ATTR_TP_SRC,	            /* be16 src Transport Port. */
++	PSAMPLE_TUNNEL_KEY_ATTR_TP_DST,		    /* be16 dst Transport Port. */
++	PSAMPLE_TUNNEL_KEY_ATTR_VXLAN_OPTS,	    /* Nested PSAMPLE_VXLAN_EXT_* */
++	PSAMPLE_TUNNEL_KEY_ATTR_IPV6_SRC,           /* struct in6_addr src IPv6 address. */
++	PSAMPLE_TUNNEL_KEY_ATTR_IPV6_DST,           /* struct in6_addr dst IPv6 address. */
++	PSAMPLE_TUNNEL_KEY_ATTR_PAD,
++	PSAMPLE_TUNNEL_KEY_ATTR_ERSPAN_OPTS,        /* struct erspan_metadata */
++	PSAMPLE_TUNNEL_KEY_ATTR_IPV4_INFO_BRIDGE,   /* No argument. IPV4_INFO_BRIDGE mode.*/
++	__PSAMPLE_TUNNEL_KEY_ATTR_MAX
++
++};
++
+ /* Can be overridden at runtime by module option */
+ #define PSAMPLE_ATTR_MAX (__PSAMPLE_ATTR_MAX - 1)
+ 
+diff --git a/net/openvswitch/actions.c b/net/openvswitch/actions.c
+index fc0efd8833c8..9a2a157d425d 100644
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -955,6 +955,7 @@ static int output_userspace(struct datapath *dp, struct sk_buff *skb,
+ 			/* Include actions. */
+ 			upcall.actions = actions;
+ 			upcall.actions_len = actions_len;
++			pr_info("%s: actions: %px, len: %d\n", __func__, actions, actions_len);
+ 			break;
+ 		}
+ 
+diff --git a/net/psample/psample.c b/net/psample/psample.c
+index 6f2fbc6b9eb2..ec5867705496 100644
+--- a/net/psample/psample.c
++++ b/net/psample/psample.c
+@@ -14,6 +14,8 @@
+ #include <net/genetlink.h>
+ #include <net/psample.h>
+ #include <linux/spinlock.h>
++#include <net/ip_tunnels.h>
++#include <net/dst_metadata.h>
+ 
+ #define PSAMPLE_MAX_PACKET_SIZE 0xffff
+ 
+@@ -207,10 +209,102 @@ void psample_group_put(struct psample_group *group)
+ }
+ EXPORT_SYMBOL_GPL(psample_group_put);
+ 
++static int __ip_tun_to_nlattr(struct sk_buff *skb,
++			      const struct ip_tunnel_key *output,
++			      const void *tun_opts, int swkey_tun_opts_len,
++			      unsigned short tun_proto, u8 mode)
++{
++	if (output->tun_flags & TUNNEL_KEY &&
++	    nla_put_be64(skb, PSAMPLE_TUNNEL_KEY_ATTR_ID, output->tun_id,
++			 PSAMPLE_TUNNEL_KEY_ATTR_PAD))
++		return -EMSGSIZE;
++
++	if (mode & IP_TUNNEL_INFO_BRIDGE)
++		return nla_put_flag(skb, PSAMPLE_TUNNEL_KEY_ATTR_IPV4_INFO_BRIDGE)
++		       ? -EMSGSIZE : 0;
++
++	switch (tun_proto) {
++	case AF_INET:
++		if (output->u.ipv4.src &&
++		    nla_put_in_addr(skb, PSAMPLE_TUNNEL_KEY_ATTR_IPV4_SRC,
++				    output->u.ipv4.src))
++			return -EMSGSIZE;
++		if (output->u.ipv4.dst &&
++		    nla_put_in_addr(skb, PSAMPLE_TUNNEL_KEY_ATTR_IPV4_DST,
++				    output->u.ipv4.dst))
++			return -EMSGSIZE;
++		break;
++	case AF_INET6:
++		if (!ipv6_addr_any(&output->u.ipv6.src) &&
++		    nla_put_in6_addr(skb, PSAMPLE_TUNNEL_KEY_ATTR_IPV6_SRC,
++				     &output->u.ipv6.src))
++			return -EMSGSIZE;
++		if (!ipv6_addr_any(&output->u.ipv6.dst) &&
++		    nla_put_in6_addr(skb, PSAMPLE_TUNNEL_KEY_ATTR_IPV6_DST,
++				     &output->u.ipv6.dst))
++			return -EMSGSIZE;
++		break;
++	}
++	if (output->tos &&
++	    nla_put_u8(skb, PSAMPLE_TUNNEL_KEY_ATTR_TOS, output->tos))
++		return -EMSGSIZE;
++	if (nla_put_u8(skb, PSAMPLE_TUNNEL_KEY_ATTR_TTL, output->ttl))
++		return -EMSGSIZE;
++	if ((output->tun_flags & TUNNEL_DONT_FRAGMENT) &&
++	    nla_put_flag(skb, PSAMPLE_TUNNEL_KEY_ATTR_DONT_FRAGMENT))
++		return -EMSGSIZE;
++	if ((output->tun_flags & TUNNEL_CSUM) &&
++	    nla_put_flag(skb, PSAMPLE_TUNNEL_KEY_ATTR_CSUM))
++		return -EMSGSIZE;
++	if (output->tp_src &&
++	    nla_put_be16(skb, PSAMPLE_TUNNEL_KEY_ATTR_TP_SRC, output->tp_src))
++		return -EMSGSIZE;
++	if (output->tp_dst &&
++	    nla_put_be16(skb, PSAMPLE_TUNNEL_KEY_ATTR_TP_DST, output->tp_dst))
++		return -EMSGSIZE;
++	if ((output->tun_flags & TUNNEL_OAM) &&
++	    nla_put_flag(skb, PSAMPLE_TUNNEL_KEY_ATTR_OAM))
++		return -EMSGSIZE;
++	if (swkey_tun_opts_len) {
++		if (output->tun_flags & TUNNEL_GENEVE_OPT &&
++		    nla_put(skb, PSAMPLE_TUNNEL_KEY_ATTR_GENEVE_OPTS,
++			    swkey_tun_opts_len, tun_opts))
++			return -EMSGSIZE;
++		else if (output->tun_flags & TUNNEL_ERSPAN_OPT &&
++			 nla_put(skb, PSAMPLE_TUNNEL_KEY_ATTR_ERSPAN_OPTS,
++				 swkey_tun_opts_len, tun_opts))
++			return -EMSGSIZE;
++	}
++
++	return 0;
++}
++
++static int ip_tun_to_nlattr(struct sk_buff *skb,
++			    const struct ip_tunnel_key *output,
++			    const void *tun_opts, int swkey_tun_opts_len,
++			    unsigned short tun_proto, u8 mode)
++{
++	struct nlattr *nla;
++	int err;
++
++	nla = nla_nest_start_noflag(skb, PSAMPLE_ATTR_TUNNEL);
++	if (!nla)
++		return -EMSGSIZE;
++
++	err = __ip_tun_to_nlattr(skb, output, tun_opts, swkey_tun_opts_len,
++				 tun_proto, mode);
++	if (err)
++		return err;
++
++	nla_nest_end(skb, nla);
++	return 0;
++}
++
+ void psample_sample_packet(struct psample_group *group, struct sk_buff *skb,
+ 			   u32 trunc_size, int in_ifindex, int out_ifindex,
+ 			   u32 sample_rate)
+ {
++	struct ip_tunnel_info *tun_info;
+ 	struct sk_buff *nl_skb;
+ 	int data_len;
+ 	int meta_len;
+@@ -278,6 +372,18 @@ void psample_sample_packet(struct psample_group *group, struct sk_buff *skb,
+ 			goto error;
+ 	}
+ 
++	tun_info = skb_tunnel_info(skb);
++	if (tun_info) {
++		int err;
++
++		err =  ip_tun_to_nlattr(nl_skb, &tun_info->key,
++					ip_tunnel_info_opts(tun_info),
++					tun_info->options_len,
++					ip_tunnel_info_af(tun_info), tun_info->mode);
++		if (err)
++			goto error;
++	}
++
+ 	genlmsg_end(nl_skb, data);
+ 	genlmsg_multicast_netns(&psample_nl_family, group->net, nl_skb, 0,
+ 				PSAMPLE_NL_MCGRP_SAMPLE, GFP_ATOMIC);
+diff --git a/net/sched/act_sample.c b/net/sched/act_sample.c
+index 5e2df590bb58..c4a0d679d5ea 100644
+--- a/net/sched/act_sample.c
++++ b/net/sched/act_sample.c
+@@ -165,6 +165,9 @@ static int tcf_sample_act(struct sk_buff *skb, const struct tc_action *a,
+ 	int iif;
+ 	int oif;
+ 
++	pr_info("%s: %s: skb->_skb_refdst: %lx\n", __func__,
++		skb->dev->name, skb->_skb_refdst);
++
+ 	tcf_lastuse_update(&s->tcf_tm);
+ 	bstats_cpu_update(this_cpu_ptr(s->common.cpu_bstats), skb);
+ 	retval = READ_ONCE(s->tcf_action);

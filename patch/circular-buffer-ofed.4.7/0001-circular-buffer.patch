@@ -1,0 +1,103 @@
+From c9f8c31bec2466e42e8115fcdfc85211df19e9c4 Mon Sep 17 00:00:00 2001
+From: Chris Mi <chrism@mellanox.com>
+Date: Thu, 14 Nov 2019 13:48:09 +0800
+Subject: [PATCH] circular buffer
+
+Change-Id: Icc2500216c5d231f3271820464128673ff8f23ae
+---
+ drivers/net/ethernet/mellanox/mlx5/core/main.c     | 45 ++++++++++++++++++++++
+ .../net/ethernet/mellanox/mlx5/core/mlx5_core.h    |  1 +
+ 2 files changed, 46 insertions(+)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index d7519a70b..08fdeaa3d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -52,6 +52,7 @@
+ #include <linux/mlx5/mlx5_ifc.h>
+ #include <linux/mlx5/vport.h>
+ #include <linux/pm.h>
++#include <stdarg.h>
+ #ifdef CONFIG_RFS_ACCEL
+ #include <linux/cpu_rmap.h>
+ #endif
+@@ -2480,6 +2481,47 @@ static void mlx5_remove_core_dir(void)
+ 	}
+ }
+ 
++struct mutex mlx5e_buf_lock;
++
++#define MLX5E_LOG_BUF_LEN   (16*PAGE_SIZE)
++
++char __mlx5e_log_buf[MLX5E_LOG_BUF_LEN] __aligned(4);
++char *mlx5e_log_buf = __mlx5e_log_buf;
++u32 mlx5e_log_buf_len = MLX5E_LOG_BUF_LEN;
++
++u16 mlx5e_log_next_seq = 0;
++u32 mlx5e_log_next_idx = 0;
++
++void mlx5e_log(char *fmt, ...)
++{
++	char va_buf[512] = {0};
++	char buf[512] = {0};
++	va_list argptr;
++	size_t len;
++	int cnt;
++
++	va_start(argptr, fmt);
++	cnt = vsnprintf(va_buf, 512, fmt, argptr);
++	va_end(argptr);
++	if (cnt > 500)
++		return;
++
++	snprintf(buf, 512, "%d: %ld: %s\n", mlx5e_log_next_seq++, jiffies, va_buf);
++	len = strlen(buf);
++
++	if (len + mlx5e_log_next_idx >= mlx5e_log_buf_len) {
++		memset(mlx5e_log_buf, 0, mlx5e_log_buf_len - mlx5e_log_next_idx - 1);
++		mlx5e_log_next_idx = 0;
++		mlx5e_log_buf = __mlx5e_log_buf;
++	}
++
++	mutex_lock(&mlx5e_buf_lock);
++	memcpy(mlx5e_log_buf, buf, len);
++	mlx5e_log_buf += len;
++	mlx5e_log_next_idx += len;
++	mutex_unlock(&mlx5e_buf_lock);
++}
++
+ static int __init init(void)
+ {
+ 	int err;
+@@ -2507,6 +2549,8 @@ static int __init init(void)
+ 	mlx5e_init();
+ #endif
+ 
++	mutex_init(&mlx5e_buf_lock);
++
+ 	return 0;
+ 
+ err_core_dir:
+@@ -2527,6 +2571,7 @@ static void __exit cleanup(void)
+ 
+ 	mlx5_remove_core_dir();
+ 	mlx5_unregister_debugfs();
++	mutex_destroy(&mlx5e_buf_lock);
+ }
+ 
+ module_init(init);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
+index 0ad69bdfc..3abecf354 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
+@@ -380,6 +380,7 @@ int mlx5_icmd_access_register(struct mlx5_core_dev *dev,
+ 
+ void mlx5e_init(void);
+ void mlx5e_cleanup(void);
++void mlx5e_log(char *fmt, ...);
+ 
+ int mlx5_modify_other_hca_cap_roce(struct mlx5_core_dev *mdev,
+ 				   u16 function_id, bool value);
+-- 
+2.14.4
+

@@ -1,0 +1,5 @@
+python /opt/neohost/sdk/get_device_performance_counters.py --mode=shell --dev-uid=0000:af:00.0 --get-analysis
+mlnx_perf -i eth2 -c 10 | grep vport_rx_packets
+virsh qemu-agent-command $name'{"execute":"guest-exec", "arguments":{"path":"/bin/touch","arg":["/root/test"],"capture-output":true}}'
+echo 0 > /sys/devices/system/cpu/cpu1/online 
+ 
