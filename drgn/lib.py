@@ -683,7 +683,7 @@ def print_mlx5_flow_group_dr(group):
     print(mlx5_fs_dr_matcher.dr_matcher)
 
 def flow_table(name, table):
-    print("\nflow table name: %s\nflow table id: %x table_level: %x, \
+    print("\nflow table name: %s\nflow table id: 0x%x table_level: %d, \
         type: %x (FS_FT_FDB: %d, FS_FT_NIC_RX: %d, FS_FT_NIC_TX, %d, \
         max_fte: %d, %x), refcount: %d" % \
         (name, table.id.value_(), table.level.value_(), table.type, \

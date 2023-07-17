@@ -31,6 +31,7 @@ mapping_ctx = esw_chains_priv.chains_mapping
 for i, chain in enumerate(hash(chains_ht, 'struct fs_chain', 'node')):
 #     print(chain)
     print("chain id: %x\nfdb_chain %x" % (chain.id, chain))
+    print("fs_base_prio: %x: fs_base_level %x" % (chain.chains.fs_base_prio, chain.chains.fs_base_level))
     for prio in list_for_each_entry('struct prio', chain.prios_list.address_of_(), 'list'):
         fdb = prio.ft
         next_fdb = prio.next_ft

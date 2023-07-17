@@ -13,7 +13,9 @@ libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
 import lib
 
-dev = lib.get_mlx5_core_dev(0)
+mlx5e_priv = lib.get_mlx5_pf0()
+dev = mlx5e_priv.mdev
+# dev = lib.get_mlx5_core_dev(0)
 print(dev.coredev_type)
 
 priv = dev.priv
@@ -38,9 +40,9 @@ def print_prio(prio):
     prio1 = prio.prio.value_()
     num_ft = prio.num_ft.value_()
 #     print("fs_prio %lx" % prio)
-    if num_ft:
-        print("prio: %x, num_level: %4d, start_level: %4d, prio: %4d, num_ft: %4d" % \
-            (prio, num_levels, start_level, prio1, num_ft))
+#     if num_ft:
+    print("prio: %x, num_level: %4d, start_level: %4d, prio: %4d, num_ft: %4d" % \
+        (prio, num_levels, start_level, prio1, num_ft))
 
 def print_table(table):
     id = table.id
