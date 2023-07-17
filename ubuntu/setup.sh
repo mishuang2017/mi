@@ -15,7 +15,7 @@ sudo apt -y install libmnl0 libmnl-dev
 
 # For bionic bcc
 sudo apt -y install bpfcc-tools linux-headers-$(uname -r)
-sudo apt -y install bison build-essential cmake flex git libedit-dev llvm python zlib1g-dev libelf-dev libclang-dev
+sudo apt -y install bison build-essential cmake flex git libedit-dev llvm zlib1g-dev libelf-dev libclang-dev
 
 # For Lua support
 sudo apt -y install luajit luajit-5.1-dev 
