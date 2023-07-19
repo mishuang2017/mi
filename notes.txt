@@ -9393,6 +9393,9 @@ systemctl set-default multi-user.target
 
 ===crash===
 
+/etc/default/kdump-tools
+KDUMP_CMDLINE_APPEND="module_blacklist=mlx5_core,mlx5_ib,mlxbf_gige,mlxbf_tmfifo,openvswitch,ib_umad,ib_uverbs,ib_cm,mlxdevm,ib_core,mlx_compat,mlxbf_pka,auth_rpcgss"
+
 https://github.com/crash-utility/crash/commit/88580068b7dd96bf679c82bdc05e146968ade10c
 
 mod -s mlx5_core /lib/modules/3.10.0-957.el7.x86_64/extra/mlnx-ofa_kernel/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.ko

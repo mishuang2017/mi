@@ -2335,46 +2335,6 @@ set -x
 set +x
 }
 
-function tc-ct
-{
-set -x
-	offload=""
-	[[ "$1" == "sw" ]] && offload="skip_hw"
-	[[ "$1" == "hw" ]] && offload="skip_sw"
-
-	TC=/images/cmi/iproute2/tc/tc
-	TC=tc
-
-	$TC qdisc del dev $rep2 ingress
-	$TC qdisc del dev $rep3 ingress
-
-	ethtool -K $rep2 hw-tc-offload on 
-	ethtool -K $rep3 hw-tc-offload on 
-
-	$TC qdisc add dev $rep2 ingress 
-	$TC qdisc add dev $rep3 ingress 
-
-	src_mac=02:25:d0:$host_num:01:02
-	dst_mac=02:25:d0:$host_num:01:03
-#	tc filter add dev eth5 protocol ip parent ffff: chain 0 flower ct_state -trk    action ct    action goto chain 1
-#	tc filter add dev eth5 protocol ip parent ffff: chain 1 flower ct_state +trk+est    action mirred egress redirect dev eth6
-
-	tc filter add dev $rep2 prio 1 protocol ip parent ffff: chain 0 flower ct_state -trk		action ct pipe	action goto chain 1
-	tc filter add dev $rep2 prio 1 protocol ip parent ffff: chain 1 flower ct_state +trk+est	action mirred egress redirect dev $rep3
-
-#	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: chain 0 flower $offload src_mac $src_mac dst_mac $dst_mac action goto chain 1
-#	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: chain 1 flower $offload src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: chain 0 flower $offload src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: chain 0 flower $offload src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
-	src_mac=02:25:d0:$host_num:01:03
-	dst_mac=02:25:d0:$host_num:01:02
-	$TC filter add dev $rep3 prio 1 protocol ip  parent ffff: chain 0 flower $offload src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
-	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: chain 0 flower $offload src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
-	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: chain 0 flower $offload src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
-set +x
-}
-
-
 function tc-vf-chain1
 {
 set -x
