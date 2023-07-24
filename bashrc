@@ -5798,6 +5798,7 @@ set -x
 set +x
 }
 
+alias tc8=br_stack_devices_ct
 function br_stack_devices_ct
 {
 set -x
@@ -7926,7 +7927,10 @@ function git-send-email-test
 	chmod +x $script
 }
 
-
+function panic2
+{
+	echo b > /proc/sysrq-trigger
+}
 
 function panic
 {
