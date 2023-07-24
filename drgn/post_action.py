@@ -19,3 +19,4 @@ flow_table("", post_act.ft)
 # for node in radix_tree_for_each(post_act.ids):
 #     print(node)
 #     mlx5_flow_attr = Object(prog, 'struct mlx5_flow_attr', address=node[1].value_())
+#     print(mlx5_flow_attr)

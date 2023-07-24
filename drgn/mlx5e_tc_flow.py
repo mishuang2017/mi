@@ -18,6 +18,8 @@ for x, dev in enumerate(get_netdevs()):
     addr = dev.value_()
     if "enp" not in name and "p0" not in name:
         continue;
+#     if "enp8s0f0_1" not in name:
+#         continue
 
     mlx5e_priv_addr = addr + prog.type('struct net_device').size
     mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
@@ -34,7 +36,7 @@ for x, dev in enumerate(get_netdevs()):
 #         print(flow.attr.esw_attr[0])
         print("============================== %d, %x =========================" % (j, flow))
         print_mlx5e_tc_flow(flow)
-        print(flow.attr.esw_attr[0])
+#         print(flow.attr.esw_attr[0])
         j=j+1
 #         print(flow.attrs)
         k=1
@@ -49,4 +51,4 @@ for x, dev in enumerate(get_netdevs()):
 #             print("flow.attr: %x" % mlx5_flow_attr)
 #             print(mlx5_flow_attr.post_act_handle)
 #             print(mlx5_flow_attr.parse_attr)
-            print(mlx5_flow_attr.esw_attr[0])
+#             print(mlx5_flow_attr.esw_attr[0])

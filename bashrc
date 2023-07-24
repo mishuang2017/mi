@@ -2074,7 +2074,7 @@ set -x
 
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
-	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 48856 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 # set +x
@@ -5511,6 +5511,7 @@ set +x
 
 function tc_stack_devices
 {
+	remote_mac=e8:eb:d3:98:24:ac
 	if [[ -z "$remote_mac" ]]; then
 		echo "no remote_mac"
 		return
@@ -8804,6 +8805,21 @@ function tcs
 	echo $TC
 	echo "=== ingress ==="
 	$TC -s filter show dev $1 ingress
+	if (( $# == 2 )); then
+		echo "=== egress ==="
+		$TC -s filter show dev $1 egress
+	fi
+}
+
+function tcs1
+{
+	(( $# < 1 )) && return
+	TC=tc
+	test -f /images/cmi/iproute2/tc/tc && TC=/images/cmi/iproute2/tc/tc
+	test -f /opt/mellanox/iproute2/sbin/tc && TC=/opt/mellanox/iproute2/sbin/tc
+	echo $TC
+	echo "=== ingress ==="
+	$TC -s filter show protocol ip dev $1 ingress
 	if (( $# == 2 )); then
 		echo "=== egress ==="
 		$TC -s filter show dev $1 egress
