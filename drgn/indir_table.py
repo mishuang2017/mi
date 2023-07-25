@@ -30,5 +30,4 @@ for i in range(256):
         flow_table("", ft)
         node = node.next
 
-        print(obj)
-
+#         print(obj)

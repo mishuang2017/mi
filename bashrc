@@ -5713,7 +5713,7 @@ set -x
 		ct_state -trk			\
 		action ct pipe			\
 		action goto chain 1
-	$TC filter add dev $rep2 protocol ip  parent ffff: chain 1  prio 2 flower $offload \
+	$TC filter add dev $rep2 protocol ip  parent ffff: chain 1  prio 3 flower $offload \
 		src_mac $local_vm_mac		\
 		dst_mac $remote_vm_mac		\
 		ct_state +trk+new		\
@@ -5746,7 +5746,7 @@ set -x
 		ct_state -trk			\
 		action ct pipe			\
 		action goto chain 1
-	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 2 flower $offload	\
+	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 3 flower $offload	\
 		src_mac $remote_vm_mac		\
 		dst_mac $local_vm_mac		\
 		enc_src_ip $link_remote_ip	\
