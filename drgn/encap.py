@@ -9,7 +9,8 @@ import sys
 import os
 
 sys.path.append(".")
-from lib import *
+# from lib import *
+from lib_pedit import *
 
 # mlx5e_priv = get_mlx5_pf0()
 # struct mlx5_esw_offload
@@ -57,8 +58,9 @@ def print_encap(rep_priv):
                 offset = offsetof(prog.type("struct mlx5e_tc_flow"), "encaps")
                 addr = addr.value_() - offset
                 flow = Object(prog, 'struct mlx5e_tc_flow', address=addr)
-#                 print(flow)
-#                 print_mlx5e_tc_flow(flow)
+#                 print("mlx5e_tc_flow %x" % addr)
+                print_mlx5e_tc_flow(flow.address_of_())
+                print_mod_hdr_key(flow.attr.mh.key)
 #                 print_completion(flow.init_done)
 
 mlx5e_rep_priv = get_mlx5e_rep_priv()

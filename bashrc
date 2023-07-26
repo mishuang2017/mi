@@ -178,7 +178,8 @@ if (( cloud == 1 )); then
 	rep3=${link}_2
 	rep4=${link}_3
 
-	(( host_num == 21 )) && remote_mac=b8:ce:f6:82:d5:54
+	(( host_num == 25 )) && remote_mac=10:70:fd:65:8a:78
+	(( host_num == 63 )) && remote_mac=e8:eb:d3:98:24:ac
 fi
 
 if (( host_num == 0 )); then
@@ -5511,7 +5512,6 @@ set +x
 
 function tc_stack_devices
 {
-	remote_mac=10:70:fd:65:8a:78
 	if [[ -z "$remote_mac" ]]; then
 		echo "no remote_mac"
 		return
@@ -5617,10 +5617,10 @@ set -x
 set +x
 }
 
+alias ip9='ifconfig eth2 192.168.1.24/24 up'
 alias tc9=tc_stack_devices_ct
 function tc_stack_devices_ct
 {
-	remote_mac=10:70:fd:65:8a:78
 	if [[ -z "$remote_mac" ]]; then
 		echo "no remote_mac"
 		return
@@ -5664,6 +5664,7 @@ function tc_stack_devices_ct
 	vf3_mac=02:25:d0:$host_num:01:03
 
 set -x
+	kmsg "0"
 	$TC filter add dev $rep1 prio 1 protocol ip   parent ffff: flower $offload src_mac $vf1_mac dst_mac $remote_mac action mirred egress redirect dev $link
 	$TC filter add dev $rep1 prio 2 protocol arp  parent ffff: flower skip_hw src_mac $vf1_mac dst_mac $remote_mac action mirred egress redirect dev $link
 	$TC filter add dev $rep1 prio 3 protocol arp  parent ffff: flower skip_hw src_mac $vf1_mac dst_mac $brd_mac action mirred egress redirect dev $link
@@ -5689,6 +5690,7 @@ set -x
 	remote_vm_mac=$vxlan_mac
 
 	# arp
+	kmsg "1"
 	$TC filter add dev $rep2 protocol arp parent ffff: prio 1 flower skip_hw	\
 		src_mac $local_vm_mac		\
 		action tunnel_key set		\
@@ -5707,12 +5709,14 @@ set -x
 		action mirred egress redirect dev $rep2
 
 
-	$TC filter add dev $rep2 protocol ip  parent ffff: chain 0  prio 2 flower $offload \
-		src_mac $local_vm_mac		\
-		dst_mac $remote_vm_mac		\
-		ct_state -trk			\
-		action ct pipe			\
-		action goto chain 1
+	kmsg "2"
+# 	$TC filter add dev $rep2 protocol ip  parent ffff: chain 0  prio 2 flower $offload \
+# 		src_mac $local_vm_mac		\
+# 		dst_mac $remote_vm_mac		\
+# 		ct_state -trk			\
+# 		action ct pipe			\
+# 		action goto chain 1
+	kmsg "2-1"
 	$TC filter add dev $rep2 protocol ip  parent ffff: chain 1  prio 3 flower $offload \
 		src_mac $local_vm_mac		\
 		dst_mac $remote_vm_mac		\
@@ -5724,18 +5728,22 @@ set -x
 		dst_port $vxlan_port		\
 		id $vni				\
 		action mirred egress redirect dev $vx
-	$TC filter add dev $rep2 protocol ip  parent ffff: chain 1 prio 2 flower $offload \
-		src_mac $local_vm_mac		\
-		dst_mac $remote_vm_mac		\
-		ct_state +trk+est		\
-		action tunnel_key set		\
-		src_ip $link_ip			\
-		dst_ip $link_remote_ip		\
-		dst_port $vxlan_port		\
-		id $vni				\
-		action mirred egress redirect dev $vx
+	kmsg "2-2"
+# 	$TC filter add dev $rep2 protocol ip  parent ffff: chain 1 prio 2 flower $offload \
+# 		src_mac $local_vm_mac		\
+# 		dst_mac $remote_vm_mac		\
+# 		ct_state +trk+est		\
+# 		action tunnel_key set		\
+# 		src_ip $link_ip			\
+# 		dst_ip $link_remote_ip		\
+# 		dst_port $vxlan_port		\
+# 		id $vni				\
+# 		action mirred egress redirect dev $vx
 
+set +x
+	return
 
+	kmsg "3"
 	$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
 		src_mac $remote_vm_mac		\
 		dst_mac $local_vm_mac		\

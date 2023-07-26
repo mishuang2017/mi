@@ -9,11 +9,12 @@ import os
 import subprocess
 import drgn
 import socket
-
 # print(__name__)
 
 # prog = drgn.program_from_core_dump("/var/crash/vmcore.0")
 prog = drgn.program_from_kernel()
+
+# from lib_pedit import print_mod_hdr_key
 
 def kernel(name):
     b = os.popen('uname -r')
@@ -1081,7 +1082,9 @@ def print_mlx5_rx_tun_attr(tun_attr):
 #         (ipv4(ntohl(tun_attr.src_ip.v4)), ipv4(ntohl(tun_attr.dst_ip.v4))))
 
 def print_mlx5e_tc_flow(flow):
+    print("\n============================= start ===========================\n")
 #     print("mlx5e_tc_flow.peer_flow %x" % flow.peer_flow)
+    print("esw_attr.dests[].flags")
     MLX5_ESW_DEST_ENCAP = prog['MLX5_ESW_DEST_ENCAP']
     MLX5_ESW_DEST_ENCAP_VALID = prog['MLX5_ESW_DEST_ENCAP_VALID']
     MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE = prog['MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE']
@@ -1105,6 +1108,7 @@ def print_mlx5e_tc_flow(flow):
 #     print("mlx5_flow_spec %lx" % parse_attr.spec.address_of_())
 
     print("flow.attr: %x" % flow.attr)
+#     print(flow_attr.mh)
     print("flow_attr.flags %x" % flow_attr.flags)
     # usualy 0 
 #     print("flow.attr.tc_act_cookies_count: %d" % flow.attr.tc_act_cookies_count)
