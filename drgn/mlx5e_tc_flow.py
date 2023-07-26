@@ -8,7 +8,7 @@ import os
 
 libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
-from lib import *
+from lib_pedit import *
 
 print_mlx5e_tc_flow_flags()
 
@@ -36,6 +36,10 @@ for x, dev in enumerate(get_netdevs()):
 #         print(flow.attr.esw_attr[0])
         print("============================== %d, %x =========================" % (j, flow))
         print_mlx5e_tc_flow(flow)
+        if flow.attr.mh:
+#             print(flow.attr.mh.modify_hdr)
+            print("modify_hdr id: %x" % flow.attr.mh.modify_hdr.id)
+            print_mod_hdr_key(flow.attr.mh.key)
 #         print(flow.attr.esw_attr[0])
         j=j+1
 #         print(flow.attrs)
@@ -47,6 +51,9 @@ for x, dev in enumerate(get_netdevs()):
             print("flow.attr.tc_act_cookies_count: %d" % mlx5_flow_attr.tc_act_cookies_count)
             for m in range(mlx5_flow_attr.tc_act_cookies_count):
                 print("tc_act_cookies[%d]: %x" % (m, mlx5_flow_attr.tc_act_cookies[m]))
+            if mlx5_flow_attr.mh:
+                print("modify_hdr id: %x" % mlx5_flow_attr.mh.modify_hdr.id)
+                print_mod_hdr_key(mlx5_flow_attr.mh.key)
 #             print(mlx5_flow_attr)
 #             print("flow.attr: %x" % mlx5_flow_attr)
 #             print(mlx5_flow_attr.post_act_handle)

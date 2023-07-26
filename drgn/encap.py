@@ -60,6 +60,7 @@ def print_encap(rep_priv):
                 flow = Object(prog, 'struct mlx5e_tc_flow', address=addr)
 #                 print("mlx5e_tc_flow %x" % addr)
                 print_mlx5e_tc_flow(flow.address_of_())
+                print("modify_hdr id: %x" % flow.attr.mh.modify_hdr.id)
                 print_mod_hdr_key(flow.attr.mh.key)
 #                 print_completion(flow.init_done)
 

@@ -40,6 +40,7 @@ for i in range(256):
         print("mlx5e_mod_hdr_handle %lx, mod_hdr_id 0x%lx refcnt: %d" % \
             (obj.value_(), mlx5e_mod_hdr_handle.modify_hdr.id.value_(), mlx5e_mod_hdr_handle.refcnt.refs.counter))
 
+        print("modify_hdr id: %x" % mlx5e_mod_hdr_handle.modify_hdr.id)
         print_mod_hdr_key(mlx5e_mod_hdr_handle.key)
 
         node = node.next
