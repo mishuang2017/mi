@@ -8914,6 +8914,7 @@ function ofed_install
 {
 # 	build=OFED-internal-5.2-0.2.8 /mswg/release/ofed/ofed_install --force --basic
 	build=MLNX_OFED_LINUX-5.6-0.7.8.0/    /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
+	build=OFED-internal-23.07-0.4.1  /mswg/release/ofed/ofed_install --force --basic
 }
 
 # alias ofed-configure2="./configure -j32 --with-linux=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --kernel-version=4.7-rc7 --kernel-sources=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-ipoib-mod --with-mlx5-mod"
