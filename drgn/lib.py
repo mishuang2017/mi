@@ -580,7 +580,7 @@ def print_tuple(tuple, ct):
     if protonum == IPPROTO_UDP:
         dport = ntohs(tuple.tuple.dst.u.udp.port.value_())
         sport = ntohs(tuple.tuple.src.u.udp.port.value_())
-    if dport != 5001 and dport != 4000:
+    if dport != 5001 and dport != 4000 and dport != 20000:
         return
 
     print("============================================================")
@@ -948,7 +948,7 @@ def print_match(fte, mask):
 def print_flow_offload_tuple(t):
 #     print(t)
     print("\t\tflow_offload_tuple %lx" % t.address_of_())
-    print("\t\tsrc_v4: %10s" % ipv4(socket.ntohl(t.src_v4.s_addr.value_())), end='\t')
+    print("\t\t\tsrc_v4: %10s" % ipv4(socket.ntohl(t.src_v4.s_addr.value_())), end='\t')
     print("dst_v4: %10s" % ipv4(socket.ntohl(t.dst_v4.s_addr.value_())), end='\t')
     print("src_port: %6d" % socket.ntohs(t.src_port.value_()), end='\t')
     print("dst_port: %6d" % socket.ntohs(t.dst_port.value_()), end='\t')

@@ -12291,4 +12291,9 @@ mlx5_ifc_flow_table_prop_layout_bits
 
 mlx5dr_cmd_flow_table_create
 
-===ipsec===
+===iperf===
+
+udp
+iperf -c 1.1.1.1 -t 10000 -i 1 -u -m -l 500
+
+
