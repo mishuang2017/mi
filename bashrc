@@ -5447,6 +5447,16 @@ set -x
 set +x
 }
 
+function brx_bf
+{
+set -x
+	del-br
+	ovs-vsctl add-br br0-ovs
+	ovs-vsctl add-port br0-ovs pf0vf0
+	ovs-vsctl add-port br0-ovs vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=1.1.1.3  options:key=flow options:dst_port=4789 options:tos=inherit
+set +x
+}
+
 function br_gre
 {
 set -x

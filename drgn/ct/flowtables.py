@@ -13,8 +13,12 @@ from lib import *
 
 flowtables = prog['flowtables']
 
+NF_FLOWTABLE_HW_OFFLOAD = prog['NF_FLOWTABLE_HW_OFFLOAD']
+NF_FLOWTABLE_COUNTER = prog['NF_FLOWTABLE_COUNTER']
+
 for nf_ft in list_for_each_entry('struct nf_flowtable', flowtables.address_of_(), 'list'):
     print("nf_flowtable %lx" % nf_ft)
+    print("nf_flowtable.flags: %x, NF_FLOWTABLE_HW_OFFLOAD: %x, NF_FLOWTABLE_COUNTER %d" % (nf_ft.flags, NF_FLOWTABLE_HW_OFFLOAD, NF_FLOWTABLE_COUNTER))
 #     print(nf_ft)
     print(nf_ft.type)
     gc_work_func = nf_ft.gc_work.work.func

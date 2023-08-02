@@ -307,7 +307,7 @@ nf_flow_offload_gc_step
 
 flow_offload_work_handler(FLOW_CLS_DESTROY)
 	flow_offload_work_del(FLOW_OFFLOAD_DIR_ORIGINAL)
-	flow_offload_work_delFLOW_OFFLOAD_DIR_REPLY)
+	flow_offload_work_del(FLOW_OFFLOAD_DIR_REPLY)
 	set_bit(NF_FLOW_HW_DEAD)
 
 7.037005 8055    8055    kworker/4:1     mlx5_eswitch_del_offloaded_rule
