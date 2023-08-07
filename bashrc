@@ -5450,12 +5450,18 @@ set +x
 function brx_bf
 {
 set -x
+	BRIDGE=br0-ovs
 	del-br
-	ovs-vsctl add-br br0-ovs
-# 	ovs-vsctl add-port br0-ovs pf0vf0
-# 	ovs-vsctl add-port br0-ovs eth0
-	ovs-vsctl add-port br0-ovs ens4f0v0
-	ovs-vsctl add-port br0-ovs vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=1.1.1.3  options:key=flow options:dst_port=4789
+	ovs-vsctl add-br $BRIDGE
+	ovs-vsctl add-port $BRIDGE pf0vf0
+	ovs-vsctl add-port $BRIDGE vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=1.1.1.3  options:key=flow options:dst_port=4789
+
+	ovs-ofctl del-flows  $BRIDGE
+	ovs-ofctl add-flow   $BRIDGE "table=0,arp,action=normal"
+	ovs-ofctl add-flow   $BRIDGE "table=1,priority=1,ip,ct_state=+trk+new,action=ct(commit,zone=2),normal"
+	ovs-ofctl add-flow   $BRIDGE "table=0,ip,ct_state=-trk,action=ct(table=1,zone=2)"
+	ovs-ofctl add-flow   $BRIDGE "table=1,priority=1,ip,ct_state=+trk+est,action=normal"
+	ovs-ofctl dump-flows $BRIDGE --color
 set +x
 }
 
