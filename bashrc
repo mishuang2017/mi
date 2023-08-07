@@ -5455,6 +5455,8 @@ set -x
 	ovs-vsctl add-br $BRIDGE
 	ovs-vsctl add-port $BRIDGE pf0vf0
 	ovs-vsctl add-port $BRIDGE vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=1.1.1.3  options:key=flow options:dst_port=4789
+	ifconfig p0 1.1.1.1/24 up
+	ovs-vsctl set Open_vSwitch . other_config:max-idle=120000 # (120s)
 
 	ovs-ofctl del-flows  $BRIDGE
 	ovs-ofctl add-flow   $BRIDGE "table=0,arp,action=normal"
@@ -5462,6 +5464,20 @@ set -x
 	ovs-ofctl add-flow   $BRIDGE "table=0,ip,ct_state=-trk,action=ct(table=1,zone=2)"
 	ovs-ofctl add-flow   $BRIDGE "table=1,priority=1,ip,ct_state=+trk+est,action=normal"
 	ovs-ofctl dump-flows $BRIDGE --color
+
+	BRIDGE=br1-ovs
+	ovs-vsctl add-br $BRIDGE
+	ovs-vsctl add-port $BRIDGE pf1vf0
+	ovs-vsctl add-port $BRIDGE vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=2.2.2.2  options:key=flow options:dst_port=4789
+	ifconfig p1 2.2.2.1/24 up
+
+	ovs-ofctl del-flows  $BRIDGE
+	ovs-ofctl add-flow   $BRIDGE "table=0,arp,action=normal"
+	ovs-ofctl add-flow   $BRIDGE "table=1,priority=1,ip,ct_state=+trk+new,action=ct(commit,zone=2),normal"
+	ovs-ofctl add-flow   $BRIDGE "table=0,ip,ct_state=-trk,action=ct(table=1,zone=2)"
+	ovs-ofctl add-flow   $BRIDGE "table=1,priority=1,ip,ct_state=+trk+est,action=normal"
+	ovs-ofctl dump-flows $BRIDGE --color
+
 set +x
 }
 
@@ -6184,14 +6200,7 @@ alias bt='del-br; r; brx-ct'
 
 function counters_tc_ct
 {
-	uname -a | grep 5.4.19 > /dev/null
-	if (( $? == 0 )); then
-		file=/sys/class/net/$link/device/counters_tc_ct
-	fi
-	uname -a | grep 4.19.36 > /dev/null
-	if (( $? == 0 )); then
-		file=/sys/class/net/$link/device/sriov/pf/counters_tc_ct
-	fi
+	file=/sys/kernel/debug/mlx5/0000:03:00.0/ct/offloaded
 	while :; do
 		sleep 1
 		cat $file

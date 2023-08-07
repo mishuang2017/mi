@@ -228,6 +228,9 @@ tcf_ct_act
 				rhashtable_insert_fast
 				__set_bit(NF_FLOW_HW, &flow->flags);
 				nf_flow_offload_add
+					nf_flow_offload_work_alloc
+						alloc struct flow_offload_work
+						test_and_set_bit(NF_FLOW_HW_PENDING, &flow->flags)
 					flow_offload_queue_work
 						schedule_work(&nf_flow_offload_work);
 							flow_offload_work_handler
@@ -272,7 +275,8 @@ tcf_ct_act
 																	mlx5_eswitch_add_offloaded_rule
 										set_bit(IPS_HW_OFFLOAD_BIT, &offload->flow->ct->status)
 									nf_flow_offload_destroy
-
+							clear_bit(NF_FLOW_HW_PENDING, &offload->flow->flags)
+							free(struct flow_offload_work)
 
 
 					nf_flow_offload_tuple
