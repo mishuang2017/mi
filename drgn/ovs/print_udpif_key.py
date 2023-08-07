@@ -28,7 +28,7 @@ for i in range(N_UMAPS):
         keys = print_cmap(cmap, "udpif_key", "cmap_node")
         for j, key in enumerate(keys):
 #             print(key)
-#             print_ufid(key.ufid)
+            print_ufid(key.ufid)
             print("reval_seq: %d" % key.reval_seq)
             print(key.actions)
 #             print("key_recird_id: %d" % key.key_recirc_id)

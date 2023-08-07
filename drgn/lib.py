@@ -580,7 +580,7 @@ def print_tuple(tuple, ct):
     if protonum == IPPROTO_UDP:
         dport = ntohs(tuple.tuple.dst.u.udp.port.value_())
         sport = ntohs(tuple.tuple.src.u.udp.port.value_())
-    if dport != 5001 and dport != 4000 and dport != 20000:
+    if dport != 5001 and dport != 4000 and dport != 20000 and dport != 8080:
         return
 
     print("============================================================")
@@ -947,8 +947,8 @@ def print_match(fte, mask):
 
 def print_flow_offload_tuple(t):
 #     print(t)
-    print("\t\tflow_offload_tuple %lx" % t.address_of_())
-    print("\t\t\tsrc_v4: %10s" % ipv4(socket.ntohl(t.src_v4.s_addr.value_())), end='\t')
+    print("\tflow_offload_tuple %lx" % t.address_of_())
+    print("\tsrc_v4: %10s" % ipv4(socket.ntohl(t.src_v4.s_addr.value_())), end='\t')
     print("dst_v4: %10s" % ipv4(socket.ntohl(t.dst_v4.s_addr.value_())), end='\t')
     print("src_port: %6d" % socket.ntohs(t.src_port.value_()), end='\t')
     print("dst_port: %6d" % socket.ntohs(t.dst_port.value_()), end='\t')
@@ -958,13 +958,14 @@ def print_flow_offload_tuple(t):
     print('')
 
 def print_flow_offload(flow, dir):
-    print("\tflow_offload %lx" % flow)
+    print("flow_offload %lx" % flow)
     if dir == 0:
         print("\tdir = 0")
     else:
         print("\tdir = 1")
-    print("\t\tnf_conn %lx" % flow.ct)
-    print("\t\tflags: %x, timeout: %x, type: %d" % (flow.flags, flow.timeout, flow.type), end='\t')
+#     print("\ttimeout: %d" % flow.timeout)
+    print("\tnf_conn %lx" % flow.ct)
+    print("\tflags: %x, timeout: %x, type: %d" % (flow.flags, flow.timeout, flow.type), end='\t')
     print("(NF_FLOW_HW_ESTABLISHED: %x)" % (1 << prog['NF_FLOW_HW_ESTABLISHED'].value_()), end=' ')
     print("(NF_FLOW_HW_BIDIRECTIONAL: %x)" % (1 << prog['NF_FLOW_HW_BIDIRECTIONAL'].value_()), end=' ')
     print("(NF_FLOW_HW: %x)" % (1 << prog['NF_FLOW_HW'].value_()), end=' ')

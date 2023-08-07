@@ -47,9 +47,11 @@ def print_handlers():
 # print(dpif_netlink_flow_dump)
 
 
-# ukeys = udpif.ukeys
-# for i in range(512):
-#     print("%d: %d" % (i, ukeys[i].cmap.impl.p.n.value_()))
+ukeys = udpif.ukeys
+for i in range(512):
+    key = ukeys[i].cmap.impl.p.n.value_()
+    if key:
+        print("%d: %d" % (i, key))
 
 n_revalidators = prog['n_revalidators']
 print("n_revalidators: %d" %n_revalidators)

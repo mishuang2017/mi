@@ -5452,8 +5452,10 @@ function brx_bf
 set -x
 	del-br
 	ovs-vsctl add-br br0-ovs
-	ovs-vsctl add-port br0-ovs pf0vf0
-	ovs-vsctl add-port br0-ovs vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=1.1.1.3  options:key=flow options:dst_port=4789 options:tos=inherit
+# 	ovs-vsctl add-port br0-ovs pf0vf0
+# 	ovs-vsctl add-port br0-ovs eth0
+	ovs-vsctl add-port br0-ovs ens4f0v0
+	ovs-vsctl add-port br0-ovs vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=1.1.1.3  options:key=flow options:dst_port=4789
 set +x
 }
 
@@ -10300,14 +10302,19 @@ set -x
 	ethtool -K $rep3 hw-tc-offload on;
 	$TC qdisc add dev $rep3 ingress
 
+	echo "add arp rules"
+	$TC filter add dev $rep2 ingress protocol arp prio 1 flower skip_hw \
+		action mirred egress redirect dev $rep3
+
+	$TC filter add dev $rep3 ingress protocol arp prio 1 flower skip_hw \
+		action mirred egress redirect dev $rep2
+
 	mac1=02:25:d0:$host_num:01:02
 	mac2=02:25:d0:$host_num:01:03
 	echo "add ct rules"
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac2 ct_state -trk \
 		action ct pipe action goto chain 1
-# set +x
-# 	return
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \
@@ -10318,7 +10325,8 @@ set -x
 		dst_mac $mac2 ct_state +trk+est \
 		action mirred egress redirect dev $rep3
 
-
+# set +x
+# 	return
 
 	$TC filter add dev $rep3 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac1 ct_state -trk \
@@ -10333,12 +10341,6 @@ set -x
 		dst_mac $mac1 ct_state +trk+est \
 		action mirred egress redirect dev $rep2
 
-	echo "add arp rules"
-	$TC filter add dev $rep2 ingress protocol arp prio 1 flower skip_hw \
-		action mirred egress redirect dev $rep3
-
-	$TC filter add dev $rep3 ingress protocol arp prio 1 flower skip_hw \
-		action mirred egress redirect dev $rep2
 set +x
 }
 

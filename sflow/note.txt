@@ -215,11 +215,12 @@ flow_offload_queue_work
         ret_from_fork+0x35 [kernel]
 
 tcf_ct_act
+	tcf_ct_flow_table_lookup <- find flow_offload according to skb
 	tcf_ct_flow_table_process_conn
 		tcf_ct_flow_table_add
 			test_and_set_bit( IPS_OFFLOAD_BIT , &ct->status)
 			struct flow_offload *flow = flow_offload_alloc
-				flow_offload_fill_dir(FLOW_OFFLOAD_DIR_ORIGINAL)
+				flow_offload_fill_dir(FLOW_OFFLOAD_DIR_ORIGINAL) <- fill flow_offload tuple according to ct tuple
 					set flow_offload_tuple which is mlx5_ct_entry.cookie
 				flow_offload_fill_dir(FLOW_OFFLOAD_DIR_REPLY)
 			flow_offload_add
@@ -240,9 +241,10 @@ tcf_ct_act
 									flow_offload_tuple_del (offload, FLOW_OFFLOAD_DIR_REPLY);
 									set_bit( NF_FLOW_HW_DEAD , &offload->flow->flags);
 								flow_offload_work_add
-									nf_flow_offload_alloc
+									nf_flow_offload_alloc <- fill nf_flow_rule according to flow_offload
 										nf_flow_offload_rule_alloc (FLOW_OFFLOAD_DIR_ORIGINAL) alloc nf_flow_rule
 											flowtable->type->action / tcf_ct_flow_table_fill_actions
+												set_bit(NF_FLOW_HW_ESTABLISHED, &flow->flags)
 												tcf_ct_flow_table_add_action_nat
 													tcf_ct_flow_table_add_action_nat_ipv4
 														tcf_ct_add_mangle_action

@@ -35,5 +35,5 @@ for nf_ft in list_for_each_entry('struct nf_flowtable', flowtables.address_of_()
  
     tuple_hash = nf_ft.rhashtable
     for i, rhash in enumerate(hash(tuple_hash, 'struct flow_offload_tuple_rhash', 'node')):
-        print("flow_offload_tuple %lx" % rhash.tuple.address_of_())
+#         print("\tflow_offload_tuple %lx" % rhash.tuple.address_of_())
         print_tuple_rhash_tuple(rhash)
