@@ -21,7 +21,11 @@ host_num=$(hostname | cut -d '-' -f 5 | sed 's/0*//')
 host_num=$((host_num % 100))
 cloud=1
 bf=0
-[[ "$(uname -m)" == "aarch64" ]] && bf=1
+bf_ubuntu=0
+if [[ "$(uname -m)" == "aarch64" ]]; then
+	test -f /usr/bin/lsb_release && bf_ubuntu=1
+	bf=1
+fi
 if [[ "$(hostname -s)" == "dev-r630-03" ]]; then
 	host_num=13
 	cloud=0
@@ -5480,6 +5484,41 @@ set -x
 
 set +x
 }
+
+function brx_bf_nat
+{
+set -x
+	BRIDGE=br0-ovs
+	del-br
+	ovs-vsctl add-br $BRIDGE
+	ovs-vsctl add-port $BRIDGE pf0vf0
+	ovs-vsctl add-port $BRIDGE vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=1.1.1.3  options:key=flow options:dst_port=4789
+	ifconfig p0 1.1.1.1/24 up
+	ovs-vsctl set Open_vSwitch . other_config:max-idle=120000 # (120s)
+
+	ovs-ofctl del-flows  $BRIDGE
+	ovs-ofctl add-flow   $BRIDGE "table=0,arp,actions=NORMAL"
+	ovs-ofctl add-flow   $BRIDGE "table=0,ip,ct_state=-trk,action=ct(table=1, zone=2)"
+	ovs-ofctl add-flow   $BRIDGE "table=1,priority=1,ip,ct_state=+trk+new,action=ct(commit, zone=2,nat(src=5.5.1.1-5.5.255.255:2000-3000)),NORMAL"
+	ovs-ofctl add-flow   $BRIDGE "table=1,priority=1,ip,ct_state=+trk+est,action=ct(zone=2, nat),NORMAL"
+	ovs-ofctl dump-flows $BRIDGE --color
+
+	BRIDGE=br1-ovs
+	ovs-vsctl add-br $BRIDGE
+	ovs-vsctl add-port $BRIDGE pf1vf0
+	ovs-vsctl add-port $BRIDGE vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=2.2.2.2  options:key=flow options:dst_port=4789
+	ifconfig p1 2.2.2.1/24 up
+
+	ovs-ofctl del-flows  $BRIDGE
+	ovs-ofctl add-flow   $BRIDGE "table=0,arp,actions=NORMAL"
+	ovs-ofctl add-flow   $BRIDGE "table=0,ip,ct_state=-trk,action=ct(table=1, zone=2)"
+	ovs-ofctl add-flow   $BRIDGE "table=1,priority=1,ip,ct_state=+trk+new,action=ct(commit, zone=2,nat(src=5.5.1.1-5.5.255.255:2000-3000)),NORMAL"
+	ovs-ofctl add-flow   $BRIDGE "table=1,priority=1,ip,ct_state=+trk+est,action=ct(zone=2, nat),NORMAL"
+	ovs-ofctl dump-flows $BRIDGE --color
+
+set +x
+}
+
 
 function br_gre
 {
@@ -14211,7 +14250,7 @@ function install_sshask
 	sudo apt install sshpass ssh-askpass
 }
 
-fi
+fi # uuu
 
 function autoprobe
 {
