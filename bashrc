@@ -218,10 +218,10 @@ base_baud=115200
 base_baud=9600
 
 cpu_num=$(nproc)
-if (( cloud == 0 )); then
-	cpu_num2=$((cpu_num*2))
+if (( cpu_num > 2 )); then
+	cpu_num2=$((cpu_num-2))
 else
-	cpu_num2=$((cpu_num-1))
+	cpu_num2=1
 fi
 
 if which kdump-config > /dev/null 2>&1; then
@@ -1003,12 +1003,12 @@ function cloud_setup0
 function bf2_linux
 {
 	cd /images/cmi
-	cp /swgwork/cmi/bf2/linux.tar.gz .
-	tar zvxf linux.tar.gz
-	/bin/rm -f linux.tar.gz &
+	cp /swgwork/cmi/linux-bluefield-5.15.tar.gz .
+	tar zvxf linux-bluefield-5.15.tar.gz
+	ln -s linux-bluefield-5.15 linux
+	/bin/rm -f linux-bluefield-5.15.tar.gz &
 	cd linux
-	/bin/cp -f /swgwork/cmi/config.bf .config
-	sml
+	/bin/cp -f /swgwork/cmi/config.bf2.5.15 .config
 
 	make-all all
 }
@@ -13963,6 +13963,9 @@ function none_test
 	echo 3 > /sys/class/net/enp8s0f0/device/sriov_numvfs
 }
 
+alias mount_arm1="/auto/GLIT/lab-support/scripts/mount_script/mount.sh -r 10.237.0.35 -u root -p"
+alias mount_arm2="/auto/GLIT/lab-support/scripts/mount_script/mount.sh -r 10.237.0.34 -u root -p"
+
 ######## uuu #######
 
 if [[ -f /usr/bin/lsb_release ]]; then
@@ -14036,8 +14039,8 @@ function cloud_setup
 		return
 	fi
 # 	build_ctags
-	sudo apt install -y cscope tmux screen rsync iperf3 htop pciutils vim diffstat texinfo gdb \
-		dh-autoreconf kexec-tools zip bison flex cmake llvm
+	sudo apt install -y kexec-tools cscope tmux screen rsync iperf3 htop pciutils vim diffstat texinfo gdb \
+		dh-autoreconf zip bison flex cmake llvm
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
 	sudo apt install -y python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
@@ -14066,23 +14069,24 @@ function cloud_setup
 
 function cloud_setup0
 {
-	clone-bin
+	cd /root
+	test -d /root/bin || clone-bin
+	test -d /root/mi || clone-mi
+
+	if ! test -f /root/.tmux.conf; then
+		/bin/cp /root/mi/tmux.conf /root/.tmux.conf
+		/bin/cp /root/mi/vimrc /root/.vimrc
+		/bin/cp -r /root/mi/vim /root/.vim
+		/bin/mv /root/.bashrc /root/bashrc.orig > /dev/null
+		ln -s /root/mi/bashrc /root/.bashrc
+	fi
 
 	/root/bin/sudoer.sh
 	mkdir -p /images/cmi
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-	apt install -y cscope tmux screen exuberant-ctags rsync  iperf3 htop pciutils vim diffstat texinfo gdb zip
-
-	if ! test -f ~/.tmux.conf; then
-		mv ~/.bashrc bashrc.orig
-		ln -s ~cmi/.bashrc
-		ln -s ~cmi/.tmux.conf
-		ln -s ~cmi/.vimrc
-		ln -s ~cmi/.vim
-		/bin/cp ~cmi/.crash /root
-	fi
+	apt install -y cscope tmux screen exuberant-ctags rsync iperf3 htop pciutils vim diffstat texinfo gdb zip
 }
 
 function root-login
@@ -14138,7 +14142,7 @@ function ln-crash
 	cd $crash_dir
 	local dir=$(ls -td $(date +%Y)*/ | head -1)
 	local n=$(ls vmcore* | wc -l)
-	ln -s ${dir}dump* vmcore.$n
+	cat ${dir}dump* | makedumpfile-R.pl ../vmcore.$n
 	ln -s ${dir}dmesg* $n.dmesg
 }
 
