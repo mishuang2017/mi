@@ -981,23 +981,29 @@ function create-images
 
 function cloud_setup0
 {
+	cd /root
+	test -d /root/bin || clone-bin
+	test -d /root/mi || clone-mi
+
+	if ! test -f /root/.tmux.conf; then
+		/bin/cp /root/mi/tmux.conf /root/.tmux.conf
+		/bin/cp /root/mi/screenrc /root/.screenrc
+		/bin/cp /root/mi/vimrc /root/.vimrc
+		/bin/cp -r /root/mi/vim /root/.vim
+		/bin/mv /root/.bashrc /root/bashrc.orig > /dev/null
+		ln -s /root/mi/bashrc /root/.bashrc
+	fi
+
+	/root/bin/sudoer.sh
 	mkdir -p /images/cmi
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-
-	if ! test -f ~/.tmux.conf; then
-# 		mv ~/.bashrc bashrc.orig
-# 		ln -s ~cmi/.bashrc
-		ln -s ~cmi/.tmux.conf
-		ln -s ~cmi/.vimrc
-		ln -s ~cmi/.vim
-		/bin/cp ~cmi/.crash /root
+	if (( bf_ubuntu == 1 )); then
+		apt install -y cscope tmux screen exuberant-ctags
+	else
+		yum install -y cscope tmux screen ctags
 	fi
-
-	yum -y install cscope tmux screen ctags rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb
-	yum -y install python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel ibutils
-	yum_bcc
 }
 
 function bf2_linux
@@ -13029,8 +13035,7 @@ function build_libkdumpfile
 	sm
 	git clone https://github.com/ptesarik/libkdumpfile
 	cd libkdumpfile/
-	(( bf_ubuntu == 1 ))  && ln -s /usr/bin/python3-config /usr/bin/python-config
-# 	sudo yum install -y python-devel
+	update-alternatives --install /usr/bin/python-config python-config /usr/bin/python3-config 20
 	autoreconf -fi
 	make-usr
 }
@@ -14000,11 +14005,12 @@ function build_bcc
 	sudo apt install -y zip bison build-essential cmake flex git libedit-dev \
 	  libllvm14 llvm-14-dev libclang-14-dev python3 zlib1g-dev libelf-dev libfl-dev python3-setuptools \
 	  liblzma-dev libdebuginfod-dev arping netperf iperf
-	cd bcc
 	mkdir -p bcc/build; cd bcc/build
 	cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-	time make -j
+	time make -j $cpu_num2
 	sudo make install
+
+	update-alternatives --install /usr/bin/python python /usr/bin/python3 20
 }
 
 function build_dpdk
@@ -14047,7 +14053,7 @@ function cloud_setup
 
 	if (( UID == 0 )); then
 		echo "please run as non-root user"
-		return
+		read
 	fi
 # 	build_ctags
 	sudo apt install -y linux-crashdump kexec-tools rsync iperf3 htop pciutils vim diffstat texinfo gdb \
@@ -14066,37 +14072,15 @@ function cloud_setup
 
 	cloud_grub
 
-# 	sm
-# 	git clone https://github.com/iovisor/bcc.git
-	apt install -y bpfcc-tools
+	sm
+	git clone https://github.com/iovisor/bcc.git
+	build_bcc
+# 	apt install -y bpfcc-tools
 
 	sm
 	clone-crash
 	cd crash
 	make lzo -j 4
-}
-
-function cloud_setup0
-{
-	cd /root
-	test -d /root/bin || clone-bin
-	test -d /root/mi || clone-mi
-
-	if ! test -f /root/.tmux.conf; then
-		/bin/cp /root/mi/tmux.conf /root/.tmux.conf
-		/bin/cp /root/mi/screenrc /root/.screenrc
-		/bin/cp /root/mi/vimrc /root/.vimrc
-		/bin/cp -r /root/mi/vim /root/.vim
-		/bin/mv /root/.bashrc /root/bashrc.orig > /dev/null
-		ln -s /root/mi/bashrc /root/.bashrc
-	fi
-
-	/root/bin/sudoer.sh
-	mkdir -p /images/cmi
-	chown cmi.mtl /images/cmi
-	ln -s ~cmi/mi /images/cmi
-
-	apt install -y cscope tmux screen exuberant-ctags
 }
 
 function root-login
