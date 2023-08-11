@@ -14040,9 +14040,10 @@ function cloud_setup
 		dh-autoreconf kexec-tools zip bison flex cmake llvm
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
-	sudo apt install -y python3-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
+	sudo apt install -y python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
 
 	# sudo update-alternatives --config python3
+	ln -s /usr/bin/python3-config /usr/bin/python-config
 	install_libkdumpfile
 	sm
 	clone-drgn
@@ -14065,6 +14066,9 @@ function cloud_setup
 
 function cloud_setup0
 {
+	clone-bin
+
+	/root/bin/sudoer.sh
 	mkdir -p /images/cmi
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
