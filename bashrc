@@ -1063,7 +1063,7 @@ set -x
 	fi
 set +x
 
-	install_libkdumpfile
+	build_libkdumpfile
 	sm
 	clone-drgn
 	cd drgn
@@ -1075,7 +1075,6 @@ set +x
 
 # 	sm
 # 	git clone https://github.com/iovisor/bcc.git
-# 	install_bcc
 	if (( bf == 1 )); then
 		apt install -y bpfcc-tools
 	fi
@@ -1886,11 +1885,11 @@ function make-all
 	[[ "$1" == "all" ]] && make olddefconfig
 	make -j $cpu_num2 || return
 
-	sudo INSTALL_MOD_STRIP=1 make modules_install -j $cpu_num2
-	sudo make INSTALL_STRIP=yes install
+# 	sudo INSTALL_MOD_STRIP=1 make modules_install -j $cpu_num2
+# 	sudo make INSTALL_STRIP=yes install
 
-# 	sudo make modules_install -j $cpu_num2
-# 	sudo make install
+	sudo make modules_install -j $cpu_num2
+	sudo make install
 
 	[[ "$1" == "all" ]] && sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B > /dev/null
 
@@ -13025,7 +13024,7 @@ set +x
 	done
 }
 
-function install_libkdumpfile
+function build_libkdumpfile
 {
 	sm
 	git clone https://github.com/ptesarik/libkdumpfile
@@ -13636,7 +13635,7 @@ function ovs_flush_rules
 #     prog = drgn.program_from_pid(ovs_pid())
 # Exception: /usr/lib64/libcap-ng.so.0.0.0: .debug_abbrev+0x29d: unknown attribute form 7968
 # use latest code
-function install_libcap-ng
+function build_libcap-ng
 {
 	sm
 	git clone https://github.com/stevegrubb/libcap-ng.git
@@ -14040,6 +14039,7 @@ function build_doca
 	ninja -C build install
 }
 
+# ubuntu
 function cloud_setup
 {
 	local branch=$1
@@ -14050,14 +14050,14 @@ function cloud_setup
 		return
 	fi
 # 	build_ctags
-	sudo apt install -y linux-crashdump kexec-tools cscope tmux screen rsync iperf3 htop pciutils vim diffstat texinfo gdb \
-		dh-autoreconf zip bison flex cmake llvm
+	sudo apt install -y linux-crashdump kexec-tools rsync iperf3 htop pciutils vim diffstat texinfo gdb \
+		dh-autoreconf zip bison flex cmake llvm sshpass ssh-askpass
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
 	sudo apt install -y python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
 
 	# sudo update-alternatives --config python3
-	install_libkdumpfile
+	build_libkdumpfile
 	sm
 	clone-drgn
 	cd drgn
@@ -14068,7 +14068,6 @@ function cloud_setup
 
 # 	sm
 # 	git clone https://github.com/iovisor/bcc.git
-# 	install_bcc
 	apt install -y bpfcc-tools
 
 	sm
@@ -14085,6 +14084,7 @@ function cloud_setup0
 
 	if ! test -f /root/.tmux.conf; then
 		/bin/cp /root/mi/tmux.conf /root/.tmux.conf
+		/bin/cp /root/mi/screenrc /root/.screenrc
 		/bin/cp /root/mi/vimrc /root/.vimrc
 		/bin/cp -r /root/mi/vim /root/.vim
 		/bin/mv /root/.bashrc /root/bashrc.orig > /dev/null
@@ -14096,7 +14096,7 @@ function cloud_setup0
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-	apt install -y cscope tmux screen exuberant-ctags rsync iperf3 htop pciutils vim diffstat texinfo gdb zip
+	apt install -y cscope tmux screen exuberant-ctags
 }
 
 function root-login
@@ -14270,11 +14270,6 @@ alias status='systemctl status openvswitch-switch'
 alias status2='systemctl status openvswitch-nonetwork.service'
 alias mkconfig=grub-mkconfig
 alias mkconfig_cfg='grub-mkconfig -o /boot/grub/grub.cfg'
-
-function install_sshask
-{
-	sudo apt install sshpass ssh-askpass
-}
 
 fi # uuu
 
