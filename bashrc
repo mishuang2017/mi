@@ -1875,12 +1875,19 @@ function make-all
 	unset CONFIG_LOCALVERSION_AUTO
 	[[ "$1" == "all" ]] && make olddefconfig
 	make -j $cpu_num2 || return
-# 	sudo INSTALL_MOD_STRIP=1 make modules_install -j $cpu_num2
-	sudo make modules_install -j $cpu_num2
-	sudo make install
+
+	sudo INSTALL_MOD_STRIP=1 make modules_install -j $cpu_num2
+	sudo make INSTALL_STRIP=yes install
+
+# 	sudo make modules_install -j $cpu_num2
+# 	sudo make install
+
 	[[ "$1" == "all" ]] && sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B > /dev/null
 
-	/bin/rm -rf ~/.ccache
+	# for bluefield
+	sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
+
+# 	/bin/rm -rf ~/.ccache
 }
 alias m=make-all
 alias mm='sudo make modules_install -j; sudo make install; headers_install'
@@ -13968,6 +13975,11 @@ if (( host_num == 200 )); then
 	link=wlp2s0
 fi
 
+function grub_timeout
+{
+	sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
+}
+
 function build_bcc
 {
 	sm
@@ -14123,6 +14135,7 @@ function ln-crash
 	local dir=$(ls -td $(date +%Y)*/ | head -1)
 	local n=$(ls vmcore* | wc -l)
 	ln -s ${dir}dump* vmcore.$n
+	ln -s ${dir}dmesg* $n.dmesg
 }
 
 # uncomment the following for built-in kernel
