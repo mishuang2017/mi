@@ -13030,6 +13030,7 @@ function install_libkdumpfile
 	sm
 	git clone https://github.com/ptesarik/libkdumpfile
 	cd libkdumpfile/
+	(( bf_ubuntu == 1 ))  && ln -s /usr/bin/python3-config /usr/bin/python-config
 # 	sudo yum install -y python-devel
 	autoreconf -fi
 	make-usr
@@ -14049,14 +14050,13 @@ function cloud_setup
 		return
 	fi
 # 	build_ctags
-	sudo apt install -y kexec-tools cscope tmux screen rsync iperf3 htop pciutils vim diffstat texinfo gdb \
+	sudo apt install -y linux-crashdump kexec-tools cscope tmux screen rsync iperf3 htop pciutils vim diffstat texinfo gdb \
 		dh-autoreconf zip bison flex cmake llvm
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
 	sudo apt install -y python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
 
 	# sudo update-alternatives --config python3
-	ln -s /usr/bin/python3-config /usr/bin/python-config
 	install_libkdumpfile
 	sm
 	clone-drgn
