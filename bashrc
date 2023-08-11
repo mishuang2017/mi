@@ -14152,7 +14152,7 @@ function ln-crash
 	cd $crash_dir
 	local dir=$(ls -td $(date +%Y)*/ | head -1)
 	local n=$(ls vmcore* | wc -l)
-	cat ${dir}dump* | makedumpfile-R.pl ../vmcore.$n
+	cat ${dir}dump* | makedumpfile-R.pl $crash_dir/vmcore.$n
 	ln -s ${dir}dmesg* $n.dmesg
 }
 
