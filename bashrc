@@ -421,7 +421,7 @@ alias clone-systemtap='git clone git://sourceware.org/git/systemtap.git'
 alias clone-systemd='git clone git@github.com:systemd/systemd.git'
 alias clone-crash-upstream='git clone git@github.com:crash-utility/crash.git'
 alias clone-crash='git clone https://github.com/mishuang2017/crash.git'
-alias clone-mi='git clone https://github.com/mishuang2017/mi'
+alias clone-mi='git clone https://github.com/mishuang2017/mi --branch=master'
 alias clone-bin='git clone https://github.com/mishuang2017/bin.git'
 alias clone-c='git clone https://github.com/mishuang2017/c.git'
 alias clone-rpmbuild='git clone git@github.com:mishuang2017/rpmbuild.git'
@@ -1867,6 +1867,16 @@ function headers_install
 	sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B
 }
 
+function update_grub
+{
+	sed -i 's/GRUB_TIMEOUT_STYLE=countdown/GRUB_TIMEOUT_STYLE=menu/' /etc/default/grub
+	sed -i 's/GRUB_TIMEOUT=2/GRUB_TIMEOUT=6/' /etc/default/grub
+	echo GRUB_DISABLE_SUBMENU=y >> /etc/default/grub
+	/bin/rm -rf /etc/grub.d/40_custom
+	update-grub
+	sudo sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
+}
+
 function make-all
 {
 	[[ $UID == 0 ]] && return
@@ -1885,7 +1895,7 @@ function make-all
 	[[ "$1" == "all" ]] && sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B > /dev/null
 
 	# for bluefield
-	sudo sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
+	(( bf_ubuntu == 1 )) && update_grub
 
 # 	/bin/rm -rf ~/.ccache
 }
@@ -14340,6 +14350,12 @@ function cloud_grub
 		fi
 
 		sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=512M\"/" /etc/default/grub
+		if (( bf_ubuntu == 1 )); then
+			sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
+cat << EOF >> /etc/default/kdump-tools
+KDUMP_CMDLINE_APPEND="module_blacklist=mlx5_core,mlx5_ib,mlxbf_gige,mlxbf_tmfifo,openvswitch,ib_umad,ib_uverbs,ib_cm,mlxdevm,ib_core,mlx_compat,mlxbf_pka,auth_rpcgss"
+EOF
+		fi
 		sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 		build_kexec
 		build_makedumpfile
