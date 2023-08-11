@@ -1885,7 +1885,7 @@ function make-all
 	[[ "$1" == "all" ]] && sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B > /dev/null
 
 	# for bluefield
-	sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
+	sudo sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
 
 # 	/bin/rm -rf ~/.ccache
 }
