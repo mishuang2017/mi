@@ -1014,7 +1014,7 @@ function bf2_linux
 	ln -s linux-bluefield-5.15 linux
 	/bin/rm -f linux-bluefield-5.15.tar.gz &
 	cd linux
-	/bin/cp -f /swgwork/cmi/config.bf2.5.15 .config
+	/bin/cp -f /swgwork/cmi/config.bf2.5.15/config .config
 
 	make-all all
 }
@@ -14340,7 +14340,6 @@ EOF
 		build_makedumpfile
 	fi
 }
-alias cl_grub=cloud_grub
 
 test -f ~cmi/mi/cloud_alias && source ~cmi/mi/cloud_alias
 
