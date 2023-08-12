@@ -1049,7 +1049,7 @@ function cloud_setup
 # 	build_ctags
 	sudo yum install -y cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
 		python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
-		bcc-tools
+		bcc-tools pv minicom
 	sudo yum install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo yum install -y python-devel
 	sudo yum install -y platform-python-devel
@@ -13035,7 +13035,7 @@ function build_libkdumpfile
 	sm
 	git clone https://github.com/ptesarik/libkdumpfile
 	cd libkdumpfile/
-	update-alternatives --install /usr/bin/python-config python-config /usr/bin/python3-config 20
+	sudo update-alternatives --install /usr/bin/python-config python-config /usr/bin/python3-config 20
 	autoreconf -fi
 	make-usr
 }
