@@ -14330,12 +14330,14 @@ function cloud_grub
 
 		sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=512M\"/" /etc/default/grub
 		if (( bf_ubuntu == 1 )); then
-			sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
-cat << EOF >> /etc/default/kdump-tools
+			sudo sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
+			sudo bash -c 'cat << EOF >> /etc/default/kdump-tools
 KDUMP_CMDLINE_APPEND="module_blacklist=mlx5_core,mlx5_ib,mlxbf_gige,mlxbf_tmfifo,openvswitch,ib_umad,ib_uverbs,ib_cm,mlxdevm,ib_core,mlx_compat,mlxbf_pka,auth_rpcgss"
 EOF
+'
+		else
+			sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 		fi
-		sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 		build_kexec
 		build_makedumpfile
 	fi
