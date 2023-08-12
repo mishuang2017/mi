@@ -1046,7 +1046,6 @@ function cloud_setup
 		echo "please run as non-root user"
 		return
 	fi
-# 	build_ctags
 	sudo yum install -y cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
 		python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
 		bcc-tools pv minicom
@@ -14055,7 +14054,7 @@ function cloud_setup
 		echo "please run as non-root user"
 		read
 	fi
-# 	build_ctags
+
 	sudo apt install -y linux-crashdump kexec-tools rsync iperf3 htop pciutils vim diffstat texinfo gdb \
 		dh-autoreconf zip bison flex cmake llvm sshpass ssh-askpass
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
@@ -14824,4 +14823,13 @@ set -x
 	ovs-ofctl -O OpenFlow13 add-flow br1 in_port=$rep2,ip,tcp,actions=meter:1,output:$rep3
 	ovs-ofctl -O OpenFlow13 add-flow br1 in_port=$rep3,ip,tcp,actions=meter:1,output:$rep2
 set +x
+}
+
+function enable_ip_forward
+{
+	sudo bash -c 'cat << EOF >> /etc/sysctl.conf
+net.ipv4.ip_forward = 1
+EOF
+'
+	sudo sysctl -p
 }
