@@ -14010,7 +14010,7 @@ function build_bcc
 	time make -j $cpu_num2
 	sudo make install
 
-	update-alternatives --install /usr/bin/python python /usr/bin/python3 20
+	sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 20
 }
 
 function build_dpdk
