@@ -1873,11 +1873,11 @@ function headers_install
 
 function update_grub
 {
-	sed -i 's/GRUB_TIMEOUT_STYLE=countdown/GRUB_TIMEOUT_STYLE=menu/' /etc/default/grub
-	sed -i 's/GRUB_TIMEOUT=2/GRUB_TIMEOUT=6/' /etc/default/grub
-	echo GRUB_DISABLE_SUBMENU=y >> /etc/default/grub
-	/bin/rm -rf /etc/grub.d/40_custom
-	update-grub
+	sudo sed -i 's/GRUB_TIMEOUT_STYLE=countdown/GRUB_TIMEOUT_STYLE=menu/' /etc/default/grub
+	sudo sed -i 's/GRUB_TIMEOUT=2/GRUB_TIMEOUT=6/' /etc/default/grub
+	sudo echo GRUB_DISABLE_SUBMENU=y >> /etc/default/grub
+	sudo /bin/rm -rf /etc/grub.d/40_custom
+	sudo update-grub
 	sudo sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
 }
 
