@@ -9114,6 +9114,8 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+# echo 1 > /sys/kernel/tracing/events/netlink/netlink_extack/enable
+
 # verify secure boot
 sudo mokutil --sb-state
 

@@ -5093,8 +5093,6 @@ set -x
     ovs-vsctl add-br br-int
     ovs-vsctl add-port br-int $rep1
     ovs-vsctl add-port br-int $rep2
-    ovs-vsctl add-port br-int $rep3
-    ovs-vsctl add-port br-int $rep4
     ovs-vsctl add-port br-int $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit
 
     mirror1
@@ -9207,6 +9205,7 @@ function nat-vf
 {
 set -x
 	del-br
+	vf2=eth3
 	ifconfig $rep2 1.1.1.254/24 up
 	ip netns exec n11 ifconfig $vf2 1.1.1.1/24 up
 	ip netns exec n11 ip r add default via 1.1.1.254
@@ -9215,7 +9214,7 @@ set -x
 
  	iptables -t nat -A POSTROUTING -s 1.1.1.1/32 -j SNAT --to-source 8.9.10.13
 	ifconfig $link 8.9.10.13/24 up
-	ssh 10.75.205.14 ifconfig $link 8.9.10.11/24 up
+# 	ssh 10.75.205.14 ifconfig $link 8.9.10.11/24 up
 set +x
 }
 
@@ -9235,12 +9234,13 @@ set -x
 	ip netns exec $n ip addr add 1.1.1.$host_num/24 brd + dev veth1
 	ip netns exec $n ip link set dev veth1 up
 	# run the following command after login to namespace
-	ip netns exec $n ip route add default via 1.1.1.100
+# 	read
+# 	ip netns exec $n ip route add default via 1.1.1.100
 
 	del-br
 	clear-nat
 
-	iptables -t nat -A POSTROUTING -s 1.1.1.$host_num/32 -j SNAT --to-source 8.9.10.$host_num
+	iptables -t nat -A POSTROUTING -s 1.1.1.$host_num/32 -j SNAT --to-source 8.9.10.$host_num -o $link
 	ifconfig $link 8.9.10.$host_num/24 up
 # 	ssh 10.75.205.14 ifconfig $link 8.9.10.11/24 up
 set +x
