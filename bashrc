@@ -437,7 +437,7 @@ alias clone-bpftrace='git clone https://github.com/iovisor/bpftrace'
 alias clone-drgn='git clone https://github.com/osandov/drgn.git'	# pip3 install drgn
 alias clone-wrk='git clone git@github.com:wg/wrk.git'
 alias clone-netperf='git clone git@github.com:HewlettPackard/netperf.git'
-alias pull='git pull origin master'
+alias clone-bisect-tool='git clone http://l-gerrit.mtl.labs.mlnx:8080/upstream/scripts'
 alias wget_teams='wget https://packages.microsoft.com/repos/ms-teams/pool/main/t/teams/teams_1.3.00.16851_amd64.deb'	# apt install ./teams_1.3.00.teams_1.3.00.16851_amd64.deb
 
 alias clone-ubuntu-xenial='git clone git://kernel.ubuntu.com/ubuntu/ubuntu-xential.git'
@@ -839,6 +839,7 @@ alias n1_corrupt_server="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s"
 alias cd_sriov=" cd /sys/class/net/$link/device/sriov"
 
 [[ $UID == 0 ]] && echo 2 > /proc/sys/fs/suid_dumpable
+[[ $UID == 0 ]] && echo 0 > /proc/sys/fs/suid_dumpable	# for ovs
 
 # ================================================================================
 
@@ -1625,11 +1626,17 @@ set +x
 function install-ovs
 {
 set -x
+	# to use santitize
+# 	echo 0 > /proc/sys/fs/suid_dumpable
+	# otherwise, will hit this error
+	# Aug 23 09:31:51 c-237-175-60-063 ovs-ctl[4478]: ==4478==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
 	sudo pip uninstall docutils
-	sudo pip install ovs-sphinx-theme docutils
-        make clean
+# 	sudo pip install ovs-sphinx-theme docutils
+	sudo pip install docutils==0.17.0
+        sudo make clean
         ./boot.sh
-	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc # --enable-shared CC=clang
+	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+# 	./configure CFLAGS="-g -O2 -fsanitize=address -fno-omit-frame-pointer -fno-common" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
 #	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
 	make -j CFLAGS="-Werror -g"
@@ -2499,19 +2506,8 @@ set -x
 	dst_mac=02:25:d0:$host_num:01:03
 	$TC filter add dev $redirect prio 1 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac	\
 		action mirred egress mirror dev $mirror \
-		action mirred egress mirror dev $rep4 \
-		action mirred egress mirror dev $rep5 \
-		action mirred egress mirror dev $rep6 \
-		action mirred egress mirror dev $rep7 \
-		action mirred egress mirror dev $rep8 \
-		action mirred egress mirror dev $rep9 \
-		action mirred egress mirror dev $rep10 \
-		action mirred egress mirror dev $rep11 \
-		action mirred egress mirror dev $rep12 \
-		action mirred egress mirror dev $rep13 \
-		action mirred egress mirror dev $rep14 \
-		action mirred egress mirror dev $rep15 \
-		action mirred egress mirror dev $rep16 \
+                action pedit ex munge ip ttl set 63 pipe \
+		action mirred egress mirror dev $mirror \
 		action mirred egress redirect dev $dest
 	$TC filter add dev $redirect prio 2 protocol arp parent ffff: flower skip_hw src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $dest
 	$TC filter add dev $redirect prio 3 protocol arp parent ffff: flower skip_hw src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $dest
@@ -14832,4 +14828,11 @@ net.ipv4.ip_forward = 1
 EOF
 '
 	sudo sysctl -p
+}
+
+function br_ingress_policing_rate
+{
+set -x;
+	ovs-vsctl set interface $rep2 ingress_policing_rate=10000
+set +x
 }
