@@ -1007,6 +1007,18 @@ function cloud_setup0
 	fi
 }
 
+function bf2_linux_5.4
+{
+	cd /images/cmi
+	cp /swgwork/cmi/linux_bf_5.4/linux.tar.gz .
+	tar zvxf linux.tar.gz
+	/bin/rm -f linux.tar.gz &
+	cd linux
+	/bin/cp -f /swgwork/cmi/linux_bf_5.4/config.bf.5.4 .config
+
+	make-all all
+}
+
 function bf2_linux
 {
 	cd /images/cmi
@@ -1882,7 +1894,7 @@ function update_grub
 {
 	sudo sed -i 's/GRUB_TIMEOUT_STYLE=countdown/GRUB_TIMEOUT_STYLE=menu/' /etc/default/grub
 	sudo sed -i 's/GRUB_TIMEOUT=2/GRUB_TIMEOUT=6/' /etc/default/grub
-	sudo echo GRUB_DISABLE_SUBMENU=y >> /etc/default/grub
+	sudo bash -c 'echo GRUB_DISABLE_SUBMENU=y >> /etc/default/grub'
 	sudo /bin/rm -rf /etc/grub.d/40_custom
 	sudo update-grub
 	sudo sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
