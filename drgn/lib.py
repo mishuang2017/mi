@@ -1226,3 +1226,13 @@ def print_completion(completion):
 #         print(swait_queue)
         trace = prog.stack_trace(swait_queue.task)
         print(trace)
+
+def get_subsys_private(bus_name):
+    bus_kset = prog['bus_kset']
+
+    for kobj in list_for_each_entry('struct kobject', bus_kset.list.address_of_(), 'entry'):
+        if kobj.name.string_().decode() == bus_name:
+            print(kobj.name)
+            kset = container_of(kobj, "struct kset", "kobj")
+            subsys_private = container_of(kset, "struct subsys_private", "subsys")
+            return subsys_private

@@ -10,12 +10,12 @@ import os
 
 libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
-import lib
+from lib import *
 
 devs = {}
 
 bus_type = prog["pci_bus_type"]
-subsys_private = bus_type.p
+subsys_private = get_subsys_private("pci")
 k_list = subsys_private.klist_devices.k_list
 
 for dev in list_for_each_entry('struct device_private', k_list.address_of_(), 'knode_bus.n_node'):

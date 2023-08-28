@@ -10952,6 +10952,44 @@ set -x
 set +x
 }
 
+function tc_ct_sample1
+{
+	rate=2
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+set -x
+
+	TC=/images/cmi/iproute2/tc/tc;
+	TC=tc
+
+	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1;
+	ethtool -K $rep2 hw-tc-offload on;
+	$TC qdisc add dev $rep2 ingress
+
+	$TC qdisc del dev $rep3 ingress > /dev/null 2>&1;
+	ethtool -K $rep3 hw-tc-offload on;
+	$TC qdisc add dev $rep3 ingress
+
+	mac1=02:25:d0:$host_num:01:02
+	mac2=02:25:d0:$host_num:01:03
+
+	echo "add ct rules"
+	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
+		dst_mac $mac2 ct_state -trk \
+		action sample rate $rate group 5 trunc 60 \
+		action ct pipe \
+		action goto chain 1
+
+	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 3 flower $offload \
+		dst_mac $mac2 ct_state -trk \
+		action sample rate $rate group 5 trunc 60 \
+		action ct pipe \
+		action goto chain 1
+set +x
+}
+
 function get_ct_aging
 {
 	sysctl -a | grep  net.netfilter.nf_flowtable_udp_timeout
