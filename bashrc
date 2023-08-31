@@ -9324,7 +9324,7 @@ function ofed3
 alias ofed='rej; git add -u; ofed1; ofed2'
 
 alias ofed-meta='./devtools/add_metadata.sh'
-alias ofed-meta-check="/images/cmi/mlnx-ofa_kernel-4.0//devtools/verify_metadata.sh -p /images/cmi/mlnx-ofa_kernel-4.0//metadata/Chris_Mi.csv"
+alias ofed-meta-check="./devtools/verify_metadata.sh -p metadata/Chris_Mi.csv"
 
 # add $rep2 and uplink rep to bridge
 # only $rep2 can initiate new tcp connection to remote host
