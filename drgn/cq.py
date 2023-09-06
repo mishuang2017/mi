@@ -22,6 +22,7 @@ def print_channel(priv):
         print("channel[%d]" % i)
 #         print(channels[i].sq[0].cq.mcq.irqn.value_())
         print("sqn: %x" % channels[i].sq[0].sqn)
+        print(channels[i].rq.stats)
 #         print(channels[i].rq.cq.mcq.irqn.value_())
 
 #         print(channels[i].sq[0].cq.mcq.vector.value_())
@@ -37,7 +38,7 @@ def print_channel(priv):
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     addr = dev.value_()
-    if "enp" not in name:
+    if "eth2" not in name:
         continue;
     print("\n===%s===" % name)
 

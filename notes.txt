@@ -2962,6 +2962,16 @@ https://mellanox.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=86a978fb-f69d-4be
 
 ===tcpdump===
 
+# show ethernet header
+# tcpdump -XXenni eth3
+dropped privs to tcpdump
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on eth3, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+06:06:11.214361 02:25:d0:03:01:02 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 1.1.1.3 tell 1.1.1.1, length 28
+        0x0000:  ffff ffff ffff 0225 d003 0102 0806 0001  .......%........
+        0x0010:  0800 0604 0001 0225 d003 0102 0101 0101  .......%........
+        0x0020:  0000 0000 0000 0101 0103                 ..........
+
 tcpdump -i $link dst host 8.9.10.11 -s 54
 
 ether proto 0x88cc

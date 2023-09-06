@@ -5297,6 +5297,7 @@ set -x
 	for (( i = 0; i < numvfs; i++)); do
 		local rep=$(get_rep $i)
 		ifconfig $rep up
+# 		vs add-port $br $rep tag=$((i%2+1)) -- set Interface $rep ofport_request=$((i+1))
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 set +x
@@ -13112,29 +13113,29 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
 
-# 	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
-# 		action sample rate 10000 group 5 trunc 80 \
-#                 action police rate 200mbit burst 65536 conform-exceed drop/pipe \
+	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
+		action sample rate 10000 group 5 trunc 80 \
+                action police rate 200mbit burst 65536 conform-exceed drop/pipe \
 
-# 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
-# 	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
-# 		action sample rate 1 group 5 trunc 80 \
-# 		action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
+		action sample rate 1 group 5 trunc 80 \
+		action mirred egress redirect dev $rep3
 
-# 	$TC filter add dev $rep2 ingress protocol arp prio 2 flower $offload \
-# 		action mirred egress redirect dev $rep3
-# 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 ingress protocol arp prio 2 flower $offload \
+		action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 
 	src_mac=02:25:d0:$host_num:01:03
 	dst_mac=02:25:d0:$host_num:01:02
-# 	$TC filter add dev $rep3 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 	$TC filter add dev $rep3 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
 		action sample rate 1 group 6 trunc 80 \
 		action mirred egress redirect dev $rep2
 
-# 	$TC filter add dev $rep3 ingress protocol arp prio 2 flower $offload \
-# 		action mirred egress redirect dev $rep2
-# 	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 ingress protocol arp prio 2 flower $offload \
+		action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
 set +x
 }
 
@@ -14725,8 +14726,8 @@ KEY_OUT_128=`ipsec_rand_hex_key 20`
 function ipsec1
 {
 set -x
-	[[ "$HOSTNAME" == "c-236-0-240-241" ]] && ip=10.236.0.242
-	[[ "$HOSTNAME" == "c-237-115-160-163" ]] && ip=10.237.115.164
+	[[ "$HOSTNAME" == "c-234-107-200-203" ]] && ip=10.234.107.204
+	[[ "$HOSTNAME" == "c-234-181-120-123" ]] && ip=10.234.181.123
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -14754,6 +14755,8 @@ set -x
 	ip xfrm policy add src $link_remote_ip dst $link_ip dir in tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
 	ip xfrm policy add src $link_remote_ip dst $link_ip dir fwd tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
 
+# set +x
+# 	return
 
 	ssh root@$ip "
 	ip xfrm state flush

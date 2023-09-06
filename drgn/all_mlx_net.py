@@ -29,7 +29,8 @@ for x, dev in enumerate(get_netdevs()):
 #     print("mlx5e_priv_addr: %x" % mlx5e_priv_addr)
 #     print(mlx5e_priv)
 #     print(mlx5e_priv.init)
-    print(mlx5e_priv.profile)
+    print(mlx5e_priv.fs.vlan_strip_disable)
+    print(mlx5e_priv.channels.params.vlan_strip_disable)
 
 #     ppriv = mlx5e_priv.ppriv
 #     if ppriv:
