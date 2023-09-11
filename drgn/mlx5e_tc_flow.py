@@ -55,7 +55,7 @@ for x, dev in enumerate(get_netdevs()):
                 print("modify_hdr id: %x" % mlx5_flow_attr.mh.modify_hdr.id)
                 print_mod_hdr_key(mlx5_flow_attr.mh.key)
 #             print(mlx5_flow_attr)
-#             print("flow.attr: %x" % mlx5_flow_attr)
+            print("flow.attr: %x" % mlx5_flow_attr)
 #             print(mlx5_flow_attr.post_act_handle)
 #             print(mlx5_flow_attr.parse_attr)
 #             print(mlx5_flow_attr.esw_attr[0])

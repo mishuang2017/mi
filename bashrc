@@ -182,8 +182,8 @@ if (( cloud == 1 )); then
 	rep3=${link}_2
 	rep4=${link}_3
 
-	(( host_num == 25 )) && remote_mac=10:70:fd:65:8a:78
-	(( host_num == 63 )) && remote_mac=e8:eb:d3:98:24:ac
+	(( host_num == 3 )) && remote_mac=e8:eb:d3:98:2b:6c
+	(( host_num == 23 )) && remote_mac=e8:eb:d3:98:22:7c
 fi
 
 if (( host_num == 0 )); then
@@ -5854,6 +5854,7 @@ set -x
 		enc_dst_port $vxlan_port	\
 		enc_key_id $vni			\
 		ct_state -trk			\
+		action sample rate 1 group 5	\
 		action ct pipe			\
 		action goto chain 1
 	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 3 flower $offload	\
@@ -13313,7 +13314,7 @@ set -x
 		action tunnel_key unset	pipe	\
 		action mirred egress redirect dev $redirect
 
-	sample=0
+	sample=1
 	if (( sample == 1 )); then
 		$TC filter add dev $redirect protocol ip  parent ffff: prio 2 flower $offload \
 			src_mac $local_vm_mac	\

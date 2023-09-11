@@ -100,7 +100,7 @@ for i in range(256):
     for item in hlist_for_each_entry('struct mapping_item', ht[i], 'node'):
         print("mapping id: %d\t" % item.id, end='')
         data = Object(prog, 'struct mlx5_mapped_obj',  address=item.data.address_of_())
-        print_mapping_mapping(data)
+#         print_mapping_mapping(data)
 
 print('\n=== sample_flow ===\n')
 # try:
@@ -145,12 +145,16 @@ for x, dev in enumerate(get_netdevs()):
         print("mlx5_flow_spec %lx" % parse_attr.spec.address_of_())
         print("action: %x" % flow_attr.action)
         if flow_attr.sample_attr.rate!= 0:
-            print(flow_attr.sample_attr)
+            print(flow_attr)
+            print(esw_attr)
+            print(esw_attr.rx_tun_attr)
+            print(parse_attr)
             sample_flow = flow_attr.sample_attr.sample_flow
             print("sample_flow.pre_attr")
             print("sample_flow.pre_attr.action: %x" % sample_flow.pre_attr.action)
             print("mlx5_sample_flow %x" % sample_flow)
             print(sample_flow)
+            print_mlx5_flow_handle(sample_flow.pre_rule)
             print("sample_flow.restore.obj_id: 0x%x" % sample_flow.restore.obj_id)
         print("")
 

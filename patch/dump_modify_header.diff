@@ -1,0 +1,21 @@
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_cmd.c
+index 94603f683a..780d9df54f 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_cmd.c
+@@ -1008,6 +1008,8 @@ static int mlx5_cmd_modify_header_alloc(struct mlx5_flow_root_namespace *ns,
+ 	err = mlx5_cmd_exec(dev, in, inlen, out, sizeof(out));
+ 
+ 	modify_hdr->id = MLX5_GET(alloc_modify_header_context_out, out, modify_header_id);
++	pr_info("%s: modify_hdr id: %x\n", __func__, modify_hdr->id);
++	print_hex_dump(KERN_WARNING, "modify: ", DUMP_PREFIX_ADDRESS, 16, 1, modify_actions, 8 * num_actions, 0);
+ 	kfree(in);
+ 	return err;
+ }
+@@ -1023,6 +1025,7 @@ static void mlx5_cmd_modify_header_dealloc(struct mlx5_flow_root_namespace *ns,
+ 	MLX5_SET(dealloc_modify_header_context_in, in, modify_header_id,
+ 		 modify_hdr->id);
+ 
++	pr_info("%s: modify_hdr id: %x\n", __func__, modify_hdr->id);
+ 	mlx5_cmd_exec_in(dev, dealloc_modify_header_context, in);
+ }
+ 
