@@ -1930,7 +1930,7 @@ alias mm='sudo make modules_install -j; sudo make install'
 function mi
 {
 	test -f LINUX_BASE_BRANCH || return
-	make -j $cpu_num2
+	make -j $cpu_num2 || return
 	sudo make install_kernel -j $cpu_num2
 	reprobe
 # 	force-stop
@@ -5300,6 +5300,8 @@ set -x
 # 		vs add-port $br $rep tag=$((i%2+1)) -- set Interface $rep ofport_request=$((i+1))
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
+
+# 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal" 
 set +x
 }
 
@@ -5664,14 +5666,6 @@ set -x
 	$TC filter add dev $link prio 2 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $vf1_mac action mirred egress redirect dev $rep1
 	$TC filter add dev $link prio 3 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep1
 
-# 	$TC filter add dev $rep3 prio 1 protocol ip   parent ffff: flower $offload src_mac $vf3_mac dst_mac $remote_mac action mirred egress redirect dev $link
-# 	$TC filter add dev $rep3 prio 2 protocol arp  parent ffff: flower skip_hw src_mac $vf3_mac dst_mac $remote_mac action mirred egress redirect dev $link
-# 	$TC filter add dev $rep3 prio 3 protocol arp  parent ffff: flower skip_hw src_mac $vf3_mac dst_mac $brd_mac action mirred egress redirect dev $link
-
-# 	$TC filter add dev $link prio 4 protocol ip   parent ffff: flower $offload src_mac $remote_mac dst_mac $vf3_mac action mirred egress redirect dev $rep3
-# 	$TC filter add dev $link prio 5 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $vf3_mac action mirred egress redirect dev $rep3
-# 	$TC filter add dev $link prio 6 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
-
 	ip link del $vx > /dev/null 2>&1
 	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
 	ip link set $vx up
@@ -5808,7 +5802,7 @@ set -x
 		enc_key_id $vni			\
 		action tunnel_key unset		\
 		action mirred egress redirect dev $rep2
-
+           
 	kmsg "2"
 	if true; then
 		$TC filter add dev $rep2 protocol ip  parent ffff: chain 0  prio 2 flower $offload \
@@ -5846,17 +5840,31 @@ set -x
 # 	return
 
 	kmsg "3"
-	$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
-		src_mac $remote_vm_mac		\
-		dst_mac $local_vm_mac		\
-		enc_src_ip $link_remote_ip	\
-		enc_dst_ip $link_ip		\
-		enc_dst_port $vxlan_port	\
-		enc_key_id $vni			\
-		ct_state -trk			\
-		action sample rate 1 group 5	\
-		action ct pipe			\
-		action goto chain 1
+	sample=0
+	if (( sample == 1 )); then
+		$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
+			src_mac $remote_vm_mac		\
+			dst_mac $local_vm_mac		\
+			enc_src_ip $link_remote_ip	\
+			enc_dst_ip $link_ip		\
+			enc_dst_port $vxlan_port	\
+			enc_key_id $vni			\
+			ct_state -trk			\
+			action sample rate 1 group 5	\
+			action ct pipe			\
+			action goto chain 1
+	else
+		$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
+			src_mac $remote_vm_mac		\
+			dst_mac $local_vm_mac		\
+			enc_src_ip $link_remote_ip	\
+			enc_dst_ip $link_ip		\
+			enc_dst_port $vxlan_port	\
+			enc_key_id $vni			\
+			ct_state -trk			\
+			action ct pipe			\
+			action goto chain 1
+	fi
 	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 3 flower $offload	\
 		src_mac $remote_vm_mac		\
 		dst_mac $local_vm_mac		\
@@ -11235,9 +11243,14 @@ function br_pf
 {
 	del-br
 	ovs-vsctl add-br $br
+	ovs-vsctl add-port $br $rep1
 	ovs-vsctl add-port $br $rep2
-	ovs-vsctl add-port $br $rep3
 	ovs-vsctl add-port $br $link
+
+# 	ovs-ofctl add-flow $br "in_port=$link, ip, actions=dec_ttl, output:$rep2"
+	ovs-vsctl -- --id=@p get port $rep1 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m
+	ovs-ofctl add-flow $br "in_port=$rep2, dl_src=02:25:d0:45:01:02, dl_dst=98:03:9b:03:46:60, actions=output:$link"
+	ovs-ofctl add-flow $br "in_port=$link, dl_src=98:03:9b:03:46:60, dl_dst=02:25:d0:45:01:02, ip, actions=dec_ttl, output:$rep2"
 }
 
 function br_multiport_esw

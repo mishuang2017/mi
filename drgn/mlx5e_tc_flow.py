@@ -40,7 +40,7 @@ for x, dev in enumerate(get_netdevs()):
 #             print(flow.attr.mh.modify_hdr)
             print("modify_hdr id: %x" % flow.attr.mh.modify_hdr.id)
             print_mod_hdr_key(flow.attr.mh.key)
-#         print(flow.attr.esw_attr[0])
+        print(flow.attr.esw_attr[0].rx_tun_attr)
         j=j+1
 #         print(flow.attrs)
         k=1
