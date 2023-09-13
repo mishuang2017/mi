@@ -5613,6 +5613,108 @@ set -x
 set +x
 }
 
+alias tc9=tc_stack_devices_mirror
+function tc_stack_devices_mirror
+{
+	remote_mac=10:70:fd:d9:0d:a4
+	if [[ -z "$remote_mac" ]]; then
+		echo "no remote_mac"
+		return
+	fi
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+	TC=tc
+	TC=/images/cmi/iproute2/tc/tc
+	TC=/opt/mellanox/iproute2/sbin/tc
+
+	$TC qdisc del dev $rep1 ingress
+	$TC qdisc del dev $rep2 ingress
+	$TC qdisc del dev $rep3 ingress
+	$TC qdisc del dev $link ingress
+
+	ethtool -K $rep1 hw-tc-offload on
+	ethtool -K $rep2 hw-tc-offload on
+	ethtool -K $rep3 hw-tc-offload on
+	ethtool -K $link hw-tc-offload on
+
+	$TC qdisc add dev $rep1 ingress
+	$TC qdisc add dev $rep2 ingress
+	$TC qdisc add dev $rep3 ingress
+	$TC qdisc add dev $link ingress
+
+	del-br
+
+	vf1=$(get_vf $host_num 1 1)
+	vf3=$(get_vf $host_num 1 3)
+	ip addr flush $link
+	ip addr flush $vf1
+	ip addr flush $vf3
+	ip addr add dev $vf1 $link_ip/24
+	ip addr add $link_ipv6/64 dev $vf1
+	ip link set $vf1 up
+
+	vf1_mac=02:25:d0:$host_num:01:01
+	vf2_mac=02:25:d0:$host_num:01:02
+	vf3_mac=02:25:d0:$host_num:01:03
+
+set -x
+	$TC filter add dev $rep1 prio 1 protocol ip   parent ffff: flower $offload src_mac $vf1_mac dst_mac $remote_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep1 prio 2 protocol arp  parent ffff: flower skip_hw src_mac $vf1_mac dst_mac $remote_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep1 prio 3 protocol arp  parent ffff: flower skip_hw src_mac $vf1_mac dst_mac $brd_mac action mirred egress redirect dev $link
+
+	$TC filter add dev $link prio 1 protocol ip   parent ffff: flower $offload src_mac $remote_mac dst_mac $vf1_mac action mirred egress redirect dev $rep1
+	$TC filter add dev $link prio 2 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $vf1_mac action mirred egress redirect dev $rep1
+	$TC filter add dev $link prio 3 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep1
+
+	ip link del $vx > /dev/null 2>&1
+	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
+	ip link set $vx up
+	$TC qdisc add dev $vx ingress
+
+	local_vm_mac=$vf2_mac
+	remote_vm_mac=$vxlan_mac
+	$TC filter add dev $rep2 protocol ip  parent ffff: prio 1 flower $offload \
+		src_mac $local_vm_mac		\
+		dst_mac $remote_vm_mac		\
+ 		action mirred egress redirect dev $rep3 \
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $rep2 protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $local_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $vx protocol ip  parent ffff: prio 1 flower $offload	\
+		src_mac $remote_vm_mac		\
+		dst_mac $local_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $rep2
+	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower skip_hw	\
+		src_mac $remote_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev $rep2
+set +x
+}
+
 function tc_stack_devices
 {
 	if [[ -z "$remote_mac" ]]; then
@@ -5713,7 +5815,6 @@ set +x
 }
 
 alias ip9='ifconfig eth2 192.168.1.24/24 up'
-alias tc9=tc_stack_devices_ct
 function tc_stack_devices_ct
 {
 	if [[ -z "$remote_mac" ]]; then
