@@ -184,6 +184,7 @@ if (( cloud == 1 )); then
 
 	(( host_num == 3 )) && remote_mac=e8:eb:d3:98:2b:6c
 	(( host_num == 23 )) && remote_mac=e8:eb:d3:98:22:7c
+	(( host_num == 65 )) && remote_mac=10:70:fd:d9:0d:a4
 fi
 
 if (( host_num == 0 )); then
@@ -5616,7 +5617,6 @@ set +x
 alias tc9=tc_stack_devices_mirror
 function tc_stack_devices_mirror
 {
-	remote_mac=10:70:fd:d9:0d:a4
 	if [[ -z "$remote_mac" ]]; then
 		echo "no remote_mac"
 		return
@@ -5678,7 +5678,7 @@ set -x
 	$TC filter add dev $rep2 protocol ip  parent ffff: prio 1 flower $offload \
 		src_mac $local_vm_mac		\
 		dst_mac $remote_vm_mac		\
- 		action mirred egress redirect dev $rep3 \
+ 		action mirred egress mirror dev $rep3 \
 		action tunnel_key set		\
 		src_ip $link_ip			\
 		dst_ip $link_remote_ip		\
@@ -5815,7 +5815,7 @@ set +x
 }
 
 alias ip9='ifconfig eth2 192.168.1.24/24 up'
-function tc_stack_devices_ct
+function tc_stack_devices_ct_mirror
 {
 	if [[ -z "$remote_mac" ]]; then
 		echo "no remote_mac"
@@ -5869,14 +5869,6 @@ set -x
 	$TC filter add dev $link prio 2 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $vf1_mac action mirred egress redirect dev $rep1
 	$TC filter add dev $link prio 3 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep1
 
-# 	$TC filter add dev $rep3 prio 1 protocol ip   parent ffff: flower $offload src_mac $vf3_mac dst_mac $remote_mac action mirred egress redirect dev $link
-# 	$TC filter add dev $rep3 prio 2 protocol arp  parent ffff: flower skip_hw src_mac $vf3_mac dst_mac $remote_mac action mirred egress redirect dev $link
-# 	$TC filter add dev $rep3 prio 3 protocol arp  parent ffff: flower skip_hw src_mac $vf3_mac dst_mac $brd_mac action mirred egress redirect dev $link
-
-# 	$TC filter add dev $link prio 4 protocol ip   parent ffff: flower $offload src_mac $remote_mac dst_mac $vf3_mac action mirred egress redirect dev $rep3
-# 	$TC filter add dev $link prio 5 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $vf3_mac action mirred egress redirect dev $rep3
-# 	$TC filter add dev $link prio 6 protocol arp  parent ffff: flower skip_hw src_mac $remote_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
-
 	ip link del $vx > /dev/null 2>&1
 	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx udp6zerocsumtx
 	ip link set $vx up
@@ -5917,6 +5909,7 @@ set -x
 			src_mac $local_vm_mac		\
 			dst_mac $remote_vm_mac		\
 			ct_state +trk+new		\
+			action mirred egress redirect dev $rep3 \
 			action ct commit		\
 			action tunnel_key set		\
 			src_ip $link_ip			\
@@ -11348,10 +11341,9 @@ function br_pf
 	ovs-vsctl add-port $br $rep2
 	ovs-vsctl add-port $br $link
 
-# 	ovs-ofctl add-flow $br "in_port=$link, ip, actions=dec_ttl, output:$rep2"
 	ovs-vsctl -- --id=@p get port $rep1 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m
-	ovs-ofctl add-flow $br "in_port=$rep2, dl_src=02:25:d0:45:01:02, dl_dst=98:03:9b:03:46:60, actions=output:$link"
-	ovs-ofctl add-flow $br "in_port=$link, dl_src=98:03:9b:03:46:60, dl_dst=02:25:d0:45:01:02, ip, actions=dec_ttl, output:$rep2"
+	ovs-ofctl add-flow $br "tcp,in_port=$rep2, dl_src=02:25:d0:45:01:02, dl_dst=98:03:9b:03:46:60, actions=output:$link"
+	ovs-ofctl add-flow $br "tcp,in_port=$link, dl_src=98:03:9b:03:46:60, dl_dst=02:25:d0:45:01:02, ip, actions=dec_ttl, output:$rep2"
 }
 
 function br_multiport_esw
