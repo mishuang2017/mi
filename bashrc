@@ -182,9 +182,10 @@ if (( cloud == 1 )); then
 	rep3=${link}_2
 	rep4=${link}_3
 
-	(( host_num == 3 )) && remote_mac=e8:eb:d3:98:2b:6c
+	(( host_num == 21 )) && remote_mac=10:70:fd:d9:0f:8c
 	(( host_num == 23 )) && remote_mac=e8:eb:d3:98:22:7c
 	(( host_num == 65 )) && remote_mac=10:70:fd:d9:0d:a4
+	(( host_num == 45 )) && remote_mac=98:03:9b:03:46:60
 fi
 
 if (( host_num == 0 )); then
@@ -2046,10 +2047,6 @@ set -x
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
 	$TC filter add dev $rep2 prio 1 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $link
 
-# 	$TC filter add dev $rep2 prio 3 protocol ip  chain 100 parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
-# 	$TC filter add dev $rep2 prio 2 protocol arp chain 100 parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
-# 	$TC filter add dev $rep2 prio 1 protocol arp chain 100 parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $link
-
 	src_mac=$remote_mac
 	dst_mac=02:25:d0:$host_num:01:02
 	$TC filter add dev $link prio 3 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
@@ -2058,13 +2055,14 @@ set -x
 set +x
 }
 
-function tc-mirror-pf
+function tc_pf_mirror
 {
 set -x
 	offload=""
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
+	TC=/images/cmi/tc-scripts/tc
 	TC=/images/cmi/iproute2/tc/tc
 	TC=tc
 
@@ -2080,24 +2078,25 @@ set -x
 	$TC qdisc add dev $rep2 ingress 
 	$TC qdisc add dev $link ingress 
 
-# 	src_mac=02:25:d0:$host_num:01:02
-# 	dst_mac=$remote_mac
-# 	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac \
-# 		action mirred egress mirror dev $rep1	\
-# 		action mirred egress redirect dev $link
-# 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
-# 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $link
+	src_mac=02:25:d0:$host_num:01:02
+	dst_mac=$remote_mac
+	$TC filter add dev $rep2 prio 3 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
+	$TC filter add dev $rep2 prio 1 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $link
+
 	src_mac=$remote_mac
 	dst_mac=02:25:d0:$host_num:01:02
-	$TC filter add dev $link prio 1 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac \
-		action mirred egress mirror dev $rep1	\
+	$TC filter add dev $link prio 3 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac \
+		action mirred egress mirror dev $rep1 \
+		action pedit ex munge ip ttl set 0x3f pipe	\
+		action mirred egress mirror dev $rep1 \
 		action mirred egress redirect dev $rep2
-# 	$TC filter add dev $link prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
-# 	$TC filter add dev $link prio 3 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $link prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $link prio 1 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 set +x
 }
 
-alias pf=tc-mirror-pf
+alias pf=tc_pf_mirror
 
 function tc-vf
 {
@@ -5815,7 +5814,7 @@ set +x
 }
 
 alias ip9='ifconfig eth2 192.168.1.24/24 up'
-function tc_stack_devices_ct_mirror
+function tc_stack_devices_ct
 {
 	if [[ -z "$remote_mac" ]]; then
 		echo "no remote_mac"
@@ -5909,7 +5908,6 @@ set -x
 			src_mac $local_vm_mac		\
 			dst_mac $remote_vm_mac		\
 			ct_state +trk+new		\
-			action mirred egress redirect dev $rep3 \
 			action ct commit		\
 			action tunnel_key set		\
 			src_ip $link_ip			\
@@ -5922,6 +5920,7 @@ set -x
 			src_mac $local_vm_mac		\
 			dst_mac $remote_vm_mac		\
 			ct_state +trk+est		\
+ 			action mirred egress redirect dev $rep3 \
 			action tunnel_key set		\
 			src_ip $link_ip			\
 			dst_ip $link_remote_ip		\
@@ -9101,6 +9100,7 @@ alias ofed-configure-rhel-8.1="./configure --with-mlx5-core-and-ib-and-en-mod --
 alias ofed-configure-rhel-8.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-193.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-193.el8.x86_64/"
 alias ofed-configure-rhel-8.4="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-305.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-305.el8.x86_64 "
 alias ofed-configure-rhel-8.5="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-372.9.1.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-372.9.1.el8.x86_64 "
+alias ofed-configure-rhel-9.1="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version linux-5.14.0-162.6.1.el9_1.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.14.0-162.6.1.el9_1.x86_64 "
 
 function ofed_configure
 {
@@ -10534,7 +10534,7 @@ function tc_ct_pf
 
 set -x
 
-	TC=/images/cmi/iproute2/tc/tc;
+	TC=tc
 
 	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1;
 	ethtool -K $rep2 hw-tc-offload on;
@@ -14978,6 +14978,21 @@ set -x
 	ovs-ofctl -O OpenFlow13 add-flow br1 icmp,action=normal 
 	ovs-ofctl -O OpenFlow13 add-flow br1 in_port=$rep2,ip,tcp,actions=meter:1,output:$rep3
 	ovs-ofctl -O OpenFlow13 add-flow br1 in_port=$rep3,ip,tcp,actions=meter:1,output:$rep2
+set +x
+}
+
+function br_meter_pf
+{
+set -x
+	ovs-vsctl add-br br1
+	ovs-ofctl del-flows br1
+	ovs-vsctl add-port br1 $rep2
+	ovs-vsctl add-port br1 $link
+	ovs-ofctl add-meter -O OpenFlow13 br1 meter=1,kbps,band=type=drop,rate=1000000
+	ovs-ofctl -O OpenFlow13 add-flow br1 arp,action=normal
+	ovs-ofctl -O OpenFlow13 add-flow br1 icmp,action=normal 
+	ovs-ofctl -O OpenFlow13 add-flow br1 in_port=$rep2,ip,tcp,actions=meter:1,output:$link
+	ovs-ofctl -O OpenFlow13 add-flow br1 in_port=$link,ip,tcp,actions=meter:1,output:$rep2
 set +x
 }
 

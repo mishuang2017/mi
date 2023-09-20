@@ -3667,6 +3667,8 @@ static const struct dpctl_command all_commands[] = {
 
 ===ovs===
 
+ofproto-dpif-upcall: Mirror packets that are modified.
+
 ovs-appctl revalidator/purge
 
 https://docs.openvswitch.org/en/latest/topics/testing/
