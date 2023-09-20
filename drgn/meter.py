@@ -64,6 +64,10 @@ def print_meter(mlx5e_priv):
             for i in range(256):
                 for handle in hlist_for_each_entry('struct mlx5e_flow_meter_handle', flow_meters.hashtbl[i], 'hlist'):
                     print(handle)
+                    print(handle.act_counter)
+                    print("id: %x" % handle.act_counter.id)
+                    print(handle.drop_counter)
+                    print("id: %x" % handle.drop_counter.id)
 #     print(" ======================== uplink_priv.flow_meters ==================")
 #     print(uplink_priv.flow_meters)
 #     post_meter = uplink_priv.flow_meters.post_meter
@@ -83,6 +87,7 @@ print_meter(mlx5e_priv)
 # mlx5e_priv = get_mlx5_pf1()
 # print_meter(mlx5e_priv)
 
+exit(0)
 print("\n-------------------------------\n")
 gen = prog['init_net'].gen
 act_police_ops = prog['act_police_ops']
@@ -93,6 +98,7 @@ print("police_id: %d" % id)
 print(gen)
 ptr = gen.ptr[id]
 print(ptr)
+exit(0)
 tc_action_net = Object(prog, 'struct tc_action_net', address=ptr.value_())
 print(tc_action_net)
 idr=tc_action_net.idrinfo.action_idr
