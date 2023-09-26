@@ -60,14 +60,17 @@ def print_meter(mlx5e_priv):
     # print(mlx5e_priv.aso)
             uplink_priv = mlx5e_rep_priv.uplink_priv
             flow_meters = uplink_priv.flow_meters
-#             print(flow_meters)
+            print("flow_meters.log_granularity: %d" % flow_meters.log_granularity)
+            for mlx5e_flow_meter_aso_obj in list_for_each_entry('struct mlx5e_flow_meter_aso_obj',
+                flow_meters.partial_list.address_of_(), 'entry'):
+                print(mlx5e_flow_meter_aso_obj)
             for i in range(256):
                 for handle in hlist_for_each_entry('struct mlx5e_flow_meter_handle', flow_meters.hashtbl[i], 'hlist'):
                     print(handle)
-                    print(handle.act_counter)
-                    print("id: %x" % handle.act_counter.id)
-                    print(handle.drop_counter)
-                    print("id: %x" % handle.drop_counter.id)
+#                     print(handle.act_counter)
+#                     print("id: %x" % handle.act_counter.id)
+#                     print(handle.drop_counter)
+#                     print("id: %x" % handle.drop_counter.id)
 #     print(" ======================== uplink_priv.flow_meters ==================")
 #     print(uplink_priv.flow_meters)
 #     post_meter = uplink_priv.flow_meters.post_meter

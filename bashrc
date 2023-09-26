@@ -1125,7 +1125,6 @@ function cloud_ofed_cp
 {
 	test -d /images/cmi/mlnx-ofa_kernel-4.0 || cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
 	cd /images/cmi/mlnx-ofa_kernel-4.0
-	git pull origin mlnx_ofed_23_07
 	git fetch --tags
 }
 
@@ -1999,25 +1998,6 @@ alias tc_nat_sample.sh="sudo ~cmi/bin/tc_nat_sample.sh"
 alias br_nat.sh="sudo ~cmi/bin/br_nat.sh"
 alias tc_ct.sh="sudo ~cmi/bin/tc_ct.sh"
 
-function tc_nat1
-{
-	TC=/images/cmi/iproute2/tc/tc
-
-	offload=""
-	[[ "$1" == "sw" ]] && offload="skip_hw"
-	[[ "$1" == "hw" ]] && offload="skip_sw"
-
-set -x
-
-	$TC qdisc del dev $rep2 ingress
-	ethtool -K $rep2 hw-tc-offload on
-	$TC qdisc add dev $rep2 ingress
-
-	$TC filter add dev $rep2 ingress prio 1 chain 0 proto ip flower $offload ip_flags nofrag ip_proto tcp \
-		action ct pipe action goto chain 2
-set +x
-}
-
 function tc_pf
 {
 set -x
@@ -2153,6 +2133,7 @@ set -x
 
 	$TC action flush action police
 	$TC action add police rate 500mbit burst 40m conform-exceed drop/pipe
+	$TC action add police rate 100mbit burst 40m conform-exceed drop/pipe
 
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
@@ -2163,7 +2144,9 @@ set -x
 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 	src_mac=02:25:d0:$host_num:01:03
 	dst_mac=02:25:d0:$host_num:01:02
-	$TC filter add dev $rep3 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac \
+		action police index 2 \
+		action mirred egress redirect dev $rep2
 	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
 	$TC filter add dev $rep3 prio 3 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 set +x
@@ -14954,7 +14937,7 @@ function br_bf
 	ovs-vsctl add-br ovsbr1
 	ovs-vsctl add-br ovsbr2
 
-	for (( i = 0; i < 31; i++)); do
+	for (( i = 0; i < ; i++)); do
 		ovs-vsctl add-port ovsbr1 pf0vf$i
 	done;
 	ovs-vsctl add-port ovsbr1 p0
