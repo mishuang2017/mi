@@ -1933,8 +1933,8 @@ function mi
 	test -f LINUX_BASE_BRANCH || return
 	make -j $cpu_num2 || return
 	sudo make install_kernel -j $cpu_num2
+	sudo /etc/init.d/openibd force-stop
 	reprobe
-# 	force-stop
 # 	force-start
 }
 
@@ -14816,8 +14816,7 @@ KEY_OUT_128=`ipsec_rand_hex_key 20`
 function ipsec1
 {
 set -x
-	[[ "$HOSTNAME" == "c-234-107-200-203" ]] && ip=10.234.107.204
-	[[ "$HOSTNAME" == "c-234-181-120-123" ]] && ip=10.234.181.123
+	[[ "$HOSTNAME" == "c-237-115-100-105" ]] && ip=10.237.115.106
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
