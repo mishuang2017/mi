@@ -14817,6 +14817,7 @@ function ipsec1
 {
 set -x
 	[[ "$HOSTNAME" == "c-237-115-100-105" ]] && ip=10.237.115.106
+	[[ "$HOSTNAME" == "c-237-169-60-061" ]] && ip=10.237.169.62
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
