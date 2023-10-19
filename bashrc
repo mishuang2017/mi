@@ -427,7 +427,7 @@ alias clone-mi='git clone https://github.com/mishuang2017/mi --branch=master'
 alias clone-bin='git clone https://github.com/mishuang2017/bin.git'
 alias clone-c='git clone https://github.com/mishuang2017/c.git'
 alias clone-rpmbuild='git clone git@github.com:mishuang2017/rpmbuild.git'
-alias clone-ovs='git clone ssh://git@gitlab-master.nvidia.com:12051/sdn/ovs.git --branch=mlnx_ofed_5_9'
+alias clone-ovs='git clone ssh://git@gitlab-master.nvidia.com:12051/sdn/ovs.git --branch=nv-next'
 alias clone-ovs2='git clone ssh://10.7.0.100:29418/openvswitch'
 alias clone-ovs-upstream='git clone git@github.com:openvswitch/ovs.git'
 alias clone-ovs-mishuang='git clone git@github.com:mishuang2017/ovs.git'
@@ -1072,16 +1072,13 @@ function cloud_setup
 	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering --ovn
 	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s --ovn
 	sm
-set -x
+
 	if (( build_kernel == 1 )); then
 		cloud_linux $branch
 	fi
-	if (( ofed == 1 )); then
-		cloud_ofed_cp
-		smm
-		rebase
-	fi
-set +x
+	cloud_ofed_cp
+	smm
+	rebase
 
 	build_libkdumpfile
 	sm
@@ -1346,6 +1343,7 @@ function ovs-drop
 function tc-drop
 {
 	TC=/$images/cmi/iproute2/tc/tc
+	TC=tc
 
 	$TC qdisc del dev $link ingress
 	ethtool -K $link hw-tc-offload on 
@@ -1437,6 +1435,10 @@ set -x;
 	sudo /bin/cp -f $src_dir/$module.ko /lib/modules/$(uname -r)/kernel/$driver_dir
 #	make modules_install -j
 
+	sudo modprobe -r bonding
+	sudo modprobe -r act_sample
+	sudo modprobe -r psample
+	sudo modprobe -r mlx5_vdpa
 	sudo modprobe -r mlx5_ib
 	sudo modprobe -r mlx5_core
 	sudo modprobe -v mlx5_core
@@ -2005,6 +2007,7 @@ set -x
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
+	remote_mac=10:70:fd:43:70:20
 	TC=/images/cmi/tc-scripts/tc
 	TC=/images/cmi/iproute2/tc/tc
 	TC=tc
@@ -9025,7 +9028,7 @@ alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --wit
 alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2 --with-mlx5-ipsec"
 alias ofed-configure-all="./configure -j \
     --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
-    --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv --with-mlxfw-mod"
+    --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv --with-mlxfw-mod --with-ipoib-mod"
 alias ofed-configure-memtrack="ofed-configure-all --with-memtrack"
 
 alias ofed-configure-4.1="./configure -j --kernel-version 4.1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.1 \
@@ -9096,6 +9099,8 @@ function ofed_install
 # 	build=OFED-internal-5.2-0.2.8 /mswg/release/ofed/ofed_install --force --basic
 	build=MLNX_OFED_LINUX-5.6-0.7.8.0/    /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-23.07-0.4.1  /mswg/release/ofed/ofed_install --force --basic
+
+	build=MLNX_OFED_LINUX-23.10-0.3.3.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs
 }
 
 # alias ofed-configure2="./configure -j32 --with-linux=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --kernel-version=4.7-rc7 --kernel-sources=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-ipoib-mod --with-mlx5-mod"
@@ -11168,12 +11173,12 @@ set -x
 	del-br
 	ovs-vsctl add-br ovsbr1
 	ovs-vsctl add-port ovsbr1 pf0hpf
-	ovs-vsctl add-port ovsbr1 en3f0pf0sf0
+# 	ovs-vsctl add-port ovsbr1 en3f0pf0sf0
 	ovs-vsctl add-port ovsbr1 p0
 
-# 	ovs-ofctl add-flow ovsbr1 "table=0, tcp,ct_state=-trk actions=ct(table=1),en3f0pf0sf0"
-# 	ovs-ofctl add-flow ovsbr1 "table=1, tcp,ct_state=+trk+new actions=ct(commit),normal"
-# 	ovs-ofctl add-flow ovsbr1 "table=1, tcp,ct_state=+trk+est actions=normal"
+	ovs-ofctl add-flow ovsbr1 "table=0, tcp,ct_state=-trk actions=ct(table=1)"
+	ovs-ofctl add-flow ovsbr1 "table=1, tcp,ct_state=+trk+new actions=ct(commit),normal"
+	ovs-ofctl add-flow ovsbr1 "table=1, tcp,ct_state=+trk+est actions=normal"
 set +x
 }
 
@@ -12163,17 +12168,18 @@ function tc_nic_setup
 alias tcn=tc_nic
 function tc_nic
 {
-	[[ $# == 0 ]] && prio=3 || prio=$1
+# 	[[ $# == 0 ]] && prio=3 || prio=$1
 
-	nic=enp8s0f2
-	nic=eth4
-	tc_nic_setup
-	tc-setup $nic
+# 	nic=enp8s0f2
+# 	nic=eth4
+# 	tc_nic_setup
+	tc-setup eth2
 
 set -x
-	tc -s filter add dev $nic protocol ip parent ffff: chain 0 prio $prio flower skip_sw \
-		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
-		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
+	tc -s filter add dev eth2 protocol ip parent ffff: prio 1 flower skip_sw dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
+# 	tc -s filter add dev $nic protocol ip parent ffff: chain 0 prio $prio flower skip_sw \
+# 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
+# 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
 set +x
 
 # 	tc -s filter add dev $nic protocol ip parent ffff: prio 1 flower skip_sw \
@@ -12191,14 +12197,18 @@ function tc_nic2
 	[[ $# == 0 ]] && prio=3 || prio=$1
 
 	vf=enp8s0f2
-	tc-setup $nic
-	tc -s filter add dev $nic protocol ip parent ffff: prio 1 flower skip_sw \
-		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
-		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
+	vf=eth2
+	tc-setup $vf
+set -x
+# 	tc -s filter add dev $vf protocol ip parent ffff: prio 1 flower skip_sw \
+# 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
+# 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
+	tc -s filter add dev eth2 protocol ip parent ffff: prio 1 flower skip_sw dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
+set +x
 
-	tc -s filter add dev $nic protocol ip parent ffff: prio 2 flower skip_sw \
-		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
-		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
+# 	tc -s filter add dev $nic protocol ip parent ffff: prio 2 flower skip_sw \
+# 		dst_mac 02:25:d0:$host_num:01:02 src_mac 02:25:d0:$host_num:01:01 \
+# 		ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop
 }
 
 function tc_nic_chain
@@ -14816,8 +14826,7 @@ KEY_OUT_128=`ipsec_rand_hex_key 20`
 function ipsec1
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-115-100-105" ]] && ip=10.237.115.106
-	[[ "$HOSTNAME" == "c-237-169-60-061" ]] && ip=10.237.169.62
+	[[ "$HOSTNAME" == "c-237-173-40-045" ]] && ip=10.237.173.46
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -14995,4 +15004,9 @@ function br_ingress_policing_rate
 set -x;
 	ovs-vsctl set interface $rep2 ingress_policing_rate=10000
 set +x
+}
+
+function pci_reset
+{
+    echo 1 > /sys/bus/pci/devices/$pci/reset
 }

@@ -25,6 +25,7 @@ for x, dev in enumerate(get_netdevs()):
     if ingress_queue.value_() == 0:
         continue
     qdisc = ingress_queue.qdisc
+    print("qdisc %x" % qdisc)
     qdisc_size = prog.type('struct Qdisc').size
 
 #     print("%lx" % qdisc.value_())

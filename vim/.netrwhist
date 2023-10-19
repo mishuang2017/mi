@@ -1,5 +1,6 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =0
+let g:netrw_dirhistcnt =1
+let g:netrw_dirhist_1='/labhome/cmi/.vim'
 let g:netrw_dirhist_0='/.autodirect/swgwork/cmi/linux/arch'
 let g:netrw_dirhist_9='/images/cmi/mlnx-ofa_kernel-4.0/compat/config'
 let g:netrw_dirhist_8='/labhome/cmi/ipsec_all/1'
@@ -9,4 +10,3 @@ let g:netrw_dirhist_5='/images/cmi/dpdk.org/drivers/bus/pci/bsd'
 let g:netrw_dirhist_4='/images/cmi/linux/lib'
 let g:netrw_dirhist_3='/labhome/cmi/ovs/v25/8/7'
 let g:netrw_dirhist_2='/labhome/cmi/ovs/10'
-let g:netrw_dirhist_1='/labhome/cmi/ovs/1'
