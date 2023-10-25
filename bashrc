@@ -239,7 +239,7 @@ shopt -s histappend
 [[ $(hostname -s) != vnc14 ]] && shopt -s autocd
 
 sfcmd='devlink'
-# (( ofed == 1 )) && sfcmd='mlxdevm'
+(( ofed == 1 )) && sfcmd=/opt/mellanox/iproute2/sbin/mlxdevm
 
 centos=0
 centos72=0
@@ -6929,13 +6929,14 @@ function sf
 
 set -x
         devlink dev eswitch set pci/$pci mode switchdev
-	for (( i = 0; i < n; i++ )); do
+	for (( i = 1; i <= n; i++ )); do
 		$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $i
 		mac=02:25:00:$host_num:02:$i
 		(( debug == 1 )) && read
 		local start=32768
 		local num=$((start+i-1))
-		$sfcmd port function set pci/$pci/$num hw_addr $mac state active
+		sleep 1
+		$sfcmd port function set en8f0pf0sf$i  state active
 		(( debug == 1 )) && read
 	done
 set +x
@@ -9029,6 +9030,8 @@ alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --wit
 alias ofed-configure-all="./configure -j \
     --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
     --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv --with-mlxfw-mod --with-ipoib-mod"
+alias ofed-configure-all="./configure -j \
+	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack "
 alias ofed-configure-memtrack="ofed-configure-all --with-memtrack"
 
 alias ofed-configure-4.1="./configure -j --kernel-version 4.1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.1 \
@@ -14823,6 +14826,12 @@ function ipsec_rand_hex_key() {
 KEY_IN_128=`ipsec_rand_hex_key 20`
 KEY_OUT_128=`ipsec_rand_hex_key 20`
 
+function ipsec2
+{
+	ip xfrm state flush
+	ip xfrm policy flush
+}
+
 function ipsec1
 {
 set -x
@@ -14830,11 +14839,11 @@ set -x
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
-	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
+# 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci mode legacy
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
-	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
-# 	devlink dev eswitch set pci/$pci encap disable
+# 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
+	devlink dev eswitch set pci/$pci encap disable
 	devlink dev eswitch set pci/$pci mode switchdev
 	ip address flush enp8s0f0
 	ip -4 address add $link_ip/24 dev enp8s0f0
@@ -14854,8 +14863,8 @@ set -x
 	ip xfrm policy add src $link_remote_ip dst $link_ip dir in tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
 	ip xfrm policy add src $link_remote_ip dst $link_ip dir fwd tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
 
-# set +x
-# 	return
+set +x
+	return
 
 	ssh root@$ip "
 	ip xfrm state flush
