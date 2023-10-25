@@ -6921,6 +6921,14 @@ sf2=en8f0pf0sf2
 
 alias mlx_sf='mlxconfig -d $pci s PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_SF_BAR_SIZE=10'
 
+function sf1
+{
+	n=1
+        [[ $# == 1 ]] && n=$1
+
+	$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $n
+}
+
 function sf
 {
 	n=1
