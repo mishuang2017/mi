@@ -12,7 +12,7 @@ from lib import *
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
-print(mlx5_sf_table.refcount)
+# print(mlx5_sf_table.refcount)
 
 mlx5_sf_hwc_table = mlx5e_priv.mdev.priv.sf_hw_table
 print(mlx5_sf_hwc_table.hwc[0])
@@ -61,13 +61,16 @@ n_head = mlx5e_priv.mdev.priv.vhca_state_notifier.n_head
 
 notifier_block = n_head.head
 # print(notifier_block)
+i=1
 while True:
     if notifier_block.value_() == 0:
         break
+    print("---%d---" % i)
     print(notifier_block)
     mlx5_sf_table = container_of(notifier_block, "struct mlx5_sf_table", "esw_nb");
 #     print(mlx5_sf_table.refcount)
     notifier_block = notifier_block.next
+    i=i+1
  
  
 print(" === sf === ")

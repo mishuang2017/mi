@@ -9206,7 +9206,7 @@ lspci -vv -s 04:00.0
 7
 [chrism@dev-r630-03 udev3]$
 
-+       if (IS_ERR(priv->devcom))
+       if (IS_ERR(priv->devcom))
 
 ARRAY_SIZE
 
@@ -9247,10 +9247,10 @@ depmod
 kzalloc change to kcalloc
 
 -               c->rq.state |= BIT(MLX5E_RQ_STATE_AM);
-+               __set_bit(MLX5E_RQ_STATE_AM, &c->rq.state);
+               __set_bit(MLX5E_RQ_STATE_AM, &c->rq.state);
 
 -       if (sq->state & BIT(MLX5E_SQ_STATE_IPSEC)) {
-+       if (test_bit(MLX5E_SQ_STATE_IPSEC, &sq->state)) {
+       if (test_bit(MLX5E_SQ_STATE_IPSEC, &sq->state)) {
 
 ip -s link show dev $link
 
@@ -9288,7 +9288,7 @@ rpm -e --nodeps  kernel-headers-4.13.0_rc5_00103_g57df82c-1.x86_64
 INIT_LIST_HEAD
 
 -       return IS_ERR(block_cb) ? PTR_ERR(block_cb) : 0;
-+       return PTR_ERR_OR_ZERO(block_cb);
+       return PTR_ERR_OR_ZERO(block_cb);
 
 IS_ERR
 PTR_ERR
@@ -9313,7 +9313,7 @@ dmidecode
 msleep(250);
 
 -			msleep(1);
-+			usleep_range(1000, 2000);
+			usleep_range(1000, 2000);
 
 
 rxdump -d 03:00.0 -s 0
@@ -10240,24 +10240,24 @@ sys     0m4.062s
 
 
 [root@dev-r630-04 ~]# tcb 1000000
-+ [[ 1 == 0 ]]
-+ n=1000000
-+ file=/tmp/b.txt
-+ TC=/auto/mtbcswgwork/chrism/iproute2/tc/tc
-+ TC=/home1/chrism/iproute2/tc/tc
-+ TC=tc
-+ sudo tc qdisc del dev enp4s0f0 ingress
-+ sudo tc qdisc add dev enp4s0f0 ingress
-+ sudo ethtool -K enp4s0f0 hw-tc-offload on
+ [[ 1 == 0 ]]
+ n=1000000
+ file=/tmp/b.txt
+ TC=/auto/mtbcswgwork/chrism/iproute2/tc/tc
+ TC=/home1/chrism/iproute2/tc/tc
+ TC=tc
+ sudo tc qdisc del dev enp4s0f0 ingress
+ sudo tc qdisc add dev enp4s0f0 ingress
+ sudo ethtool -K enp4s0f0 hw-tc-offload on
 ethtool: bad command line argument(s)
 For more information run ethtool -h
-+ sudo /labhome/chrism/bin/tdc_batch.py -o -n 1000000 enp4s0f0 /tmp/b.txt
-+ tc -b /tmp/b.txt
+ sudo /labhome/chrism/bin/tdc_batch.py -o -n 1000000 enp4s0f0 /tmp/b.txt
+ tc -b /tmp/b.txt
 
 real    63m20.729s
 user    0m22.333s
 sys     56m27.614s
-+ set +x
+ set +x
 
 ===qinq===
 
@@ -10847,7 +10847,7 @@ Date:   Fri Sep 18 13:58:00 2015 -0700
 
         OVS_KEY_ATTR_CT_STATE,  /* u32 bitmask of OVS_CS_F_* */
         OVS_KEY_ATTR_CT_ZONE,   /* u16 connection tracking zone. */
-+       OVS_KEY_ATTR_CT_MARK,   /* u32 connection tracking mark */
+       OVS_KEY_ATTR_CT_MARK,   /* u32 connection tracking mark */
 
 ===chain===
 
@@ -11470,7 +11470,7 @@ get_parameters
             test->server_affinity = j_p->valueint;
         if ((j_p = cJSON_GetObjectItem(j, "time")) != NULL)
             test->duration = j_p->valueint;
-+            printf("%s: %d\n", __func__, test->duration);
+            printf("%s: %d\n", __func__, test->duration);
         if ((j_p = cJSON_GetObjectItem(j, "num")) != NULL)
             test->settings->bytes = j_p->valueint;
         if ((j_p = cJSON_GetObjectItem(j, "blockcount")) != NULL)
@@ -12309,5 +12309,54 @@ mlx5dr_cmd_flow_table_create
 
 udp
 iperf -c 1.1.1.1 -t 10000 -i 1 -u -m -l 500
+
+===sf===
+
+e71383fb9cd1 net/mlx5: Light probe local SFs
+
+Subfunction which are spawned over the E-switch are created only with devlink
+device, and by default all the SF auxiliary devices are disabled.
+This will allow user to configure the SF before the SF have been fully probed,
+which will save time.
+
+Usage example:
+Create SF:
+$ devlink port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 11
+$ devlink port function set pci/0000:08:00.0/32768 \
+               hw_addr 00:00:00:00:00:11 state active
+
+Enable ETH auxiliary device:
+$ devlink dev param set auxiliary/mlx5_core.sf.1 \
+              name enable_eth value true cmode driverinit
+
+Now, in order to fully probe the SF, use devlink reload:
+$ devlink dev reload auxiliary/mlx5_core.sf.1
+
+bool mlx5_dev_is_lightweight(struct mlx5_core_dev *dev)
+{
+	return dev->priv.flags & MLX5_PRIV_FLAGS_DISABLE_ALL_ADEV;
+}
+
+
+{ .str = "pcisf", .num = DEVLINK_PORT_FLAVOUR_PCI_SF },
+
+devlink_nl_cmd_port_new_doit
+	mlx5_devlink_sf_port_new
+		mlx5_sf_add
+			mlx5_sf_alloc
+				mlx5_sf_hw_table_sf_alloc
+					mlx5_sf_hw_table_sf_alloc
+						mlx5_cmd_alloc_sf
+						mlx5_modify_vhca_sw_id
+			mlx5_eswitch_load_sf_vport
+				mlx5_esw_offloads_init_sf_rep
+					mlx5_esw_offloads_sf_devlink_port_init
+				mlx5_eswitch_load_vport
+					mlx5_esw_vport_enable
+					mlx5_esw_offloads_load_rep
+						mlx5_esw_offloads_devlink_port_register
+							devl_port_register_with_ops
+							devl_rate_leaf_create
+						mlx5_esw_offloads_rep_load
 
 

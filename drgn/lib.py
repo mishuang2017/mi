@@ -11,8 +11,12 @@ import drgn
 import socket
 # print(__name__)
 
-# prog = drgn.program_from_core_dump("/var/crash/vmcore.5")
-prog = drgn.program_from_kernel()
+crash_file = ""
+crash_file = "/var/crash/vmcore.2"
+if crash_file == "":
+    prog = drgn.program_from_kernel()
+else:
+    prog = drgn.program_from_core_dump(crash_file)
 
 # from lib_pedit import print_mod_hdr_key
 

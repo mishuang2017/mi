@@ -414,7 +414,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_23_04; cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/mlnx-ofa_kernel-4.0.git --branch=mlnx_ofed_23_10; cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone ssh://l-gerrit.mtl.labs.mlnx:29418/asap_dev_reg; cp ~/config_chrism_cx5.sh asap_dev_reg; cp ~cmi/commit-msg asap_dev_reg/.git/hooks/'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
 alias clone-iproute2='git clone ssh://gerrit.mtl.com:29418/mlnx_ofed/iproute2 --branch=mlnx_ofed_23_07'
@@ -6929,6 +6929,32 @@ function sf1
 	$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $n
 }
 
+alias sf_m="sf_create mlxdevm"
+alias sf_d="sf_create devlink"
+
+function sf_create
+{
+set -x
+	cmd=$1
+	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 1
+	sleep 1
+	$cmd port function set en8f0pf0sf1 state active
+
+	/usr/bin/ls -1d /sys/bus/auxiliary/devices/mlx5_core.sf.2
+	/usr/bin/cat /sys/bus/auxiliary/devices/mlx5_core.sf.2/sfnum
+	/usr/bin/basename /sys/bus/auxiliary/devices/mlx5_core.sf.2
+
+	sleep 1
+	devlink dev param show auxiliary/mlx5_core.sf.2 name enable_eth
+	sleep 1
+	devlink dev param set auxiliary/mlx5_core.sf.2 name enable_eth value true cmode driverinit
+set +x
+# 	return
+	sleep 1
+	devlink dev reload auxiliary/mlx5_core.sf.2
+}
+
 function sf
 {
 	n=1
@@ -6956,13 +6982,18 @@ function sf_ns
 	netns n12 eth3 1.1.1.2
 }
 
-function sf2
+function sf2_m
 {
-	$sfcmd port del $sf1
-	$sfcmd port del $sf2
+	cmd=mlxdevm
 
-# 	$sfcmd port del enp8s0f0npf0sf1
-# 	$sfcmd port del enp8s0f0npf0sf2
+	$cmd port del $sf1
+}
+
+function sf2_d
+{
+	cmd=devlink
+
+	$cmd port del $sf1
 }
 
 function br_sf
@@ -14850,6 +14881,7 @@ set -x
 # 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci mode legacy
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
 # 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci encap disable
 	devlink dev eswitch set pci/$pci mode switchdev
@@ -14917,8 +14949,12 @@ set -x
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
-	devlink dev eswitch set pci/$pci mode legacy
-	devlink dev eswitch set pci/$pci encap disable
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
+# 	devlink dev eswitch set pci/$pci mode legacy
+# 	devlink dev eswitch set pci/$pci encap disable
+# 	devlink dev eswitch set pci/$pci decap disable
+	devlink dev eswitch set pci/$pci mode switchdev
 
 	ip address flush enp8s0f0
 	ip -4 address add 172.16.0.1/16 dev enp8s0f0
@@ -14931,8 +14967,8 @@ set -x
         ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir out tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10000 mode transport  &&
         ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport  &&
         ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
-# set +x
-# 	return
+set +x
+	return
 
 	ssh root@$ip "
 

@@ -49,6 +49,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #     print(devlink.ops.reload_up)
     mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
     print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
+    print(mlx5_core_dev.coredev_type)
     print("=== devlink_port ===")
     for node in radix_tree_for_each(devlink.ports.address_of_()):
 #         print(node)
