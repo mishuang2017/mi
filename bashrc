@@ -14951,7 +14951,7 @@ set -x
 	sleep 1
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
-# 	devlink dev eswitch set pci/$pci mode legacy
+	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
 # 	devlink dev eswitch set pci/$pci decap disable
 	devlink dev eswitch set pci/$pci mode switchdev

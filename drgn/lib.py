@@ -68,6 +68,7 @@ if hostname.find("c-") == 0:
 
 if is_arm():
     pf0_name = "p0"
+    pf1_name = "p1"
 
 print("pf0_name: %s" % pf0_name)
 
