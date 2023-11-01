@@ -14880,8 +14880,8 @@ set -x
 	sleep 1
 # 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci mode legacy
-	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
 # 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci encap disable
 	devlink dev eswitch set pci/$pci mode switchdev

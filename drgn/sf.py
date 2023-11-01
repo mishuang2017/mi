@@ -28,7 +28,7 @@ print(" === sf rep / mlx5_sf_table.port_indices === ")
 def print_mlx5_sf(sf):
     print("port_index: %d, controller: %d, id: %d, hw_fn_id: %d, hw_state: %d" % \
         (sf.port_index, sf.controller, sf.id, sf.hw_fn_id, sf.hw_state))
-#     print(sf)
+    print(sf)
 
 for node in radix_tree_for_each(mlx5_sf_table.port_indices.address_of_()):
     mlx5_sf = Object(prog, 'struct mlx5_sf', address=node[1].value_())
@@ -79,7 +79,7 @@ mlx5_sf_dev_table = mlx5e_priv.mdev.priv.sf_dev_table
 for node in radix_tree_for_each(mlx5_sf_dev_table.devices.address_of_()):
     mlx5_sf_dev = Object(prog, 'struct mlx5_sf_dev', address=node[1].value_())
     print(mlx5_sf_dev.adev.dev.kobj.name.string_().decode())
-#     print(mlx5_sf_dev)
+    print(mlx5_sf_dev)
 
 # (struct mlx5_sf_dev){
 #         .adev = (struct auxiliary_device){

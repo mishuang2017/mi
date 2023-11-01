@@ -14,7 +14,6 @@ from lib import *
 
 devs = {}
 
-bus_type = prog["pci_bus_type"]
 subsys_private = get_subsys_private("pci")
 k_list = subsys_private.klist_devices.k_list
 

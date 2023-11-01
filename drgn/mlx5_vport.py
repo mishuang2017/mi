@@ -36,9 +36,9 @@ def print_mlx5_vport(priv):
 #         if vport.dl_port:
 #             print(vport.dl_port.devlink_rate)
         print("enabled: %x" % vport.enabled, end=' ')
-        if vport.enabled:
+#         if vport.enabled:
 #             print(vport)
-            print(vport.dl_port)
+#             print(vport.dl_port)
         print("vlan: %d" % vport.info.vlan, end=' ')
 #         if vport.ingress.acl:
 #             lib.flow_table("", vport.ingress.acl)

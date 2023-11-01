@@ -10,7 +10,7 @@ import os
 
 libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
-import lib
+from lib import *
 
 def print_auxiliary_driver(driver):
     auxiliary_driver = container_of(driver, "struct auxiliary_driver", "driver")
@@ -32,8 +32,7 @@ def print_auxiliary_device(device):
 
 def print_bus(bus):
     print("===================== %s ==========================" % bus)
-    bus_type = prog[bus]
-    subsys_private = bus_type.p
+    subsys_private = get_subsys_private(bus)
     k_list = subsys_private.drivers_kset
 
     print("=== driver ===")
@@ -54,7 +53,7 @@ def print_bus(bus):
     print('')
 
 # print_bus("pci_bus_type")
-print_bus("auxiliary_bus_type")
+print_bus("auxiliary")
 
 # mlx5e_rep_driver = prog['mlx5e_rep_driver']
 # print(mlx5e_rep_driver)
