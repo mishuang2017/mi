@@ -41,7 +41,7 @@ def print_bus(bus):
         print('----------------------------------')
         name = driver_private.kobj.name.string_().decode()
         print(name)
-        if bus == "auxiliary_bus_type" and name.find("mlx5_core") == 0:
+        if bus == "auxiliary" and name.find("mlx5_core") == 0:
             print_auxiliary_driver(driver_private.driver)
     print('')
 
