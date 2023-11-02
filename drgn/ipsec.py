@@ -28,7 +28,36 @@ for node in radix_tree_for_each(sadb.address_of_()):
     entry = Object(prog, 'struct mlx5e_ipsec_sa_entry', address=node[1].value_())
     print(entry)
 
-# exit(0)
+
+MLX5_ESWITCH_OFFLOADS = prog['MLX5_ESWITCH_OFFLOADS']
+MLX5_ESWITCH_LEGACY = prog['MLX5_ESWITCH_LEGACY']
+
+if mlx5e_priv.mdev.priv.eswitch.mode == MLX5_ESWITCH_LEGACY:
+    print("\n======================== legacy ===========================\n")
+    tx = ipsec.tx
+    rx = ipsec.rx_ipv4
+    # print(tx)
+    print("\n--- policy ---\n")
+    flow_table("ipsec.tx.pol", tx.ft.pol)
+    flow_table("ipsec.rx.pol", rx.ft.pol)
+
+    print("\n--- stat ---\n")
+    flow_table("ipsec.tx.sa", tx.ft.sa)
+    flow_table("ipsec.rx.sa", rx.ft.sa)
+else:
+    print("\n======================== switchdev ===========================\n")
+    tx = ipsec.tx_esw
+    rx = ipsec.rx_esw
+    # print(tx)
+    print("\n--- policy ---\n")
+    flow_table("ipsec.tx.pol", tx.ft.pol)
+    flow_table("ipsec.rx.pol", rx.ft.pol)
+
+    print("\n--- stat ---\n")
+    flow_table("ipsec.tx.sa", tx.ft.sa)
+    flow_table("ipsec.rx.sa", rx.ft.sa)
+
+exit(0)
 
 def print_net_xfrm_state(net):
     netns_xfrm = net.xfrm

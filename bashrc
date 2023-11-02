@@ -14875,16 +14875,17 @@ function ipsec1
 {
 set -x
 	[[ "$HOSTNAME" == "c-237-173-40-045" ]] && ip=10.237.173.46
+	[[ "$HOSTNAME" == "c-234-181-240-243" ]] && ip=10.234.181.244
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
 # 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
-	devlink dev eswitch set pci/$pci mode legacy
+# 	devlink dev eswitch set pci/$pci mode legacy
+# 	devlink dev eswitch set pci/$pci encap disable
+# 	devlink dev eswitch set pci/$pci mode switchdev
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
-	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
 # 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
-	devlink dev eswitch set pci/$pci encap disable
-	devlink dev eswitch set pci/$pci mode switchdev
 	ip address flush enp8s0f0
 	ip -4 address add $link_ip/24 dev enp8s0f0
 	ip link set enp8s0f0 up
@@ -14910,11 +14911,12 @@ set +x
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
-	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
+# 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	devlink dev eswitch set pci/$pci mode legacy
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
-	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
-	devlink dev eswitch set pci/$pci mode switchdev
+# 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
+# 	devlink dev eswitch set pci/$pci mode switchdev
 	ip address flush enp8s0f0
 	ip -4 address add $link_remote_ip/24 dev enp8s0f0
 	ip link set enp8s0f0 up
@@ -14949,12 +14951,12 @@ set -x
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
-	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
-	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
-	devlink dev eswitch set pci/$pci mode legacy
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
+# 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
 # 	devlink dev eswitch set pci/$pci decap disable
-	devlink dev eswitch set pci/$pci mode switchdev
+# 	devlink dev eswitch set pci/$pci mode switchdev
 
 	ip address flush enp8s0f0
 	ip -4 address add 172.16.0.1/16 dev enp8s0f0
