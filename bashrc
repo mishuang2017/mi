@@ -1903,6 +1903,19 @@ function update_grub
 	sudo sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
 }
 
+# If using bf built-in config, run the following command to before building kernel
+function bf_config
+{
+	./scripts/config --set-str CONFIG_MODULE_SIG_KEY certs/signing_key.pem && \
+		./scripts/config --set-str CONFIG_SYSTEM_TRUSTED_KEYS  && \
+		./scripts/config -e CONFIG_LOCALVERSION_AUTO && \
+		./scripts/config -e CONFIG_SYSTEM_TRUSTED_KEYRING && \
+		./scripts/config -d CONFIG_SYSTEM_EXTRA_CERTIFICATE && \
+		./scripts/config -d CONFIG_SECONDARY_TRUSTED_KEYRING && \
+		./scripts/config -d CONFIG_SYSTEM_BLACKLIST_KEYRING && \
+		./scripts/config -d CONFIG_SYSTEM_REVOCATION_LIST
+}
+
 function make-all
 {
 	[[ $UID == 0 ]] && return
@@ -6444,7 +6457,7 @@ function del-br
 	sudo ip l d dummy0 > /dev/null 2>&1
 }
 
-function vlan-ns
+function vlan_ns
 {
 set -x
 	[[ $# != 4 ]] && return
@@ -6459,11 +6472,12 @@ set -x
 	ip link set dev $link netns $n
 	exe $n vconfig add $link $vid
 	exe $n ifconfig $link up
-	exe $n ifconfig ${link}.$vid $ip/24 up
+	exe $n ifconfig ${link}.$vid $ip/16 up
 set +x
 }
 
-alias iperfc1='n1 iperf -c 1.1.1.200 -t 10000 -i 1'
+alias vlan1='vlan_ns eth3 100 1.1.1.1 n11'
+alias vlan2='vlan_ns eth3 100 1.1.3.1 n11'
 
 # 1472
 function netns
