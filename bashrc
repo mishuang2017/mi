@@ -23,7 +23,7 @@ cloud=1
 bf=0
 bf_ubuntu=0
 if [[ "$(uname -m)" == "aarch64" ]]; then
-	test -f /usr/bin/lsb_release && bf_ubuntu=1
+	test -f /etc/redhat-release || bf_ubuntu=1
 	bf=1
 fi
 if [[ "$(hostname -s)" == "dev-r630-03" ]]; then
@@ -9154,9 +9154,10 @@ function ofed_install
 {
 # 	build=OFED-internal-5.2-0.2.8 /mswg/release/ofed/ofed_install --force --basic
 	build=MLNX_OFED_LINUX-5.6-0.7.8.0/    /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
-	build=OFED-internal-23.07-0.4.1  /mswg/release/ofed/ofed_install --force --basic
+	build=OFED-internal-23.10-0.2.6.0  /mswg/release/ofed/ofed_install --force --basic
+	build=OFED-internal-23.10-0.2.1.0  /mswg/release/ofed/ofed_install --force --basic
 
-	build=MLNX_OFED_LINUX-23.10-0.3.3.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs
+	build=MLNX_OFED_LINUX-23.10-0.3.3.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
 }
 
 # alias ofed-configure2="./configure -j32 --with-linux=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --kernel-version=4.7-rc7 --kernel-sources=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-ipoib-mod --with-mlx5-mod"
@@ -14185,7 +14186,7 @@ alias mount_arm2="/auto/GLIT/lab-support/scripts/mount_script/mount.sh -r 10.237
 
 ######## uuu #######
 
-if [[ -f /usr/bin/lsb_release ]]; then
+if [[ ! -f /etc/redhat-release ]]; then
 
 [[ "$USER" == "cmi" ]] && alias s='[[ $UID == 0 ]] && su - cmi'
 alias vig='sudo vim /boot/grub/grub.cfg'
@@ -14896,9 +14897,9 @@ set -x
 # 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 # 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
-# 	devlink dev eswitch set pci/$pci mode switchdev
-	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
-# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+	devlink dev eswitch set pci/$pci mode switchdev
 # 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	ip address flush enp8s0f0
 	ip -4 address add $link_ip/24 dev enp8s0f0
