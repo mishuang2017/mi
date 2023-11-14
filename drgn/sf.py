@@ -23,17 +23,21 @@ print(mlx5_sf_hwc_table.hwc[0])
 #         .hw_fn_id = (u16)32769,
 #         .hw_state = (u16)3,
 
-print(" === sf rep / mlx5_sf_table.port_indices === ")
+# print(" === sf rep / mlx5_sf_table.port_indices === ")
+print(" === sf rep / mlx5_sf_table.function_ids === ")
 
 def print_mlx5_sf(sf):
     print("port_index: %d, controller: %d, id: %d, hw_fn_id: %d, hw_state: %d" % \
         (sf.port_index, sf.controller, sf.id, sf.hw_fn_id, sf.hw_state))
-    print(sf)
+#     print(sf)
 
-for node in radix_tree_for_each(mlx5_sf_table.port_indices.address_of_()):
+for node in radix_tree_for_each(mlx5_sf_table.function_ids.address_of_()):
     mlx5_sf = Object(prog, 'struct mlx5_sf', address=node[1].value_())
     print_mlx5_sf(mlx5_sf)
-#     print(mlx5_sf)
+
+# for node in radix_tree_for_each(mlx5_sf_table.port_indices.address_of_()):
+#     mlx5_sf = Object(prog, 'struct mlx5_sf', address=node[1].value_())
+#     print_mlx5_sf(mlx5_sf)
 
 mlx5_nb = mlx5e_priv.mdev.priv.eswitch.nb
 # print(mlx5_nb)
@@ -79,7 +83,7 @@ mlx5_sf_dev_table = mlx5e_priv.mdev.priv.sf_dev_table
 for node in radix_tree_for_each(mlx5_sf_dev_table.devices.address_of_()):
     mlx5_sf_dev = Object(prog, 'struct mlx5_sf_dev', address=node[1].value_())
     print(mlx5_sf_dev.adev.dev.kobj.name.string_().decode())
-    print(mlx5_sf_dev)
+#     print(mlx5_sf_dev)
 
 # (struct mlx5_sf_dev){
 #         .adev = (struct auxiliary_device){

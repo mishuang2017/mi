@@ -16,7 +16,8 @@ mlxdevms = prog['mlxdevms']
 for node in radix_tree_for_each(mlxdevms.address_of_()):
 #     print(node)
     mlxdevm = Object(prog, 'struct mlxdevm', address=node[1].value_())
-#     print(mlxdevm.index)
+    print(mlxdevm.index)
+    print("mlxdevm: %x" % mlxdevm.address_of_())
     port_list = mlxdevm.port_list
 #     print(port_list)
     for port in list_for_each_entry('struct mlxdevm_port', port_list.address_of_(), 'list'):
