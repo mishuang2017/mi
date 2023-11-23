@@ -14898,8 +14898,8 @@ set -x
 # 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
 # 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
-	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
-	devlink dev eswitch set pci/$pci mode switchdev
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+# 	devlink dev eswitch set pci/$pci mode switchdev
 # 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 	ip address flush enp8s0f0
 	ip -4 address add $link_ip/24 dev enp8s0f0
@@ -14919,17 +14919,17 @@ set -x
 	ip xfrm policy add src $link_remote_ip dst $link_ip dir in tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
 	ip xfrm policy add src $link_remote_ip dst $link_ip dir fwd tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
 
-set +x
-	return
+# set +x
+# 	return
 
 	ssh root@$ip "
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
 # 	echo none > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
-	devlink dev eswitch set pci/$pci mode legacy
+# 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
-	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
 # 	echo full > /sys/class/net/enp8s0f0/compat/devlink/ipsec_mode
 # 	devlink dev eswitch set pci/$pci mode switchdev
 	ip address flush enp8s0f0
