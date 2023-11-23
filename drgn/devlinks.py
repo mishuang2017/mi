@@ -22,7 +22,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     pci_name = devlink.dev.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue
-#     print(devlink.ops)
+#     print(devlink.ops.eswitch_encap_mode_set)
 
     print("========================== devlink.dev.kobj.name: %s index: %d =========================" % (pci_name, devlink.index))
     print("devlink %x" % devlink.address_of_())
@@ -54,7 +54,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     for node in radix_tree_for_each(devlink.ports.address_of_()):
 #         print(node)
         port = Object(prog, 'struct devlink_port', address=node[1].value_())
-        print(port.ops)
+#         print(port.ops)
         print("index: %x" % port.index)
 #         print(port.switch_port)
 #         print(port.type_eth.ifname);

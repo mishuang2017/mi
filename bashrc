@@ -10,7 +10,7 @@ test -f /usr/bin/lsb_release && debian=1
 ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
-numvfs=1
+numvfs=3
 ports=2
 ports=1
 
@@ -6899,6 +6899,7 @@ function start-switchdev
 		devlink dev eswitch set pci/$pci_addr mode switchdev
 #		devlink dev eswitch set pci/$pci_addr encap enable
 	fi
+# 	devlink dev eswitch set pci/$pci_addr encap none
 
 # 	return
 
@@ -14889,8 +14890,7 @@ function ipsec2
 function ipsec1
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-173-40-045" ]] && ip=10.237.173.46
-	[[ "$HOSTNAME" == "c-234-181-240-243" ]] && ip=10.234.181.244
+	[[ "$HOSTNAME" == "c-237-169-60-061" ]] && ip=10.237.169.62
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
