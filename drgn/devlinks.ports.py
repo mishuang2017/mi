@@ -56,25 +56,15 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     print("mlx5_core_dev.coredev_type: ")
     print(mlx5_core_dev.coredev_type)
 #     continue
-    print("\t=== devlink_port start ===")
-
-    # new kernel
-    for node in radix_tree_for_each(devlink.ports.address_of_()):
-        port = Object(prog, 'struct devlink_port', address=node[1].value_())
-        print("\tport index: %x" % port.index)
-        print(port.ops.port_fn_hw_addr_get)
-#         print(port.switch_port)
-        print(port.type_eth.ifname);
-
-    print("\t=== devlink_port end ===")
+    print("\t=== devlink_port ===")
 
     # old kernel 
-#     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
+    for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
 #         print(port)
-#         print(port.type)
-#         print("port index: %x" % port.index)
-#         mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
-#         print(mlx5_devlink_port.vport.vport)
+        print(port.type)
+        print("port index: %x" % port.index)
+        mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
+        print(mlx5_devlink_port.vport.vport)
 #         netdev = Object(prog, 'struct net_device', address=port.type_dev)
 #         print(netdev.name)
 #         print("\n\tport index: %x" % port.index)

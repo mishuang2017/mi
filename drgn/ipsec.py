@@ -57,6 +57,10 @@ else:
     flow_table("ipsec.tx.sa", tx.ft.sa)
     flow_table("ipsec.rx.sa", rx.ft.sa)
 
+    print("\n--- status ---\n")
+    flow_table("ipsec.tx.status", tx.ft.status)
+    flow_table("ipsec.rx.status", rx.ft.status)
+
 exit(0)
 
 def print_net_xfrm_state(net):
