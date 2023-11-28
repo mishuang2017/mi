@@ -61,7 +61,7 @@ else:
     flow_table("ipsec.tx.status", tx.ft.status)
     flow_table("ipsec.rx.status", rx.ft.status)
 
-exit(0)
+# exit(0)
 
 def print_net_xfrm_state(net):
     netns_xfrm = net.xfrm
@@ -87,6 +87,7 @@ def print_net_xfrm_policy(net):
         print(" --- %d ---\n" % i)
 #         print(x)
         policy = container_of(x, "struct xfrm_policy", "walk")
+        print(policy)
         print(policy.xdo)
         i+=1
 

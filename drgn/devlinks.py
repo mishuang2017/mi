@@ -52,6 +52,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
     print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
     print("mlx5_priv %x" % mlx5_core_dev.priv.address_of_())
+#     print(mlx5_core_dev.priv.fw_reset)
     print("mlx5_eswitch %x" % mlx5_core_dev.priv.eswitch)
     print("mlx5_core_dev.coredev_type: ")
     print(mlx5_core_dev.coredev_type)
@@ -87,7 +88,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         param = Object(prog, 'struct devlink_param_item', address=node[1].value_())
         if param.driverinit_value_valid:
             print(param)
-            print(param.param)
+#             print(param.param.name)
 #     print("=== devlink.param_list ===")
 #     print(devlink.param_list)
 #     for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):

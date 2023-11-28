@@ -23,11 +23,15 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     pci_name = devlink.dev.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue
-#     print(devlink.ops.eswitch_encap_mode_set)
-#     print(devlink.ops)
+    print(devlink.ops.port_new)
+    print(devlink.ops.port_del)
+    print(devlink.ops.reload_down)
+    print(devlink.ops.reload_up)
+#     print(devlink.ops.port_function_hw_addr_get)
 
     print("========================== devlink.dev.kobj.name: %s index: %d =========================" % (pci_name, devlink.index))
     print("devlink %x" % devlink.address_of_())
+    print("devlink.features: %x" % devlink.features)
 #     if pci_name.find("mlx5_core.sf") == 0:
 #         auxiliary_device = container_of(devlink.dev, 'struct auxiliary_device', "dev")
 #         print("\tauxiliary_device.name: %s" % auxiliary_device.name.string_().decode())
@@ -63,8 +67,8 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #         print(port)
         print(port.type)
         print("port index: %x" % port.index)
-        mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
-        print(mlx5_devlink_port.vport.vport)
+#         mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
+#         print(mlx5_devlink_port.vport.vport)
 #         netdev = Object(prog, 'struct net_device', address=port.type_dev)
 #         print(netdev.name)
 #         print("\n\tport index: %x" % port.index)
@@ -72,15 +76,17 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #              print(port.attrs)
 
     continue
-    for node in radix_tree_for_each(devlink.params.address_of_()):
+#     for node in radix_tree_for_each(devlink.params.address_of_()):
 #         print(node)
-        param = Object(prog, 'struct devlink_param_item', address=node[1].value_())
-        if param.driverinit_value_valid:
-            print(param)
-            print(param.param)
-#     print("=== devlink.param_list ===")
+#         param = Object(prog, 'struct devlink_param_item', address=node[1].value_())
+#         if param.driverinit_value_valid:
+#             print(param)
+#             print(param.param.name)
+    print("=== devlink.param_list ===")
 #     print(devlink.param_list)
-#     for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
-        print("-------------------------------------------------------------")
-#         print(item)
+    for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
+#         print("-------------------------------------------------------------")
+        print(item)
+#         print(item.param)
+#         print(item.param.name)
 #         print(item.param.id)

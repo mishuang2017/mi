@@ -12360,3 +12360,68 @@ devlink_nl_cmd_port_new_doit
 						mlx5_esw_offloads_rep_load
 
 
+===ipsec===
+
+setup_fte_reg_c4
+
+__xfrm_policy_link
+
+4.274948 7497    7497    ping            mlx5e_xmit
+        b'mlx5e_xmit+0x5 [mlx5_core]'
+        b'sch_direct_xmit+0xa5 [kernel]'
+        b'__dev_xmit_skb+0x3f1 [kernel]'
+        b'__dev_queue_xmit+0x4a2 [kernel]'
+        b'neigh_hh_output+0x104 [kernel]'
+        b'ip_finish_output2+0x2cb [kernel]'
+        b'__ip_finish_output+0x156 [kernel]'
+        b'ip_finish_output+0x2e [kernel]'
+        b'ip_output+0x59 [kernel]'
+        b'xfrm_output_resume+0x2b0 [kernel]'
+        b'xfrm_output+0xe0 [kernel]'
+        b'__xfrm4_output+0x3e [kernel]'
+        b'xfrm4_output+0x3f [kernel]'
+        b'ip_push_pending_frames+0x129 [kernel]'
+        b'ping_v4_sendmsg+0x635 [kernel]'
+        b'inet_sendmsg+0x75 [kernel]'
+        b'sock_sendmsg+0xa6 [kernel]'
+        b'__sys_sendto+0x12b [kernel]'
+        b'__x64_sys_sendto+0x2d [kernel]'
+        b'do_syscall_64+0x3c [kernel]'
+        b'entry_SYSCALL_64_after_hwframe+0x6e [kernel]'
+
+3.169869 0       0       swapper/0       xfrm_selector_match
+        b'xfrm_selector_match+0x5 [kernel]'
+        b'xfrm_policy_lookup_bytype+0x198 [kernel]'
+        b'__xfrm_policy_check+0x706 [kernel]'
+        b'__xfrm_policy_check2.constprop.0+0x85 [kernel]'
+        b'icmp_rcv+0x44 [kernel]'
+        b'ip_protocol_deliver_rcu+0x213 [kernel]'
+        b'ip_local_deliver_finish+0xc2 [kernel]'
+        b'ip_local_deliver+0x8a [kernel]'
+        b'ip_sublist_rcv_finish+0xd2 [kernel]'
+        b'ip_list_rcv_finish.constprop.0+0x1ac [kernel]'
+        b'ip_list_rcv+0x15c [kernel]'
+        b'__netif_receive_skb_list_core+0x29a [kernel]'
+        b'__netif_receive_skb_list+0x102 [kernel]'
+        b'netif_receive_skb_list_internal+0x131 [kernel]'
+        b'napi_complete_done+0x7e [kernel]'
+        b'gro_cell_poll+0x7b [kernel]'
+        b'__napi_poll+0x2c [kernel]'
+        b'net_rx_action+0x2b5 [kernel]'
+        b'__do_softirq+0xd5 [kernel]'
+        b'__irq_exit_rcu+0x9e [kernel]'
+        b'irq_exit_rcu+0x12 [kernel]'
+        b'common_interrupt+0xb6 [kernel]'
+        b'asm_common_interrupt+0x2b [kernel]'
+        b'default_idle+0xf [kernel]'
+        b'default_idle_call+0x81 [kernel]'
+        b'cpuidle_idle_call+0x137 [kernel]'
+        b'do_idle+0x92 [kernel]'
+        b'cpu_startup_entry+0x24 [kernel]'
+        b'rest_init+0xfe [kernel]'
+        b'arch_call_rest_init+0x12 [kernel]'
+        b'start_kernel+0x3dd [kernel]'
+        b'x86_64_start_reservations+0x1c [kernel]'
+        b'x86_64_start_kernel+0x7b [kernel]'
+        b'secondary_startup_64_no_verify+0x166 [kernel]'
+
