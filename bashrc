@@ -1002,11 +1002,8 @@ function cloud_setup0
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-	if (( bf_ubuntu == 1 )); then
-		apt install -y cscope tmux screen exuberant-ctags bison
-	else
-		yum install -y cscope tmux screen ctags
-	fi
+	apt install -y cscope tmux screen exuberant-ctags bison
+	yum install -y cscope tmux screen ctags
 }
 
 function bf2_linux_5.4
