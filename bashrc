@@ -985,8 +985,8 @@ function create-images
 function cloud_setup0
 {
 	cd /root
-	test -d /root/bin || clone-bin
-	test -d /root/mi || clone-mi
+	test -d /root/bin || git clone https://github.com/mishuang2017/bin.git
+	test -d /root/mi || git clone https://github.com/mishuang2017/mi.git
 
 	if ! test -f /root/.tmux.conf; then
 		/bin/cp /root/mi/tmux.conf /root/.tmux.conf
@@ -14890,7 +14890,7 @@ function ipsec2
 function ipsec_software
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-169-60-061" ]] && ip=10.237.169.62
+	[[ "$HOSTNAME" == "c-237-173-40-045" ]] && ip=10.237.173.46
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -14954,7 +14954,7 @@ set +x
 function ipsec1
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-169-60-061" ]] && ip=10.237.169.62
+	[[ "$HOSTNAME" == "c-237-173-40-045" ]] && ip=10.237.173.46
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -15076,7 +15076,7 @@ function br_bf
 	ovs-vsctl add-br ovsbr1
 	ovs-vsctl add-br ovsbr2
 
-	for (( i = 0; i < ; i++)); do
+	for (( i = 0; i < 1; i++)); do
 		ovs-vsctl add-port ovsbr1 pf0vf$i
 	done;
 	ovs-vsctl add-port ovsbr1 p0

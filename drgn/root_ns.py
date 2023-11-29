@@ -12,20 +12,20 @@ import os
 sys.path.append(".")
 from lib import *
 
-dev = get_mlx5_core_dev(2)
-print(dev.coredev_type)
-print(dev.device.kobj.name)
+mlx5e_priv = get_mlx5_pf0()
 
-priv = dev.priv
+priv = mlx5e_priv.mdev.priv
 steering = priv.steering
 # print(steering)
 
 print('')
-print("FDB_BYPASS_PATH: %d" % prog['FDB_BYPASS_PATH'])
-print("FDB_TC_OFFLOAD:  %d" % prog['FDB_TC_OFFLOAD'])
-print("FDB_FT_OFFLOAD:  %d" % prog['FDB_FT_OFFLOAD'])
-print("FDB_SLOW_PATH:   %d" % prog['FDB_SLOW_PATH'])
-print("FDB_PER_VPORT:   %d" % prog['FDB_PER_VPORT'])
+print("FDB_BYPASS_PATH:    %d" % prog['FDB_BYPASS_PATH'])
+print("FDB_CRYPTO_INGRESS: %d" % prog['FDB_CRYPTO_INGRESS'])
+print("FDB_TC_OFFLOAD:     %d" % prog['FDB_TC_OFFLOAD'])
+print("FDB_FT_OFFLOAD:     %d" % prog['FDB_FT_OFFLOAD'])
+print("FDB_SLOW_PATH:      %d" % prog['FDB_SLOW_PATH'])
+print("FDB_CRYPTO_EGRESS:  %d" % prog['FDB_CRYPTO_EGRESS'])
+print("FDB_PER_VPORT:      %d" % prog['FDB_PER_VPORT'])
 
 def print_prio(prio, num):
     num_levels = prio.num_levels.value_()
