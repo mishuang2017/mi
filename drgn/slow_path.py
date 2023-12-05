@@ -33,11 +33,11 @@ print("\nmlx5e_priv->ppriv(mlx5e_rep_priv)->root_ft")
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     if pf0_name in name:
-        print(name)
         mlx5e_priv_addr = dev.value_() + prog.type('struct net_device').size
         mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
         ppriv = mlx5e_priv.ppriv
         if ppriv:
+            print(name)
             mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=ppriv.value_())
             print("mlx5_flow_table %lx" % mlx5e_rep_priv.root_ft.value_())
             print_dest(mlx5e_rep_priv.vport_rx_rule.rule[0])

@@ -6925,6 +6925,7 @@ function start-switchdev
 	return
 }
 
+sf1=enp8s0f0npf0sf1
 sf1=en8f0pf0sf1
 sf2=en8f0pf0sf2
 
@@ -6941,7 +6942,7 @@ function sf1
 	$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $n
 }
 
-alias sf_m="sf_create mlxdevm"
+alias sf_m="sf_create /opt/mellanox/iproute2/sbin/mlxdevm"
 alias sf_d="sf_create devlink"
 
 function sf_create
@@ -6950,9 +6951,12 @@ set -x
 	cmd=$1
 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 1
+	read
 	sleep 1
-	$cmd port function set en8f0pf0sf1 state active
+# 	$cmd port function set en8f0pf0sf1 state active
+	$cmd port function set $sf1 state active
 
+	read
 	/usr/bin/ls -1d /sys/bus/auxiliary/devices/mlx5_core.sf.2
 	/usr/bin/cat /sys/bus/auxiliary/devices/mlx5_core.sf.2/sfnum
 	/usr/bin/basename /sys/bus/auxiliary/devices/mlx5_core.sf.2
@@ -6996,7 +7000,7 @@ function sf_ns
 
 function sf2_m
 {
-	cmd=mlxdevm
+	cmd=/opt/mellanox/iproute2/sbin/mlxdevm
 
 	$cmd port del $sf1
 }
@@ -12200,6 +12204,47 @@ function branch
 {
 	test -f .git/index > /dev/null 2>&1 || return
 	git branch | grep \* | cut -d ' ' -f2
+}
+
+function ovs_bond
+{
+	ovs-vsctl add-br br1
+	ovs-vsctl add-bond br1 bond1 $link $link2
+}
+
+function vf_trust_on
+{
+	[[ $# == 0 ]] && vf=0 || vf=$1
+	ip link set dev $link vf $vf trust on
+}
+
+function vf_trust_off
+{
+	[[ $# == 0 ]] && vf=0 || vf=$1
+	ip link set dev $link vf $vf trust off
+}
+
+function promisc_on
+{
+	[[ $# == 0 ]] && l=$link || l=$1
+	ip link set $l promisc on
+}
+
+function promisc_off
+{
+	[[ $# == 0 ]] && l=$link || l=$1
+	ip link set $l promisc off
+}
+
+function vf_setup
+{
+	off
+	on-sriov
+	set_mac
+	un
+	bi
+# 	ip1
+	ifconfig enp8s0f0v0 1.1.1.$host_num/24 up
 }
 
 function set_trusted_vf_mode() {
