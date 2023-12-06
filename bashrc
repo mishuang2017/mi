@@ -12243,8 +12243,11 @@ function vf_setup
 	set_mac
 	un
 	bi
-# 	ip1
 	ifconfig enp8s0f0v0 1.1.1.$host_num/24 up
+	ip link set dev $link vf 0 trust on
+	ip1
+	read
+	ip link set enp8s0f0v0 promisc on
 }
 
 function set_trusted_vf_mode() {
