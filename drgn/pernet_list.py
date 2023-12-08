@@ -20,8 +20,8 @@ def print_netdev_chain(chain):
     i=1
     head = chain.head
     while head.next:
-        print(i)
-        print(head)
+#         print(i)
+        print(head.notifier_call)
         head = head.next
         i=i+1
 
@@ -31,4 +31,7 @@ def print_netdev_chain(chain):
 
 # eg. mlx5_esw_bridge_switchdev_port_event
 init_net_netdev_chain = prog['init_net'].netdev_chain
+print_netdev_chain(init_net_netdev_chain)
+
+init_net_netdev_chain = prog['netdev_chain']
 print_netdev_chain(init_net_netdev_chain)

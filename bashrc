@@ -15185,3 +15185,20 @@ function pci_reset
 {
     echo 1 > /sys/bus/pci/devices/$pci/reset
 }
+
+function zte
+{
+set -x
+	off
+	del-br
+	reprobe
+	sleep 1
+	ovs_bond
+# 	ifconfig $link up
+	on-sriov
+
+	ifconfig enp8s0f0v0 1.1.1.$host_num/24 up
+	ip link set dev $link vf 0 trust on
+	ip link set enp8s0f0v0 promisc on
+set +x
+}

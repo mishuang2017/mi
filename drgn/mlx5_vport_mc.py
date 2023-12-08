@@ -37,7 +37,7 @@ def print_mc_list(list):
 #             print(addr)
             mac = addr.node.addr
             print_mac(mac)
-            print("\t %d" % addr.mc_promisc.value_())
+            print("\t addr.mc_promisc %d" % addr.mc_promisc.value_())
             node = node.next
 
 def print_mlx5_vport(priv):
@@ -60,16 +60,17 @@ def print_mlx5_vport(priv):
         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
         print("enabled: %x" % vport.enabled.value_(), end=' ')
         print("vlan: %d" % vport.info.vlan, end=' ')
-        print('-----mc---------')
-        print_mc_list(vport.mc_list)
-        print('-----uc---------')
-        print_mc_list(vport.uc_list)
-        if vport.allmulti_rule:
-            print('-----vport.allmulti_rule---------')
-            print_mlx5_flow_handle(vport.allmulti_rule)
-        if vport.promisc_rule:
-            print('-----vport.promisc_rule---------')
-            print_mlx5_flow_handle(vport.promisc_rule)
+        if vport.enabled.value_():
+            print('\n-----mc---------')
+            print_mc_list(vport.mc_list)
+            print('-----uc---------')
+            print_mc_list(vport.uc_list)
+            if vport.allmulti_rule:
+                print('-----vport.allmulti_rule---------')
+                print_mlx5_flow_handle(vport.allmulti_rule)
+            if vport.promisc_rule:
+                print('-----vport.promisc_rule---------')
+                print_mlx5_flow_handle(vport.promisc_rule)
         print('')
 
     for node in radix_tree_for_each(vports.address_of_()):
@@ -79,8 +80,9 @@ def print_mlx5_vport(priv):
 mlx5e_priv = get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)
 
+print("\n=============mlx5_eswitch.mc_table==================\n")
 mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
-# print_esw_mc_table(mlx5_eswitch.mc_table)
+print_esw_mc_table(mlx5_eswitch.mc_table)
 
 # mlx5e_priv = get_mlx5_pf1()
 # print_mlx5_vport(mlx5e_priv)
