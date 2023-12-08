@@ -614,7 +614,7 @@ def print_tun(tun):
 
 def print_dest(rule):
     print("\t\tmlx5_flow_rule %lx, refcount: %d" % \
-        (rule.address_of_().value_(), rule.node.refcount.refs.counter))
+        (rule.value_(), rule.node.refcount.refs.counter))
 #     print(rule.dest_attr)
     if prog['MLX5_FLOW_DESTINATION_TYPE_COUNTER'] == rule.dest_attr.type:
         print("\t\t\tdest: counter_id: %x" % (rule.dest_attr.counter_id))
@@ -725,7 +725,8 @@ def flow_table(name, table):
             dest_addr = fte.children.address_of_()
             for dest in list_for_each_entry('struct fs_node', dest_addr, 'list'):
                 rule = Object(prog, 'struct mlx5_flow_rule', address=dest.value_())
-                print_dest(rule)
+                # pass a pointer
+                print_dest(rule.address_of_())
 
 def print_mac(mac):
     for i in range(6):
