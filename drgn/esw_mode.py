@@ -18,9 +18,10 @@ def print_health(health):
 def print_esw(priv):
 #     print(priv.netdev.xfrmdev_ops)
     print("mlx5e_priv %#x" % priv.address_of_())
+    print("mlx5e_priv.fs.state_destroy %#x" % priv.fs.state_destroy)
     print("mlx5_core_dev %#x" % priv.mdev)
-    print("mlx5_core_dev.num_block_tc %d" % priv.mdev.num_block_tc)
-    print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
+#     print("mlx5_core_dev.num_block_tc %d" % priv.mdev.num_block_tc)
+#     print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
     print(priv.mdev.coredev_type)
     print("mlx5_priv %#x" % priv.mdev.priv.address_of_())
 #     print_health(priv.mdev.priv.health)
