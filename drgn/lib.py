@@ -412,6 +412,8 @@ def hash(rhashtable, type, member):
 
 def print_mlx5_flow_handle(handle):
 #     print("\n=== mlx5_flow_handle start ===")
+    if not handle:
+        return
     num = handle.num_rules.value_()
     print("num_rules: %d" % (num))
     for i in range(num):

@@ -20,7 +20,7 @@ mlx5e_tc_table = mlx5e_priv.fs.tc
 # print(mlx5e_tc_table.netdevice_nn)
 
 mlx5e_l2_table = mlx5e_priv.fs.l2
-print(mlx5e_l2_table)
+# print(mlx5e_l2_table)
 flow_table("l2", mlx5e_l2_table.ft.t)
 print("\n===mlx5e_l2_table.broadcast.rule===\n")
 print_mlx5_flow_handle(mlx5e_l2_table.broadcast.rule)
