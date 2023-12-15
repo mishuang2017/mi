@@ -10810,7 +10810,8 @@ function tc_bond
 
 set -x
 
-	TC=/images/cmi/iproute2/tc/tc;
+	TC=/images/cmi/iproute2/tc/tc
+	TC=/opt/mellanox/iproute2/sbin/tc
 
 	bond=bond0
 	block_id=22
