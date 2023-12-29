@@ -10,15 +10,30 @@ import os
 sys.path.append(".")
 from lib import *
 
+esw_manager_vport = 0
+
 # for name in pf0_name,pf1_name:
 for name in pf0_name,:
     mlx5e_priv = get_mlx5e_priv(name)
     print("mlx5e_priv %x" % mlx5e_priv.address_of_().value_())
     mlx5_lag = mlx5e_priv.mdev.priv.lag
-#     print(mlx5_lag.mode)
-#     print("mode_flags: %x (MLX5_LAG_MODE_FLAG_SHARED_FDB: 2)" % mlx5_lag.mode_flags)
+
+    print('-------------')
+    MLX5_LAG_FLAG_ROCE = prog['MLX5_LAG_FLAG_ROCE']
+    MLX5_LAG_FLAG_SRIOV = prog['MLX5_LAG_FLAG_SRIOV']
+    MLX5_LAG_FLAG_MULTIPATH = prog['MLX5_LAG_FLAG_MULTIPATH']
+    MLX5_LAG_FLAG_READY = prog['MLX5_LAG_FLAG_READY']
+
+    print("MLX5_LAG_FLAG_ROCE: %x" % MLX5_LAG_FLAG_ROCE)
+    print("MLX5_LAG_FLAG_SRIOV: %x" % MLX5_LAG_FLAG_SRIOV)
+    print("MLX5_LAG_FLAG_MULTIPATH: %x" % MLX5_LAG_FLAG_MULTIPATH)
+    print("MLX5_LAG_FLAG_READY: %x" % MLX5_LAG_FLAG_READY)
+
+    print("mlx5_lag.flags: %d" % mlx5_lag.flags)
+    print('-------------')
+#     print("mode_flags: %x (MLX5_LAG_FLAG_FLAG_SHARED_FDB: 2)" % mlx5_lag.mode_flags)
 #     print("state_flags: %x (MLX5_LAG_FLAG_NDEVS_READY = 1)" % mlx5_lag.state_flags)
-    print(mlx5_lag)
+#     print(mlx5_lag)
     print(mlx5_lag.v2p_map)
     print(mlx5_lag.tracker)
     continue
@@ -33,21 +48,9 @@ for name in pf0_name,:
     esw_manager_vport = esw.manager_vport
 #     print("esw.manager_vport: %x" % esw_manager_vport)
 
-exit(0)
+# exit(0)
 
-# MLX5_LAG_MODE_NONE = prog['MLX5_LAG_MODE_NONE']
-# MLX5_LAG_MODE_ROCE = prog['MLX5_LAG_MODE_ROCE']
-# MLX5_LAG_MODE_SRIOV = prog['MLX5_LAG_MODE_SRIOV']
-# MLX5_LAG_MODE_MULTIPATH = prog['MLX5_LAG_MODE_MULTIPATH']
-# MLX5_LAG_MODE_MPESW = prog['MLX5_LAG_MODE_MPESW']
-
-# print("MLX5_LAG_MODE_NONE: %x" % MLX5_LAG_MODE_NONE)
-# print("MLX5_LAG_MODE_ROCE: %x" % MLX5_LAG_MODE_ROCE)
-# print("MLX5_LAG_MODE_SRIOV: %x" % MLX5_LAG_MODE_SRIOV)
-# print("MLX5_LAG_MODE_MULTIPATH: %x" % MLX5_LAG_MODE_MULTIPATH)
-# print("MLX5_LAG_MODE_MPESW: %x" % MLX5_LAG_MODE_MPESW)
-
-# if mlx5_lag.mode !=  MLX5_LAG_MODE_SRIOV:
+# if mlx5_lag.mode !=  MLX5_LAG_FLAG_SRIOV:
 #     exit(0)
 
 def print_mlx5_vport(priv):
@@ -67,7 +70,7 @@ def print_mlx5_vport(priv):
         print("vport: %4x, metadata: %4x" % (vport.vport, vport.metadata), end=' ')
         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
         print("vport: %5x" % vport.vport, end=' ')
-        print("enabled: %x" % vport.enabled, end=' ')
+        print("enabled: %x" % vport.enabled.value_(), end=' ')
         print('')
 
         # if egress acl is not NULL, it is shared_fdb

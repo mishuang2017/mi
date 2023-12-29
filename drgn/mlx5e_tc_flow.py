@@ -37,7 +37,7 @@ for x, dev in enumerate(get_netdevs()):
 #         print(flow.attr.esw_attr[0])
         print("============================== %d, %x =========================" % (j, flow))
         print_mlx5e_tc_flow(flow)
-        print_mlx5e_tc_flow(flow.peer_flow)
+#         print_mlx5e_tc_flow(flow.peer_flow)
 #         if flow.attr.mh:
 #             print(flow.attr.mh.modify_hdr)
 #             print("modify_hdr id: %x" % flow.attr.mh.modify_hdr.id)
