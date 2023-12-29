@@ -12,7 +12,7 @@ import socket
 # print(__name__)
 
 crash_file = ""
-# crash_file = "/var/crash/vmcore.0"
+crash_file = "/var/crash/vmcore.0"
 if crash_file == "":
     prog = drgn.program_from_kernel()
 else:
@@ -1070,7 +1070,7 @@ def print_mlx5e_tc_flow_flags():
     print("MLX5E_TC_FLOW_FLAG_FAILED         %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_FAILED'].value_()))
     print('')
     print("MLX5E_TC_FLOW_FLAG_SAMPLE         %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_SAMPLE'].value_()))
-    print("MLX5E_TC_FLOW_FLAG_USE_ACT_STATS  %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_USE_ACT_STATS'].value_()))
+#     print("MLX5E_TC_FLOW_FLAG_USE_ACT_STATS  %10x" % (1 << prog['MLX5E_TC_FLOW_FLAG_USE_ACT_STATS'].value_()))
 
 def print_mlx5e_tc_flow_parse_attr(parse_attr):
     print("--- mlx5e_tc_flow_parse_attr---")
@@ -1107,8 +1107,8 @@ def print_mlx5e_tc_flow(flow):
 #         print("not encap, return")
 #         return
     parse_attr = flow_attr.parse_attr
-    print("%-14s mlx5e_tc_flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
-        (name, flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))
+    print("%-14s mlx5e_tc_flow %lx, peer flow %lx, cookie: %lx, flags: %x, refcnt: %d" % \
+        (name, flow.value_(), flow.peer_flow.value_(), flow.cookie.value_(), flow.flags.value_(), flow.refcnt.refs.counter))
     print("chain: %x, prio: %d" % (flow_attr.chain, flow_attr.prio), end='\t')
     print("dest_chain: %x" % flow_attr.dest_chain, end='\t')
     print("ft: %x" % flow_attr.ft, end='\t')
@@ -1117,7 +1117,6 @@ def print_mlx5e_tc_flow(flow):
 #     print("mlx5_flow_spec %lx" % parse_attr.spec.address_of_())
 
     print("flow.attr: %x" % flow.attr)
-#     print(flow_attr.mh)
     print("flow_attr.flags %x" % flow_attr.flags)
     # usualy 0 
 #     print("flow.attr.tc_act_cookies_count: %d" % flow.attr.tc_act_cookies_count)
@@ -1163,6 +1162,7 @@ def print_mlx5e_tc_flow(flow):
 
 #     print_mlx5e_tc_flow_parse_attr(parse_attr)
     print("")
+    print(flow.encaps[0].e)
 
     return
 #     print(flow.miniflow_list)

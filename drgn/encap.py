@@ -65,7 +65,7 @@ def print_encap(rep_priv):
 #                 print_mod_hdr_key(flow.attr.mh.key)
 #                 print_completion(flow.init_done)
 
-mlx5e_rep_priv = get_mlx5e_rep_priv()
-print_encap(mlx5e_rep_priv)
-# mlx5e_rep_priv = get_mlx5e_rep_priv2()
+# mlx5e_rep_priv = get_mlx5e_rep_priv()
 # print_encap(mlx5e_rep_priv)
+mlx5e_rep_priv = get_mlx5e_rep_priv2()
+print_encap(mlx5e_rep_priv)

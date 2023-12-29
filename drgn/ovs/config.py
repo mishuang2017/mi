@@ -51,5 +51,5 @@ print(psample_sock)
 #     if total:
 #         print("%80s, %5d, %5d" % (name, total, last_total))
 
-sample_group_ids = prog['sample_group_ids']
-print(sample_group_ids)
+# sample_group_ids = prog['sample_group_ids']
+# print(sample_group_ids)

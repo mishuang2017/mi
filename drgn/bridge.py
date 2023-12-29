@@ -9,12 +9,14 @@ import os
 sys.path.append(".")
 from lib import *
 
-mlx5e_priv = get_mlx5_pf0()
+mlx5e_priv = get_mlx5_pf1()
+print(mlx5e_priv.netdev.name)
 mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
 
 mlx5_esw_bridge_offloads = mlx5_eswitch.br_offloads
 # print(mlx5_esw_bridge_offloads)
 
+# exit(0)
 # ingress_ft is global
 # egress_ft is per bridge
 
@@ -43,11 +45,11 @@ def print_mlx5_esw_bridge(bridge):
     print("\n=== mlx5_esw_bridge mlx5_esw_bridge_fdb_entry ===\n")
     fdb_list = bridge.fdb_list
     for fdb_entry in list_for_each_entry('struct mlx5_esw_bridge_fdb_entry', fdb_list.address_of_(), 'list'):
-        print("key.addr: %s, vport_num: %d, dev name: %s" % ((mac((fdb_entry.key.addr))), fdb_entry.vport_num,
-            fdb_entry.dev.name.string_().decode()))
-#         print("\n=== fdb_entry.ingress_handle ===")
+        print("key.addr: %s, vport_num: %d, dev name: %s, lastuse: %lx" % ((mac((fdb_entry.key.addr))), fdb_entry.vport_num,
+            fdb_entry.dev.name.string_().decode(), fdb_entry.lastuse))
+#         print("\n--- fdb_entry.ingress_handle ---")
 #         print_mlx5_flow_handle(fdb_entry.ingress_handle)
-#         print("=== fdb_entry.egress_handle ===")
+#         print("\n--- fdb_entry.egress_handle ---")
 #         print_mlx5_flow_handle(fdb_entry.egress_handle)
 
 #     print("\n=== mlx5_esw_bridge.egress_miss_handle ==\n")
@@ -69,6 +71,7 @@ print("MLX5_ESW_BRIDGE_PORT_FLAG_PEER = %d" % MLX5_ESW_BRIDGE_PORT_FLAG_PEER)
 ports = mlx5_esw_bridge_offloads.ports.address_of_()
 for node in radix_tree_for_each(ports):
     port = Object(prog, 'struct mlx5_esw_bridge_port', address=node[1].value_())
+#     print(port)
     print("port->vport_num: %d, esw_owner_vhca_id: %d, flags: %x" %
         (port.vport_num, port.esw_owner_vhca_id, port.flags))
 #     mlx5_esw_bridge = port.bridge
@@ -81,9 +84,10 @@ notifier_block = switchdev_notif_chain.head
 while True:
     if notifier_block.value_() == 0:
         break
+#     print(notifier_block)
     print(address_to_name(hex(notifier_block.notifier_call)))
-    if notifier_block.notifier_call.value_() == prog['mlx5_esw_bridge_switchdev_event'].address_of_().value_():
-        mlx5_esw_bridge_offloads = container_of(notifier_block, "struct mlx5_esw_bridge_offloads", "nb")
+#     if notifier_block.notifier_call.value_() == prog['mlx5_esw_bridge_switchdev_event'].address_of_().value_():
+#         mlx5_esw_bridge_offloads = container_of(notifier_block, "struct mlx5_esw_bridge_offloads", "nb")
 #         print(mlx5_esw_bridge_offloads)
     notifier_block = notifier_block.next
 

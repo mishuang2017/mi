@@ -5472,8 +5472,6 @@ set -x
 	done
 	ip1
 	vxlan1
-# 	ifconfig $vf1 1.1.1.1/24 up
-# 	sflow_create
 set +x
 }
 
@@ -10545,6 +10543,9 @@ set -x
 		dst_mac $mac2 ct_state -trk \
 		action ct pipe action goto chain 1
 
+set +x
+	return
+
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \
 		action ct commit \
@@ -10554,8 +10555,6 @@ set -x
 		dst_mac $mac2 ct_state +trk+est \
 		action mirred egress redirect dev $rep3
 
-# set +x
-# 	return
 
 	$TC filter add dev $rep3 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac1 ct_state -trk \
@@ -11695,8 +11694,8 @@ set -x
 # 	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 # 	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
 # 	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
-	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+# 	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 set +x
 	bond_switchdev
 	sleep 1
@@ -11708,8 +11707,8 @@ set +x
 	bi2
 	set_netns_all 1
 
-	ifconfig bond0 $link_ip
-	bond_br
+# 	ifconfig bond0 $link_ip
+# 	bond_br
 
 	return
 
@@ -14995,8 +14994,6 @@ set -x
 set +x
 }
 
-
-
 function ipsec1
 {
 set -x
@@ -15059,9 +15056,73 @@ set -x
 set +x
 }
 
+function ipsec_ipv6
+{
+set -x
+	[[ "$HOSTNAME" == "c-237-173-40-045" ]] && ip=10.237.173.46
+	ip xfrm state flush
+	ip xfrm policy flush
+	sleep 1
+# 	devlink dev eswitch set pci/$pci mode legacy
+# 	devlink dev eswitch set pci/$pci encap disable
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+	devlink dev eswitch set pci/$pci mode switchdev
+	ip address flush enp8s0f0
+	ip -4 address add $link_ip/24 dev enp8s0f0
+	ip link set enp8s0f0 up
+	ip xfrm state flush
+	ip xfrm policy flush
+
+	ip xfrm state add src $link_ipv6 dst $link_remote_ipv6 proto esp spi 10001 reqid 100001 \
+		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
+		sel src $link_ipv6 dst $link_remote_ipv6 offload packet dev enp8s0f0 dir out
+
+	ip xfrm state add src $link_remote_ipv6 dst $link_ipv6 proto esp spi 10000 reqid 100000 \
+		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
+		sel src $link_remote_ipv6 dst $link_ipv6 offload packet dev enp8s0f0 dir in
+
+	ip xfrm policy add src $link_ipv6 dst $link_remote_ipv6 dir out tmpl src $link_ipv6 dst $link_remote_ipv6 proto esp reqid 100001 mode transport offload packet dev enp8s0f0
+	ip xfrm policy add src $link_remote_ipv6 dst $link_ipv6 dir in tmpl src $link_remote_ipv6 dst $link_ipv6 proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+	ip xfrm policy add src $link_remote_ipv6 dst $link_ipv6 dir fwd tmpl src $link_remote_ipv6 dst $link_ipv6 proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+
+# set +x
+# 	return
+
+	ssh root@$ip "
+	ip xfrm state flush
+	ip xfrm policy flush
+	sleep 1
+# 	devlink dev eswitch set pci/$pci mode legacy
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+	devlink dev eswitch set pci/$pci mode switchdev
+	ip address flush enp8s0f0
+	ip -4 address add $link_remote_ipv6/24 dev enp8s0f0
+	ip link set enp8s0f0 up
+	ip xfrm state flush
+	ip xfrm policy flush
+
+        ip xfrm state add src $link_ipv6 dst $link_remote_ipv6 proto esp spi 10001 reqid 100001 \
+		aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
+		sel src $link_ipv6 dst $link_remote_ipv6 offload packet dev enp8s0f0 dir in
+
+        ip xfrm state add src $link_remote_ipv6 dst $link_ipv6 proto esp spi 10000 reqid 100000 \
+		aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
+		sel src $link_remote_ipv6 dst $link_ipv6 offload packet dev enp8s0f0 dir out
+
+        ip xfrm policy add src $link_ipv6 dst $link_remote_ipv6 dir in tmpl src $link_ipv6 dst $link_remote_ipv6 proto esp reqid 100001 mode transport offload packet dev enp8s0f0
+        ip xfrm policy add src $link_remote_ipv6 dst $link_ipv6 dir out tmpl src $link_remote_ipv6 dst $link_ipv6 proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+        ip xfrm policy add src $link_ipv6 dst $link_remote_ipv6 dir fwd tmpl src $link_remote_ipv6 dst $link_ipv6 proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+	"
+set +x
+}
+
+
+
 function ipsec_counters
 {
-	ethtool -S $link | grep ipsec_full
+	ethtool -S $link | grep ipsec
 }
 
 function ipsec_crypto
@@ -15202,4 +15263,16 @@ set -x
 	ip link set dev $link vf 0 trust on
 	ip link set enp8s0f0v0 promisc on
 set +x
+}
+
+function linux_br
+{
+	ifconfig br1 down
+	brctl delbr br1
+	brctl addbr br1
+	ifconfig br1 up
+	brctl addif br1 bond0 enp8s0f0_1 enp8s0f1_1 enp8s0f0_2 enp8s0f1_2
+	for i in enp8s0f0_1 enp8s0f1_1 enp8s0f0_2 enp8s0f1_2; do
+		ifconfig $i up
+	done
 }

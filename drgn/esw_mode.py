@@ -44,14 +44,15 @@ def print_esw(priv):
     print("esw->fdb_table->offloads->send_to_vport_meta_rules: %d" % esw.fdb_table.offloads.send_to_vport_meta_rules)
     print("esw->offloads->inline_mode: %d" % esw.offloads.inline_mode)
     print("esw->offloads->encap: %d" % esw.offloads.encap)
-    print(esw.offloads.rep_ops[0])
-    print(esw.offloads.rep_ops[1])
+#     print(esw.offloads.rep_ops[0])
+#     print(esw.offloads.rep_ops[1])
     print("user_count: %d" % esw.user_count.counter)
     print("num_flows %d" % esw.offloads.num_flows.counter)
 
 #     print(esw.offloads.peer_flows)
-#     for flow in list_for_each_entry('struct mlx5e_tc_flow', esw.offloads.peer_flows.address_of_(), 'peer'):
+#     for flow in list_for_each_entry('struct mlx5e_tc_flow', esw.offloads.peer_flows[1].address_of_(), 'peer'):
 #         print("%x" % flow)
+#         print_mlx5e_tc_flow(flow)
 
 print("===================== port 1 =======================")
 mlx5e_priv = get_mlx5e_priv(pf0_name)

@@ -30,8 +30,10 @@ for x, dev in enumerate(get_netdevs()):
 #     addr = 0xffff93e6b7e00000
 #     dev = Object(prog, 'struct net_device', address=addr)
     name = dev.name.string_().decode()
+#     print(name)
 #     if name != "vlan-int":
-    if name != "ovs-system":
+#     if name != "ovs-system":
+    if name != "tst1":
         continue
     addr = dev.value_()
 #     if "enp" in name:
@@ -42,18 +44,24 @@ for x, dev in enumerate(get_netdevs()):
     print("%10d" % count, end='')
     print_kind(dev)
     print("")
+#     print(dev.adj_list.upper)
+#     print(dev.adj_list.lower)
+
+    for netdev_adjacent in list_for_each_entry('struct netdev_adjacent', dev.adj_list.lower.address_of_(), 'list'):
+        print(netdev_adjacent.dev.name)
 
 for netdev_adjacent in list_for_each_entry('struct netdev_adjacent', dev.adj_list.upper.address_of_(), 'list'):
     macvlan_netdev = netdev_adjacent.dev
     print(macvlan_netdev.name)
 
-for netdev_adjacent in list_for_each_entry('struct netdev_adjacent', dev.adj_list.lower.address_of_(), 'list'):
-    macvlan_netdev = netdev_adjacent.dev
-    print(macvlan_netdev.name)
+# for netdev_adjacent in list_for_each_entry('struct netdev_adjacent', dev.adj_list.lower.address_of_(), 'list'):
+#     print(netdev_adjacent.name)
+#     macvlan_netdev = netdev_adjacent.dev
+#     print(macvlan_netdev.name)
 
 bond = get_bond0()
 print(bond.name)
 
-for netdev_adjacent in list_for_each_entry('struct netdev_adjacent', bond.adj_list.lower.address_of_(), 'list'):
+for netdev_adjacent in list_for_each_entry('struct netdev_adjacent', bond.adj_list.upper.address_of_(), 'list'):
     netdev = netdev_adjacent.dev
     print(netdev.name)

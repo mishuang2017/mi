@@ -11,6 +11,9 @@ libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
 from lib import *
 
+# hello = input()
+# print(hello)
+
 # TODO: multiple address
 def print_ip_address(dev):
     ifa_list = dev.ip_ptr.ifa_list
