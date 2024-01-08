@@ -337,6 +337,8 @@ alias vxlan4789="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan opti
 alias vxlan1-2="ovs-vsctl add-port $br2 $vx2 -- set interface $vx2 type=vxlan options:remote_ip=$link2_remote_ip  options:key=$vni options:dst_port=$vxlan_port"
 alias vxlan2="ovs-vsctl del-port $br $vx"
 
+alias geneve="ovs-vsctl add-port $br geneve1 -- set interface geneve1 type=geneve options:remote_ip=$link_remote_ip options:local_ip=$link_ip options:key=8973287 options:dst_port=6081"
+
 alias vsconfig="sudo ovs-vsctl get Open_vSwitch . other_config"
 function vsconfig3
 {
@@ -866,7 +868,7 @@ function ip8
 	ip addr flush $l
 	ip addr add dev $l 8.9.10.11/24
 	ip link set $l up
-	ip l d vxlan0 2> /dev/null
+# 	ip l d vxlan0 2> /dev/null
 }
 
 function ip200
@@ -5471,7 +5473,9 @@ set -x
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	ip1
-	vxlan1
+# 	vxlan1
+	geneve
+	vs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
 set +x
 }
 
