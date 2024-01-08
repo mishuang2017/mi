@@ -988,7 +988,7 @@ function cloud_setup0
 {
 	cd /root
 	test -d /root/bin || git clone https://github.com/mishuang2017/bin.git
-	test -d /root/mi || git clone https://github.com/mishuang2017/mi.git
+	test -d /root/mi || git clone https://github.com/mishuang2017/mi.git --branch=master
 
 	if ! test -f /root/.tmux.conf; then
 		/bin/cp /root/mi/tmux.conf /root/.tmux.conf
@@ -5475,7 +5475,8 @@ set -x
 	ip1
 # 	vxlan1
 	geneve
-	vs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
+	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
+	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
 set +x
 }
 
@@ -13572,6 +13573,37 @@ set -x
 set +x
 }
 
+function tc_hairpin
+{
+	TC=/opt/mellanox/iproute2/sbin/tc
+
+set -x
+	$TC qdisc del dev ens4f0np0 ingress
+	$TC qdisc add dev ens4f0np0 handle ffff: ingress
+	$TC filter add dev ens4f0np0 protocol all parent ffff: prio 1 flower skip_sw action mirred egress redirect dev ens4f1np1
+
+	$TC qdisc del dev ens4f1np1 ingress
+	$TC qdisc add dev ens4f1np1 handle ffff: ingress
+	$TC filter add dev ens4f1np1 protocol all parent ffff: prio 1 flower skip_sw action mirred egress redirect dev ens4f0np0
+set +x
+}
+
+function tc_hairpin2
+{
+	TC=/opt/mellanox/iproute2/sbin/tc
+
+set -x
+	$TC qdisc del dev $link ingress
+	$TC qdisc add dev $link handle ffff: ingress
+	$TC filter add dev $link protocol all parent ffff: prio 1 flower skip_sw action mirred egress redirect dev $link2
+
+	$TC qdisc del dev $link2 ingress
+	$TC qdisc add dev $link2 handle ffff: ingress
+	$TC filter add dev $link2 protocol all parent ffff: prio 1 flower skip_sw action mirred egress redirect dev $link
+set +x
+}
+
+
 function sflow_clear
 {
 	local bridge=$br
@@ -14912,6 +14944,7 @@ function reset1
 }
 
 alias mip=/opt/mellanox/iproute2/sbin/ip
+alias mtc=/opt/mellanox/iproute2/sbin/tc
 
 function meter_list
 {
