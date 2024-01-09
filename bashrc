@@ -15313,3 +15313,6 @@ function linux_br
 		ifconfig $i up
 	done
 }
+
+alias rdma_server='/swgwork/cmi/rdma-example/bin/rdma_server'
+alias rdma_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstring'
