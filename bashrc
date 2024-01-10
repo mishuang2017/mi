@@ -13578,21 +13578,6 @@ function tc_hairpin
 	TC=/opt/mellanox/iproute2/sbin/tc
 
 set -x
-	$TC qdisc del dev ens4f0np0 ingress
-	$TC qdisc add dev ens4f0np0 handle ffff: ingress
-	$TC filter add dev ens4f0np0 protocol all parent ffff: prio 1 flower skip_sw action mirred egress redirect dev ens4f1np1
-
-	$TC qdisc del dev ens4f1np1 ingress
-	$TC qdisc add dev ens4f1np1 handle ffff: ingress
-	$TC filter add dev ens4f1np1 protocol all parent ffff: prio 1 flower skip_sw action mirred egress redirect dev ens4f0np0
-set +x
-}
-
-function tc_hairpin2
-{
-	TC=/opt/mellanox/iproute2/sbin/tc
-
-set -x
 	$TC qdisc del dev $link ingress
 	$TC qdisc add dev $link handle ffff: ingress
 	$TC filter add dev $link protocol all parent ffff: prio 1 flower skip_sw action mirred egress redirect dev $link2
