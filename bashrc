@@ -13577,14 +13577,19 @@ function tc_hairpin
 {
 	TC=/opt/mellanox/iproute2/sbin/tc
 
+	offload=skip_sw
+	ifconfig $link up
+	ifconfig $link2 up
+	ethtool -K $link hw-tc-offload on
+	ethtool -K $link2 hw-tc-offload on
 set -x
 	$TC qdisc del dev $link ingress
 	$TC qdisc add dev $link handle ffff: ingress
-	$TC filter add dev $link protocol all parent ffff: prio 1 flower skip_sw action mirred egress redirect dev $link2
+	$TC filter add dev $link protocol all parent ffff: prio 1 flower $offload action mirred egress redirect dev $link2
 
 	$TC qdisc del dev $link2 ingress
 	$TC qdisc add dev $link2 handle ffff: ingress
-	$TC filter add dev $link2 protocol all parent ffff: prio 1 flower skip_sw action mirred egress redirect dev $link
+	$TC filter add dev $link2 protocol all parent ffff: prio 1 flower $offload action mirred egress redirect dev $link
 set +x
 }
 
@@ -15299,5 +15304,17 @@ function linux_br
 	done
 }
 
-alias rdma_server='/swgwork/cmi/rdma-example/bin/rdma_server'
-alias rdma_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstring'
+alias n1_r_server='n1 /swgwork/cmi/rdma-example/bin/rdma_server'
+alias r_server='/swgwork/cmi/rdma-example/bin/rdma_server'
+alias r_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstring'
+
+function build_libpcap
+{
+	sm
+	git clone https://github.com/the-tcpdump-group/libpcap.git
+	cd libpcap/
+	./autogen.sh
+	./configure --prefix=/usr --sysconfdir=/etc --libdir=/usr/lib64
+	make -j
+	sudo make install
+}
