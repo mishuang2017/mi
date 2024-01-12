@@ -19,21 +19,19 @@ for name in pf0_name,:
     mlx5_lag = mlx5e_priv.mdev.priv.lag
 
     print('-------------')
-    MLX5_LAG_FLAG_ROCE = prog['MLX5_LAG_FLAG_ROCE']
-    MLX5_LAG_FLAG_SRIOV = prog['MLX5_LAG_FLAG_SRIOV']
-    MLX5_LAG_FLAG_MULTIPATH = prog['MLX5_LAG_FLAG_MULTIPATH']
-    MLX5_LAG_FLAG_READY = prog['MLX5_LAG_FLAG_READY']
+    MLX5_LAG_MODE_ROCE = prog['MLX5_LAG_MODE_ROCE']
+    MLX5_LAG_MODE_SRIOV = prog['MLX5_LAG_MODE_SRIOV']
+    MLX5_LAG_MODE_MULTIPATH = prog['MLX5_LAG_MODE_MULTIPATH']
 
-    print("MLX5_LAG_FLAG_ROCE: %x" % MLX5_LAG_FLAG_ROCE)
-    print("MLX5_LAG_FLAG_SRIOV: %x" % MLX5_LAG_FLAG_SRIOV)
-    print("MLX5_LAG_FLAG_MULTIPATH: %x" % MLX5_LAG_FLAG_MULTIPATH)
-    print("MLX5_LAG_FLAG_READY: %x" % MLX5_LAG_FLAG_READY)
+    print("MLX5_LAG_MODE_ROCE: %x" % MLX5_LAG_MODE_ROCE)
+    print("MLX5_LAG_MODE_SRIOV: %x" % MLX5_LAG_MODE_SRIOV)
+    print("MLX5_LAG_MODE_MULTIPATH: %x" % MLX5_LAG_MODE_MULTIPATH)
 
-    print("mlx5_lag.flags: %d" % mlx5_lag.flags)
+    print("mlx5_lag.mode_flags: %d" % mlx5_lag.mode_flags)
     print('-------------')
-#     print("mode_flags: %x (MLX5_LAG_FLAG_FLAG_SHARED_FDB: 2)" % mlx5_lag.mode_flags)
-#     print("state_flags: %x (MLX5_LAG_FLAG_NDEVS_READY = 1)" % mlx5_lag.state_flags)
-#     print(mlx5_lag)
+#     print("mode_flags: %x (MLX5_LAG_MODE_FLAG_SHARED_FDB: 2)" % mlx5_lag.mode_flags)
+#     print("state_flags: %x (MLX5_LAG_MODE_NDEVS_READY = 1)" % mlx5_lag.state_flags)
+    print(mlx5_lag)
     print(mlx5_lag.v2p_map)
     print(mlx5_lag.tracker)
     continue
@@ -50,7 +48,7 @@ for name in pf0_name,:
 
 # exit(0)
 
-# if mlx5_lag.mode !=  MLX5_LAG_FLAG_SRIOV:
+# if mlx5_lag.mode !=  MLX5_LAG_MODE_SRIOV:
 #     exit(0)
 
 def print_mlx5_vport(priv):
