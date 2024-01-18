@@ -37,15 +37,29 @@ def print_files(files, n):
         for ib_uverbs_file in list_for_each_entry('struct ib_uverbs_file', ib_uverbs_device.uverbs_file_list.address_of_(), 'list'):
             print(ib_uverbs_file)
             for node in radix_tree_for_each(ib_uverbs_file.idr.address_of_()):
-#                 ib_uobject = Object(prog, 'struct ib_uobject', address=node[1].value_())
-                ib_uqp_object = Object(prog, 'struct ib_uqp_object', address=node[1].value_())
-#                 print(ib_uqp_object)
-#                 print(ib_uqp_object.uevent.uobject.object)
-                ib_qp = Object(prog, 'struct ib_qp', address=ib_uqp_object.uevent.uobject.object)
-                if prog['IB_QPT_RC'] == ib_qp.qp_type:
+                ib_uobject = Object(prog, 'struct ib_uobject', address=node[1].value_())
+                print("-----------------------------")
+                print("ib_uobject.id: %d" % ib_uobject.id)
+                if ib_uobject.id == 5:
+                    ib_qp = Object(prog, 'struct ib_qp', address=ib_uobject.object)
+#                     print(ib_qp)
                     mlx5_ib_qp = container_of(ib_qp.real_qp, "struct mlx5_ib_qp", "ibqp")
                     print(mlx5_ib_qp.port)
-                    print(mlx5_ib_qp.type)
+                    print(mlx5_ib_qp.ibqp.res.type)
+                if ib_uobject.id == 3:
+                    ib_cq = Object(prog, 'struct mlx5_ib_cq', address=ib_uobject.object)
+                    print(ib_cq.ibcq.res.type)
+                if ib_uobject.id == 2:
+                    ib_pd = Object(prog, 'struct mlx5_ib_pd', address=ib_uobject.object)
+                    print(ib_pd.ibpd.res.type)
+                if ib_uobject.id == 9:
+                    ib_mr = Object(prog, 'struct mlx5_ib_mr', address=ib_uobject.object)
+                    print(ib_mr.ibmr.res.type)
+#                 ib_uqp_object = Object(prog, 'struct ib_uqp_object', address=node[1].value_())
+#                 print(ib_uqp_object)
+#                 print(ib_uqp_object.uevent.uobject.object)
+#                 if prog['IB_QPT_RC'] == ib_qp.qp_type:
+#                     print(mlx5_ib_qp)
 #                 print(ib_uobject.uapi_object.type_attrs)
 #                 print(ib_uobject.uapi_object.type_class)
 

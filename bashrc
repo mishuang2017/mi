@@ -9089,7 +9089,7 @@ alias ofed-configure-all="./configure -j \
     --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
     --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv --with-mlxfw-mod --with-ipoib-mod"
 alias ofed-configure-all="./configure -j \
-	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack "
+	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack --with-sf-cfg-drv --with-sf-sfc "
 alias ofed-configure-memtrack="ofed-configure-all --with-memtrack"
 
 alias ofed-configure-4.1="./configure -j --kernel-version 4.1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.1 \
@@ -15306,7 +15306,7 @@ function linux_br
 
 alias n1_r_server='n1 /swgwork/cmi/rdma-example/bin/rdma_server'
 alias r_server='/swgwork/cmi/rdma-example/bin/rdma_server'
-alias r_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstring'
+alias r_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 
 function build_libpcap
 {

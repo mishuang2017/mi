@@ -85,7 +85,8 @@ for x, dev in enumerate(get_netdevs()):
         while node.value_():
             obj = container_of(node, "struct mlx5e_hairpin_entry", "hairpin_hlist")
             hpe = Object(prog, 'struct mlx5e_hairpin_entry', address=obj.value_())
-            flow_table("ttc", hpe.hp.ttc.t)
+            print(hpe)
+#             flow_table("ttc", hpe.hp.ttc.t)
             node = node.next
 
     zone_ht = mlx5e_priv.fs.tc.ct.zone_ht
