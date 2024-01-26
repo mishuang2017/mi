@@ -5473,8 +5473,8 @@ set -x
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	ip1
-# 	vxlan1
-	geneve
+	vxlan1
+# 	geneve
 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
 	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
 set +x
@@ -9089,7 +9089,8 @@ alias ofed-configure-all="./configure -j \
     --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
     --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv --with-mlxfw-mod --with-ipoib-mod"
 alias ofed-configure-all="./configure -j \
-	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack --with-sf-cfg-drv --with-sf-sfc "
+	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack "
+# 	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack --with-sf-cfg-drv --with-sf-sfc "
 alias ofed-configure-memtrack="ofed-configure-all --with-memtrack"
 
 alias ofed-configure-4.1="./configure -j --kernel-version 4.1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.1 \
@@ -14962,7 +14963,7 @@ function ipsec2
 function ipsec_software
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-173-40-045" ]] && ip=10.237.173.46
+	[[ "$HOSTNAME" == "c-237-171-20-025" ]] && ip=10.237.171.26
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -15155,8 +15156,7 @@ function ipsec_counters
 function ipsec_crypto
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-115-160-163" ]] && ip=10.237.115.164
-	[[ "$HOSTNAME" == "c-237-115-80-083" ]] && ip=10.237.115.84
+	[[ "$HOSTNAME" == "c-237-171-20-025" ]] && ip=10.237.171.26
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1

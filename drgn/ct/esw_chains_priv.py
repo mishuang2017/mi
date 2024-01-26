@@ -45,12 +45,18 @@ for i, chain in enumerate(hash(chains_ht, 'struct fs_chain', 'node')):
         table = prio.ft
         flow_table("", table)
 
+MLX5_MAPPED_OBJ_CHAIN = prog['MLX5_MAPPED_OBJ_CHAIN']
+MLX5_MAPPED_OBJ_ACT_MISS = prog['MLX5_MAPPED_OBJ_ACT_MISS']
+
 def print_chain_mapping(item):
     print("mapping_item %lx" % item, end='\t')
     print("cnt: %d" % item.cnt, end='\t')
-    print("id (chain_mapping): %d" % item.id, end='\t')
-    data = Object(prog, 'int *', address=item.data.address_of_())
-    print("data (chain): 0x%x" % data.value_())
+    print("id: %d" % item.id, end='\t')
+    data = Object(prog, 'struct mlx5_mapped_obj', address=item.data.address_of_())
+    if data.type == MLX5_MAPPED_OBJ_CHAIN.value_():
+        print("chain:           %d " % data.chain)
+    elif data.type == MLX5_MAPPED_OBJ_ACT_MISS.value_():
+        print("act_miss_cookie: %d " % data.act_miss_cookie)
 
 print('\n=== chain mapping_ctx ===\n')
 ht = mapping_ctx.ht

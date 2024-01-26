@@ -38,8 +38,8 @@ def print_mlx5_vport(priv):
         print("vport: %5x" % vport.vport, end=' ')
         print("enabled: %x" % vport.enabled, end=' ')
     #     print(vport.info)
-        print(vport.qos.group.ingress_meter_xps[0])
-        print(vport.qos.group.egress_meter_xps[0])
+        print(vport.ingress.offloads.meter_xps[0])
+        print(vport.egress.offloads.meter_xps[0])
         print('')
 
     # for i in range(enabled_vports):

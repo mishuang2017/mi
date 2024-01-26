@@ -41,9 +41,9 @@ for x, dev in enumerate(get_netdevs()):
     print_ip_address(dev)
     print("%10x\t" % dev.priv_flags, end='\t')
     count = get_pcpu_refcnt(dev)
-    print("%10d" % count, end='')
+    print("%10d" % count, end='\t')
+    print("%20s" % address_to_name(hex(dev.netdev_ops.value_())), end='\t')
     print_kind(dev)
-    print(dev.netdev_ops)
     print("")
 
 # 14.73379 455917  455917  kworker/u20:4   mlx5_add_flow_rules
