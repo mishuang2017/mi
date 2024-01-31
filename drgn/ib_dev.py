@@ -18,9 +18,9 @@ for node in radix_tree_for_each(devices):
     print("index: %x" % ib_device.index)
     print(ib_device.phys_port_cnt)
 #     print(ib_device.ops)
-#     print(ib_device)
+    print(ib_device)
     mlx5_ib_dev = container_of(ib_device.address_of_(), "struct mlx5_ib_dev", "ib_dev")
-    print(mlx5_ib_dev.mdev.device.kobj)
+#     print(mlx5_ib_dev.mdev.device.kobj)
 
 rdma_dev_net_id = prog['rdma_dev_net_id']
 print("rdma_dev_net_id: %x " % rdma_dev_net_id)

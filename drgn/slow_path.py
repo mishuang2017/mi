@@ -17,6 +17,8 @@ mlx5e_priv = get_mlx5e_priv(pf0_name)
 mlx5_eswitch_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table
 
 slow_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.slow_fdb
+tc_miss_table = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.tc_miss_table
+flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.tc_miss_table", tc_miss_table)
 flow_table("mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.slow_fdb", slow_fdb)
 
 # miss_meter_fdb = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads.miss_meter_fdb

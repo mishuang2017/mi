@@ -57,7 +57,8 @@ def print_esw(priv):
 
 print("===================== port 1 =======================")
 mlx5e_priv = get_mlx5e_priv(pf0_name)
-print_esw(mlx5e_priv)
+# print_esw(mlx5e_priv)
+print(mlx5e_priv.netdev.devlink_port.switch_port)
 
 exit(0)
 
