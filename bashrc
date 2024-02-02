@@ -1075,7 +1075,7 @@ function cloud_setup
 	if (( build_kernel == 1 )); then
 		cloud_linux $branch
 	fi
-	cloud_ofed_cp
+	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_24_01
 	smm
 	rebase
 
