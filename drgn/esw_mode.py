@@ -20,7 +20,7 @@ def print_esw(priv):
     print("mlx5e_priv %#x" % priv.address_of_())
     print("mlx5e_priv.fs.state_destroy %#x" % priv.fs.state_destroy)
     print("mlx5_core_dev %#x" % priv.mdev)
-    print(priv.mdev.mlx5e_res)
+    print(priv.mdev.mlx5e_res.ct)
 #     print("mlx5_core_dev.num_block_tc %d" % priv.mdev.num_block_tc)
 #     print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
     print(priv.mdev.coredev_type)
@@ -28,7 +28,7 @@ def print_esw(priv):
 #     print_health(priv.mdev.priv.health)
     esw = mlx5e_priv.mdev.priv.eswitch
     print("mlx5_eswitch %#x" % esw)
-    print(esw.qos)
+#     print(esw.qos)
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
     print("esw->flags: %#x" % esw.flags)
     print("mode: %d" % esw.mode)

@@ -1957,29 +1957,30 @@ alias make-usr='./configure --prefix=/usr; make -j; sudo make install'
 
 function tc2
 {
+	TC=/opt/mellanox/iproute2/sbin/tc
 	local l
 #	for link in p2p1 $rep1 $rep2 $vx_rep; do
 	for l in $link $rep1 $rep2 $rep3 bond0 vxlan1 p0; do
 		ip link show $l > /dev/null 2>&1 || continue
-		tc qdisc show dev $l ingress | grep ffff > /dev/null 2>&1
+		$TC qdisc show dev $l ingress | grep ffff > /dev/null 2>&1
 		if (( $? == 0 )); then
 # 			sudo /bin/time -f %e tc qdisc del dev $l ingress
-			sudo tc qdisc del dev $l ingress
+			sudo $TC qdisc del dev $l ingress
 			echo $l
 		fi
 	done
 
 	for l in $link2 $rep1_2 $rep2_2 $rep3_2; do
 		ip link show $l > /dev/null 2>&1 || continue
-		tc qdisc show dev $l ingress | grep ffff > /dev/null 2>&1
+		$TC qdisc show dev $l ingress | grep ffff > /dev/null 2>&1
 		if (( $? == 0 )); then
 # 			sudo /bin/time -f %e tc qdisc del dev $l ingress
-			sudo tc qdisc del dev $l ingress
+			sudo $TC qdisc del dev $l ingress
 			echo $l
 		fi
 	done
 
-	sudo tc action flush action gact
+	sudo $TC action flush action gact
 	for i in $vx $vx_rep; do
 		ip link show $i > /dev/null 2>&1 || continue
 		sudo ip l d $i
