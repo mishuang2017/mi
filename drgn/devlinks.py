@@ -21,8 +21,8 @@ devlinks = prog['devlinks']
 for node in radix_tree_for_each(devlinks.address_of_()):
     devlink = Object(prog, 'struct devlink', address=node[1].value_())
     pci_name = devlink.dev.kobj.name.string_().decode()
-#     if pci_name != "0000:08:00.0":
-#         continue
+    if pci_name != "0000:08:00.0":
+        continue
 #     print(devlink.ops.eswitch_encap_mode_set)
 #     print(devlink.ops)
 
@@ -82,13 +82,13 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #         if port.index & 0xffff == 0xffff:
 #              print(port.attrs)
 
-    continue
+#     continue
     for node in radix_tree_for_each(devlink.params.address_of_()):
 #         print(node)
         param = Object(prog, 'struct devlink_param_item', address=node[1].value_())
-        if param.driverinit_value_valid:
-            print(param)
-#             print(param.param.name)
+#         if param.driverinit_value_valid:
+        print(param)
+        print(param.param.name)
 #     print("=== devlink.param_list ===")
 #     print(devlink.param_list)
 #     for item in list_for_each_entry('struct devlink_param_item', devlink.param_list.address_of_(), 'list'):
