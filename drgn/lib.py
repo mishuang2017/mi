@@ -184,6 +184,7 @@ def print_exts(e):
 #         print("hw_stats: %d" % a.hw_stats)
         if kind == "ct":
             print("\tact_ct")
+#             print("tcfa_flags %x" % a.tcfa_flags)
 #             print(a)
 #             tcf_conntrack_info = Object(prog, 'struct tcf_conntrack_info', address=a.value_())
 #             print("\tzone: %d" % tcf_conntrack_info.zone.value_(), end='')

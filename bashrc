@@ -6704,6 +6704,7 @@ alias n21='exe n21'
 alias ns0='exe ns0'
 alias ns1='exe ns1'
 alias ns2='exe ns2'
+alias ns3='exe ns3'
 
 #  1062  echo 08000000,00000000,00000000 > /proc/irq/281/smp_affinity
 #  1063  echo 10000000,00000000,00000000 > /proc/irq/282/smp_affinity
@@ -10550,8 +10551,8 @@ set -x
 		dst_mac $mac2 ct_state -trk \
 		action ct pipe action goto chain 1
 
-set +x
-	return
+# set +x
+# 	return
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \
@@ -15319,3 +15320,7 @@ function build_libpcap
 	make -j
 	sudo make install
 }
+
+alias ct_action_on_nat_conns="devlink dev param show pci/0000:08:00.0 name ct_action_on_nat_conns"
+alias ct_action_on_nat_conns0="/usr/sbin/devlink dev param set pci/0000:08:00.0 name ct_action_on_nat_conns value 0 cmode driverinit"
+alias ct_action_on_nat_conns1="/usr/sbin/devlink dev param set pci/0000:08:00.0 name ct_action_on_nat_conns value 1 cmode driverinit"

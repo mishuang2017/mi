@@ -20,4 +20,5 @@ handle = uplink_priv.action_stats_handle
 
 for i, stat in enumerate(hash(handle.ht, 'struct mlx5e_tc_act_stats', 'hash')):
     print("tc_act_cookie: %x" % stat.tc_act_cookie, end='\t')
+#     print(stat)
     print("packets: %ld" % stat.lastpackets)
