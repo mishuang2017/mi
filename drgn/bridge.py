@@ -9,7 +9,7 @@ import os
 sys.path.append(".")
 from lib import *
 
-mlx5e_priv = get_mlx5_pf1()
+mlx5e_priv = get_mlx5_pf0()
 print(mlx5e_priv.netdev.name)
 mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
 
@@ -76,6 +76,7 @@ for node in radix_tree_for_each(ports):
         (port.vport_num, port.esw_owner_vhca_id, port.flags))
 #     mlx5_esw_bridge = port.bridge
 #     print_mlx5_esw_bridge(mlx5_esw_bridge)
+    flow_table("", port.mcast.ft)
 
 print("\n=== switchdev_notif_chain ==\n")
 switchdev_notif_chain = prog['switchdev_notif_chain']

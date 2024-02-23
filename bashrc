@@ -15300,8 +15300,9 @@ function linux_br
 	brctl delbr br1
 	brctl addbr br1
 	ifconfig br1 up
-	brctl addif br1 bond0 enp8s0f0_1 enp8s0f1_1 enp8s0f0_2 enp8s0f1_2
-	for i in enp8s0f0_1 enp8s0f1_1 enp8s0f0_2 enp8s0f1_2; do
+# 	brctl addif br1 bond0 enp8s0f0_1 enp8s0f1_1 enp8s0f0_2 enp8s0f1_2
+	brctl addif br1 enp8s0f0_1 enp8s0f0_2 enp8s0f0_0
+	for i in enp8s0f0_0 enp8s0f0_1 enp8s0f0_2 ; do
 		ifconfig $i up
 	done
 }
@@ -15324,3 +15325,6 @@ function build_libpcap
 alias ct_action_on_nat_conns="devlink dev param show pci/0000:08:00.0 name ct_action_on_nat_conns"
 alias ct_action_on_nat_conns0="/usr/sbin/devlink dev param set pci/0000:08:00.0 name ct_action_on_nat_conns value 0 cmode driverinit"
 alias ct_action_on_nat_conns1="/usr/sbin/devlink dev param set pci/0000:08:00.0 name ct_action_on_nat_conns value 1 cmode driverinit"
+
+alias bridge_fdb='cat /sys/kernel/debug/mlx5/0000:08:00.0/esw/bridge/tst1/fdb'
+alias bridge_fdb2='cat /sys/kernel/debug/mlx5/0000:08:00.1/esw/bridge/tst1/fdb'

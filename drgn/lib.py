@@ -828,6 +828,10 @@ def print_match(fte, mask):
     if cvlan:
         print(" cvlan: %-2x" % cvlan, end='')
 
+    svlan = (val[4].value_() & 0xe00000) >> 22
+    if cvlan:
+        print(" svlan: %-2x" % cvlan, end='')
+
     tcp_sport = ntohs(val[5].value_() & 0xffff)
     if tcp_sport:
         print(" sport: %5d" % tcp_sport, end='')
