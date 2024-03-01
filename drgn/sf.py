@@ -12,10 +12,11 @@ from lib import *
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
+print(mlx5_sf_table)
 # print(mlx5_sf_table.refcount)
 
-mlx5_sf_hwc_table = mlx5e_priv.mdev.priv.sf_hw_table
-print(mlx5_sf_hwc_table.hwc[0])
+# mlx5_sf_hwc_table = mlx5e_priv.mdev.priv.sf_hw_table
+# print(mlx5_sf_hwc_table.hwc[0])
 
 #         .port_index = (unsigned int)32769,
 #         .controller = (u32)0,

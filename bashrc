@@ -1641,16 +1641,21 @@ function install-ovs
 {
 set -x
 	# to use santitize
-# 	echo 0 > /proc/sys/fs/suid_dumpable
+	sudo echo 0 > /proc/sys/fs/suid_dumpable
 	# otherwise, will hit this error
 	# Aug 23 09:31:51 c-237-175-60-063 ovs-ctl[4478]: ==4478==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
-	sudo pip uninstall docutils
-# 	sudo pip install ovs-sphinx-theme docutils
+	sudo pip install ovs-sphinx-theme docutils
+
+# 	sudo pip uninstall docutils
 	sudo pip install docutils==0.17.0
+# 
         sudo make clean
         ./boot.sh
-	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
-# 	./configure CFLAGS="-g -O2 -fsanitize=address -fno-omit-frame-pointer -fno-common" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+# 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+
+# 	sudo yum install libasan
+	./configure CFLAGS="-g -O2 -fsanitize=address -fno-omit-frame-pointer -fno-common" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
 #	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
 	make -j CFLAGS="-Werror -g"
@@ -13574,6 +13579,12 @@ function sample1
 set -x
 	$TC filter add dev $link parent ffff: matchall action sample rate 12 group $group
 set +x
+}
+
+function link3
+{
+	ifconfig enp9s0f0 1.1.1.1/24 up
+	netns n11 enp9s0f1 1.1.1.2
 }
 
 function tc_hairpin
