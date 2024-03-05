@@ -5486,6 +5486,22 @@ set -x
 set +x
 }
 
+function brx_sf
+{
+set -x
+	del-br
+	vs add-br $br
+	vs add-port $br $sf1 
+	ifconfig $sf1 up
+	(( machine_num == 1 )) && netns n11 eth2 1.1.1.1
+	(( machine_num == 2 )) && netns n11 eth2 1.1.1.2
+	ip1
+	vxlan1
+set +x
+}
+
+
+
 function brx_bf
 {
 set -x
@@ -6952,53 +6968,55 @@ function sf1
 	$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $n
 }
 
-alias sf_m="sf_create /opt/mellanox/iproute2/sbin/mlxdevm"
-alias sf_d="sf_create devlink"
+function sf_m
+{
+	n=2
+	[[ $# == 1 ]] && n=$1
+	for (( i = 1; i <= n; i++)); do
+		echo '---------------------'
+		echo $i
+		echo '---------------------'
+		sf_create /opt/mellanox/iproute2/sbin/mlxdevm $i
+	done
+}
+
+function sf_d
+{
+	n=2
+	[[ $# == 1 ]] && n=$1
+	for (( i = 1; i <= n; i++)); do
+		echo '---------------------'
+		echo $i
+		echo '---------------------'
+		sf_create devlink $i
+	done
+}
 
 function sf_create
 {
 set -x
-	cmd=$1
-	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
-	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 1
-	read
-	sleep 1
-# 	$cmd port function set en8f0pf0sf1 state active
-	$cmd port function set $sf1 state active
-
-	read
-	/usr/bin/ls -1d /sys/bus/auxiliary/devices/mlx5_core.sf.2
-	/usr/bin/cat /sys/bus/auxiliary/devices/mlx5_core.sf.2/sfnum
-	/usr/bin/basename /sys/bus/auxiliary/devices/mlx5_core.sf.2
-
-	sleep 1
-	devlink dev param show auxiliary/mlx5_core.sf.2 name enable_eth
-	sleep 1
-	devlink dev param set auxiliary/mlx5_core.sf.2 name enable_eth value true cmode driverinit
-set +x
-# 	return
-	sleep 1
-	devlink dev reload auxiliary/mlx5_core.sf.2
-}
-
-function sf
-{
-	n=1
-        [[ $# == 1 ]] && n=$1
 	debug=0
+	cmd=$1
+	sfnum=$2
+	sf_device=mlx5_core.sf.$((sfnum+1))
+	sf_name=en8f0pf0sf$sfnum
+	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum $sfnum
+	(( debug == 1 )) && read
+	sleep 1
+	$cmd port function set $sf_name state active
 
-set -x
-        devlink dev eswitch set pci/$pci mode switchdev
-	for (( i = 1; i <= n; i++ )); do
-		$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $i
-		mac=02:25:00:$host_num:02:$i
-		(( debug == 1 )) && read
-		local start=32768
-		local num=$((start+i-1))
-		sleep 1
-		$sfcmd port function set en8f0pf0sf$i  state active
-		(( debug == 1 )) && read
-	done
+	(( debug == 1 )) && read
+	/usr/bin/ls -1d /sys/bus/auxiliary/devices/$sf_device
+	/usr/bin/cat /sys/bus/auxiliary/devices/$sf_device/sfnum
+	/usr/bin/basename /sys/bus/auxiliary/devices/$sf_device
+
+	sleep 1
+	devlink dev param show auxiliary/$sf_device name enable_eth
+	sleep 1
+	devlink dev param set auxiliary/$sf_device name enable_eth value true cmode driverinit
+	sleep 1
+	devlink dev reload auxiliary/$sf_device
 set +x
 }
 
@@ -7012,14 +7030,30 @@ function sf2_m
 {
 	cmd=/opt/mellanox/iproute2/sbin/mlxdevm
 
-	$cmd port del $sf1
+	n=2
+	[[ $# == 1 ]] && n=$1
+	for (( i = 1; i <= n; i++)); do
+		sfnum=$i
+		sf_name=en8f0pf0sf$sfnum
+set -x
+		$cmd port del $sf_name
+set +x
+	done
 }
 
 function sf2_d
 {
 	cmd=devlink
 
-	$cmd port del $sf1
+	n=2
+	[[ $# == 1 ]] && n=$1
+	for (( i = 1; i <= n; i++)); do
+		sfnum=$i
+		sf_name=en8f0pf0sf$sfnum
+set -x
+		$cmd port del $sf_name
+set +x
+	done
 }
 
 function br_sf
@@ -7031,6 +7065,8 @@ function br_sf
 	ifconfig $sf2 up
 	sudo ovs-vsctl add-port $br $sf1
 	sudo ovs-vsctl add-port $br $sf2
+	netns n11 eth2 1.1.1.1
+	netns n12 eth3 1.1.1.2
 	set +x
 }
 
