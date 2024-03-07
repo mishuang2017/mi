@@ -64,13 +64,14 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 
     # old kernel 
     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
-#         print(port)
-        print(port.type)
-        print("port index: %x" % port.index)
-#         mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
+        print('\t-------------------------')
+        print("\tdevlink_port.switch_port: %d" % port.switch_port)
+        print("\tport index: %x" % port.index)
+#         print(port.type)
+        mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
 #         print(mlx5_devlink_port.vport.vport)
-#         netdev = Object(prog, 'struct net_device', address=port.type_dev)
-#         print(netdev.name)
+        netdev = Object(prog, 'struct net_device', address=port.type_dev)
+        print("\tnetdev.name: %s" % netdev.name)
 #         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
 #              print(port.attrs)
