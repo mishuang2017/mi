@@ -49,6 +49,12 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
         shutdown = auxiliary_driver.shutdown
         print(address_to_name(hex(shutdown)))
 
+        for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
+            print("\n\tdevlink_port: %x" % port)
+            print("\n\tport index: %x" % port.index)
+            print(port.attrs)
+
+
 #     print(devlink._net)
 #     print(devlink.ops.reload_down)
 #     print(devlink.ops.reload_up)
@@ -60,6 +66,8 @@ for devlink in list_for_each_entry('struct devlink', devlink_list.address_of_(),
         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
 #         print(port.attrs)
+
+    continue
 
     print("=== devlink.param_list ===")
 #     print(devlink.param_list)

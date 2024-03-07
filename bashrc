@@ -1028,6 +1028,7 @@ function bf2_linux
 	ln -s linux-bluefield-5.15 linux
 	/bin/rm -f linux-bluefield-5.15.tar.gz &
 	cd linux
+	git am /swgwork/cmi/config.bf2.5.15/0001-mlx5_core-devlink-errors.patch
 	/bin/cp -f /swgwork/cmi/config.bf2.5.15/config .config
 
 	make-all all
@@ -1709,7 +1710,7 @@ function restart-ovs
 	sudo systemctl restart openvswitch.service
 }
 
-function stop-ovs
+function purge-ovs
 {
 set -x
 	ovs-appctl exit --cleanup   # revalidator_purge
@@ -6951,12 +6952,8 @@ function start-switchdev
 	return
 }
 
-sf1=enp8s0f0npf0sf1
 sf1=en8f0pf0sf1
 sf2=en8f0pf0sf2
-
-# sf1=eth2
-# sf2=eth3
 
 alias mlx_sf='mlxconfig -d $pci s PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_SF_BAR_SIZE=10'
 
@@ -7020,6 +7017,29 @@ set -x
 set +x
 }
 
+function sf_create_static
+{
+set -x
+	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+
+	cmd=/opt/mellanox/iproute2/sbin/mlxdevm
+	debug=0
+	sf_device=mlx5_core.sf.2
+	sf_name=en8f0pf0sf1
+	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 1
+	sleep 1
+	$cmd port function set $sf_name state active
+	sleep 1
+
+	sf_device=mlx5_core.sf.3
+	sf_name=en8f0pf0sf2
+	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 2
+	sleep 1
+	$cmd port function set $sf_name state active
+	sleep 1
+set +x
+}
+
 function sf_ns
 {
 	netns n11 eth2 1.1.1.1
@@ -7058,6 +7078,12 @@ set +x
 
 function br_sf
 {
+	sf1=eth2
+	sf2=eth4
+
+	sf1=en8f0pf0sf1
+	sf2=en8f0pf0sf2
+
 	set -x;
 	del-br;
 	sudo ovs-vsctl add-br $br;
@@ -7065,8 +7091,12 @@ function br_sf
 	ifconfig $sf2 up
 	sudo ovs-vsctl add-port $br $sf1
 	sudo ovs-vsctl add-port $br $sf2
-	netns n11 eth2 1.1.1.1
-	netns n12 eth3 1.1.1.2
+	vf1=eth3
+	vf2=eth5
+	vf1=eth2
+	vf2=eth3
+	netns n11 $vf1 1.1.1.1
+	netns n12 $vf2 1.1.1.2
 	set +x
 }
 

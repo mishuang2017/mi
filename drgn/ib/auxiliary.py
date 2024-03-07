@@ -49,7 +49,7 @@ def print_bus(bus):
     print("=== device ===")
     klist_devices = subsys_private.klist_devices
     for device_private in list_for_each_entry('struct device_private', klist_devices.k_list.address_of_(), 'knode_bus.n_node'):
-        print("auxiliary device name:     %-20s, %x" % (device_private.device.kobj.name.string_().decode(), device_private.device))
+        print("auxiliary device name(device.kobj.name):     %-20s, device %x" % (device_private.device.kobj.name.string_().decode(), device_private.device))
         if "mlx5_core.rdma.0" == device_private.device.kobj.name.string_().decode():
             print_auxiliary_device(device_private.device)
     print('')
