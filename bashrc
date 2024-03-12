@@ -1046,7 +1046,7 @@ function cloud_linux
 	/bin/cp -f ~cmi/mi/config .config
 	sml
 	if [[ -n $branch ]]; then
-		git fetch origin $branch && git checkout FETCH_HEAD && git checkout -b $branch && make-all all
+		git checkout v$branch -b $branch && make-all all
 	else
 		make-all all
 	fi
