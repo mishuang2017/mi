@@ -486,7 +486,7 @@ alias bfdb1='bridge fdb | grep 25'
 alias vs='sudo ovs-vsctl'
 alias of='sudo ovs-ofctl'
 alias dp='sudo ovs-dpctl'
-alias dpd="sudo ~cmi/bin/ovs-df.sh"
+alias dpd="sudo ~/bin/ovs-df.sh"
 alias dpd-bond='dpd -m | grep -v arp | grep -v "bond0$" | grep offloaded | grep bond0'
 alias dpd0='sudo ovs-dpctl dump-flows --name'
 alias app='sudo ovs-appctl'
@@ -9159,7 +9159,8 @@ function ofed_install
 	build=OFED-internal-23.10-0.2.6.0  /mswg/release/ofed/ofed_install --force --basic
 	build=OFED-internal-23.10-0.2.1.0  /mswg/release/ofed/ofed_install --force --basic
 
-	build=MLNX_OFED_LINUX-23.10-0.3.3.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
+	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
+	build=MLNX_OFED_LINUX-24.04-0.3.8.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --guest  --add-kernel-support
 }
 
 # alias ofed-configure2="./configure -j32 --with-linux=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --kernel-version=4.7-rc7 --kernel-sources=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-ipoib-mod --with-mlx5-mod"
