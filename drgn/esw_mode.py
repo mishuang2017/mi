@@ -17,7 +17,7 @@ def print_health(health):
 
 def print_esw(priv):
 #     print(priv.netdev.xfrmdev_ops)
-    print("mlx5e_priv %#x" % priv.address_of_())
+#     print("mlx5e_priv %#x" % priv.address_of_())
     print("mlx5e_priv.fs.state_destroy %#x" % priv.fs.state_destroy.value_())
     print("mlx5_core_dev %#x" % priv.mdev)
 #     print(priv.mdev.mlx5e_res.ct)
@@ -26,7 +26,7 @@ def print_esw(priv):
     print(priv.mdev.coredev_type)
     print("mlx5_priv %#x" % priv.mdev.priv.address_of_())
 #     print_health(priv.mdev.priv.health)
-    esw = mlx5e_priv.mdev.priv.eswitch
+    esw = priv.mdev.priv.eswitch
     print("mlx5_eswitch %#x" % esw)
 #     print(esw.qos)
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
@@ -57,11 +57,12 @@ def print_esw(priv):
 #         print_mlx5e_tc_flow(flow)
 
 print("===================== port 1 =======================")
+print(pf0_name)
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
 # print(mlx5e_priv.netdev.devlink_port.switch_port)
 
-exit(0)
+# exit(0)
 
 print("===================== port 2 =======================")
 mlx5e_priv2 = get_mlx5e_priv(pf1_name)
