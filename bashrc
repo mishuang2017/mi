@@ -660,11 +660,6 @@ alias qlog='less /var/log/libvirt/qemu/vm1.log'
 # alias vd='virsh dumpxml vm1'
 alias simx='/opt/simx/bin/manage_vm_simx_support.py -n vm2'
 
-alias vfs99="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=99"
-alias vfs127="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=127"
-alias vfs63="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=63"
-alias vfs32="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=32"
-alias vfs16="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=16"
 alias vfs4="mlxconfig -d $pci2 set SRIOV_EN=1 NUM_OF_VFS=4"
 alias vfq="mlxconfig -d $pci q"
 alias vfq2="mlxconfig -d $pci2 q"
@@ -6878,7 +6873,13 @@ function start-switchdev
 sf1=en8f0pf0sf1
 sf2=en8f0pf0sf2
 
-alias mlx_sf='mlxconfig -d $pci s PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_SF_BAR_SIZE=10'
+function mlxconfig_all
+{
+	mlxconfig -d  /dev/mst/mt4129_pciconf0 s PF_NUM_OF_VF_VALID=True
+	mlxconfig -d  /dev/mst/mt4129_pciconf0 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_NUM_OF_VF=4 NUM_OF_VFS=4
+	mlxconfig -d  /dev/mst/mt4129_pciconf0.1 s PF_NUM_OF_VF_VALID=True
+	mlxconfig -d  /dev/mst/mt4129_pciconf0.1 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_NUM_OF_VF=4 NUM_OF_VFS=4
+}
 
 function sf1
 {
