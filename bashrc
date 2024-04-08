@@ -1572,7 +1572,7 @@ set -x
         ./boot.sh
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 
-# 	sudo yum install libasan
+	sudo yum -y install libasan
 	./configure CFLAGS="-g -O2 -fsanitize=address -fno-omit-frame-pointer -fno-common" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
@@ -1871,6 +1871,7 @@ function mi
 	test -f LINUX_BASE_BRANCH || return
 	make -j $cpu_num2 || return
 	sudo make install_kernel -j $cpu_num2
+	sudo systemctl stop mlx-regex
 	sudo /etc/init.d/openibd force-stop
 	reprobe
 # 	force-start
@@ -8129,7 +8130,7 @@ function git-format-patch
 # 	git format-patch --subject-prefix="branch-2.8/2.9 backport" -o $patch_dir -$n
 # 	git format-patch --subject-prefix="PATCH net-next-internal v2" -o $patch_dir -$n
 
-	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v28" -o $patch_dir -$n
+	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH v29" -o $patch_dir -$n
 # 	git format-patch --cover-letter --subject-prefix="ovs-dev][PATCH" -o $patch_dir -$n
 }
 

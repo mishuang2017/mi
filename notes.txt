@@ -12430,3 +12430,14 @@ __xfrm_policy_link
         b'x86_64_start_kernel+0x7b [kernel]'
         b'secondary_startup_64_no_verify+0x166 [kernel]'
 
+===virtio_net===
+
+[root@bu-lab28v-oob ~]# /etc/init.d/openibd stop
+
+Please stop the following applications still using Infiniband devices:
+virtio_net_cont(14642) user root is using device uverbs0
+virtio_net_cont(14642) user root is using device uverbs1
+
+systemctl stop virtio-net-controller
+
+sudo systemctl stop mlx-regex; /etc/init.d/openibd restart; systemctl restart mlx-regex
