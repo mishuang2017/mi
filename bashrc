@@ -7014,14 +7014,21 @@ function br_sf
 	sudo ovs-vsctl add-br $br;
 	ifconfig $sf1 up
 	ifconfig $sf2 up
+	ifconfig $link up
+	sudo ovs-vsctl add-port $br $link
 	sudo ovs-vsctl add-port $br $sf1
 	sudo ovs-vsctl add-port $br $sf2
 	vf1=eth3
 	vf2=eth5
 	vf1=eth2
 	vf2=eth3
-	netns n11 $vf1 1.1.1.1
-	netns n12 $vf2 1.1.1.2
+	if (( machine_num == 1 )); then
+		netns n11 $vf1 1.1.1.1
+		netns n12 $vf2 1.1.1.2
+	else
+		netns n11 $vf1 1.1.3.1
+		netns n12 $vf2 1.1.3.2
+	fi
 	set +x
 }
 
@@ -9162,7 +9169,8 @@ function ofed_install
 	build=OFED-internal-23.10-0.2.1.0  /mswg/release/ofed/ofed_install --force --basic
 
 	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
-	build=MLNX_OFED_LINUX-24.04-0.3.8.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --guest  --add-kernel-support
+	build=MLNX_OFED_LINUX-24.04-0.5.0.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --guest  --add-kernel-support
+	build=OFED-internal-30908-20240321-1550 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 }
 
 # alias ofed-configure2="./configure -j32 --with-linux=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --kernel-version=4.7-rc7 --kernel-sources=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-ipoib-mod --with-mlx5-mod"
@@ -14941,6 +14949,7 @@ function reset1
 
 alias mip=/opt/mellanox/iproute2/sbin/ip
 alias mtc=/opt/mellanox/iproute2/sbin/tc
+alias mmlxdevm=/opt/mellanox/iproute2/sbin/mlxdevm
 
 function meter_list
 {
@@ -15024,6 +15033,38 @@ set -x
         ip xfrm policy add src $link_remote_ip dst $link_ip dir out tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
         ip xfrm policy add src $link_ip dst $link_remote_ip dir fwd tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
 	"
+set +x
+}
+
+function ipsec_bf
+{
+set -x
+	IP=/opt/mellanox/iproute2/sbin/ip
+	$IP xfrm state flush
+	$IP xfrm policy flush
+	sleep 1
+# 	devlink dev eswitch set pci/$pci mode legacy
+# 	devlink dev eswitch set pci/$pci encap disable
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+	devlink dev eswitch set pci/$pci mode switchdev
+	$IP address flush p0
+	$IP -4 address add $link_ip/24 dev p0
+	$IP link set p0 up
+	$IP xfrm state flush
+	$IP xfrm policy flush
+
+	$IP xfrm state add src $link_ip dst $link_remote_ip proto esp spi 10001 reqid 100001 \
+		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
+		sel src $link_ip dst $link_remote_ip offload packet dev p0 dir out
+
+	$IP xfrm state add src $link_remote_ip dst $link_ip proto esp spi 10000 reqid 100000 \
+		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
+		sel src $link_remote_ip dst $link_ip offload packet dev p0 dir in
+
+	$IP xfrm policy add src $link_ip dst $link_remote_ip dir out tmpl src $link_ip dst $link_remote_ip proto esp reqid 100001 mode transport offload packet dev p0
+	$IP xfrm policy add src $link_remote_ip dst $link_ip dir in tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev p0
+	$IP xfrm policy add src $link_remote_ip dst $link_ip dir fwd tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev p0
 set +x
 }
 

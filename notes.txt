@@ -3670,6 +3670,8 @@ static const struct dpctl_command all_commands[] = {
 
 ===ovs===
 
+watch -d -n 1 'ovs-ofctl dump-ports br-int --names'
+
 ofproto-dpif-upcall: Mirror packets that are modified.
 
 ovs-appctl revalidator/purge

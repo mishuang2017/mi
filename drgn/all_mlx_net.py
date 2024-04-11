@@ -17,6 +17,8 @@ for x, dev in enumerate(get_netdevs()):
     ops = address_to_name(hex(dev.netdev_ops))
     if "mlx5e" not in ops:
         continue;
+    if name not in "en8f0pf0sf1":
+        continue;
     print(name)
     print(ops)
 
@@ -30,7 +32,7 @@ for x, dev in enumerate(get_netdevs()):
 #     print(mlx5e_priv)
 #     print(mlx5e_priv.init)
 #     print(mlx5e_priv.fs.vlan_strip_disable)
-#     print(mlx5e_priv.channels.params.vlan_strip_disable)
+    print(mlx5e_priv.channels.params)
 
 #     ppriv = mlx5e_priv.ppriv
 #     if ppriv:
