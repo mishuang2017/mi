@@ -6917,7 +6917,7 @@ function sf_d
 function sf_create
 {
 set -x
-	debug=0
+	debug=1
 	cmd=$1
 	sfnum=$2
 	sf_device=mlx5_core.sf.$((sfnum+1))
@@ -9094,7 +9094,8 @@ alias ofed-configure-all="./configure -j \
     --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
     --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv --with-mlxfw-mod --with-ipoib-mod"
 alias ofed-configure-all="./configure -j \
-	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack "
+	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack \
+	--with-ipoib-cm --with-user_mad-mod --with-nfsrdma-mod"
 # 	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack --with-sf-cfg-drv --with-sf-sfc "
 alias ofed-configure-memtrack="ofed-configure-all --with-memtrack"
 
@@ -11637,6 +11638,43 @@ set -x
 
 	ifconfig $link 0
 	ifconfig $link2 0
+	ifconfig bond0 3.1.1.$host_num/16 up
+set +x
+}
+
+function bond_create_bf
+{
+set -x
+	ifenslave -d bond0 p0 p1 2> /dev/null
+	sleep 1
+	rmmod bonding
+	sleep 1
+	modprobe bonding mode=4 miimon=100
+	sleep 1
+
+	ip link set dev p0 down
+	ip link set dev p1 down
+
+	ip link add name bond0 type bond
+	ip link set dev bond0 type bond mode active-backup miimon 100
+# 	ip link set dev bond0 type bond mode 802.3ad
+# 	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer3+4
+# 	ip link set dev bond0 type bond mode balance-rr
+
+# 	ip link add name bond0 type bond mode active-backup miimon 100
+
+	# bi # have syndrom 0x7d49cb
+
+# 	echo layer2+3 > /sys/class/net/bond0/bonding/xmit_hash_policy
+
+	ip link set dev p0 master bond0
+	ip link set dev p1 master bond0
+	ip link set dev bond0 up
+	ip link set dev p0 up
+	ip link set dev p1 up
+
+	ifconfig p0 0
+	ifconfig p1 0
 	ifconfig bond0 3.1.1.$host_num/16 up
 set +x
 }
