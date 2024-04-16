@@ -1,5 +1,6 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =1
+let g:netrw_dirhistcnt =2
+let g:netrw_dirhist_2='/labhome/cmi/ofed/sf/1'
 let g:netrw_dirhist_1='/images/cmi/mlnx-ofa_kernel-4.0/compat/config'
 let g:netrw_dirhist_0='/.autodirect/swgwork/cmi/rdma-example/bin'
 let g:netrw_dirhist_9='/images/cmi/rhel-9/include/linux/gpio'
@@ -9,4 +10,3 @@ let g:netrw_dirhist_6='/images/cmi/mlnx-ofa_kernel-4.0/compat'
 let g:netrw_dirhist_5='/images/cmi/mlnx-ofa_kernel-4.0/backports_new'
 let g:netrw_dirhist_4='/images/cmi/mlnx-ofa_kernel-4.0/backports'
 let g:netrw_dirhist_3='/labhome/cmi/ofed/ipsec/1'
-let g:netrw_dirhist_2='/images/cmi/mlnx-ofa_kernel-4.0/backports_new'

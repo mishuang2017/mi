@@ -9165,7 +9165,7 @@ function ofed_configure
 function ofed_install
 {
 # 	build=OFED-internal-5.2-0.2.8 /mswg/release/ofed/ofed_install --force --basic
-	build=MLNX_OFED_LINUX-5.6-0.7.8.0/    /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
+	build=MLNX_OFED_LINUX-24.01-0.3.3.5    /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-23.10-0.2.6.0  /mswg/release/ofed/ofed_install --force --basic
 	build=OFED-internal-23.10-0.2.1.0  /mswg/release/ofed/ofed_install --force --basic
 
@@ -11610,6 +11610,8 @@ function bond_create
 set -x
 	ifenslave -d bond0 $link $link2 2> /dev/null
 	sleep 1
+	ip link set $link nomaster
+	ip link set $link2 nomaster
 	rmmod bonding
 	sleep 1
 	modprobe bonding mode=4 miimon=100
