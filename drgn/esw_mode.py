@@ -41,6 +41,7 @@ def print_esw(priv):
     print("esw->manager_vport: %d" % esw.manager_vport)
     print("esw->esw_funcs->num_vfs: %d" % esw.esw_funcs.num_vfs)
     print("esw->dev->priv->sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
+    print("esw->dev->priv->sriov.max_vfs: %d" % esw.dev.priv.sriov.max_vfs)
     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags)
     print("esw->fdb_table->offloads->send_to_vport_meta_grp: %x" % esw.fdb_table.offloads.send_to_vport_meta_grp)
     print("esw->fdb_table->offloads->send_to_vport_meta_rules: %d" % esw.fdb_table.offloads.send_to_vport_meta_rules)
@@ -50,6 +51,12 @@ def print_esw(priv):
 #     print(esw.offloads.rep_ops[1])
     print("user_count: %d" % esw.user_count.counter)
     print("num_flows %d" % esw.offloads.num_flows.counter)
+    print("-------------------------------")
+    for j in range(2):
+        if esw.fdb_table.offloads.peer_miss_rules[j]:
+            for i in range(esw.total_vports):
+                print_mlx5_flow_handle(esw.fdb_table.offloads.peer_miss_rules[j][i])
+    print("-------------------------------")
 
 #     print(esw.offloads.peer_flows)
 #     for flow in list_for_each_entry('struct mlx5e_tc_flow', esw.offloads.peer_flows[1].address_of_(), 'peer'):
@@ -62,7 +69,7 @@ mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
 # print(mlx5e_priv.netdev.devlink_port.switch_port)
 
-exit(0)
+# exit(0)
 
 print("===================== port 2 =======================")
 mlx5e_priv2 = get_mlx5e_priv(pf1_name)

@@ -15,7 +15,6 @@ esw_manager_vport = 0
 # for name in pf0_name,pf1_name:
 for name in pf0_name,:
     mlx5e_priv = get_mlx5e_priv(name)
-    print("mlx5e_priv %x" % mlx5e_priv.address_of_().value_())
     mlx5_lag = mlx5e_priv.mdev.priv.lag
 
     print('-------------')

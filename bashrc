@@ -5401,10 +5401,21 @@ set -x
 	ip1
 	vxlan1
 # 	geneve
-	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
-	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
+# 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
+# 	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
 set +x
 }
+
+function brx_lo
+{
+set -x
+	vs add-br br2
+	vs add-port br2 enp8s0f1_1
+	ifconfig $link2 192.168.1.24
+	ovs-vsctl add-port br2 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=192.168.1.23  options:key=4 options:dst_port=4789 options:tos=inherit
+set +x
+}
+
 
 function brx_sf
 {
@@ -6876,10 +6887,22 @@ sf2=en8f0pf0sf2
 
 function mlxconfig_all
 {
-	mlxconfig -d  /dev/mst/mt4129_pciconf0 s PF_NUM_OF_VF_VALID=True
-	mlxconfig -d  /dev/mst/mt4129_pciconf0 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_NUM_OF_VF=4 NUM_OF_VFS=4
-	mlxconfig -d  /dev/mst/mt4129_pciconf0.1 s PF_NUM_OF_VF_VALID=True
-	mlxconfig -d  /dev/mst/mt4129_pciconf0.1 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_NUM_OF_VF=4 NUM_OF_VFS=4
+set -x
+# 	mlxconfig -d /dev/mst/mt4125_pciconf0 s PF_NUM_OF_VF_VALID=True
+# 	mlxconfig -d /dev/mst/mt4125_pciconf0 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_NUM_OF_VF=8 NUM_OF_VFS=8
+# 	mlxconfig -d /dev/mst/mt4125_pciconf0.1 s PF_NUM_OF_VF_VALID=True
+# 	mlxconfig -d /dev/mst/mt4125_pciconf0.1 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_NUM_OF_VF=4 NUM_OF_VFS=8
+
+# 	mlxconfig -d /dev/mst/mt4129_pciconf0 s PF_NUM_OF_VF_VALID=True
+# 	mlxconfig -d /dev/mst/mt4129_pciconf0 s PF_BAR2_ENABLE=0  PF_NUM_OF_VF=2 NUM_OF_VFS=4
+# 	mlxconfig -d /dev/mst/mt4129_pciconf0.1 s PF_NUM_OF_VF_VALID=True
+# 	mlxconfig -d /dev/mst/mt4129_pciconf0.1 s PF_BAR2_ENABLE=0  PF_NUM_OF_VF=4 NUM_OF_VFS=4
+
+	mlxconfig -d /dev/mst/mt4129_pciconf0 s PF_NUM_OF_VF_VALID=False
+	mlxconfig -d /dev/mst/mt4129_pciconf0 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 NUM_OF_VFS=4
+	mlxconfig -d /dev/mst/mt4129_pciconf0.1 s PF_NUM_OF_VF_VALID=False
+	mlxconfig -d /dev/mst/mt4129_pciconf0.1 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 NUM_OF_VFS=4
+set +x
 }
 
 function sf1
@@ -7943,7 +7966,7 @@ set +x
 }
 
 if (( cloud == 1 )); then
-	alias fwreset="/workspace/cloud_tools/cloud_firmware_reset.sh -ips $(hostname -i)"
+	alias fwreset="/workspace/cloud_tools/cloud_firmware_reset.sh -ips $(hostname -i | awk '{print $1}')"
 	alias setup_reset="/workspace/cloud_tools/cloud_setup_reset.sh -ips $(hostname -i)"
 else
 	alias fwreset="sudo mlxfwreset -d $pci reset -y"
@@ -9170,7 +9193,7 @@ function ofed_install
 	build=OFED-internal-23.10-0.2.1.0  /mswg/release/ofed/ofed_install --force --basic
 
 	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
-	build=MLNX_OFED_LINUX-24.04-0.5.0.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --guest  --add-kernel-support
+	build=MLNX_OFED_LINUX-24.04-0.5.4.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-30908-20240321-1550 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 }
 
