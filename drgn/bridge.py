@@ -28,19 +28,19 @@ ingress_ft = mlx5_esw_bridge_offloads.ingress_ft
 print("ingress_ft        %x" % ingress_ft.value_())
 skip_ft = mlx5_esw_bridge_offloads.skip_ft
 print("skip_ft           %x" % skip_ft)
-# flow_table("ingress_ft", ingress_ft)
+flow_table("ingress_ft", ingress_ft)
 
 
 print("\n=== mlx5_esw_bridge egress ===\n")
 
 def print_mlx5_esw_bridge(bridge):
-    print("bridge.ifindex: %d\n" % bridge.ifindex)
+    print("bridge.ifindex: %d, flags: %x, vlan_proto: %x\n" % (bridge.ifindex, bridge.flags, bridge.vlan_proto))
     egress_ft = bridge.egress_ft
     print("egress_vlan_fg %x" % bridge.egress_vlan_fg)
     print("egress_mac_fg  %x" % bridge.egress_mac_fg)
     print("egress_miss_fg %x" % bridge.egress_miss_fg)
     print("egress_ft      %x" % egress_ft.value_())
-#     flow_table("egress_ft", egress_ft)
+    flow_table("egress_ft", egress_ft)
 
     print("\n=== mlx5_esw_bridge mlx5_esw_bridge_fdb_entry ===\n")
     fdb_list = bridge.fdb_list
@@ -70,7 +70,7 @@ MLX5_ESW_BRIDGE_PORT_FLAG_PEER = prog['MLX5_ESW_BRIDGE_PORT_FLAG_PEER']
 def print_vlan(vlans):
     for node in radix_tree_for_each(vlans.address_of_()):
         vlan = Object(prog, 'struct mlx5_esw_bridge_vlan', address=node[1].value_())
-        print(vlan)
+#         print_mlx5_flow_handle(vlan.mcast_handle)
 
 print("\n=== mlx5_esw_bridge ports ===\n")
 print("MLX5_ESW_BRIDGE_PORT_FLAG_PEER = %d" % MLX5_ESW_BRIDGE_PORT_FLAG_PEER)
@@ -81,7 +81,7 @@ for node in radix_tree_for_each(ports):
 #     print(port)
     print("port->vport_num: %d, esw_owner_vhca_id: %d, flags: %x" %
         (port.vport_num, port.esw_owner_vhca_id, port.flags))
-#     print_vlan(port.vlans)
+    print_vlan(port.vlans)
 #     mlx5_esw_bridge = port.bridge
 #     print_mlx5_esw_bridge(mlx5_esw_bridge)
 #     flow_table("port.mcast.ft", port.mcast.ft)

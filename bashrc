@@ -913,8 +913,8 @@ function cloud_setup0
 		/bin/cp /root/mi/screenrc /root/.screenrc
 		/bin/cp /root/mi/vimrc /root/.vimrc
 		/bin/cp -r /root/mi/vim /root/.vim
-		/bin/mv /root/.bashrc /root/bashrc.orig > /dev/null
-		ln -s /root/mi/bashrc /root/.bashrc
+#		/bin/mv /root/.bashrc /root/bashrc.orig > /dev/null
+#		ln -s /root/mi/bashrc /root/.bashrc
 	fi
 
 	/root/bin/sudoer.sh
