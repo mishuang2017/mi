@@ -1837,6 +1837,9 @@ function bf_config
 		./scripts/config -d CONFIG_SECONDARY_TRUSTED_KEYRING && \
 		./scripts/config -d CONFIG_SYSTEM_BLACKLIST_KEYRING && \
 		./scripts/config -d CONFIG_SYSTEM_REVOCATION_LIST
+
+	./scripts/config --disable SYSTEM_TRUSTED_KEYS
+	./scripts/config --disable SYSTEM_REVOCATION_KEYS
 }
 
 function make-all
@@ -15438,3 +15441,4 @@ alias ct_action_on_nat_conns1="/usr/sbin/devlink dev param set pci/0000:08:00.0 
 
 alias bridge_fdb='cat /sys/kernel/debug/mlx5/0000:08:00.0/esw/bridge/tst1/fdb'
 alias bridge_fdb2='cat /sys/kernel/debug/mlx5/0000:08:00.1/esw/bridge/tst1/fdb'
+alias rshim_install='rpm -Uvh /mswg/release/sw_mc_soc/packages/rshim-latest.rpm'
