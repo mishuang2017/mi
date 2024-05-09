@@ -9131,6 +9131,9 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+lshw -c network -businfo
+lshw -numeric -C display
+
 show_gids
 
 ip -br link show | sort -n
@@ -9237,7 +9240,6 @@ virsh autostart vm1 --disable
 DECLARE_BITMAP
 for_each_set_bit
 
-lshw -numeric -C display
 
 # echo clear > /sys/kernel/debug/kmemleak ... test your kernel or modules ...
 # echo scan > /sys/kernel/debug/kmemleak ... Then get your report with:

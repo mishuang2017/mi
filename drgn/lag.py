@@ -74,8 +74,10 @@ def print_mlx5_vport(priv):
         if vport.egress.acl:
             flow_table("vport.egress.acl", vport.egress.acl)
 
+        print("vport.ingress.acl start")
         if vport.ingress.acl:
             flow_table("vport.ingress.acl", vport.ingress.acl)
+        print("vport.ingress.acl end")
 
     for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())

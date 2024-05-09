@@ -11,11 +11,8 @@ sys.path.append(".")
 from lib import *
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
-priv = mlx5e_priv.mdev.priv
-for i in range(6):
-    if priv.adev[i]:
-        print(priv.adev[i].adev.dev.kobj.name)
+udp_tunnel_nic = mlx5e_priv.netdev.udp_tunnel_nic
 
-# mlx5e_priv = get_mlx5e_priv(pf1_name)
-# priv = mlx5e_priv.mdev.priv
-# print(priv.adev_idx)
+for i in range(udp_tunnel_nic.n_tables):
+    print(udp_tunnel_nic.entries[i])
+    print("port: %d" % ntohs(udp_tunnel_nic.entries[i].port))

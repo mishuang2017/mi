@@ -5402,7 +5402,8 @@ set -x
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	ip1
-	vxlan1
+# 	vxlan1
+	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
 # 	geneve
 # 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
 # 	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
@@ -6976,18 +6977,18 @@ set -x
 	cmd=/opt/mellanox/iproute2/sbin/mlxdevm
 	debug=0
 	sf_device=mlx5_core.sf.2
-	sf_name=en8f0pf0sf1
+	sf_name=enp8s0f0npf0sf1
 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 1
 	sleep 1
 	$cmd port function set $sf_name state active
 	sleep 1
 
-	sf_device=mlx5_core.sf.3
-	sf_name=en8f0pf0sf2
-	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 2
-	sleep 1
-	$cmd port function set $sf_name state active
-	sleep 1
+# 	sf_device=mlx5_core.sf.3
+# 	sf_name=en8f0pf0sf2
+# 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 2
+# 	sleep 1
+# 	$cmd port function set $sf_name state active
+# 	sleep 1
 set +x
 }
 
@@ -11622,6 +11623,9 @@ function bond_switchdev
 		echo_nic_netdev2
 	fi
 
+	echo legacy > /sys/class/net/$link/compat/devlink/vport_match_mode
+	echo legacy > /sys/class/net/$link2/compat/devlink/vport_match_mode
+
 	dev
 	sleep 1
 	dev2
@@ -11647,8 +11651,8 @@ set -x
 	ip link set dev $link2 down
 
 	ip link add name bond0 type bond
-# 	ip link set dev bond0 type bond mode active-backup miimon 100
-	ip link set dev bond0 type bond mode 802.3ad
+	ip link set dev bond0 type bond mode active-backup miimon 100
+# 	ip link set dev bond0 type bond mode 802.3ad
 # 	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer3+4
 # 	ip link set dev bond0 type bond mode balance-rr
 
@@ -11683,6 +11687,7 @@ set -x
 	ip link set dev p0 down
 	ip link set dev p1 down
 
+	modprobe mlx5_ib
 	devlink dev eswitch set pci/0000:03:00.0 mode switchdev
 	devlink dev eswitch set pci/0000:03:00.1 mode switchdev
 

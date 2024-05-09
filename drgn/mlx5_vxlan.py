@@ -10,18 +10,24 @@ import os
 sys.path.append(".")
 from lib import *
 
+def print_vxlan(priv):
+    mlx5_vxlan = mlx5e_priv.mdev.vxlan
+    # print(mlx5_vxlan)
+
+    hashtbl = mlx5_vxlan.htable
+
+    for i in range(16):
+        node = hashtbl[i].first
+        while node.value_():
+            obj = container_of(node, "struct mlx5_vxlan_port", "hlist")
+            print(obj)
+            mlx5_vxlan_port = Object(prog, 'struct mlx5_vxlan_port', address=obj.value_())
+    #         print(mlx5_vxlan_port)
+            node = node.next
+
+print("================%s==============" % pf0_name)
 mlx5e_priv = get_mlx5e_priv(pf0_name)
-mlx5_vxlan = mlx5e_priv.mdev.vxlan
-# print(mlx5_vxlan)
-
-hashtbl = mlx5_vxlan.htable
-
-for i in range(16):
-    node = hashtbl[i].first
-    while node.value_():
-        obj = container_of(node, "struct mlx5_vxlan_port", "hlist")
-        mlx5_vxlan_port = Object(prog, 'struct mlx5_vxlan_port', address=obj.value_())
-        print(mlx5_vxlan_port)
-        node = node.next
-
-
+print_vxlan(mlx5e_priv)
+print("================%s==============" % pf1_name)
+mlx5e_priv = get_mlx5e_priv(pf1_name)
+print_vxlan(mlx5e_priv)
