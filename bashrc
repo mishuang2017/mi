@@ -3943,21 +3943,21 @@ function tc_vxlan2
 	remote_vm_mac=$vxlan_mac
 
 set -x
-	$TC filter add dev $rep2 protocol ip  parent ffff: prio 1 flower $offload \
-		src_mac $local_vm_mac		\
-		dst_mac $remote_vm_mac			\
-		action tunnel_key set		\
-		src_ip $link_ip			\
-		dst_ip $link_remote_ip		\
-		dst_port $vxlan_port		\
-		id $vni				\
-		action mirred egress redirect dev $vx \
-		action tunnel_key set		\
-		src_ip 192.168.1.200			\
-		dst_ip $link_remote_ip		\
-		dst_port $vxlan_port		\
-		id $vni				\
-		action mirred egress redirect dev $vx
+	ovs-vsctl add-br br-phy
+	ovs-vsctl add-port br-phy $link
+	ovs-vsctl add-port br-phy p0 -- set interface p0 type=internal
+	ifconfig $link 0
+	ifconfig p0 $link_ip/16 up
+	$TC qdisc add dev $vx ingress 
+
+	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower $offload	\
+		src_mac $remote_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset		\
+		action mirred egress redirect dev p0
 set +x
 }
 
@@ -5402,8 +5402,8 @@ set -x
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	ip1
-# 	vxlan1
-	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
+	vxlan1
+# 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
 # 	geneve
 # 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
 # 	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
@@ -10851,7 +10851,7 @@ function tc_bond
 set -x
 
 	TC=/images/cmi/iproute2/tc/tc
-	TC=/opt/mellanox/iproute2/sbin/tc
+# 	TC=/opt/mellanox/iproute2/sbin/tc
 
 	bond=bond0
 	block_id=22
@@ -11623,8 +11623,11 @@ function bond_switchdev
 		echo_nic_netdev2
 	fi
 
-	echo legacy > /sys/class/net/$link/compat/devlink/vport_match_mode
-	echo legacy > /sys/class/net/$link2/compat/devlink/vport_match_mode
+# 	echo legacy > /sys/class/net/$link/compat/devlink/vport_match_mode
+# 	echo legacy > /sys/class/net/$link2/compat/devlink/vport_match_mode
+
+	devlink dev param set pci/$pci name esw_port_metadata value false cmode runtime
+	devlink dev param set pci/$pci2 name esw_port_metadata value false cmode runtime
 
 	dev
 	sleep 1
@@ -11784,7 +11787,7 @@ set -x
 # 	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
 # 	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 set +x
-	bond_switchdev
+# 	bond_switchdev
 	sleep 1
 	bond_create
 	sleep 1
@@ -15051,7 +15054,7 @@ function ipsec2
 function ipsec_software
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-171-20-025" ]] && ip=10.237.171.26
+	[[ "$HOSTNAME" == "c-237-169-100-103" ]] && ip=10.237.169.104
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -15276,7 +15279,7 @@ function ipsec_counters
 function ipsec_crypto
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-171-20-025" ]] && ip=10.237.171.26
+	[[ "$HOSTNAME" == "c-237-169-100-103" ]] && ip=c-237-169-100-104
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -15289,17 +15292,20 @@ set -x
 
 	ip address flush enp8s0f0
 	ip -4 address add 172.16.0.1/16 dev enp8s0f0
+# 	ifconfig bond0 172.16.0.1/16 up
 	ip link set enp8s0f0 up
 	ip xfrm state flush
 	ip xfrm policy flush
 
-        ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir out && 
-        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in &&
+#         ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir out && 
+#         ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in &&
+        ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport &&
+        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport &&
         ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir out tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10000 mode transport  &&
         ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport  &&
         ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
-set +x
-	return
+# set +x
+# 	return
 
 	ssh root@$ip "
 
@@ -15311,17 +15317,74 @@ set +x
 
 	ip address flush enp8s0f0
 	ip -4 address add 172.16.0.2/16 dev enp8s0f0
+# 	ifconfig bond0 172.16.0.2/16
 	ip link set enp8s0f0 up
 	ip xfrm state flush
 	ip xfrm policy flush
 
-        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir out && 
-        ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir in &&
-        ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir out tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10000 mode transport  &&
-        ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir in  tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport  &&
+#         ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir out && 
+#         ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir in &&
+        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport
+        ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport
+        ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir out tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10000 mode transport
+        ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir in  tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport
         ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir fwd tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport "
 
 set +x
+}
+
+function ipsec_crypto_bond
+{
+	[[ "$1" == "offload" ]] && offload="skip_hw";
+
+	off
+	bond_delete
+	bond_create
+
+	ip xfrm state flush
+	ip xfrm policy flush
+
+	if (( machine_num == 1 )); then
+		ifconfig bond0 172.16.0.1/16 up
+
+		if [[ "$1" == "offload" ]]; then
+			echo "offload"
+			ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' \
+				0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir out 
+			ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' \
+				0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in
+		else
+			echo "software"
+			ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' \
+				0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport
+			ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' \
+				0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport
+		fi
+
+		ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir out tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10000 mode transport
+		ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
+		ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
+
+	elif (( machine_num == 2 )); then
+		ifconfig bond0 172.16.0.2/16 up
+		if [[ "$1" == "offload" ]]; then
+			echo "offload"
+			ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' \
+				0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir out
+			ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' \
+				0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir in
+		else
+			echo "software"
+			ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' \
+				0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport
+			ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' \
+				0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport
+		fi
+			ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir out tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10000 mode transport
+			ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir in  tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport
+			ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir fwd tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport
+
+	fi
 }
 
 function br_bf

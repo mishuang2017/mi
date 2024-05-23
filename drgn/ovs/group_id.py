@@ -38,18 +38,20 @@ def print_hex_dump(buf, len):
 
 for i, id in enumerate(ids):
 #     print(id)
-    len = id.sample.action.nla_len
-    attr = id.sample.action
-    print("id: %d, len: %d, sample: %x, userdata(cookie): %x, actions: %x, tunnel: %x" % \
-        (id.id, len, id.sample.address_of_(), id.sample.userdata, id.sample.actions, id.sample.tunnel))
+    print(id)
+    print(id.sample.tunnel)
+#     len = id.sample.action.nla_len
+#     attr = id.sample.action
+#     print("id: %d, len: %d, sample: %x, userdata(cookie): %x, actions: %x, tunnel: %x" % \
+#         (id.id, len, id.sample.address_of_(), id.sample.userdata, id.sample.actions, id.sample.tunnel))
 #     print(id.sample.ufid)
 #     print(id.sample.action)
-    p = Object(prog, 'unsigned char *', address=attr.address_of_())
-    cookie = Object(prog, 'struct user_action_cookie', address=id.sample.userdata + 1)
+#     p = Object(prog, 'unsigned char *', address=attr.address_of_())
+#     cookie = Object(prog, 'struct user_action_cookie', address=id.sample.userdata + 1)
 #     print(cookie)
 #     print(id.sample.tunnel)
-    if id.sample.tunnel:
-        print("tp_src: %x" % id.sample.tunnel.tp_src)
+#     if id.sample.tunnel:
+#         print("tp_src: %x" % id.sample.tunnel.tp_src)
 #         print(id.sample.tunnel)
 #     print_hex_dump(p, len)
 

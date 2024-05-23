@@ -226,7 +226,7 @@ def print_exts(e):
 #             print(a)
         if kind == "mirred":
             tcf_mirred = Object(prog, 'struct tcf_mirred', address=a.value_())
-            print("\toutput: %s," % tcf_mirred.tcfm_dev.name.string_().decode(), end='\n')
+#             print("\toutput: %s," % tcf_mirred.tcfm_dev.name.string_().decode(), end='\n')
             print_action_stats(a)
         if kind == "gact":
             print("\tgact action: %d (TC_ACT_SHOT = 2)" % a.tcfa_action)

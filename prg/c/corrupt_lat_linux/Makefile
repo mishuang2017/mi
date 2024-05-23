@@ -9,7 +9,7 @@ ECHO=echo
 
 all:
 	$(ECHO) sparc;						\
-	$(GCC)  -lnsl -lpthread  -o $(BIN) $(BIN).c;		\
+	$(GCC)  -lpthread  -o $(BIN) $(BIN).c;		\
 
 clean:
 	@rm $(BIN) $(BIN2)

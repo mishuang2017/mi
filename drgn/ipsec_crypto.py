@@ -35,42 +35,13 @@ sadb = ipsec.sadb
 print("\n======================== tx ===========================\n")
 # print(sadb)
 flow_table("sa", ipsec.tx.ft.sa)
-flow_table("sa", ipsec.tx.ft.pol)
+flow_table("pol", ipsec.tx.ft.pol)
 
 for node in radix_tree_for_each(sadb.address_of_()):
-    print(node)
+#     print(node)
     entry = Object(prog, 'struct mlx5e_ipsec_sa_entry', address=node[1].value_())
-#     print(entry)
-
-exit(0)
-# print_sadb(sadb)
-
-sadb = ipsec.sadb_rx
-print("\n======================== rx ===========================\n")
-# print_sadb(sadb)
-
-# print(ipsec.aso)
-# print(ipsec.aso.maso)
-
-print("\n======================== ipsec_priv ===========================\n")
-esw = mlx5e_priv.mdev.priv.eswitch
-ipsec_priv = esw.fdb_table.offloads.esw_ipsec_priv
-print(ipsec_priv)
-
-print("\n======================== ipsec_fdb_crypto_rx, FDB_CRYPTO_INGRESS, level 1 ===========================\n")
-flow_table("ipsec_fdb_crypto_rx", ipsec_priv.ipsec_fdb_crypto_rx)
-print("\n======================== ipsec_fdb_decap_rx,  FDB_CRYPTO_INGRESS, level 2 ===========================\n")
-flow_table("ipsec_fdb_decap_rx", ipsec_priv.ipsec_fdb_decap_rx)
-
-print("\n======================== ipsec_fdb_ike_tx,    FDB_CRYPTO_EGRESS,  level 1 ===========================\n")
-flow_table("ipsec_fdb_ike_tx", ipsec_priv.ipsec_fdb_ike_tx)
-print("\n======================== ipsec_fdb_crypto_tx, FDB_CRYPTO_EGRESS,  level 2 ===========================\n")
-flow_table("ipsec_fdb_crypto_tx", ipsec_priv.ipsec_fdb_crypto_tx)
-print("\n======================== ipsec_fdb_tx_chk,    FDB_CRYPTO_EGRESS,  level 3 ===========================\n")
-flow_table("ipsec_fdb_tx_chk", ipsec_priv.ipsec_fdb_tx_chk)
-
-uar = mlx5e_priv.mdev.priv.uar
-# print(uar)
+#     print(entry.ipsec.tx)
+#     print_mlx5_flow_handle(entry.ipsec_rule.rule)
 
 def print_net_xfrm_state(net):
     netns_xfrm = net.xfrm
@@ -102,6 +73,39 @@ def print_net_xfrm_policy(net):
 net = prog['init_net']
 # print_net_xfrm_state(net)
 # print_net_xfrm_policy(net)
+
+# print_sadb(sadb)
+
+# sadb = ipsec.sadb_rx
+print("\n======================== rx ===========================\n")
+# print_sadb(sadb)
+
+flow_table("rx_ipv4", ipsec.rx_ipv4.ft.sa)
+
+# print(ipsec.aso)
+# print(ipsec.aso.maso)
+
+exit(0)
+
+print("\n======================== ipsec_priv ===========================\n")
+esw = mlx5e_priv.mdev.priv.eswitch
+ipsec_priv = esw.fdb_table.offloads.esw_ipsec_priv
+print(ipsec_priv)
+
+print("\n======================== ipsec_fdb_crypto_rx, FDB_CRYPTO_INGRESS, level 1 ===========================\n")
+flow_table("ipsec_fdb_crypto_rx", ipsec_priv.ipsec_fdb_crypto_rx)
+print("\n======================== ipsec_fdb_decap_rx,  FDB_CRYPTO_INGRESS, level 2 ===========================\n")
+flow_table("ipsec_fdb_decap_rx", ipsec_priv.ipsec_fdb_decap_rx)
+
+print("\n======================== ipsec_fdb_ike_tx,    FDB_CRYPTO_EGRESS,  level 1 ===========================\n")
+flow_table("ipsec_fdb_ike_tx", ipsec_priv.ipsec_fdb_ike_tx)
+print("\n======================== ipsec_fdb_crypto_tx, FDB_CRYPTO_EGRESS,  level 2 ===========================\n")
+flow_table("ipsec_fdb_crypto_tx", ipsec_priv.ipsec_fdb_crypto_tx)
+print("\n======================== ipsec_fdb_tx_chk,    FDB_CRYPTO_EGRESS,  level 3 ===========================\n")
+flow_table("ipsec_fdb_tx_chk", ipsec_priv.ipsec_fdb_tx_chk)
+
+uar = mlx5e_priv.mdev.priv.uar
+# print(uar)
 
 def print_counters():
     print("\n======================== counters ===========================\n")
