@@ -1886,6 +1886,7 @@ alias make-usr='./configure --prefix=/usr; make -j; sudo make install'
 function tc2
 {
 	TC=/opt/mellanox/iproute2/sbin/tc
+	TC=/images/cmi/iproute2/tc/tc
 	local l
 #	for link in p2p1 $rep1 $rep2 $vx_rep; do
 	for l in $link $rep1 $rep2 $rep3 bond0 vxlan1 p0; do
@@ -9166,6 +9167,7 @@ alias ofed-configure-5.15="./configure --with-mlx5-core-and-ib-and-en-mod --with
 alias ofed-configure-5.16="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.16-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.16-rc7 "
 alias ofed-configure-5.17="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.17-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.17-rc7 "
 alias ofed-configure-6.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.2-rc6 "
+alias ofed-configure-6.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.3 "
 
 alias ofed-configure-4.14.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.14.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.14.3 "
 alias ofed-configure-693="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod --with-memtrack -j $cpu_num2 \
@@ -15335,24 +15337,27 @@ set +x
 
 function ipsec_crypto_bond
 {
-	[[ "$1" == "offload" ]] && offload="skip_hw";
-
-	off
-	bond_delete
-	bond_create
+	offload=true
+	[[ $# == 1 ]] && offload=false
 
 	ip xfrm state flush
 	ip xfrm policy flush
 
+	off
+	bond_delete
+	bond_switchdev
+	bond_create
+# 	ethtool -K bond0 tso off
+
 	if (( machine_num == 1 )); then
 		ifconfig bond0 172.16.0.1/16 up
 
-		if [[ "$1" == "offload" ]]; then
+		if [[ "$offload" == "true" ]]; then
 			echo "offload"
 			ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' \
-				0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir out 
+				0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev bond0 dir out
 			ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' \
-				0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in
+				0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev bond0 dir in
 		else
 			echo "software"
 			ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' \
@@ -15367,12 +15372,12 @@ function ipsec_crypto_bond
 
 	elif (( machine_num == 2 )); then
 		ifconfig bond0 172.16.0.2/16 up
-		if [[ "$1" == "offload" ]]; then
+		if [[ "$offload" == "true" ]]; then
 			echo "offload"
 			ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' \
-				0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir out
+				0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev bond0 dir out
 			ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' \
-				0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir in
+				0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev bond0 dir in
 		else
 			echo "software"
 			ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' \
