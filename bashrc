@@ -15147,65 +15147,58 @@ set -x
 set +x
 }
 
-function ipsec1
+function ipsec_packet
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-173-40-045" ]] && ip=10.237.173.46
+	offload=true
+	[[ $# == 1 ]] && offload=false
+
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
 # 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
-# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
 	devlink dev eswitch set pci/$pci mode switchdev
 	ip address flush enp8s0f0
+	ip link set enp8s0f0 up
+	ip xfrm state flush
+	ip xfrm policy flush
 	ip -4 address add $link_ip/24 dev enp8s0f0
-	ip link set enp8s0f0 up
-	ip xfrm state flush
-	ip xfrm policy flush
 
-	ip xfrm state add src $link_ip dst $link_remote_ip proto esp spi 10001 reqid 100001 \
-		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
-		sel src $link_ip dst $link_remote_ip offload packet dev enp8s0f0 dir out
+	if (( machine_num == 1 )); then
 
-	ip xfrm state add src $link_remote_ip dst $link_ip proto esp spi 10000 reqid 100000 \
-		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
-		sel src $link_remote_ip dst $link_ip offload packet dev enp8s0f0 dir in
+		ip xfrm state add src $link_ip dst $link_remote_ip proto esp spi 10001 reqid 100001 \
+			aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
+			sel src $link_ip dst $link_remote_ip offload packet dev enp8s0f0 dir out
 
-	ip xfrm policy add src $link_ip dst $link_remote_ip dir out tmpl src $link_ip dst $link_remote_ip proto esp reqid 100001 mode transport offload packet dev enp8s0f0
-	ip xfrm policy add src $link_remote_ip dst $link_ip dir in tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
-	ip xfrm policy add src $link_remote_ip dst $link_ip dir fwd tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+		ip xfrm state add src $link_remote_ip dst $link_ip proto esp spi 10000 reqid 100000 \
+			aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
+			sel src $link_remote_ip dst $link_ip offload packet dev enp8s0f0 dir in
 
-# set +x
-# 	return
+		ip xfrm policy add src $link_ip dst $link_remote_ip dir out tmpl src $link_ip dst $link_remote_ip \
+			proto esp reqid 100001 mode transport offload packet dev enp8s0f0
+		ip xfrm policy add src $link_remote_ip dst $link_ip dir in tmpl src $link_remote_ip dst $link_ip \
+			proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+		ip xfrm policy add src $link_remote_ip dst $link_ip dir fwd tmpl src $link_remote_ip dst $link_ip \
+			proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+	elif (( machine_num == 2 )); then
 
-	ssh root@$ip "
-	ip xfrm state flush
-	ip xfrm policy flush
-	sleep 1
-# 	devlink dev eswitch set pci/$pci mode legacy
-# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
-	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
-	devlink dev eswitch set pci/$pci mode switchdev
-	ip address flush enp8s0f0
-	ip -4 address add $link_remote_ip/24 dev enp8s0f0
-	ip link set enp8s0f0 up
-	ip xfrm state flush
-	ip xfrm policy flush
+		ip xfrm state add src $link_remote_ip dst $link_ip proto esp spi 10001 reqid 100001 \
+			aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
+			sel src $link_remote_ip dst $link_ip offload packet dev enp8s0f0 dir in
 
-        ip xfrm state add src $link_ip dst $link_remote_ip proto esp spi 10001 reqid 100001 \
-		aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
-		sel src $link_ip dst $link_remote_ip offload packet dev enp8s0f0 dir in
+		ip xfrm state add src $link_ip dst $link_remote_ip proto esp spi 10000 reqid 100000 \
+			aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
+			sel src $link_ip dst $link_remote_ip offload packet dev enp8s0f0 dir out
 
-        ip xfrm state add src $link_remote_ip dst $link_ip proto esp spi 10000 reqid 100000 \
-		aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
-		sel src $link_remote_ip dst $link_ip offload packet dev enp8s0f0 dir out
-
-        ip xfrm policy add src $link_ip dst $link_remote_ip dir in tmpl src $link_ip dst $link_remote_ip proto esp reqid 100001 mode transport offload packet dev enp8s0f0
-        ip xfrm policy add src $link_remote_ip dst $link_ip dir out tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
-        ip xfrm policy add src $link_ip dst $link_remote_ip dir fwd tmpl src $link_remote_ip dst $link_ip proto esp reqid 100000 mode transport offload packet dev enp8s0f0
-	"
+		ip xfrm policy add src $link_remote_ip dst $link_ip dir in tmpl src $link_remote_ip dst $link_ip \
+			proto esp reqid 100001 mode transport offload packet dev enp8s0f0
+		ip xfrm policy add src $link_ip dst $link_remote_ip dir out tmpl src $link_ip dst $link_remote_ip \
+			proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+		ip xfrm policy add src $link_remote_ip dst $link_ip dir fwd tmpl src $link_ip dst $link_remote_ip \
+			proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+	fi
 set +x
 }
 
