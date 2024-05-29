@@ -1949,7 +1949,8 @@ set -x
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
-	remote_mac=10:70:fd:43:70:20
+	remote_mac=10:70:fd:87:5a:58
+	remote_mac=10:70:fd:87:53:60
 	TC=/images/cmi/tc-scripts/tc
 	TC=/images/cmi/iproute2/tc/tc
 	TC=tc
@@ -11609,6 +11610,11 @@ function bond_switchdev
 {
 	nic=$1
 
+set -x
+	devlink dev param set pci/$pci name esw_port_metadata value false cmode runtime
+	devlink dev param set pci/$pci2 name esw_port_metadata value false cmode runtime
+set +x
+
 	on-sriov
 	sleep 1
 	on-sriov2
@@ -11627,9 +11633,6 @@ function bond_switchdev
 
 # 	echo legacy > /sys/class/net/$link/compat/devlink/vport_match_mode
 # 	echo legacy > /sys/class/net/$link2/compat/devlink/vport_match_mode
-
-	devlink dev param set pci/$pci name esw_port_metadata value false cmode runtime
-	devlink dev param set pci/$pci2 name esw_port_metadata value false cmode runtime
 
 	dev
 	sleep 1
@@ -11789,7 +11792,7 @@ set -x
 # 	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
 # 	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 set +x
-# 	bond_switchdev
+	bond_switchdev
 	sleep 1
 	bond_create
 	sleep 1
@@ -15340,6 +15343,7 @@ function ipsec_crypto_bond
 	bond_delete
 	bond_switchdev
 	bond_create
+	return
 # 	ethtool -K bond0 tso off
 
 	if (( machine_num == 1 )); then
