@@ -8858,7 +8858,9 @@ set -x
 	TC=/images/cmi/iproute2/tc/tc
 
 	ip link delete link dev $macvlan > /dev/null 2>&1
-	ip link add link $link $macvlan type macvlan mode bridge
+# 	ip link add link $link $macvlan type macvlan mode bridge
+	# only passthru mode can be offloaded
+	ip link add link $link $macvlan type macvlan mode passthru
 
 	$TC qdisc del dev $macvlan ingress 2> /dev/null
 	$TC qdisc add dev $macvlan ingress 
@@ -8867,8 +8869,10 @@ set -x
 	ethtool -K $rep2 hw-tc-offload on 
 	$TC qdisc add dev $rep2 ingress 
 
-	$TC filter add dev $macvlan ingress prio 1 protocol ip flower action mirred egress redirect dev $rep2
-	$TC filter add dev $rep2 ingress prio 1 protocol ip flower action mirred egress redirect dev $macvlan
+	$TC filter add dev $macvlan ingress prio 1 protocol ip flower action drop
+
+# 	$TC filter add dev $macvlan ingress prio 1 protocol ip flower action mirred egress redirect dev $rep2
+# 	$TC filter add dev $rep2 ingress prio 1 protocol ip flower action mirred egress redirect dev $macvlan
 set +x
 }
 

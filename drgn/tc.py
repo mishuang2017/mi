@@ -12,6 +12,7 @@ from lib import *
 
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
+    print(name)
 #     if "enp4s0f0" not in name and "vxlan_sys_4789" != name:
 #     if "enp8s0f0_1" != name:
 #     if "p0" != name:
@@ -33,7 +34,7 @@ for x, dev in enumerate(get_netdevs()):
     ingress_sched_data = Object(prog, 'struct ingress_sched_data', address=addr)
 #     print(ingress_sched_data)
     block = ingress_sched_data.block
-    if name == "mymacvlan1":
+    if name == "macvlan1":
         print("block")
         print(block)
     if block.value_() == 0:
