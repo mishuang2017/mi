@@ -9131,6 +9131,8 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+ps -ef --forest
+
 lshw -c network -businfo
 lshw -numeric -C display
 

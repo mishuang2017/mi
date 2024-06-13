@@ -11666,6 +11666,7 @@ set -x
 	ip link set dev bond0 type bond mode active-backup miimon 100
 # 	ip link set dev bond0 type bond mode 802.3ad
 # 	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer3+4
+# 	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer2
 # 	ip link set dev bond0 type bond mode balance-rr
 
 # 	ip link add name bond0 type bond mode active-backup miimon 100
@@ -11732,14 +11733,15 @@ function bond_br
 	restart-ovs
 	del-br
 	ovs-vsctl add-br $br
-# 	ovs-vsctl add-port $br bond0
-	vxlan1
+	ovs-vsctl add-port $br bond0
+# 	vxlan1
 # 	for (( i = 0; i < numvfs; i++)); do
 # 		local rep=$(get_rep $i)
 # 		ovs-vsctl add-port $br $rep
 # 		local rep=$(get_rep2 $i)
 # 		ovs-vsctl add-port $br $rep
 # 	done
+	ifconfig $rep2 up
 	ovs-vsctl add-port $br $rep2
 # 	ovs-ofctl add-flow $br "in_port=bond0,dl_dst=2:25:d0:13:01:01 action=$rep1"
 
@@ -11807,7 +11809,7 @@ set +x
 	set_netns_all 1
 
 # 	ifconfig bond0 $link_ip
-# 	bond_br
+	bond_br
 
 	return
 
