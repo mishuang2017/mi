@@ -19,6 +19,12 @@ mlx5e_tc_table = mlx5e_priv.fs.tc
 # print(mlx5e_tc_table.netdevice_nb)
 # print(mlx5e_tc_table.netdevice_nn)
 
+ht = mlx5e_tc_table.ht
+for i, flow in enumerate(hash(ht, 'struct mlx5e_tc_flow', 'node')):
+    print_mlx5e_tc_flow(flow)
+
+exit(0)
+
 mlx5e_l2_table = mlx5e_priv.fs.l2
 # print(mlx5e_l2_table)
 flow_table("l2", mlx5e_l2_table.ft.t)

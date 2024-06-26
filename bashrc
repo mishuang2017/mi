@@ -5022,8 +5022,8 @@ function br_int_port
 set -x
     ovs-vsctl add-br br-phy
     ovs-vsctl add-port br-phy $link
-#     ovs-vsctl add-port br-phy p0 tag=$vlan -- set interface p0 type=internal
-    ovs-vsctl add-port br-phy p0 -- set interface p0 type=internal
+    ovs-vsctl add-port br-phy p0 tag=32 -- set interface p0 type=internal
+#     ovs-vsctl add-port br-phy p0 -- set interface p0 type=internal
     ifconfig $link 0
     ifconfig p0 $link_ip/16 up
 
@@ -5032,8 +5032,8 @@ set -x
     ovs-vsctl add-port br-int $rep2
     ovs-vsctl add-port br-int $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit
 
-    mirror1
-    ifconfig eth2 up 
+#     mirror1
+#     ifconfig eth2 up 
 
 set +x
 }
@@ -13678,6 +13678,7 @@ function link3
 function tc_hairpin
 {
 	TC=/opt/mellanox/iproute2/sbin/tc
+	TC=/images/cmi/iproute2/tc/tc
 
 	offload=skip_sw
 	ifconfig $link up
