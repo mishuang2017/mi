@@ -14668,11 +14668,6 @@ test -f /proc/config.gz && modprobe configs > /dev/null 2>&1
 
 function build_kexec
 {
-	if (( UID == 0 )); then
-		echo "please run as non-root user"
-		return
-	fi
-
 	sm
 	git clone git://git.kernel.org/pub/scm/utils/kernel/kexec/kexec-tools.git
 	cd kexec-tools
@@ -14682,11 +14677,6 @@ function build_kexec
 
 function build_makedumpfile
 {
-	if (( UID == 0 )); then
-		echo "please run as non-root user"
-		return
-	fi
-
 	sm
 	sudo yum install -y snappy-devel bzip2-devel lzo-devel libzstd-devel
 	sudo apt-get -y install libsnappy-dev libzstd-dev
