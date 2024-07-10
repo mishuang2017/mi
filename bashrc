@@ -6930,7 +6930,8 @@ function sf_m
 		echo '---------------------'
 		echo $i
 		echo '---------------------'
-		sf_create /opt/mellanox/iproute2/sbin/mlxdevm $i
+		sf_create /images/cmi/iproute2/mlxdevm/mlxdevm $i
+		# sf_create /opt/mellanox/iproute2/sbin/mlxdevm $i
 	done
 }
 
@@ -6980,6 +6981,7 @@ set -x
 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
 
 	cmd=/opt/mellanox/iproute2/sbin/mlxdevm
+	cmd=/images/cmi/iproute2/mlxdevm/mlxdevm
 	debug=0
 	sf_device=mlx5_core.sf.2
 	sf_name=enp8s0f0npf0sf1
@@ -9207,7 +9209,7 @@ function ofed_install
 	build=OFED-internal-23.10-0.2.1.0  /mswg/release/ofed/ofed_install --force --basic
 
 	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
-	build=MLNX_OFED_LINUX-24.04-0.5.4.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
+	build=MLNX_OFED_LINUX-24.07-0.3.0.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-30908-20240321-1550 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 }
 
