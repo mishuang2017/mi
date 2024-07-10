@@ -905,6 +905,8 @@ function create-images
 function cloud_setup0
 {
 	cd /root
+	apt install -y git
+	yum install -y git
 	test -d /root/bin || git clone https://github.com/mishuang2017/bin.git
 	test -d /root/mi || git clone https://github.com/mishuang2017/mi.git --branch=master
 
