@@ -9131,6 +9131,12 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+screen regions
+ctl a + |	split horizontally
+ctl a + S	split vertically
+ctl a + X	remove other regions
+ctl a + tab	switch between regions
+
 ps -ef --forest
 
 lshw -c network -businfo
