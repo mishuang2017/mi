@@ -58,10 +58,10 @@ def print_mlx5_vport(priv):
     for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())
 #         print(mlx5_vport.info)
-        if mlx5_vport.vport != 0xffff:
-            continue
+#         if mlx5_vport.vport != 0xffff:
+#             continue
         print_vport(mlx5_vport)
-        print(mlx5_vport.ingress.offloads)
+#         print(mlx5_vport.ingress.offloads)
 
 mlx5e_priv = lib.get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)

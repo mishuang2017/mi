@@ -42,7 +42,7 @@ for x, dev in enumerate(get_netdevs()):
 #             print(flow.attr.mh.modify_hdr)
 #             print("modify_hdr id: %x" % flow.attr.mh.modify_hdr.id)
 #             print_mod_hdr_key(flow.attr.mh.key)
-        print(flow.attr.esw_attr[0].rx_tun_attr)
+#         print(flow.attr.esw_attr[0].rx_tun_attr)
         j=j+1
 #         print(flow.attrs)
         k=1
@@ -50,9 +50,9 @@ for x, dev in enumerate(get_netdevs()):
             print("--- flow.attrs: %d, %x ---" % (k, mlx5_flow_attr))
             k=k+1
             print("mlx5_flow_attr.action: %x" % mlx5_flow_attr.action)
-#             print("flow.attr.tc_act_cookies_count: %d" % mlx5_flow_attr.tc_act_cookies_count)
-#             for m in range(mlx5_flow_attr.tc_act_cookies_count):
-#                 print("tc_act_cookies[%d]: %x" % (m, mlx5_flow_attr.tc_act_cookies[m]))
+            print("flow.attr.tc_act_cookies_count: %d" % mlx5_flow_attr.tc_act_cookies_count)
+            for m in range(mlx5_flow_attr.tc_act_cookies_count):
+                print("tc_act_cookies[%d]: %x" % (m, mlx5_flow_attr.tc_act_cookies[m]))
 #             if mlx5_flow_attr.mh:
 #                 print("modify_hdr id: %x" % mlx5_flow_attr.mh.modify_hdr.id)
 #                 print_mod_hdr_key(mlx5_flow_attr.mh.key)
@@ -61,3 +61,7 @@ for x, dev in enumerate(get_netdevs()):
 #             print(mlx5_flow_attr.post_act_handle)
 #             print(mlx5_flow_attr.parse_attr)
 #             print(mlx5_flow_attr.esw_attr[0])
+
+        print(flow.peer_flows)
+        for peer_flow in list_for_each_entry('struct mlx5e_tc_flow', flow.peer_flows.address_of_(), 'peer_flows'):
+            print("peer_flow.flags: %x" % peer_flow.flags)

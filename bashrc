@@ -11,8 +11,8 @@ ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
 numvfs=3
-ports=2
 ports=1
+ports=2
 
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
@@ -3381,13 +3381,16 @@ set -x
 	ip link set $vx up
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
+	$TC qdisc del dev $link2 ingress > /dev/null 2>&1
 	$TC qdisc del dev $redirect ingress > /dev/null 2>&1
 	$TC qdisc del dev $vx ingress > /dev/null 2>&1
 
 	ethtool -K $link hw-tc-offload on
+	ethtool -K $link2 hw-tc-offload on
 	ethtool -K $redirect  hw-tc-offload on
 
 	$TC qdisc add dev $link ingress
+	$TC qdisc add dev $link2 ingress
 	$TC qdisc add dev $redirect ingress
 	$TC qdisc add dev $vx ingress
 #	$TC qdisc add dev $link clsact
@@ -3395,11 +3398,13 @@ set -x
 #	$TC qdisc add dev $vx clsact
 
 	ip link set $link promisc on
+	ip link set $link2 promisc on
 	ip link set $redirect promisc on
 	ip link set $vx promisc on
 
 	local_vm_mac=02:25:d0:$host_num:01:02
 	remote_vm_mac=$vxlan_mac
+	# remote_vm_mac=02:25:d0:$rhost_num:01:02
 
 	# arp
 	$TC filter add dev $redirect protocol arp parent ffff: prio 1 flower skip_hw	\
@@ -3457,8 +3462,8 @@ set -x
 		enc_key_id $vni			\
 		ct_state -trk			\
 		action ct pipe			\
-		action goto chain 1
-	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 2 flower $offload	\
+		action goto chain 3
+	$TC filter add dev $vx protocol ip  parent ffff: chain 3 prio 2 flower $offload	\
 		src_mac $remote_vm_mac	\
 		dst_mac $local_vm_mac	\
 		enc_src_ip $link_remote_ip	\
@@ -3469,7 +3474,7 @@ set -x
 		action ct commit		\
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
-	$TC filter add dev $vx protocol ip  parent ffff: chain 1 prio 2 flower $offload	\
+	$TC filter add dev $vx protocol ip  parent ffff: chain 3 prio 3 flower $offload	\
 		src_mac $remote_vm_mac	\
 		dst_mac $local_vm_mac	\
 		enc_src_ip $link_remote_ip	\
@@ -6846,6 +6851,11 @@ function start-switchdev
 		pci_addr=$pci2
 	fi
 
+	
+# 	if (( port == 1 )); then
+# 		echo multiport_esw > /sys/class/net/$l/compat/devlink/lag_port_select_mode
+# 	fi
+
 	num=$(cat /sys/class/net/$l/device/sriov_numvfs)
 	if (( num == 0 )); then
 		echo $numvfs > /sys/class/net/$l/device/sriov_numvfs
@@ -6867,6 +6877,11 @@ function start-switchdev
 # 	devlink dev eswitch set pci/$pci_addr encap none
 
 # 	return
+
+	if (( port == 1 )); then
+		echo "devlink dev param set pci/$pci_addr name esw_multiport value 1 cmode runtime"
+		read
+	fi
 
 	sleep 1
 	$TIME bind_all $l
@@ -7466,6 +7481,8 @@ alias tma='tmux attach'
 [[ "$HOSTNAME" == "mtl-vdi-1231" ]] && alias tma='screen -x'
 function tm
 {
+	return
+
 	[[ $# == 0 ]] && return
 	local session=$1
 	local cmd=$(which tmux) # tmux path
@@ -9211,6 +9228,7 @@ function ofed_install
 	build=OFED-internal-23.10-0.2.1.0  /mswg/release/ofed/ofed_install --force --basic
 
 	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
+	build=MLNX_OFED_LINUX-24.04-0.6.6.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=MLNX_OFED_LINUX-24.07-0.3.0.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-30908-20240321-1550 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 }
@@ -11622,8 +11640,8 @@ function bond_switchdev
 	nic=$1
 
 set -x
-	devlink dev param set pci/$pci name esw_port_metadata value false cmode runtime
-	devlink dev param set pci/$pci2 name esw_port_metadata value false cmode runtime
+# 	devlink dev param set pci/$pci name esw_port_metadata value false cmode runtime
+# 	devlink dev param set pci/$pci2 name esw_port_metadata value false cmode runtime
 set +x
 
 	on-sriov
@@ -15040,7 +15058,7 @@ alias mmlxdevm=/opt/mellanox/iproute2/sbin/mlxdevm
 
 function meter_list
 {
-	ovs-ofctl dump-meters br-ovs -O OpenFlow13
+	ovs-ofctl dump-meters $br1 -O OpenFlow13
 }
 
 alias m20='make -j 20'
@@ -15517,3 +15535,66 @@ alias ct_action_on_nat_conns1="/usr/sbin/devlink dev param set pci/0000:08:00.0 
 alias bridge_fdb='cat /sys/kernel/debug/mlx5/0000:08:00.0/esw/bridge/tst1/fdb'
 alias bridge_fdb2='cat /sys/kernel/debug/mlx5/0000:08:00.1/esw/bridge/tst1/fdb'
 alias rshim_install='rpm -Uvh /mswg/release/sw_mc_soc/packages/rshim-latest.rpm'
+
+function multiport_esw_fw
+{
+set -x
+	mlxconfig -d $pci set LAG_RESOURCE_ALLOCATION=1
+	mlxconfig -d $pci set KEEP_ETH_LINK_UP_P1=0
+	unload
+	/workspace/cloud_tools/cloud_firmware_reset.sh -ips $(hostname -i | awk '{print $1}')
+	reprobe
+set +x
+}
+
+function dev_all
+{
+set -x
+	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	dmfs
+	on-sriov
+	un
+	dev
+	set_mac
+	bi
+
+	dmfs2
+	on-sriov2
+	un2
+	dev2
+	set_mac 2
+	bi2
+
+	ifconfig $rep2 up
+	ifconfig enp8s0f0v1 1.1.1.$host_num/24 up
+
+	devlink dev param show pci/$pci name esw_multiport
+	devlink dev param set pci/$pci name esw_multiport value 1 cmode runtime
+set +x
+}
+
+function multiport_esw_ovs
+{
+	del-br
+	vs add-br $br
+	vs add-port $br $rep1
+	vs add-port $br $link
+	vs add-port $br $link2
+	ovs-ofctl add-group br1 group_id=1,type=fast_failover,bucket=watch_port=$link,actions=$link,bucket=watch_port=$link2,actions=$link2
+
+	multiport_esw_rules
+}
+
+function multiport_esw_rules
+{
+set -x
+	MAC=02:25:d0:$host_num:01:01
+	br=br1
+	ovs-ofctl del-flows $br
+	ovs-ofctl add-flow $br in_port=$link,arp,actions=output:$rep1
+	ovs-ofctl add-flow $br in_port=$link2,arp,actions=output:$rep1
+	ovs-ofctl add-flow $br in_port=$link,dl_dst=$MAC,actions=output:$rep1
+	ovs-ofctl add-flow $br in_port=$link2,dl_dst=$MAC,actions=output:$rep1
+	ovs-ofctl add-flow $br in_port=$rep1,actions=group:1
+set +x
+}

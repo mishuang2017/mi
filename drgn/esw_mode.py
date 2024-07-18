@@ -19,11 +19,15 @@ def print_esw(priv):
 #     print(priv.netdev.xfrmdev_ops)
 #     print("mlx5e_priv %#x" % priv.address_of_())
     print("mlx5e_priv.fs.state_destroy %#x" % priv.fs.state_destroy.value_())
-    print("mlx5_core_dev %#x" % priv.mdev)
 #     print(priv.mdev.mlx5e_res.ct)
 #     print("mlx5_core_dev.num_block_tc %d" % priv.mdev.num_block_tc)
 #     print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
     print(priv.mdev.coredev_type)
+
+#     for i in range(priv.mdev.mlx5e_res.dl_port.attrs.switch_id.id_len):
+#         print("%02x:" % priv.mdev.mlx5e_res.dl_port.attrs.switch_id.id[i], end='')
+
+    print('')
     print("mlx5_priv %#x" % priv.mdev.priv.address_of_())
 #     print_health(priv.mdev.priv.health)
     esw = priv.mdev.priv.eswitch
@@ -52,12 +56,13 @@ def print_esw(priv):
 #     print(esw.offloads.rep_ops[1])
     print("user_count: %d" % esw.user_count.counter)
     print("num_flows %d" % esw.offloads.num_flows.counter)
-    print("-------------------------------")
-    for j in range(2):
-        if esw.fdb_table.offloads.peer_miss_rules[j]:
-            for i in range(esw.total_vports):
-                print_mlx5_flow_handle(esw.fdb_table.offloads.peer_miss_rules[j][i])
-    print("-------------------------------")
+
+#     print("-------------------------------")
+#     for j in range(2):
+#         if esw.fdb_table.offloads.peer_miss_rules[j]:
+#             for i in range(esw.total_vports):
+#                 print_mlx5_flow_handle(esw.fdb_table.offloads.peer_miss_rules[j][i])
+#     print("-------------------------------")
 
 #     print(esw.offloads.peer_flows)
 #     for flow in list_for_each_entry('struct mlx5e_tc_flow', esw.offloads.peer_flows[1].address_of_(), 'peer'):
@@ -70,7 +75,7 @@ mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
 # print(mlx5e_priv.netdev.devlink_port.switch_port)
 
-exit(0)
+# exit(0)
 
 print("===================== port 2 =======================")
 mlx5e_priv2 = get_mlx5e_priv(pf1_name)

@@ -66,6 +66,9 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print(port.ops.port_fn_hw_addr_get)
 #         print(port.switch_port)
         print(port.type_eth.ifname);
+        for i in range(port.attrs.switch_id.id_len):
+            print("%02x:" % port.attrs.switch_id.id[i], end="")
+        print("")
 
     print("\t=== devlink_port end ===")
 
