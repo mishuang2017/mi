@@ -19,14 +19,22 @@ for x, dev in enumerate(get_netdevs()):
 #         continue;
 #     if name not in "en8f0pf0sf1":
 #         continue;
+    if name not in "enp8s0f0":
+        continue;
+    print("===================================================")
     print(name)
     print(ops)
 
-    if dev.devlink_port:
-        dl_port = dev.devlink_port
-        for i in range(dl_port.attrs.switch_id.id_len):
-            print("%02x:" % dl_port.attrs.switch_id.id[i], end='')
-        print('')
+    print("dev.num_tc: %d" % dev.num_tc)
+#     print(dev.tc_to_txq)
+    print("dev.real_num_tx_queues: %d" % dev.real_num_tx_queues)
+#     print(dev.dcbnl_ops)
+
+#     if dev.devlink_port:
+#         dl_port = dev.devlink_port
+#         for i in range(dl_port.attrs.switch_id.id_len):
+#             print("%02x:" % dl_port.attrs.switch_id.id[i], end='')
+#         print('')
 
     mlx5e_priv_addr = addr + prog.type('struct net_device').size
     mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
@@ -38,7 +46,9 @@ for x, dev in enumerate(get_netdevs()):
 #     print(mlx5e_priv)
 #     print(mlx5e_priv.init)
 #     print(mlx5e_priv.fs.vlan_strip_disable)
-#     print(mlx5e_priv.channels.params)
+    if name in "enp8s0f0":
+        print("yes")
+#         print(mlx5e_priv.channels.params.mqprio)
 
 #     ppriv = mlx5e_priv.ppriv
 #     if ppriv:

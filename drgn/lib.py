@@ -179,6 +179,7 @@ def print_exts(e):
     print("      nr_actions: %d" % e.nr_actions)
     for i in range(e.nr_actions):
         a = e.actions[i]
+        print(a.tcfa_refcnt)
 #         print(a.hw_stats)
         kind = a.ops.kind.string_().decode()
         print("        action %d: %10s: tc_action %lx" % (i+1, kind, a.value_()), end='\n')

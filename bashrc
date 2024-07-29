@@ -9228,7 +9228,7 @@ function ofed_install
 	build=OFED-internal-23.10-0.2.1.0  /mswg/release/ofed/ofed_install --force --basic
 
 	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
-	build=MLNX_OFED_LINUX-24.04-0.6.6.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
+	build=MLNX_OFED_LINUX-24.04-0.6.5.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=MLNX_OFED_LINUX-24.07-0.3.0.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-30908-20240321-1550 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 }
