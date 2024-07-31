@@ -1,5 +1,7 @@
 #!/usr/local/bin/drgn -k
 
+from drgn import cast
+
 # 14.40499 24260   24260   tc              mlx5e_rep_indr_setup_block
 #         b'mlx5e_rep_indr_setup_block+0x1 [mlx5_core]'
 #         b'flow_indr_dev_setup_offload+0x6a [kernel]'
@@ -82,10 +84,12 @@ for flow_block_cb in list_for_each_entry('struct flow_block_cb', flow_block_indr
     print(i)
     print("flow_block_cb.indr.dev.name: %s" % flow_block_cb.indr.dev.name.string_().decode())
     print("flow_block_cb.indr.cb_priv: mlx5e_rep_priv %x" % flow_block_cb.indr.cb_priv)
+    mlx5e_rep_priv = cast("struct mlx5e_rep_priv *", flow_block_cb.indr.cb_priv)
+    print(mlx5e_rep_priv.netdev.name)
     print("flow_block_cb.cb_priv: mlx5e_rep_indr_block_priv %x" % flow_block_cb.cb_priv)
     print(flow_block_cb.indr.cleanup)
     print(flow_block_cb.release)
-    print(flow_block_cb)
+#     print(flow_block_cb)
     i = i + 1
 
 if mlx5e_rep_priv.value_():
@@ -96,9 +100,11 @@ if mlx5e_rep_priv.value_():
         print(mlx5e_rep_indr_block_priv.netdev.name)
 
 print("\n=== mlx5e_block_cb_list ===\n")
+i = 1
 mlx5e_block_cb_list = prog['mlx5e_block_cb_list']
-print(mlx5e_block_cb_list)
+# print(mlx5e_block_cb_list)
 for flow_block_cb in list_for_each_entry('struct flow_block_cb', mlx5e_block_cb_list.address_of_(), 'driver_list'):
+    print(i)
     print(flow_block_cb)
     i = i + 1
 

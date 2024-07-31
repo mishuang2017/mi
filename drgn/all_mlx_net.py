@@ -26,7 +26,7 @@ for x, dev in enumerate(get_netdevs()):
     print(ops)
 
     print("dev.num_tc: %d" % dev.num_tc)
-#     print(dev.tc_to_txq)
+    print(dev.tc_to_txq)
     print("dev.real_num_tx_queues: %d" % dev.real_num_tx_queues)
 #     print(dev.dcbnl_ops)
 
@@ -48,7 +48,7 @@ for x, dev in enumerate(get_netdevs()):
 #     print(mlx5e_priv.fs.vlan_strip_disable)
     if name in "enp8s0f0":
         print("yes")
-#         print(mlx5e_priv.channels.params.mqprio)
+        print(mlx5e_priv.channels.params.mqprio)
 
 #     ppriv = mlx5e_priv.ppriv
 #     if ppriv:

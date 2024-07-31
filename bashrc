@@ -11,8 +11,8 @@ ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
 numvfs=3
-ports=1
 ports=2
+ports=1
 
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
@@ -3931,45 +3931,6 @@ set -x
 set +x
 }
 
-function tc_vxlan2
-{
-	offload=""
-	[[ "$1" == "hw" ]] && offload="skip_sw"
-	[[ "$1" == "sw" ]] && offload="skip_hw"
-
-	TC=tc
-	ip1
-	ip addr add dev $link 192.168.1.200/16;
-	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
-	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1
-	ethtool -K $rep2 hw-tc-offload on
-
-	$TC qdisc add dev $rep2 ingress
-	ip link set $rep2 promisc on
-
-	local_vm_mac=02:25:d0:$host_num:01:02
-	remote_vm_mac=$vxlan_mac
-
-set -x
-	ovs-vsctl add-br br-phy
-	ovs-vsctl add-port br-phy $link
-	ovs-vsctl add-port br-phy p0 -- set interface p0 type=internal
-	ifconfig $link 0
-	ifconfig p0 $link_ip/16 up
-	$TC qdisc add dev $vx ingress 
-
-	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower $offload	\
-		src_mac $remote_vm_mac		\
-		enc_src_ip $link_remote_ip	\
-		enc_dst_ip $link_ip		\
-		enc_dst_port $vxlan_port	\
-		enc_key_id $vni			\
-		action tunnel_key unset		\
-		action mirred egress redirect dev p0
-set +x
-}
-
 # outer v4, inner v4
 function tc_vxlan
 {
@@ -4652,46 +4613,18 @@ set -x
 	local_vm_mac=02:25:d0:$host_num:01:02
 	remote_vm_mac=$vxlan_mac
 
-	$TC filter add dev $redirect protocol ipv6 parent ffff: prio 1 flower $offload \
+	$TC filter add dev $redirect protocol ipv4 parent ffff: prio 1 flower $offload \
 		src_mac $local_vm_mac	\
 		dst_mac $remote_vm_mac	\
-		ip_proto icmpv6		\
+		action mirred egress redirect dev $rep1 \
 		action tunnel_key set	\
 		src_ip $link_ip		\
 		dst_ip $link_remote_ip	\
 		dst_port $vxlan_port	\
 		id $vni			\
+                action pedit ex munge eth dst set 24:8a:07:ad:77:99 pipe \
+                action pedit ex munge ip ttl set 63 pipe \
 		action mirred egress redirect dev $vx
-
-	$TC filter add dev $vx protocol ipv6 parent ffff: prio 1 flower $offload	\
-		src_mac $remote_vm_mac	\
-		dst_mac $local_vm_mac	\
-		enc_src_ip $link_remote_ip	\
-		enc_dst_ip $link_ip		\
-		enc_dst_port $vxlan_port	\
-		enc_key_id $vni			\
-		action tunnel_key unset		\
-		action mirred egress redirect dev $redirect
-
-
-	$TC filter add dev $redirect protocol ipv6 parent ffff: prio 2 flower $offload \
-		src_mac $local_vm_mac	\
-		action tunnel_key set	\
-		src_ip $link_ip		\
-		dst_ip $link_remote_ip	\
-		dst_port $vxlan_port	\
-		id $vni			\
-		action mirred egress redirect dev $vx
-
-	$TC filter add dev $vx protocol ipv6 parent ffff: prio 2 flower $offload	\
-		src_mac $remote_vm_mac	\
-		enc_src_ip $link_remote_ip	\
-		enc_dst_ip $link_ip		\
-		enc_dst_port $vxlan_port	\
-		enc_key_id $vni			\
-		action tunnel_key unset		\
-		action mirred egress redirect dev $redirect
-
 
 set +x
 }
@@ -6851,11 +6784,6 @@ function start-switchdev
 		pci_addr=$pci2
 	fi
 
-	
-# 	if (( port == 1 )); then
-# 		echo multiport_esw > /sys/class/net/$l/compat/devlink/lag_port_select_mode
-# 	fi
-
 	num=$(cat /sys/class/net/$l/device/sriov_numvfs)
 	if (( num == 0 )); then
 		echo $numvfs > /sys/class/net/$l/device/sriov_numvfs
@@ -6877,11 +6805,6 @@ function start-switchdev
 # 	devlink dev eswitch set pci/$pci_addr encap none
 
 # 	return
-
-	if (( port == 1 )); then
-		echo "devlink dev param set pci/$pci_addr name esw_multiport value 1 cmode runtime"
-		read
-	fi
 
 	sleep 1
 	$TIME bind_all $l
@@ -15318,15 +15241,15 @@ set -x
 	ip xfrm state flush
 	ip xfrm policy flush
 
-#         ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir out && 
-#         ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in &&
-        ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport &&
-        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport &&
+        ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir out && 
+        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in &&
+#         ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport &&
+#         ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport &&
         ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir out tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10000 mode transport  &&
         ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport  &&
         ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
-# set +x
-# 	return
+set +x
+	return
 
 	ssh root@$ip "
 

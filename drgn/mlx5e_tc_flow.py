@@ -18,12 +18,11 @@ for x, dev in enumerate(get_netdevs()):
     addr = dev.value_()
     if "enp" not in name:
         continue;
-    print(name)
+#     print(name)
 #     if "enp8s0f0_1" not in name:
 #         continue
 
-    mlx5e_priv_addr = addr + prog.type('struct net_device').size
-    mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
+    mlx5e_priv = get_mlx5(dev)
 
     ppriv = mlx5e_priv.ppriv
     if ppriv.value_() == 0:
@@ -62,6 +61,7 @@ for x, dev in enumerate(get_netdevs()):
 #             print(mlx5_flow_attr.parse_attr)
 #             print(mlx5_flow_attr.esw_attr[0])
 
-        print(flow.peer_flows)
+        print("=====peer_flow start=====")
         for peer_flow in list_for_each_entry('struct mlx5e_tc_flow', flow.peer_flows.address_of_(), 'peer_flows'):
             print("peer_flow.flags: %x" % peer_flow.flags)
+        print("=====peer_flow end=====")
