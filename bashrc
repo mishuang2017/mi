@@ -4576,8 +4576,16 @@ set -x
 set +x
 }
 
+function config_geneve
+{
+    ip link del geneve1 &>/dev/null
+    ip link add geneve1 type geneve dstport 6081 external
+    ifconfig geneve1 0 up
+    tc qdisc add dev geneve1 ingress
+}
+
 # ovs-ofctl add-flow br -O openflow13 "in_port=2,dl_type=0x86dd,nw_proto=58,icmp_type=128,action=set_field:0x64->tun_id,output:5"
-function tc-vxlan2
+function tc_geneve
 {
 set -x
 	offload=""
@@ -4588,9 +4596,11 @@ set -x
 	redirect=$rep2
 
 	ip1
-	ip link del $vx > /dev/null 2>&1
-	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx #udp6zerocsumtx udp6zerocsumrx
-	ip link set $vx up
+# 	ip link del $vx > /dev/null 2>&1
+# 	ip link add $vx type vxlan dstport $vxlan_port external udp6zerocsumrx #udp6zerocsumtx udp6zerocsumrx
+# 	ip link set $vx up
+
+	config_geneve
 
 	$TC qdisc del dev $link ingress > /dev/null 2>&1
 	$TC qdisc del dev $redirect ingress > /dev/null 2>&1
@@ -4613,18 +4623,29 @@ set -x
 	local_vm_mac=02:25:d0:$host_num:01:02
 	remote_vm_mac=$vxlan_mac
 
+	sf_rep=en8f0pf0sf1
+	sf_rep=enp8s0f0npf0sf1
+	sf_rep=$rep1
+
 	$TC filter add dev $redirect protocol ipv4 parent ffff: prio 1 flower $offload \
 		src_mac $local_vm_mac	\
 		dst_mac $remote_vm_mac	\
-		action mirred egress redirect dev $rep1 \
+		ip_proto tcp \
+		src_ip 1.1.1.1 \
+		dst_ip 1.1.1.2 \
+		ip_tos 0 \
+		ip_ttl 64 \
+		action mirred egress redirect dev $sf_rep \
 		action tunnel_key set	\
 		src_ip $link_ip		\
 		dst_ip $link_remote_ip	\
-		dst_port $vxlan_port	\
+		dst_port 6081	\
 		id $vni			\
+		geneve_opts 1234:56:0708090a \
+                action pedit ex munge eth src set 24:8a:07:ad:77:98 pipe \
                 action pedit ex munge eth dst set 24:8a:07:ad:77:99 pipe \
                 action pedit ex munge ip ttl set 63 pipe \
-		action mirred egress redirect dev $vx
+		action mirred egress redirect dev geneve1
 
 set +x
 }
@@ -6924,6 +6945,7 @@ set -x
 	cmd=/images/cmi/iproute2/mlxdevm/mlxdevm
 	debug=0
 	sf_device=mlx5_core.sf.2
+	sf_name=en8f0pf0sf1
 	sf_name=enp8s0f0npf0sf1
 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 1
 	sleep 1
@@ -9149,6 +9171,7 @@ function ofed_install
 	build=MLNX_OFED_LINUX-24.01-0.3.3.5    /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-23.10-0.2.6.0  /mswg/release/ofed/ofed_install --force --basic
 	build=OFED-internal-23.10-0.2.1.0  /mswg/release/ofed/ofed_install --force --basic
+	build=MLNX_OFED_LINUX-5.8-5.1.1.2  /mswg/release/ofed/ofed_install --without-fw-update --force
 
 	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
 	build=MLNX_OFED_LINUX-24.04-0.6.5.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support

@@ -34,12 +34,12 @@ for node in radix_tree_for_each(vports):
     print("=== %d ===" % i)
     i=i+1
     mlx5_eswitch_rep = Object(prog, 'struct mlx5_eswitch_rep', address=node[1].value_())
-    if mlx5_eswitch_rep.vport == 0xffff:
-        print(mlx5_eswitch_rep)
-        print(mlx5_eswitch_rep.rep_data[0])
-        print(mlx5_eswitch_rep.rep_data[1])
+#     if mlx5_eswitch_rep.vport == 0xffff:
+    print("port: %x" % mlx5_eswitch_rep.vport)
+    print(mlx5_eswitch_rep.rep_data[0].priv)
+#     print(mlx5_eswitch_rep.rep_data[1])
 
-# exit(0)
+exit(0)
 print("========================== port 2 ================================")
 mlx5e_priv = lib.get_mlx5_pf1()
 vports = mlx5_eswitch.offloads.vport_reps
