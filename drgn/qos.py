@@ -21,8 +21,8 @@ print("\n === esw qos ===\n")
 print(esw.qos)
 mlx5_esw_rate_group = esw.qos.group0
 
-print("\n === esw.qos.group0 ===\n")
-print(mlx5_esw_rate_group)
+# print("\n === esw.qos.group0 ===\n")
+# print(mlx5_esw_rate_group)
 
 
 # print("\n === mlx5_esw_rate_group ===\n")
@@ -62,7 +62,7 @@ def print_mlx5_vport(priv):
         print_mac(vport.info.mac)
         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
         print("vport: %5x" % vport.vport, end=' ')
-        print("enabled: %x" % vport.enabled, end=' ')
+        print("enabled: %x" % vport.enabled.value_(), end=' ')
         print(vport.qos)
         print('')
 

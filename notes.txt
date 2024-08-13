@@ -12455,3 +12455,11 @@ virtio_net_cont(14642) user root is using device uverbs1
 systemctl stop virtio-net-controller
 
 sudo systemctl stop mlx-regex; /etc/init.d/openibd restart; systemctl restart mlx-regex
+
+===qos===
+
+mlx5_devlink_ops
+
+mlx5_esw_devlink_rate_parent_set
+
+

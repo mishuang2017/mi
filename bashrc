@@ -931,9 +931,10 @@ function cloud_setup0
 function bf2_linux_5.4
 {
 	cd /images/cmi
-	cp /swgwork/cmi/linux_bf_5.4/linux.tar.gz .
-	tar zvxf linux.tar.gz
-	/bin/rm -f linux.tar.gz &
+	cp /swgwork/cmi/linux_bf_5.4/linux-bluefield.tar.gz .
+	tar zvxf linux-bluefield.tar.gz
+	/bin/rm -f linux-bluefield.tar.gz &
+	ln -s linux-bluefield linux
 	cd linux
 	/bin/cp -f /swgwork/cmi/linux_bf_5.4/config.bf.5.4 .config
 
@@ -966,7 +967,8 @@ function cloud_linux
 	/bin/cp -f ~cmi/mi/config .config
 	sml
 	if [[ -n $branch ]]; then
-		git checkout v$branch -b $branch && make-all all
+# 		git checkout v$branch -b $branch && make-all all
+		git checkout $branch && make-all all
 	else
 		make-all all
 	fi
@@ -1372,6 +1374,25 @@ set -x;
 #	sudo modprobe $module;
 set +x
 }
+
+function mybuild_ib_core
+{
+set -x; 
+	(( $UID == 0 )) && return
+	module=ib_core;
+	driver_dir=drivers/infiniband/core
+	cd $linux_dir;
+	make M=$driver_dir -j || {
+		set +x
+		return
+	}
+	src_dir=$linux_dir/$driver_dir
+	sudo /bin/cp -f $src_dir/$module.ko /lib/modules/$(uname -r)/kernel/$driver_dir
+
+	sudo /etc/init.d/openibd stop
+set +x
+}
+
 alias bu=mybuild
 alias bu2='mybuild; mybuild_ib'
 
@@ -4627,7 +4648,7 @@ set -x
 	sf_rep=enp8s0f0npf0sf1
 	sf_rep=$rep1
 
-	$TC filter add dev $redirect protocol ipv4 parent ffff: prio 1 flower $offload \
+	$TC filter add dev $rep2 protocol ipv4 parent ffff: prio 1 flower $offload \
 		src_mac $local_vm_mac	\
 		dst_mac $remote_vm_mac	\
 		ip_proto tcp \
@@ -5369,6 +5390,7 @@ set -x
 	done
 	ip1
 	vxlan1
+	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
 # 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
 # 	geneve
 # 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
@@ -13388,9 +13410,9 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
 
-	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
-		action sample rate 10000 group 5 trunc 80 \
-                action police rate 200mbit burst 65536 conform-exceed drop/pipe \
+# 	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
+# 		action sample rate 10000 group 5 trunc 80
+#                 action police rate 200mbit burst 65536 conform-exceed drop/pipe \
 
 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 	$TC filter add dev $rep2 ingress protocol ip  prio 1 flower $offload src_mac $src_mac dst_mac $dst_mac \
@@ -14035,18 +14057,18 @@ set +x
 function devlink_rate_limit
 {
 	local debug=0
-	[[ $# == 1 ]] && debug=1
+	[[ $# == 1 ]] && debug=0
 set -x
-	devlink port func rate set pci/$pci/2 tx_share 30mbit
-	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/2 tx_share 30mbit
+# 	(( debug == 1 )) && read
 
-	devlink port func rate set pci/$pci/2 tx_max 40mbit
-	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/2 tx_max 40mbit
+# 	(( debug == 1 )) && read
 
-	devlink port func rate set pci/$pci/3 tx_share 50mbit
-	(( debug == 1 )) && read
-	devlink port func rate set pci/$pci/3 tx_max 60mbit
-	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/3 tx_share 50mbit
+# 	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/3 tx_max 60mbit
+# 	(( debug == 1 )) && read
 
 	# pci/0000:08:00.0/2: type leaf tx_share 30Mbit tx_max 40Mbit
 	# pci/0000:08:00.0/3: type leaf tx_share 50Mbit tx_max 60Mbit
@@ -14056,15 +14078,15 @@ set -x
 	devlink port func rate add pci/$pci/2nd_grp
 	(( debug == 1 )) && read
 
-	devlink port func rate set pci/$pci/1st_grp tx_share 30mbit
+	devlink port func rate set pci/$pci/1st_grp tx_share 50000mbit
 	(( debug == 1 )) && read
-	devlink port func rate set pci/$pci/1st_grp tx_max 40mbit
-	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/1st_grp tx_max 80mbit
+# 	(( debug == 1 )) && read
 
-	devlink port func rate set pci/$pci/2nd_grp tx_share 10mbit
+	devlink port func rate set pci/$pci/2nd_grp tx_share 50000mbit
 	(( debug == 1 )) && read
-	devlink port func rate set pci/$pci/2nd_grp tx_max 20mbit
-	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/2nd_grp tx_max 2000mbit
+# 	(( debug == 1 )) && read
 
 	# pci/0000:08:00.0/2nd_grp: type node tx_share 10Mbit tx_max 20Mbit
 	# pci/0000:08:00.0/1st_grp: type node tx_share 30Mbit tx_max 40Mbit
@@ -14075,19 +14097,18 @@ set -x
 	(( debug == 1 )) && read
 	devlink port func rate show
 	(( debug == 1 )) && read
-	read
 
-	devlink port func rate set pci/$pci/2 noparent
-	(( debug == 1 )) && read
-	devlink port func rate set pci/$pci/3 noparent
-	(( debug == 1 )) && read
-	devlink port func rate show
-	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/2 noparent
+# 	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/3 noparent
+# 	(( debug == 1 )) && read
+# 	devlink port func rate show
+# 	(( debug == 1 )) && read
 
-	devlink port func rate del pci/$pci/1st_grp
-	(( debug == 1 )) && read
-	devlink port func rate del pci/$pci/2nd_grp
-	(( debug == 1 )) && read
+# 	devlink port func rate del pci/$pci/1st_grp
+# 	(( debug == 1 )) && read
+# 	devlink port func rate del pci/$pci/2nd_grp
+# 	(( debug == 1 )) && read
 set +x
 }
 
@@ -14124,6 +14145,8 @@ function rate_cleanup
 	devlink port function rate set pci/$pci/3 noparent
 	devlink port function rate del pci/$pci/g2
 	devlink port function rate del pci/$pci/g1
+	devlink port function rate del pci/$pci/1st_grp
+	devlink port function rate del pci/$pci/2nd_grp
 	devlink port fun rate
 }
 

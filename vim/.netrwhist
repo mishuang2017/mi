@@ -1,12 +1,3 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =3
-let g:netrw_dirhist_3='/labhome/cmi/.git'
-let g:netrw_dirhist_2='/labhome/cmi/ofed/sf/1'
-let g:netrw_dirhist_1='/images/cmi/mlnx-ofa_kernel-4.0/compat/config'
-let g:netrw_dirhist_0='/.autodirect/swgwork/cmi/rdma-example/bin'
-let g:netrw_dirhist_9='/images/cmi/rhel-9/include/linux/gpio'
-let g:netrw_dirhist_8='/images/cmi/rhel-9/fs'
-let g:netrw_dirhist_7='/images/cmi/rhel-9/arch'
-let g:netrw_dirhist_6='/images/cmi/mlnx-ofa_kernel-4.0/compat'
-let g:netrw_dirhist_5='/images/cmi/mlnx-ofa_kernel-4.0/backports_new'
-let g:netrw_dirhist_4='/images/cmi/mlnx-ofa_kernel-4.0/backports'
+let g:netrw_dirhist_cnt =1
+let g:netrw_dirhist_1='/labhome/cmi/ofed/23.10/4'
