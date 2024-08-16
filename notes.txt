@@ -12461,5 +12461,15 @@ sudo systemctl stop mlx-regex; /etc/init.d/openibd restart; systemctl restart ml
 mlx5_devlink_ops
 
 mlx5_esw_devlink_rate_parent_set
+esw_qos_vport_update_group
+
+mlx5_create_vfs_sysfs
+
+Invalid. Expected tx_share <= tx_max or tx_share == 0.
+
+mlx5_sriov_sysfs_init
+
+
+
 
 

@@ -133,6 +133,10 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
     print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
     print("=== devlink_port ===")
+    for node in radix_tree_for_each(devlink.ports.address_of_()):
+        port = Object(prog, 'struct devlink_port', address=node[1].value_())
+        print(port.index)
+        print(port.devlink_rate)
 #     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
 #         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
@@ -141,4 +145,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 
     print("\n=== devlink_rate list for node %s ===\n" % pci_name)
     for devlink_rate in list_for_each_entry('struct devlink_rate', devlink.rate_list.address_of_(), 'list'):
+        print("=======================================================")
         print(devlink_rate)
+        mlx5_esw_rate_group = cast("struct mlx5_esw_rate_group *", devlink_rate.priv)
+        print(mlx5_esw_rate_group)

@@ -11656,9 +11656,9 @@ set -x
 	ip link set dev $link2 down
 
 	ip link add name bond0 type bond
-	ip link set dev bond0 type bond mode active-backup miimon 100
+# 	ip link set dev bond0 type bond mode active-backup miimon 100
 # 	ip link set dev bond0 type bond mode 802.3ad
-# 	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer3+4
+	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer3+4
 # 	ip link set bond0 type bond miimon 100 mode 4 xmit_hash_policy layer2
 # 	ip link set dev bond0 type bond mode balance-rr
 
@@ -11735,6 +11735,7 @@ function bond_br
 # 		ovs-vsctl add-port $br $rep
 # 	done
 	ifconfig $rep2 up
+	ovs-vsctl add-port $br $rep1
 	ovs-vsctl add-port $br $rep2
 # 	ovs-ofctl add-flow $br "in_port=bond0,dl_dst=2:25:d0:13:01:01 action=$rep1"
 
@@ -11784,8 +11785,8 @@ function bond_setup
 	bond_delete
 	sleep 1
 set -x
-# 	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-# 	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 # 	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
 # 	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 # 	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
@@ -14057,7 +14058,7 @@ set +x
 function devlink_rate_limit
 {
 	local debug=0
-	[[ $# == 1 ]] && debug=0
+	[[ $# == 1 ]] && debug=1
 set -x
 # 	devlink port func rate set pci/$pci/2 tx_share 30mbit
 # 	(( debug == 1 )) && read
@@ -14075,16 +14076,16 @@ set -x
 
 	devlink port func rate add pci/$pci/1st_grp
 	(( debug == 1 )) && read
-	devlink port func rate add pci/$pci/2nd_grp
-	(( debug == 1 )) && read
+# 	devlink port func rate add pci/$pci/2nd_grp
+# 	(( debug == 1 )) && read
 
-	devlink port func rate set pci/$pci/1st_grp tx_share 50000mbit
+	devlink port func rate set pci/$pci/1st_grp tx_share 80000mbit
 	(( debug == 1 )) && read
 # 	devlink port func rate set pci/$pci/1st_grp tx_max 80mbit
 # 	(( debug == 1 )) && read
 
-	devlink port func rate set pci/$pci/2nd_grp tx_share 50000mbit
-	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/2nd_grp tx_share 20000mbit
+# 	(( debug == 1 )) && read
 # 	devlink port func rate set pci/$pci/2nd_grp tx_max 2000mbit
 # 	(( debug == 1 )) && read
 
@@ -14093,8 +14094,8 @@ set -x
 
 	devlink port func rate set pci/$pci/2 parent 1st_grp
 	(( debug == 1 )) && read
-	devlink port func rate set pci/$pci/3 parent 2nd_grp
-	(( debug == 1 )) && read
+# 	devlink port func rate set pci/$pci/3 parent 2nd_grp
+# 	(( debug == 1 )) && read
 	devlink port func rate show
 	(( debug == 1 )) && read
 
