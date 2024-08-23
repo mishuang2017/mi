@@ -12456,20 +12456,117 @@ systemctl stop virtio-net-controller
 
 sudo systemctl stop mlx-regex; /etc/init.d/openibd restart; systemctl restart mlx-regex
 
+===mlnx_qos===
+
+mlnx_qos -i $link -p 0,1,2,2,2,2,2,2 -r 3,4,2,0,0,0,0,0
+mlnx_qos -i $link -s ets,ets,ets,ets,ets,ets,ets,strict -p 0,1,1,1,2,2,2,2 -t 30,70,0,0,0,0,0,0
+
+mlx5_set_port_prio_tc
+mlx5_set_port_tc_bw_alloc
+
+mlnx_qos -i $link --trust=dscp
+mlnx_qos -i $link --dscp2prio set,30,0
+mlnx_qos -i $link --dscp2prio set,00,3
+mlnx_qos -i $link --dscp2prio set,34,5
+mlnx_qos -i $link --dscp2prio set,39,5
+mlnx_qos -i $link --dscp2prio set,35,6
+mlnx_qos -i $link --dscp2prio set,48,6
+mlnx_qos -i $link --dscp2prio set,56,6
+mlnx_qos -i $link --pfc 0,0,0,0,0,0,0,0
+
 ===qos===
 
 mlx5_devlink_ops
 
+devlink_nl_rate_new_doit
 mlx5_esw_devlink_rate_parent_set
 esw_qos_vport_update_group
-
-mlx5_create_vfs_sysfs
 
 Invalid. Expected tx_share <= tx_max or tx_share == 0.
 
 mlx5_sriov_sysfs_init
 
+sysfs_kf_seq_show
 
+group_store move create a rate group and moves a vf to it
+
+esw_qos_group_config
+esw_qos_vport_config
+
+max_tx_rate_group_store
+min_tx_rate_group_store
+
+probe_one
+	mlx5_init_one
+		mlx5_init_once
+			mlx5_sriov_init
+				mlx5_sriov_sysfs_init
+					sriov->config = kobject_create_and_add("sriov", &device->kobj)
+					sriov->groups_config = kobject_init_and_add("groups", sriov->config)
+
+mlx5_core_sriov_configure
+	mlx5_sriov_enable
+		mlx5_device_enable_sriov
+			mlx5_create_vfs_sysfs
+				kobject_init_and_add(sriov->config);
+
+mlx5_create_vf_group_sysfs
+	kobject_init_and_add(sriov->groups_config)
+
+mlx5_esw_offloads_devlink_port_register
+	devl_rate_leaf_create
+
+devlink_nl_rate_parent_node_set
+	mlx5_esw_devlink_rate_parent_set
+		mlx5_esw_qos_vport_update_group
+
+userspace:
+main
+dl_cmd
+cmd_port
+cmd_port_function
+cmd_port_function_rate
+cmd_port_fn_rate_add
+	dl_argv_parse
+		dl_argv_handle_rate_node
+	mnlu_gen_socket_cmd_prepare(DEVLINK_CMD_RATE_NEW)
+	dl_opts_put
+
+} else if (opts->present & DL_OPT_PORT_FN_RATE_NODE_NAME) {
+                mnl_attr_put_strz(nlh, DEVLINK_ATTR_BUS_NAME, opts->bus_name);
+                mnl_attr_put_strz(nlh, DEVLINK_ATTR_DEV_NAME, opts->dev_name);
+                mnl_attr_put_strz(nlh, DEVLINK_ATTR_RATE_NODE_NAME,
+                                  opts->rate_node_name);
+        }
+
+kernel:
+
+devlink_nl_ops
+{
+                .cmd            = DEVLINK_CMD_RATE_NEW,
+                .validate       = GENL_DONT_VALIDATE_STRICT,
+                .pre_doit       = devlink_nl_pre_doit,
+                .doit           = devlink_nl_rate_new_doit,
+                .post_doit      = devlink_nl_post_doit,
+                .policy         = devlink_rate_new_nl_policy,
+                .maxattr        = DEVLINK_ATTR_RATE_TX_WEIGHT,
+                .flags          = GENL_ADMIN_PERM | GENL_CMD_CAP_DO,
+        },
+
+devlink_nl_pre_doit
+	__devlink_nl_pre_doit
+		devlink_get_from_attrs_lock
+			devlinks_xa_for_each_registered_get(net, index, devlink) {
+				if (strcmp(devlink->dev->bus->name, busname) == 0 &&
+				    strcmp(dev_name(devlink->dev), devname) == 0) {
+
+devlink_nl_rate_new_doit
+	rate_node_new -> mlx5_esw_devlink_rate_node_new
+		esw = mlx5_devlink_eswitch_get(rate_node->devlink)
+		group = esw_qos_create_rate_group(esw, extack)
+			__esw_qos_create_rate_group
+				list_add_tail(&group->list, &esw->qos.groups)
+		*priv = group
 
 
 

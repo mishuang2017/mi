@@ -30,6 +30,8 @@ for dev in list_for_each_entry('struct device_private', k_list.address_of_(), 'k
     if driver_data.value_():
 
         pci_dev = container_of(device, "struct pci_dev", "dev")
+        for i in range(6):
+            print(pci_dev.res_attr_wc[i])
         print(pci_dev.dev.kobj.name.string_().decode(), end='\t')
 
         driver = device.driver

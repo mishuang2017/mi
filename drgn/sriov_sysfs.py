@@ -15,6 +15,24 @@ def print_health(health):
 #     print(health.fw_reporter)
     print(health.fw_fatal_reporter)
 
+def print_ktype(ktype):
+    print(ktype)
+    default_groups = ktype.default_groups
+    print(default_groups[0])
+    attrs = default_groups[0].attrs
+    print(attrs)
+    j = 0
+    while True:
+        if attrs[j]:
+            print("--------------------------------------")
+            print(attrs[j])
+            vf_attr = cast("struct vf_attributes *", attrs[j])
+            print(vf_attr)
+        else:
+            break;
+        j = j + 1
+
+
 def print_esw(priv):
     print("mlx5e_priv.fs.state_destroy %#x" % priv.fs.state_destroy.value_())
     print(priv.mdev.coredev_type)
@@ -30,21 +48,18 @@ def print_esw(priv):
     print("esw->esw_funcs->num_vfs: %d" % esw.esw_funcs.num_vfs)
     print("esw->dev->priv->sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
     for i in range(esw.dev.priv.sriov.num_vfs):
+        print("========================== %d =========================" % i)
         print(esw.dev.priv.sriov.vfs[i])
         ktype = esw.dev.priv.sriov.vfs[i].kobj.ktype
-        print(ktype)
-        default_groups = ktype.default_groups
-        print(default_groups[0])
-        attrs = default_groups[0].attrs
-        print(attrs)
-        j = 0
-        while True:
-            if attrs[j]:
-                print(attrs[j])
-            else:
-                break;
-            j = j + 1
-#     print(esw.dev.priv.sriov.config)
+        print_ktype(ktype)
+#     print(esw.dev.priv.sriov)
+    groups_config = esw.dev.priv.sriov.groups_config
+#     print(groups_config)
+#     mlx5_esw_rate_group = container_of(groups_config, "struct mlx5_esw_rate_group", "kobj")
+#     print(mlx5_esw_rate_group)
+
+    config = esw.dev.priv.sriov.config
+    print(config.ktype)
 
 print("===================== port 1 =======================")
 print(pf0_name)

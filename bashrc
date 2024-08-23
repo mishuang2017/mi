@@ -14074,7 +14074,8 @@ set -x
 	# pci/0000:08:00.0/2: type leaf tx_share 30Mbit tx_max 40Mbit
 	# pci/0000:08:00.0/3: type leaf tx_share 50Mbit tx_max 60Mbit
 
-	devlink port func rate add pci/$pci/1st_grp
+	/usr/sbin/devlink port func rate add pci/$pci/1st_grp
+# 	devlink port func rate add pci/$pci/1st_grp
 	(( debug == 1 )) && read
 # 	devlink port func rate add pci/$pci/2nd_grp
 # 	(( debug == 1 )) && read
@@ -14274,6 +14275,31 @@ set +x
 function pf_stats
 {
 	cat /sys/class/net/enp8s0f0/statistics/rx_packets  /sys/class/net/enp8s0f1/statistics/rx_packets
+}
+
+function rate_sysfs
+{
+	cd_sriov
+	cd 0
+	echo 1 > group
+	echo 80000 > min_tx_rate
+	cd_sriov
+	cd 1
+	echo 1 > group
+	echo 100000 > min_tx_rate
+	cd_sriov
+	cd 2
+	echo 1 > group
+	echo 20000 > min_tx_rate
+}
+
+function rate_sysfs_cleanup
+{
+	for i in 0 1 2; do
+		cd_sriov
+		cd $i
+		echo 0 > group
+	done
 }
 
 function rate2

@@ -37,9 +37,9 @@ def print_mlx5_vport(priv):
 #             print(vport.dl_port.devlink_rate)
         print("vport: %5x" % vport.vport, end=' ')
         print("enabled: %x" % vport.enabled, end=' ')
-    #     print(vport.info)
-        print(vport.ingress.offloads.meter_xps[0])
-        print(vport.egress.offloads.meter_xps[0])
+        print(vport.qos)
+#         print(vport.ingress.offloads.meter_xps[0])
+#         print(vport.egress.offloads.meter_xps[0])
         print('')
 
     # for i in range(enabled_vports):

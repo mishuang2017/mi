@@ -29,11 +29,12 @@ for x, dev in enumerate(get_netdevs()):
     mlx5e_priv = get_mlx5(dev)
     print("mlx5e_priv.channels.params.mqprio")
     print(mlx5e_priv.channels.params.mqprio)
-    print(mlx5e_priv.mqprio_rl)
-    n = mlx5e_priv.mqprio_rl.num_tc
-    print("mlx5e_priv.mqprio_rl.leaves_id")
-    for i in range(n):
-        print(mlx5e_priv.mqprio_rl.leaves_id[i])
+    if mlx5e_priv.mqprio_rl:
+        print(mlx5e_priv.mqprio_rl)
+        n = mlx5e_priv.mqprio_rl.num_tc
+        print("mlx5e_priv.mqprio_rl.leaves_id")
+        for i in range(n):
+            print(mlx5e_priv.mqprio_rl.leaves_id[i])
 
     print('\t', end='')
     print('')

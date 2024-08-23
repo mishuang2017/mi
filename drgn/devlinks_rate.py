@@ -13,6 +13,9 @@ sys.path.append(libpath)
 from lib import *
 # import lib
 
+DEVLINK_RATE_TYPE_LEAF = prog['DEVLINK_RATE_TYPE_LEAF']
+DEVLINK_RATE_TYPE_NODE = prog['DEVLINK_RATE_TYPE_NODE']
+
 # prog = drgn.program_from_core_dump("/var/crash/vmcore.4")
 # prog = drgn.program_from_kernel()
 devlinks = prog['devlinks']
@@ -135,8 +138,13 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     print("=== devlink_port ===")
     for node in radix_tree_for_each(devlink.ports.address_of_()):
         port = Object(prog, 'struct devlink_port', address=node[1].value_())
-        print(port.index)
-        print(port.devlink_rate)
+        print("port.index: %x" % port.index)
+        if not port.devlink_rate or not port.switch_port:
+            continue
+        if port.devlink_rate.type == DEVLINK_RATE_TYPE_LEAF:
+            print(port.devlink_rate.name)
+            mlx5_vport = cast("struct mlx5_vport *", port.devlink_rate.priv)
+            print("mlx5_vport.vport: %d" % mlx5_vport.vport)
 #     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
 #         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
@@ -146,6 +154,12 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     print("\n=== devlink_rate list for node %s ===\n" % pci_name)
     for devlink_rate in list_for_each_entry('struct devlink_rate', devlink.rate_list.address_of_(), 'list'):
         print("=======================================================")
-        print(devlink_rate)
-        mlx5_esw_rate_group = cast("struct mlx5_esw_rate_group *", devlink_rate.priv)
-        print(mlx5_esw_rate_group)
+        print(devlink_rate.name)
+        print(devlink_rate.type)
+        if devlink_rate.type == DEVLINK_RATE_TYPE_NODE:
+            mlx5_esw_rate_group = cast("struct mlx5_esw_rate_group *", devlink_rate.priv)
+            print("mlx5_esw_rate_group.tsar_ix: %d" % mlx5_esw_rate_group.tsar_ix)
+        elif devlink_rate.type == DEVLINK_RATE_TYPE_LEAF:
+            mlx5_vport = cast("struct mlx5_vport *", devlink_rate.priv)
+            print("mlx5_vport.vport: %d" % mlx5_vport.vport)
+
