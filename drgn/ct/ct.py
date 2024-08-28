@@ -25,3 +25,6 @@ for i in range(size):
 #         print("")
 #         print(ct)
         print_tuple(tuple, ct)
+
+jiffies = prog['jiffies']
+print(jiffies)

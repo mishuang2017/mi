@@ -759,6 +759,7 @@ alias n2_corrupt="n2 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s -l 100"
 alias n1_corrupt="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -t 100000 -c"
 alias n1_corrupt_server="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s"
 alias cd_sriov=" cd /sys/class/net/$link/device/sriov"
+alias cd_sriov2=" cd /sys/class/net/$link2/device/sriov"
 
 [[ $UID == 0 ]] && echo 2 > /proc/sys/fs/suid_dumpable
 [[ $UID == 0 ]] && echo 0 > /proc/sys/fs/suid_dumpable	# for ovs
@@ -15543,10 +15544,21 @@ set -x
 set +x
 }
 
+function multiport_esw_fw_off
+{
+set -x
+	mlxconfig -d $pci set LAG_RESOURCE_ALLOCATION=0
+	mlxconfig -d $pci set KEEP_ETH_LINK_UP_P1=1
+	unload
+	/workspace/cloud_tools/cloud_firmware_reset.sh -ips $(hostname -i | awk '{print $1}')
+	reprobe
+set +x
+}
+
 function dev_all
 {
 set -x
-	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
 	dmfs
 	on-sriov
 	un
@@ -15560,6 +15572,8 @@ set -x
 	dev2
 	set_mac 2
 	bi2
+
+	return
 
 	ifconfig $rep2 up
 	ifconfig enp8s0f0v1 1.1.1.$host_num/24 up

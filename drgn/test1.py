@@ -15,6 +15,11 @@ print(sys.path)
 devs = get_netdevs()
 # print(devs)
 
+jiffies = prog['jiffies']
+print(jiffies)
+
+exit(0)
+
 IP_CT_ESTABLISHED_REPLY = prog['IP_CT_ESTABLISHED_REPLY']
 print("%d" % IP_CT_ESTABLISHED_REPLY)
 
