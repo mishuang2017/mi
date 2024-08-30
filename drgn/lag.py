@@ -12,6 +12,17 @@ from lib import *
 
 esw_manager_vport = 0
 
+MLX5_NUM_TT = prog['MLX5_NUM_TT']
+
+def print_port_sel(port_sel):
+    print(port_sel)
+
+    mlx5_lag_definer = port_sel.outer.definers
+    for i in range(MLX5_NUM_TT.value_()):
+        if mlx5_lag_definer[i]:
+            print(mlx5_lag_definer[i].definer)
+            flow_table("", mlx5_lag_definer[i].ft)
+
 # for name in pf0_name,pf1_name:
 for name in pf0_name,:
     mlx5e_priv = get_mlx5e_priv(name)
@@ -30,9 +41,11 @@ for name in pf0_name,:
     print('-------------')
 #     print("mode_flags: %x (MLX5_LAG_MODE_FLAG_SHARED_FDB: 2)" % mlx5_lag.mode_flags)
 #     print("state_flags: %x (MLX5_LAG_MODE_NDEVS_READY = 1)" % mlx5_lag.state_flags)
-    print(mlx5_lag)
-    print(mlx5_lag.v2p_map)
-    print(mlx5_lag.tracker)
+#     print(mlx5_lag)
+#     print(mlx5_lag.v2p_map)
+#     print(mlx5_lag.tracker)
+    port_sel = mlx5_lag.port_sel
+    print_port_sel(port_sel)
     continue
     print(mlx5_lag.pf[0])
     print(mlx5_lag.pf[1])
@@ -81,10 +94,10 @@ def print_mlx5_vport(priv):
 
     for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())
-        print_vport(mlx5_vport)
+#         print_vport(mlx5_vport)
 
 mlx5e_priv = get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)
 
-mlx5e_priv = get_mlx5_pf1()
-print_mlx5_vport(mlx5e_priv)
+# mlx5e_priv = get_mlx5_pf1()
+# print_mlx5_vport(mlx5e_priv)

@@ -113,7 +113,7 @@ reliable_write(int fd, unsigned char *buffer, int buffer_size)
 {
 	int ret;			/* bytes have been sent by one call */
 
-	sleep(2);
+/* 	sleep(2); */
 	while (1) {
 		ret = write(fd, buffer, buffer_size);
 
@@ -299,6 +299,7 @@ void
 	client_arg_t *c_arg;
 	int nodelay = 1;
 	int result;
+	struct linger sl;
 
 	c_arg = (client_arg_t *)arg;
 
@@ -319,6 +320,15 @@ void
 			exit(1);
 		}
 	}
+
+	/* send rst.
+	 * https://stackoverflow.com/questions/77536679/c-program-sending-a-tcp-rst-to-the-server
+	 */
+	bzero(&sl, sizeof(sl));
+	sl.l_onoff = 1;
+	sl.l_linger = 0;
+	if (setsockopt(fd, SOL_SOCKET, SO_LINGER, &sl, sizeof(sl)) < 0)
+		perror("setsockopt");
 
 	ai = c_arg->c_bind_res;
 	if (ai != NULL) {
@@ -399,7 +409,6 @@ server_corrupt(char *port, int lwp, int v6)
 			exit(1);
 		}
 	}
-
 
 	if (bind(server, ressave->ai_addr, ressave->ai_addrlen) == -1) {
 		perror("server bind() error");

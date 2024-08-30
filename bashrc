@@ -6863,7 +6863,8 @@ function start-switchdev
 
 # 	hw_tc_all $port
 
-	$TIME set_netns_all $port
+# 	$TIME set_netns_all $port
+	ifconfig enp8s0f0v1 1.1.1.1/16 up
 # 	set_ns_nf
 
 # 	ethtool -K $link tx-vlan-stag-hw-insert off
@@ -10656,7 +10657,6 @@ set -x
 
 	$TC filter add dev $link ingress protocol ip chain 0 prio 2 flower $offload \
 		ct_state -trk \
-		action mirred egress redirect dev $rep1 \
 		action ct pipe action goto chain 1
 
 	$TC filter add dev $link ingress protocol ip chain 1 prio 2 flower $offload \
@@ -11926,7 +11926,7 @@ function jd-proc
 {
 	echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
 	cat /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
-	echo 2000000 > /proc/sys/net/netfilter/nf_conntrack_max
+# 	echo 2000000 > /proc/sys/net/netfilter/nf_conntrack_max
 }
 
 function no-liberal

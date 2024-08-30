@@ -25,8 +25,8 @@ def print_ktype(ktype):
     while True:
         if attrs[j]:
             print("--------------------------------------")
-            print(attrs[j])
-            vf_attr = cast("struct vf_attributes *", attrs[j])
+#             vf_attr = cast("struct vf_attributes *", attrs[j])
+            vf_attr = container_of(attrs[j], "struct vf_attributes", "attr")
             print(vf_attr)
         else:
             break;
@@ -47,7 +47,8 @@ def print_esw(priv):
     print("esw->manager_vport: %d" % esw.manager_vport)
     print("esw->esw_funcs->num_vfs: %d" % esw.esw_funcs.num_vfs)
     print("esw->dev->priv->sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
-    for i in range(esw.dev.priv.sriov.num_vfs):
+#     for i in range(esw.dev.priv.sriov.num_vfs):
+    for i in range(1):
         print("========================== %d =========================" % i)
         print(esw.dev.priv.sriov.vfs[i])
         ktype = esw.dev.priv.sriov.vfs[i].kobj.ktype
