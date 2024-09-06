@@ -29,6 +29,7 @@ for devcom in list_for_each_entry('struct mlx5_devcom_comp', devcom_comp_list.ad
     if devcom.id != MLX5_DEVCOM_ESW_OFFLOADS:
         continue
     print(devcom.ready)
+    print(devcom.handler)
     for dev in list_for_each_entry('struct mlx5_devcom_comp_dev', devcom.comp_dev_list_head.address_of_(), 'list'):
         print(dev)
         esw = Object(prog, 'struct mlx5_eswitch', address=dev.data)

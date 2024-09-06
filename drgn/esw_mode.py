@@ -42,6 +42,7 @@ def print_esw(priv):
         return
     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags);
     print("esw->total_vports: %d" % esw.total_vports)
+    print("esw->num_peers: %d" % esw.num_peers)
     print("esw->enabled_vports: %d" % esw.enabled_vports)
     print("esw->manager_vport: %d" % esw.manager_vport)
     print("esw->esw_funcs->num_vfs: %d" % esw.esw_funcs.num_vfs)

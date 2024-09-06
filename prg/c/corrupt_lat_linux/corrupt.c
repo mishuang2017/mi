@@ -113,7 +113,7 @@ reliable_write(int fd, unsigned char *buffer, int buffer_size)
 {
 	int ret;			/* bytes have been sent by one call */
 
-/* 	sleep(2); */
+	sleep(2);
 	while (1) {
 		ret = write(fd, buffer, buffer_size);
 

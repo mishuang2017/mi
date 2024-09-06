@@ -28,7 +28,7 @@ def print_encap(rep_priv):
     i=1
     for nhe in list_for_each_entry('struct mlx5e_neigh_hash_entry', addr, 'neigh_list'):
         print("================================= mlx5e_neigh_hash_entry ================================")
-        print(nhe)
+#         print(nhe)
         print("mlx5e_neigh_hash_entry %lx" % nhe.value_())
         print("nhe %d" % i);
         i = i + 1
@@ -36,7 +36,7 @@ def print_encap(rep_priv):
         j=1
         for e in list_for_each_entry('struct mlx5e_encap_entry', nhe.encap_list.address_of_(), 'encap_list'):
             print("\t===================== mlx5e_encap_entry =========================")
-            print(e)
+#             print(e)
             print_mlx5e_encap_entry(e)
             print("\tmlx5e_encap_entry %lx, refcnt: %d, pkt_reformat: %x" %
                 (e.value_(), e.refcnt.refs.counter, e.pkt_reformat))

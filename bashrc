@@ -1864,6 +1864,7 @@ function bf_config
 
 	./scripts/config --disable SYSTEM_TRUSTED_KEYS
 	./scripts/config --disable SYSTEM_REVOCATION_KEYS
+	./scripts/config --disable CONFIG_DEBUG_INFO_BTF
 }
 
 function make-all
@@ -1973,9 +1974,7 @@ set -x
 	[[ "$1" == "sw" ]] && offload="skip_hw"
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
-	remote_mac=10:70:fd:87:5a:58
-	remote_mac=10:70:fd:87:53:60
-	TC=/images/cmi/tc-scripts/tc
+	remote_mac=94:6d:ae:29:5b:64
 	TC=/images/cmi/iproute2/tc/tc
 	TC=tc
 
@@ -3453,7 +3452,7 @@ set -x
 		ct_state -trk		\
 		action ct pipe		\
 		action goto chain 1
-	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 2 flower $offload \
+	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 3 flower $offload \
 		src_mac $local_vm_mac	\
 		dst_mac $remote_vm_mac	\
 		ct_state +trk+new	\
@@ -3464,7 +3463,7 @@ set -x
 		dst_port $vxlan_port	\
 		id $vni			\
 		action mirred egress redirect dev $vx
-	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 2 flower $offload \
+	$TC filter add dev $redirect protocol ip  parent ffff: chain 1 prio 4 flower $offload \
 		src_mac $local_vm_mac	\
 		dst_mac $remote_vm_mac	\
 		ct_state +trk+est	\
@@ -3475,7 +3474,7 @@ set -x
 		id $vni			\
 		action mirred egress redirect dev $vx
 
-	$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 2 flower $offload	\
+	$TC filter add dev $vx protocol ip  parent ffff: chain 0 prio 5 flower $offload	\
 		src_mac $remote_vm_mac	\
 		dst_mac $local_vm_mac	\
 		enc_src_ip $link_remote_ip	\
@@ -3485,7 +3484,7 @@ set -x
 		ct_state -trk			\
 		action ct pipe			\
 		action goto chain 3
-	$TC filter add dev $vx protocol ip  parent ffff: chain 3 prio 2 flower $offload	\
+	$TC filter add dev $vx protocol ip  parent ffff: chain 3 prio 6 flower $offload	\
 		src_mac $remote_vm_mac	\
 		dst_mac $local_vm_mac	\
 		enc_src_ip $link_remote_ip	\
@@ -3496,7 +3495,7 @@ set -x
 		action ct commit		\
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
-	$TC filter add dev $vx protocol ip  parent ffff: chain 3 prio 3 flower $offload	\
+	$TC filter add dev $vx protocol ip  parent ffff: chain 3 prio 7 flower $offload	\
 		src_mac $remote_vm_mac	\
 		dst_mac $local_vm_mac	\
 		enc_src_ip $link_remote_ip	\
@@ -3999,8 +3998,8 @@ set -x
 		dst_ip $link_remote_ip		\
 		dst_port $vxlan_port		\
 		id $vni				\
-		action mirred egress redirect dev $vx
-
+ 		action mirred egress redirect dev $vx
+ 
 	$TC filter add dev $redirect protocol arp parent ffff: prio 2 flower $offload	\
 		src_mac $local_vm_mac		\
 		action tunnel_key set		\
@@ -4010,7 +4009,7 @@ set -x
 		id $vni				\
 		action mirred egress redirect dev $vx
 
-	$TC filter add dev $vx protocol ip  parent ffff: prio 1 flower $offload	\
+	$TC filter add dev $vx protocol ip  parent ffff: prio 3 flower $offload	\
 		src_mac $remote_vm_mac		\
 		dst_mac $local_vm_mac		\
 		enc_src_ip $link_remote_ip	\
@@ -4019,7 +4018,7 @@ set -x
 		enc_key_id $vni			\
 		action tunnel_key unset		\
 		action mirred egress redirect dev $redirect
-	$TC filter add dev $vx protocol arp parent ffff: prio 2 flower $offload	\
+	$TC filter add dev $vx protocol arp parent ffff: prio 4 flower $offload	\
 		src_mac $remote_vm_mac		\
 		enc_src_ip $link_remote_ip	\
 		enc_dst_ip $link_ip		\
@@ -6863,8 +6862,8 @@ function start-switchdev
 
 # 	hw_tc_all $port
 
-# 	$TIME set_netns_all $port
-	ifconfig enp8s0f0v1 1.1.1.1/16 up
+	$TIME set_netns_all $port
+# 	ifconfig enp8s0f0v1 1.1.1.1/16 up
 # 	set_ns_nf
 
 # 	ethtool -K $link tx-vlan-stag-hw-insert off
@@ -10553,6 +10552,36 @@ function ct-ext
 	tc filter add dev $rep2 ingress protocol ip prio 2 flower dst_mac $mac1 e4:11:22:33:44:50  action ct action goto chain 1 
 }
 
+function tc_ct_2ports
+{
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+set -x
+
+	TC=/images/cmi/iproute2/tc/tc;
+	TC=tc
+
+	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1;
+	ethtool -K $rep2 hw-tc-offload on;
+	$TC qdisc add dev $rep2 ingress
+
+	$TC qdisc del dev enp8s0f1_0 ingress > /dev/null 2>&1;
+	ethtool -K enp8s0f1_0 hw-tc-offload on;
+	$TC qdisc add dev enp8s0f1_0 ingress
+
+	mac1=02:25:d0:$host_num:01:02
+	mac2=02:25:d0:$host_num:01:03
+	echo "add ct rules"
+	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
+		dst_mac $mac2 ct_state -trk \
+		action ct pipe action goto chain 1
+	$TC filter add dev enp8s0f1_0: ingress protocol ip chain 0 prio 2 flower $offload \
+		dst_mac $mac1 ct_state -trk \
+		action ct pipe action goto chain 1
+}
+
 function tc_ct
 {
 	offload=""
@@ -10586,33 +10615,55 @@ set -x
 		dst_mac $mac2 ct_state -trk \
 		action ct pipe action goto chain 1
 
-# set +x
-# 	return
+	for (( i = 0; i < 1; i++ )); do
+		for (( j = 0; j < 99; j++ )); do
+			$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
+				dst_mac 02:25:d0:$host_num:$i:$j ct_state -trk \
+				action ct pipe action goto chain 1
+		done
+	done
 
+set +x
+	return
+
+	read
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \
 		action ct commit \
 		action mirred egress redirect dev $rep3
 
+	read
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+est \
 		action mirred egress redirect dev $rep3
 
 
+	read
 	$TC filter add dev $rep3 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac1 ct_state -trk \
 		action ct pipe action goto chain 1
 
+	read
 	$TC filter add dev $rep3 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac1 ct_state +trk+new \
 		action ct commit \
 		action mirred egress redirect dev $rep2
 
+	read
 	$TC filter add dev $rep3 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac1 ct_state +trk+est \
 		action mirred egress redirect dev $rep2
 
 set +x
+}
+
+function test_ct
+{
+	while true; do
+		tc_ct
+		tc qdisc del dev $rep2 ingress
+		sleep 2
+	done
 }
 
 function tc_ct_pf
@@ -11727,8 +11778,11 @@ function bond_br
 	restart-ovs
 	del-br
 	ovs-vsctl add-br $br
-	ovs-vsctl add-port $br bond0
-# 	vxlan1
+
+# 	ovs-vsctl add-port $br bond0
+	vxlan1
+	ifconfig bond0 $link_ip/24
+
 # 	for (( i = 0; i < numvfs; i++)); do
 # 		local rep=$(get_rep $i)
 # 		ovs-vsctl add-port $br $rep
@@ -14115,7 +14169,7 @@ set -x
 set +x
 }
 
-function rate_sysfs
+function rate_sysfs_55
 {
 	for i in {0..2} ; do echo 55 > /sys/class/net/$link/device/sriov/$i/group ; done
 }
@@ -14292,6 +14346,13 @@ function rate_sysfs
 	cd 2
 	echo 1 > group
 	echo 20000 > min_tx_rate
+}
+
+function rate1
+{
+	cd_sriov
+	cd 0
+	echo "pci/0000:08:00.0/1" > group
 }
 
 function rate_sysfs_cleanup
@@ -15574,7 +15635,6 @@ set -x
 	bi2
 
 	return
-
 	ifconfig $rep2 up
 	ifconfig enp8s0f0v1 1.1.1.$host_num/24 up
 

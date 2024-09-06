@@ -45,12 +45,12 @@ for name in pf0_name,:
 #     print(mlx5_lag.v2p_map)
 #     print(mlx5_lag.tracker)
     port_sel = mlx5_lag.port_sel
-    print_port_sel(port_sel)
-    continue
+#     print_port_sel(port_sel)
+#     continue
     print(mlx5_lag.pf[0])
     print(mlx5_lag.pf[1])
     print("mlx5_lag.ports: %d" % mlx5_lag.ports)
-#     print(mlx5_lag)
+    print(mlx5_lag)
 #     print("mlx5_lag %x, flags: %x" % (mlx5_lag, mlx5_lag.flags))
 #     print_fib_info(mlx5_lag.lag_mp.mfi)
     print('')

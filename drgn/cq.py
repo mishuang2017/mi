@@ -35,13 +35,6 @@ def print_channel(priv):
 #         print("rq.cq.napi: %d" % channels[i].rq.cq.napi.napi_id.value_())
 
 
-for x, dev in enumerate(get_netdevs()):
-    name = dev.name.string_().decode()
-    addr = dev.value_()
-    if "eth2" not in name:
-        continue;
-    print("\n===%s===" % name)
-
-    mlx5e_priv_addr = addr + prog.type('struct net_device').size
-    mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
-    print_channel(mlx5e_priv)
+priv = get_mlx5e_priv(pf0_name)
+print(priv.channels.params.rx_cq_moderation)
+# print(priv.channels.params)

@@ -12619,6 +12619,10 @@ group_store() creates a rate group and moves a vf to it
 			__esw_qos_create_rate_group
 				mlx5_create_vf_group_sysfs
 					kobject_init_and_add
+		esw_qos_update_group_scheduling_element
+			mlx5_destroy_scheduling_element_cmd(vport->qos.esw_tsar_ix)
+			esw_qos_vport_create_sched_element
+				mlx5_create_scheduling_element_cmd(&vport->qos.esw_tsar_ix)
 
 static struct kobj_type vf_group = {
         .sysfs_ops     = &vf_group_sysfs_ops,
@@ -12632,5 +12636,8 @@ static struct kobj_type vf_group = {
 max_tx_rate_group_store
 min_tx_rate_group_store
 
-
+mlx5_esw_devlink_rate_parent_set
+	mlx5_esw_qos_vport_update_group
+		esw_qos_vport_update_group
+			esw_qos_update_group_scheduling_element
 
