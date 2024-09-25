@@ -757,6 +757,7 @@ alias vi-corrupt="cd /labhome/cmi/mi/prg/c/$corrupt_dir; vi corrupt.c"
 alias corrupt="/labhome/cmi/mi/prg/c/$corrupt_dir/corrupt"
 alias n2_corrupt="n2 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s -l 100"
 alias n1_corrupt="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -t 100000 -c"
+alias n1_corrupt_t="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -c"
 alias n1_corrupt_server="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s"
 alias cd_sriov=" cd /sys/class/net/$link/device/sriov"
 alias cd_sriov2=" cd /sys/class/net/$link2/device/sriov"
@@ -950,7 +951,6 @@ function bf2_linux
 	ln -s linux-bluefield-5.15 linux
 	/bin/rm -f linux-bluefield-5.15.tar.gz &
 	cd linux
-	git am /swgwork/cmi/config.bf2.5.15/0001-mlx5_core-devlink-errors.patch
 	/bin/cp -f /swgwork/cmi/config.bf2.5.15/config .config
 
 	make-all all
@@ -1815,6 +1815,8 @@ set -x
 set +x
 }
 
+# echo -n "func mlx5_cmd_check +p" > /sys/kernel/debug/dynamic_debug/control
+
 function debug-nofile
 {
 	(( $# == 0 )) && return
@@ -2068,7 +2070,8 @@ set -x
 
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
-	$TC filter add dev $rep2 prio 48856 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 48856 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3 \
+		action mirred egress redirect dev $rep1
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 # set +x
@@ -10563,11 +10566,12 @@ set -x
 	TC=/images/cmi/iproute2/tc/tc;
 	TC=tc
 
-	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1;
+	$TC qdisc del dev enp8s0f1_0 ingress &
+	$TC qdisc del dev $rep2 ingress
+
 	ethtool -K $rep2 hw-tc-offload on;
 	$TC qdisc add dev $rep2 ingress
 
-	$TC qdisc del dev enp8s0f1_0 ingress > /dev/null 2>&1;
 	ethtool -K enp8s0f1_0 hw-tc-offload on;
 	$TC qdisc add dev enp8s0f1_0 ingress
 
@@ -10580,6 +10584,13 @@ set -x
 	$TC filter add dev enp8s0f1_0: ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac1 ct_state -trk \
 		action ct pipe action goto chain 1
+}
+
+function test_ct
+{
+	while true; do
+		tc_ct_2ports
+	done
 }
 
 function tc_ct
@@ -10615,55 +10626,33 @@ set -x
 		dst_mac $mac2 ct_state -trk \
 		action ct pipe action goto chain 1
 
-	for (( i = 0; i < 1; i++ )); do
-		for (( j = 0; j < 99; j++ )); do
-			$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
-				dst_mac 02:25:d0:$host_num:$i:$j ct_state -trk \
-				action ct pipe action goto chain 1
-		done
-	done
+# set +x
+# 	return
 
-set +x
-	return
-
-	read
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \
 		action ct commit \
 		action mirred egress redirect dev $rep3
 
-	read
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+est \
 		action mirred egress redirect dev $rep3
 
 
-	read
 	$TC filter add dev $rep3 ingress protocol ip chain 0 prio 2 flower $offload \
 		dst_mac $mac1 ct_state -trk \
 		action ct pipe action goto chain 1
 
-	read
 	$TC filter add dev $rep3 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac1 ct_state +trk+new \
 		action ct commit \
 		action mirred egress redirect dev $rep2
 
-	read
 	$TC filter add dev $rep3 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac1 ct_state +trk+est \
 		action mirred egress redirect dev $rep2
 
 set +x
-}
-
-function test_ct
-{
-	while true; do
-		tc_ct
-		tc qdisc del dev $rep2 ingress
-		sleep 2
-	done
 }
 
 function tc_ct_pf
@@ -11976,22 +11965,26 @@ alias ns0_tcpdump='ip netns exec ns0 tcpdump -nnnei'
 alias ns1_tcpdump='ip netns exec ns1 tcpdump -nnnei'
 
 # nf_ct_tcp_be_liberal
-function jd-proc
+function liberal_set
 {
 	echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
-	cat /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
+	echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_ignore_invalid_rst
+	liberal_show
+
 # 	echo 2000000 > /proc/sys/net/netfilter/nf_conntrack_max
 }
 
-function no-liberal
+function liberal_unset
 {
 	echo 0 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
-	cat /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
+	echo 0 > /proc/sys/net/netfilter/nf_conntrack_tcp_ignore_invalid_rst
+	liberal_show
 }
 
-function cat-liberal
+function liberal_show
 {
 	cat /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
+	cat /proc/sys/net/netfilter/nf_conntrack_tcp_ignore_invalid_rst
 }
 
 alias scapy-traffic-tester.py=~cmi/asap_dev_reg/scapy-traffic-tester.py
@@ -14341,18 +14334,20 @@ function rate_sysfs
 	cd_sriov
 	cd 1
 	echo 1 > group
-	echo 100000 > min_tx_rate
+	echo 100000 > max_tx_rate
 	cd_sriov
-	cd 2
-	echo 1 > group
-	echo 20000 > min_tx_rate
+# 	cd 2
+# 	echo 1 > group
+# 	echo 20000 > min_tx_rate
+	cd
 }
 
 function rate1
 {
 	cd_sriov
 	cd 0
-	echo "pci/0000:08:00.0/1" > group
+	echo "shared/1" > group
+	cd
 }
 
 function rate_sysfs_cleanup
@@ -14366,10 +14361,10 @@ function rate_sysfs_cleanup
 
 function rate2
 {
-	cd_sriov
-	cd 1
-	echo 1 > group
-	cat config
+	cd_sriov2
+	cd 0
+	echo "shared/1" > group
+	cd
 }
 
 function rate3

@@ -189,18 +189,10 @@ def print_exts(e):
             print("\tact_ct")
 #             print("tcfa_flags %x" % a.tcfa_flags)
 #             print(a)
-#             tcf_conntrack_info = Object(prog, 'struct tcf_conntrack_info', address=a.value_())
-#             print("\tzone: %d" % tcf_conntrack_info.zone.value_(), end='')
-#             print("\tmark: 0x%x" % tcf_conntrack_info.mark.value_(), end='')
-#             print("\tlabels[0]: 0x%x" % tcf_conntrack_info.labels[0].value_(), end='')
-#             print("\tcommit: %d" % tcf_conntrack_info.commit.value_(), end='')
-#             print("\tnat: 0x%x" % tcf_conntrack_info.nat.value_())
-#             if tcf_conntrack_info.range.min_addr.ip:
-#                 print("snat ip: %s" % ipv4(ntohl(tcf_conntrack_info.range.min_addr.ip.value_())))
 #             tcf_ct = cast('struct tcf_ct *', a)
 #             params = tcf_ct.params
 #             print("\tzone: %d\ttcf_ct_flow_table %x\tnf_flowtable %x" % (params.zone, params.ct_ft, params.nf_ft))
-#             print(tcf_ct.params)
+#             print(tcf_ct.params.tmpl.tuplehash[0])
             print_action_stats(a)
 
         if kind == "pedit":
@@ -593,8 +585,8 @@ def print_tuple(tuple, ct):
         return
 
     print("============================================================")
-#     print(ct.ext)
     print("nf_conn %lx" % ct.value_())
+#     print(ct)
 #     print("nf_conntrack_tuple %lx" % tuple.value_())
 
 #     if protonum == IPPROTO_TCP and dir == IP_CT_DIR_ORIGINAL:
@@ -605,6 +597,7 @@ def print_tuple(tuple, ct):
         print("dst ip: %20s:%6d" % (ipv4(ntohl(tuple.tuple.dst.u3.ip.value_())), dport), end=' ')
         print("protonum: %3d" % protonum, end=' ')
         print("dir: %3d" % dir, end=' ')
+        print("zone: %3d" % ct.zone.id, end=' ')
         print("timeout: %3d" % ct.timeout, end=' ')
         state = ct.proto.tcp.state
         print("state: %x, tcp_state: %s" % (state, get_tcp_state(state)))
@@ -981,8 +974,8 @@ def print_flow_offload(flow, dir):
 #     print("\ttimeout: %d" % flow.timeout)
     print("\tnf_conn %lx" % flow.ct)
     print("\tflags: %x, timeout: %x, type: %d" % (flow.flags, flow.timeout, flow.type), end='\t')
-    print("(NF_FLOW_HW_ESTABLISHED: %x)" % (1 << prog['NF_FLOW_HW_ESTABLISHED'].value_()), end=' ')
-    print("(NF_FLOW_HW_BIDIRECTIONAL: %x)" % (1 << prog['NF_FLOW_HW_BIDIRECTIONAL'].value_()), end=' ')
+#     print("(NF_FLOW_HW_ESTABLISHED: %x)" % (1 << prog['NF_FLOW_HW_ESTABLISHED'].value_()), end=' ')
+#     print("(NF_FLOW_HW_BIDIRECTIONAL: %x)" % (1 << prog['NF_FLOW_HW_BIDIRECTIONAL'].value_()), end=' ')
     print("(NF_FLOW_HW: %x)" % (1 << prog['NF_FLOW_HW'].value_()), end=' ')
     print("(NF_FLOW_SNAT: %x)" % (1 << prog['NF_FLOW_SNAT'].value_()), end=' ')
     print('')

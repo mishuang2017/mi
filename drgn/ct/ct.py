@@ -23,8 +23,7 @@ for i in range(size):
 #         print("nf_conn %lx" % ct.value_())
 #         print("nf_conntrack_tuple %lx" % tuple.value_())
 #         print("")
-#         print(ct)
         print_tuple(tuple, ct)
 
-jiffies = prog['jiffies']
-print(jiffies)
+# jiffies = prog['jiffies']
+# print(jiffies)

@@ -69,8 +69,8 @@ for x, dev in enumerate(get_netdevs()):
         for vxlan_dev_node in hlist_for_each_entry('struct vxlan_dev_node', vxlan_sock.vni_list[i], 'hlist'):
             print("vxlan_sock vni: %x" % vxlan_dev_node.vxlan.default_dst.remote_vni.value_())
 
-#     vxlan_rdst = vxlan_dev.default_dst
-#     print(vxlan_rdst)
+    vxlan_rdst = vxlan_dev.default_dst
+    print(vxlan_rdst)
 
 #     fdb_head = vxlan_dev.fdb_head
 #     for i in range(1<<8):
