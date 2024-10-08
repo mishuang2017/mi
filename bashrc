@@ -1505,13 +1505,13 @@ function reprobe
 {
 set -x
 #	sudo /etc/init.d/openibd stop
-	sudo modprobe -r bonding
 	sudo modprobe -r cls_flower
 	sudo modprobe -r mlx5_fpga_tools
 	sudo modprobe -r mlx5_vdpa
 	sudo modprobe -r mlx5_ib
 	sudo modprobe -r mlx5_core
 	sudo modprobe -v mlx5_core
+	sudo modprobe -r bonding
 #	sudo modprobe -v mlx5_ib
 
 #	/etc/init.d/network restart
