@@ -9131,6 +9131,13 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+ip -d link sh $rep2
+
+16: enp8s0f0_1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq master ovs-system state UP mode DEFAULT group default qlen 1000
+    link/ether 96:54:2f:d1:4c:eb brd ff:ff:ff:ff:ff:ff promiscuity 1  allmulti 0 minmtu 68 maxmtu 9978 
+    openvswitch_slave addrgenmode eui64 numtxqueues 10 numrxqueues 10 gso_max_size 65536 gso_max_segs 65535 tso_max_size 65536 tso_max_segs 65535 gro_max_size 65536 gso_ipv4_max_size 65536 gro_ipv4_max_size 65536 portname pf0vf1 switchid 24d97b0003f6ceb8 parentbus pci parentdev 0000:08:00.0 
+    altname enp8s0f0npf0vf1
+
 screen regions
 ctl a + |	split horizontally
 ctl a + S	split vertically

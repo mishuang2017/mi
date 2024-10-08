@@ -9202,6 +9202,7 @@ function ofed_install
 	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
 	build=MLNX_OFED_LINUX-24.04-0.6.5.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=MLNX_OFED_LINUX-24.07-0.3.0.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
+	build=MLNX_OFED_LINUX-24.10-0.1.7.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-30908-20240321-1550 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 }
 
@@ -14171,18 +14172,10 @@ function rate_sysfs2
 	for i in {0..2} ; do echo 0 > /sys/class/net/$link/device/sriov/$i/group ; done
 }
 
-function rate1
-{
-set -x
-	devlink port func rate set pci/$pci/2 tx_share 30mbit
-set +x
-}
-
 function ovs_test
 {
 	make check TESTSUITEFLAGS='1'
 }
-
 
 alias rate_show="devlink port fun rate"
 alias rate_show2="mlxdevm port fun rate show"
@@ -14325,6 +14318,15 @@ function pf_stats
 	cat /sys/class/net/enp8s0f0/statistics/rx_packets  /sys/class/net/enp8s0f1/statistics/rx_packets
 }
 
+function rate_group_sysfs
+{
+	cd_sriov
+	cd groups/1
+	echo 10000 > max_tx_rate
+# 	echo 80000 > min_tx_rate
+	cd
+}
+
 function rate_sysfs
 {
 	cd_sriov
@@ -14344,9 +14346,40 @@ function rate_sysfs
 
 function rate1
 {
+# 	cd /sys/class/net/enp8s0f0/device/sriov
+# 	cd 0
+	# echo 1 > group
+# 	echo "pci/0000:08:00.0/1" > group
+
+	cd /sys/class/net/enp8s0f1/device/sriov
+	cd 0
+	echo "pci/0000:08:00.0/1" > group
+	cd
+}
+
+function rate2
+{
+	cd /sys/class/net/enp8s0f0/device/sriov
+	cd 0
+	echo 0 > group
+
+	cd /sys/class/net/enp8s0f1/device/sriov
+	cd 0
+	echo "pci/0000:08:00.0/0" > group
+	cd
+}
+
+function rate3
+{
+ 	echo 5 > /sys/class/net/$link/device/sriov/0/group
+	echo pci/0000:08:00.1/5 > /sys/class/net/$link/device/sriov/0/group
+}
+
+function rate1_cleanup
+{
 	cd_sriov
 	cd 0
-	echo "shared/1" > group
+	echo "shared/0" > group
 	cd
 }
 
@@ -14359,20 +14392,12 @@ function rate_sysfs_cleanup
 	done
 }
 
-function rate2
+function rate2_cleanup
 {
 	cd_sriov2
 	cd 0
-	echo "shared/1" > group
+	echo "shared/0" > group
 	cd
-}
-
-function rate3
-{
-	cd_sriov
-	cd 2
-	echo 2 > group
-	cat config
 }
 
 if (( bf == 1 )); then
@@ -15614,7 +15639,8 @@ set +x
 function dev_all
 {
 set -x
-# 	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 	dmfs
 	on-sriov
 	un
