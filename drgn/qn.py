@@ -19,16 +19,16 @@ esw = mlx5e_priv.mdev.priv.eswitch
 
 print("\n === esw qos ===\n")
 print(esw.qos)
-mlx5_esw_rate_group = esw.qos.group0
+mlx5_esw_sched_node = esw.qos.node0
 
-# print("\n === esw.qos.group0 ===\n")
-# print(mlx5_esw_rate_group)
+# print("\n === esw.qos.node0 ===\n")
+# print(mlx5_esw_sched_node)
 
 
-# print("\n === mlx5_esw_rate_group ===\n")
-# for group in list_for_each_entry('struct mlx5_esw_rate_group', \
-#     mlx5_esw_rate_group.list.address_of_(), 'list'):
-#     print(group)
+# print("\n === mlx5_esw_sched_node ===\n")
+# for node in list_for_each_entry('struct mlx5_esw_sched_node', \
+#     mlx5_esw_sched_node.list.address_of_(), 'list'):
+#     print(node)
  
 def print_mac(mac):
     print("mac: %02x:%02x:%02x:%02x:%02x:%02x" % (mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]), end='')
@@ -49,8 +49,8 @@ def print_mlx5_vport(priv):
     # print(vports)
 
     def print_vport(vport):
-        group = vport.qos.group
-        if group.value_() == 0:
+        node = vport.qos.sched_node
+        if node.value_() == 0:
             return
         print("mlx5_vport %x" % vport.address_of_(), end=' ')
         print("vport: %4x, %4d, metadata: %4x" % (vport.vport, vport.vport, vport.metadata), end=' ')
@@ -59,6 +59,8 @@ def print_mlx5_vport(priv):
         print("vport: %5x" % vport.vport, end=' ')
         print("enabled: %x" % vport.enabled.value_(), end=' ')
         print(vport.qos)
+        if vport.qos.sched_node:
+            print("parent: %x, ix: %d" % (vport.qos.sched_node.parent, vport.qos.sched_node.ix))
         print('')
 
     for node in radix_tree_for_each(vports.address_of_()):
@@ -77,13 +79,15 @@ mlx5e_priv = get_mlx5_pf1()
 print_mlx5_vport(mlx5e_priv)
 
 print("\n === groups ===\n")
-for group in list_for_each_entry('struct mlx5_esw_rate_group', esw.qos.domain.groups.address_of_(), 'parent_entry'):
-    print("group: %x" % group, end='\t')
-    print("tsar_ix: %d" % group.tsar_ix, end='\t')
-    print("num_vports: %d" % group.num_vports, end='\t')
-    print("group id: %x" % group.group_id, end='\t')
-    print("%s" % group.esw.dev.device.kobj.name)
-    for vport in list_for_each_entry('struct mlx5_vport', group.members.address_of_(), 'qos.group_entry'):
+for node in list_for_each_entry('struct mlx5_esw_sched_node', esw.qos.domain.nodes.address_of_(), 'entry'):
+    print("node: %x" % node, end='\t')
+    print("ix: %d" % node.ix, end='\t')
+    print("num_vports: %d" % node.num_vports, end='\t')
+    print("group id: %x" % node.group_id, end='\t')
+    print("%s" % node.esw.dev.device.kobj.name, end='\t')
+    print("parent %x" % node.parent.value_())
+    for vport_node in list_for_each_entry('struct mlx5_esw_sched_node', node.children.address_of_(), 'entry'):
+        vport = vport_node.vport
         print("\t---------------")
         print("\tvport: %d" % vport.vport)
         print("\t%s" % vport.dev.device.kobj.name)

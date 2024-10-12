@@ -12648,3 +12648,7 @@ mlx5_esw_devlink_rate_parent_set
 		esw_qos_vport_update_group
 			esw_qos_update_group_scheduling_element
 
+==ets===
+
+mlx5_esw_devlink_rate_leaf_tc_bw_set
+

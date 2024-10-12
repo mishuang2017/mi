@@ -339,7 +339,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_24_07;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_24_10;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_24_04'
@@ -999,7 +999,7 @@ function cloud_setup
 	if (( build_kernel == 1 )); then
 		cloud_linux $branch
 	fi
-	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_24_04
+	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_24_10
 	smm
 	rebase
 
@@ -9164,6 +9164,7 @@ alias ofed-configure-5.12="./configure --with-mlx5-core-and-ib-and-en-mod --with
 alias ofed-configure-5.13="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.13 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.13 "
 alias ofed-configure-5.14="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.14 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.14 "
 alias ofed-configure-5.15="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15 "
+alias ofed-configure-5.15-uek="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15.0-101.103.2.1.el9uek.x86_64/ "
 alias ofed-configure-5.16="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.16-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.16-rc7 "
 alias ofed-configure-5.17="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.17-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.17-rc7 "
 alias ofed-configure-6.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.2-rc6 "
@@ -14123,7 +14124,9 @@ set -x
 	# pci/0000:08:00.0/2: type leaf tx_share 30Mbit tx_max 40Mbit
 	# pci/0000:08:00.0/3: type leaf tx_share 50Mbit tx_max 60Mbit
 
-	/usr/sbin/devlink port func rate add pci/$pci/1st_grp
+# 	/usr/sbin/devlink port func rate add pci/$pci/1st_grp
+
+	devlink port func rate add pci/$pci/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
 # 	devlink port func rate add pci/$pci/1st_grp
 	(( debug == 1 )) && read
 # 	devlink port func rate add pci/$pci/2nd_grp
@@ -14161,6 +14164,16 @@ set -x
 # 	devlink port func rate del pci/$pci/2nd_grp
 # 	(( debug == 1 )) && read
 set +x
+}
+
+function devlink_ets
+{
+	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
+}
+
+function devlink_ets2
+{
+	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
 }
 
 function rate_sysfs_55
@@ -15689,3 +15702,5 @@ set -x
 	ovs-ofctl add-flow $br in_port=$rep1,actions=group:1
 set +x
 }
+
+alias reset='git commit --amend --reset-author'
