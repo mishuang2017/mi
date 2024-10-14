@@ -14124,17 +14124,16 @@ set -x
 	# pci/0000:08:00.0/2: type leaf tx_share 30Mbit tx_max 40Mbit
 	# pci/0000:08:00.0/3: type leaf tx_share 50Mbit tx_max 60Mbit
 
-# 	/usr/sbin/devlink port func rate add pci/$pci/1st_grp
-
-	devlink port func rate add pci/$pci/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
+	devlink port func rate add pci/$pci/1st_grp
+# 	devlink port func rate add pci/$pci/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
 # 	devlink port func rate add pci/$pci/1st_grp
 	(( debug == 1 )) && read
 # 	devlink port func rate add pci/$pci/2nd_grp
 # 	(( debug == 1 )) && read
 
-	devlink port func rate set pci/$pci/1st_grp tx_share 80000mbit
+# 	devlink port func rate set pci/$pci/1st_grp tx_share 80000mbit
 	(( debug == 1 )) && read
-# 	devlink port func rate set pci/$pci/1st_grp tx_max 80mbit
+	devlink port func rate set pci/$pci/1st_grp tx_max 100mbit
 # 	(( debug == 1 )) && read
 
 # 	devlink port func rate set pci/$pci/2nd_grp tx_share 20000mbit
@@ -14343,13 +14342,13 @@ function rate_group_sysfs
 function rate_sysfs
 {
 	cd_sriov
-	cd 0
-	echo 1 > group
-	echo 80000 > min_tx_rate
-	cd_sriov
+# 	cd 0
+# 	echo 1 > group
+# 	echo 80000 > min_tx_rate
+# 	cd_sriov
 	cd 1
 	echo 1 > group
-	echo 100000 > max_tx_rate
+	echo 1000 > max_tx_rate
 	cd_sriov
 # 	cd 2
 # 	echo 1 > group
@@ -14364,10 +14363,8 @@ function rate1
 	# echo 1 > group
 # 	echo "pci/0000:08:00.0/1" > group
 
-	cd /sys/class/net/enp8s0f1/device/sriov
-	cd 0
-	echo "pci/0000:08:00.0/1" > group
-	cd
+	echo "pci/0000:08:00.0/1" > /sys/class/net/$link2/device/sriov/0/group
+	echo "pci/0000:08:00.1/1" > /sys/class/net/$link/device/sriov/0/group
 }
 
 function rate2
