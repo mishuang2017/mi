@@ -10,15 +10,12 @@ import os
 sys.path.append(".")
 from lib import *
 
-mlx5e_priv = get_mlx5e_priv(pf0_name)
-esw = mlx5e_priv.mdev.priv.eswitch
-
 # if esw.qos.refcnt.refs.counter == 0:
 #     print("qos is not enabled")
 #     exit()
 
 print("\n === esw qos ===\n")
-print(esw.qos)
+# print(esw.qos)
 # mlx5_esw_rate_group = esw.qos.node0
 
 # print("\n === esw.qos.node0 ===\n")
@@ -46,7 +43,6 @@ def print_mlx5_vport(priv):
 
     uplink_idx = total_vports - 1
     # uplink_vport = vports[uplink_idx]
-    # print(vports)
 
     def print_vport(vport):
         if not vport.qos.enabled:
@@ -57,35 +53,40 @@ def print_mlx5_vport(priv):
         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
         print("vport: %5x" % vport.vport, end=' ')
         print("enabled: %x" % vport.enabled.value_(), end=' ')
-        print(vport.qos)
         print('')
+        print(vport.qos)
 
     for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())
 #         if mlx5_vport.vport < 4:
         print_vport(mlx5_vport)
 
+def print_domain(esw):
+    print("\n === groups ===\n")
+    for node in list_for_each_entry('struct mlx5_esw_rate_group', esw.qos.domain.groups.address_of_(), 'parent_entry'):
+        print("node: %x" % node, end='\t')
+        print("ix: %d" % node.tsar_ix, end='\t')
+        print("num_vports: %d" % node.num_vports, end='\t')
+        print("group id: %x" % node.group_id, end='\t')
+        print("%s" % node.esw.dev.device.kobj.name, end='\t')
+        print('')
+        for vport in list_for_each_entry('struct mlx5_vport', node.members.address_of_(), 'qos.group_entry'):
+            print("\t---------------")
+            print("\tvport: %d" % vport.vport)
+            print("\t%s" % vport.dev.device.kobj.name)
+
 print("\n === vports qos port 1 ===\n")
 
 mlx5e_priv = get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)
+esw = mlx5e_priv.mdev.priv.eswitch
+print_domain(esw)
 
 print("\n === vports qos port 2 ===\n")
 
 mlx5e_priv = get_mlx5_pf1()
 print_mlx5_vport(mlx5e_priv)
-
-print("\n === groups ===\n")
-for node in list_for_each_entry('struct mlx5_esw_rate_group', esw.qos.domain.groups.address_of_(), 'parent_entry'):
-    print("node: %x" % node, end='\t')
-    print("ix: %d" % node.tsar_ix, end='\t')
-    print("num_vports: %d" % node.num_vports, end='\t')
-    print("group id: %x" % node.group_id, end='\t')
-    print("%s" % node.esw.dev.device.kobj.name, end='\t')
-    print('')
-    for vport in list_for_each_entry('struct mlx5_vport', node.members.address_of_(), 'qos.group_entry'):
-        print("\t---------------")
-        print("\tvport: %d" % vport.vport)
-        print("\t%s" % vport.dev.device.kobj.name)
+esw = mlx5e_priv.mdev.priv.eswitch
+print_domain(esw)
 
 # print(mlx5_esw_qos)

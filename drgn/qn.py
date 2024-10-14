@@ -10,16 +10,14 @@ import os
 sys.path.append(".")
 from lib import *
 
-mlx5e_priv = get_mlx5e_priv(pf0_name)
-esw = mlx5e_priv.mdev.priv.eswitch
 
 # if esw.qos.refcnt.refs.counter == 0:
 #     print("qos is not enabled")
 #     exit()
 
 print("\n === esw qos ===\n")
-print(esw.qos)
-mlx5_esw_sched_node = esw.qos.node0
+# print(esw.qos)
+# mlx5_esw_sched_node = esw.qos.node0
 
 # print("\n === esw.qos.node0 ===\n")
 # print(mlx5_esw_sched_node)
@@ -68,28 +66,33 @@ def print_mlx5_vport(priv):
 #         if mlx5_vport.vport < 4:
         print_vport(mlx5_vport)
 
+def print_domain(esw):
+    print("\n === groups ===\n")
+    for node in list_for_each_entry('struct mlx5_esw_sched_node', esw.qos.domain.nodes.address_of_(), 'entry'):
+        print("node: %x" % node, end='\t')
+        print("ix: %d" % node.ix, end='\t')
+        print("num_vports: %d" % node.num_vports, end='\t')
+        print("group id: %x" % node.group_id, end='\t')
+        print("%s" % node.esw.dev.device.kobj.name, end='\t')
+        print("parent %x" % node.parent.value_())
+        for vport_node in list_for_each_entry('struct mlx5_esw_sched_node', node.children.address_of_(), 'entry'):
+            vport = vport_node.vport
+            print("\t---------------")
+            print("\tvport: %d" % vport.vport)
+            print("\t%s" % vport.dev.device.kobj.name)
+
 print("\n === vports qos port 1 ===\n")
 
 mlx5e_priv = get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)
+esw = mlx5e_priv.mdev.priv.eswitch
+print_domain(esw)
 
 print("\n === vports qos port 2 ===\n")
 
 mlx5e_priv = get_mlx5_pf1()
 print_mlx5_vport(mlx5e_priv)
-
-print("\n === groups ===\n")
-for node in list_for_each_entry('struct mlx5_esw_sched_node', esw.qos.domain.nodes.address_of_(), 'entry'):
-    print("node: %x" % node, end='\t')
-    print("ix: %d" % node.ix, end='\t')
-    print("num_vports: %d" % node.num_vports, end='\t')
-    print("group id: %x" % node.group_id, end='\t')
-    print("%s" % node.esw.dev.device.kobj.name, end='\t')
-    print("parent %x" % node.parent.value_())
-    for vport_node in list_for_each_entry('struct mlx5_esw_sched_node', node.children.address_of_(), 'entry'):
-        vport = vport_node.vport
-        print("\t---------------")
-        print("\tvport: %d" % vport.vport)
-        print("\t%s" % vport.dev.device.kobj.name)
+esw = mlx5e_priv.mdev.priv.eswitch
+print_domain(esw)
 
 # print(mlx5_esw_qos)

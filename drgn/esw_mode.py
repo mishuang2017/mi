@@ -31,13 +31,13 @@ def print_esw(priv):
     print("mlx5_priv %#x" % priv.mdev.priv.address_of_())
 #     print_health(priv.mdev.priv.health)
     esw = priv.mdev.priv.eswitch
+    print("mode: %d" % esw.mode)
     print("mlx5_eswitch %#x" % esw)
     print(esw.qos)
     return
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
     print("esw->flags: %#x (1 means MLX5_ESWITCH_VPORT_MATCH_METADATA)" % esw.flags)
     print("steering->mode: %#x (1 mens MLX5_FLOW_STEERING_MODE_SMFS)" % priv.mdev.priv.steering.mode)
-    print("mode: %d" % esw.mode)
 #     print(esw.offloads.ft_offloads)
     if esw.mode == 0:
         return
