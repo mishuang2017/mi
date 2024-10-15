@@ -7452,8 +7452,6 @@ alias tma='tmux attach'
 [[ "$HOSTNAME" == "mtl-vdi-1231" ]] && alias tma='screen -x'
 function tm
 {
-	return
-
 	[[ $# == 0 ]] && return
 	local session=$1
 	local cmd=$(which tmux) # tmux path
