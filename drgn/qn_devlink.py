@@ -81,8 +81,8 @@ def print_mlx5_vport(priv):
                 (vport.qos.sched_node.parent, type(vport.qos.sched_node.parent.type)))
             print("vport.qos.sched_node.parent.parent: %x" % \
                 (vport.qos.sched_node.parent.parent))
-        if vport.qos.tc.enabled:
-            print(vport.qos.tc.enabled)
+
+        if vport.qos.tc.arbiter_node:
             for i in range(2):
                 node = vport.qos.tc.sched_nodes[i]
                 print("%-35s" % type(node.type), end=' ')
@@ -92,6 +92,7 @@ def print_mlx5_vport(priv):
                 print("%-35s" % type(node.parent.type), end=' ')
                 print("parent: %x" % node.parent.value_(), end=' ')
                 print("tc: %d" % node.parent.tc, end=' ')
+                print("bw_share: %d" % node.parent.bw_share, end=' ')
                 print('')
                 if node.parent:
                     print("%-35s" % type(node.parent.parent.type), end=' ')
@@ -110,6 +111,7 @@ def print_domain(esw):
         print("node: %x" % node, end='\t')
         print("type: %s" % type(node.type), end='\t')
         print("ix: %d" % node.ix, end='\t')
+        print("group_id: %d" % node.group_id, end='\t')
         print("%s" % node.esw.dev.device.kobj.name, end='\t')
         print("parent %x" % node.parent.value_())
     #     print(node)
@@ -120,9 +122,13 @@ def print_domain(esw):
                 print("\tvport: %d" % vport.vport)
                 print("\t%s" % vport.dev.device.kobj.name)
             elif vport_node.type == SCHED_NODE_TYPE_VPORTS_TC_TSAR:
-                print("\tnode: %x, type: %s, tc: %d, max_rate: %d, min_rate: %x, bw_share: %d" % \
-                    (vport_node.value_(), type(vport_node.type), vport_node.tc, vport_node.max_rate, vport_node.min_rate, vport_node.bw_share))
-    #             print(vport_node)
+                print("\tnode: %x, type: %s, ix: %d, tc: %d, max_rate: %d, min_rate: %x, bw_share: %d" % \
+                    (vport_node.value_(), type(vport_node.type), vport_node.ix, vport_node.tc, vport_node.max_rate, \
+                    vport_node.min_rate, vport_node.bw_share))
+                for node3 in list_for_each_entry('struct mlx5_esw_sched_node', vport_node.children.address_of_(), 'entry'):
+                    print("\t\tnode: %x, type: %s, ix: %d, tc: %d, max_rate: %d, min_rate: %x, bw_share: %d, vport: %x" % \
+                        (node3.value_(), type(node3.type), node3.ix, node3.tc, node3.max_rate, node3.min_rate, node3.bw_share, \
+                        node3.vport.value_()))
 print("\n === vports qos port 1 ===\n")
 
 mlx5e_priv = get_mlx5_pf0()
@@ -140,4 +146,4 @@ SCHED_NODE_TYPE_VPORTS_TC_TSAR = prog['SCHED_NODE_TYPE_VPORTS_TC_TSAR']
 
 esw = mlx5e_priv.mdev.priv.eswitch
    
-print_domain(esw)
+# print_domain(esw)

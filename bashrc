@@ -14168,6 +14168,28 @@ function devlink_ets
 	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
 }
 
+function sysfs_ets
+{
+	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/groups/1/tc_bw
+}
+
+function sysfs_ets2
+{
+	echo " 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/groups/1/tc_bw
+}
+
+function sysfs_vf_ets
+{
+	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
+}
+
+function sysfs_vf_ets2
+{
+	echo " 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
+}
+
+
+
 function devlink_ets2
 {
 	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
