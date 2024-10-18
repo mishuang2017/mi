@@ -75,7 +75,7 @@ def print_mlx5_vport(priv):
         print("vport: %5x" % vport.vport, end=' ')
         print("enabled: %x" % vport.enabled.value_(), end=' ')
         print(vport.qos)
-        if vport.qos.sched_node:
+        if not vport.qos.tc.arbiter_node:
             print("sched_node type: %s" % type(vport.qos.sched_node.type))
             print("vport.qos.sched_node.parent: %x, type: %s" % \
                 (vport.qos.sched_node.parent, type(vport.qos.sched_node.parent.type)))

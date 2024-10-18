@@ -1,6 +1,9 @@
 hardstatus alwayslastline
-hardstatus string '[ %H ][%=%w%=][ %Y-%M-%d %c ]'
+# hardstatus string '[ %H ][%=%w%=][ %m/%d %c ]'
+hardstatus string "%-w%{= BW}%50>%n %t%{-}%+w%<"
+hardstatus alwayslastline "%{rk}%H %{gk}%c %{yk}%M%d %{wk}%?%-Lw%?%{bw}%n*%f %t%?(%u)%?%{wk}%?%+Lw%?"
 startup_message off
 vbell on
 bind ' ' title
 maptimeout 5
+defscrollback 30000

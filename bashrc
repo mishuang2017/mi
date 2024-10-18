@@ -14362,10 +14362,10 @@ function rate_group_sysfs
 function rate_sysfs
 {
 	cd_sriov
-# 	cd 0
-# 	echo 1 > group
-# 	echo 80000 > min_tx_rate
-# 	cd_sriov
+	cd 0
+	echo 1 > group
+	echo 80000 > min_tx_rate
+	cd_sriov
 	cd 1
 	echo 1 > group
 	echo 1000 > max_tx_rate
