@@ -6,7 +6,7 @@ set background=dark
 set nopaste
 set paste
 
-" set ruler
+set ruler
 
 set hidden
 
@@ -175,5 +175,5 @@ syntax on
 
 :set fillchars+=vert:\ 
 set foldcolumn=0
-let &statusline='%#Normal# '
+" let &statusline='%#Normal# '
 hi! VertSplit guifg=black guibg=black ctermfg=black ctermbg=black

@@ -9131,6 +9131,8 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
++       dump_stack();
+
 ip -d link sh $rep2
 
 16: enp8s0f0_1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq master ovs-system state UP mode DEFAULT group default qlen 1000
@@ -12649,6 +12651,8 @@ mlx5_esw_devlink_rate_parent_set
 			esw_qos_update_group_scheduling_element
 
 ==ets===
+
+python3 /mswg/projects/fw/fw_ver/hca_fw_tools/vqos_tree/execute.py -d /dev/mst/mt4125_pciconf0
 
 mlx5_esw_devlink_rate_leaf_tc_bw_set
 
