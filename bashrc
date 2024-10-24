@@ -6937,7 +6937,7 @@ function sf_d
 function sf_create
 {
 set -x
-	debug=1
+	debug=0
 	cmd=$1
 	sfnum=$2
 	sf_device=mlx5_core.sf.$((sfnum+1))
@@ -9200,7 +9200,7 @@ function ofed_install
 
 	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
 	build=MLNX_OFED_LINUX-24.04-0.6.5.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
-	build=MLNX_OFED_LINUX-24.07-0.3.0.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
+	build=OFED-internal-24.10-0.5.7.0.102 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=MLNX_OFED_LINUX-24.10-0.1.7.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-30908-20240321-1550 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 }
@@ -14180,7 +14180,13 @@ function sysfs_ets2
 
 function sysfs_vf_ets
 {
+set -x
+# 	echo 1 > /sys/class/net/enp8s0f0/device/sriov/1/group
+# 	echo 1 > /sys/class/net/enp8s0f0/device/sriov/2/group
+	echo 500 > /sys/class/net/enp8s0f0/device/sriov/1/max_tx_rate
+	echo 100 > /sys/class/net/enp8s0f0/device/sriov/1/min_tx_rate
 	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
+set +x
 }
 
 function sysfs_vf_ets2
@@ -14252,8 +14258,9 @@ function rate_group_sf
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
-	$sfcmd port function rate set pci/$pci/32768 tx_max 100
+# 	$sfcmd port function rate set pci/$pci/32768 tx_max 100
 	$sfcmd port function rate add pci/$pci/12_group
+	$sfcmd port function rate set pci/$pci/12_group tx_max 1000 tx_share 0
 	$sfcmd port function rate set pci/$pci/32768 parent 12_group
 # 	$sfcmd port function rate del pci/$pci/12_group
 	$sfcmd port fun rate show

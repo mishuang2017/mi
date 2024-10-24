@@ -72,7 +72,7 @@ def print_domain(esw):
         print("node: %x" % node, end='\t')
         print("ix: %d" % node.ix, end='\t')
         print("num_vports: %d" % node.num_vports, end='\t')
-        print("group id: %x" % node.group_id, end='\t')
+        print("group id: %#x" % node.group_id, end='\t')
         print("%s" % node.esw.dev.device.kobj.name, end='\t')
         print("parent %x" % node.parent.value_())
         for vport_node in list_for_each_entry('struct mlx5_esw_sched_node', node.children.address_of_(), 'entry'):

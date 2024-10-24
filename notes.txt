@@ -12656,3 +12656,47 @@ python3 /mswg/projects/fw/fw_ver/hca_fw_tools/vqos_tree/execute.py -d /dev/mst/m
 
 mlx5_esw_devlink_rate_leaf_tc_bw_set
 
+rate_node_tc_bw_set
+	esw_qos_node_enable_tc_arbitration
+		node->type = SCHED_NODE_TYPE_TC_ARBITER_TSAR
+		esw_qos_tc_arbiter_scheduling_setup
+			esw_qos_create_tc_arbiter_sched_elem
+				TSAR_ELEMENT_TSAR_TYPE_TC_ARB
+				SCHEDULING_CONTEXT_ELEMENT_TYPE_TSAR
+		esw_qos_create_vports_tc_nodes
+			esw_qos_create_vports_tc_node
+				TSAR_ELEMENT_TSAR_TYPE_DWRR
+				SCHEDULING_CONTEXT_ELEMENT_TYPE_TSAR
+		esw_qos_tc_qos_enable_for_vports_in_node
+			esw_qos_vport_tc_enable
+				esw_qos_vport_tc_prepare
+				esw_qos_init_vport_tcs
+					esw_qos_create_rate_limit_element
+						TSAR_ELEMENT_TSAR_TYPE_DWRR
+						SCHEDULING_CONTEXT_ELEMENT_TYPE_RATE_LIMIT
+				for esw_qos_init_vport_tc
+					esw_qos_init_vport_tc
+						esw_qos_vport_tc_create_sched_element
+							TSAR_ELEMENT_TSAR_TYPE_DWRR
+							SCHEDULING_CONTEXT_ELEMENT_TYPE_VPORT_TC
+	mlx5_esw_qos_update_tc_arbiter_node
+
+rate_node_tc_bw_set
+	esw_qos_node_disable_tc_arbitration
+		esw_qos_tc_arbiter_node_disable_tc_qos
+			esw_qos_create_node_sched_elem
+			esw_qos_disable_tc_qos_for_vports
+				for for esw_qos_vport_tc_disable
+					esw_qos_cleanup_vport_tcs
+						for esw_qos_destroy_vport_tc
+							mlx5_destroy_scheduling_element_cmd
+						mlx5_destroy_scheduling_element_cmd
+					esw_qos_vport_qos_restore
+		esw_qos_tc_arbiter_scheduling_teardown
+			esw_qos_destroy_vports_tc_nodes
+				for esw_qos_destroy_vports_tc_node
+					mlx5_destroy_scheduling_element_cmd(vports_tc_node->ix)
+			mlx5_destroy_scheduling_element_cmd(tc_arbiter_node->ix)
+
+
+
