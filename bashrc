@@ -14357,70 +14357,30 @@ function pf_stats
 	cat /sys/class/net/enp8s0f0/statistics/rx_packets  /sys/class/net/enp8s0f1/statistics/rx_packets
 }
 
-function rate_group_sysfs
-{
-	cd_sriov
-	cd groups/1
-	echo 10000 > max_tx_rate
-# 	echo 80000 > min_tx_rate
-	cd
-}
-
-function rate_sysfs
+function fs_rate_group
 {
 	echo 1 > /sys/class/net/enp8s0f0/device/sriov/1/group
 	echo 1 > /sys/class/net/enp8s0f0/device/sriov/2/group
 }
 
-function rate1
+function fs_rate_group_m
 {
-# 	cd /sys/class/net/enp8s0f0/device/sriov
-# 	cd 0
-	# echo 1 > group
-# 	echo "pci/0000:08:00.0/1" > group
-
 	echo "pci/0000:08:00.0/1" > /sys/class/net/$link2/device/sriov/0/group
 	echo "pci/0000:08:00.1/1" > /sys/class/net/$link/device/sriov/0/group
 }
 
-function rate2
+function fs_rate_group2
 {
-	cd /sys/class/net/enp8s0f0/device/sriov
-	cd 0
-	echo 0 > group
-
-	cd /sys/class/net/enp8s0f1/device/sriov
-	cd 0
-	echo "pci/0000:08:00.0/0" > group
-	cd
+	echo 0 > /sys/class/net/$link/device/sriov/0/group
+	echo 0 > /sys/class/net/$link2/device/sriov/0/group
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov/1/group
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov/2/group
 }
 
 function rate3
 {
  	echo 5 > /sys/class/net/$link/device/sriov/0/group
 	echo pci/0000:08:00.1/5 > /sys/class/net/$link/device/sriov/0/group
-}
-
-function rate1_cleanup
-{
-	cd_sriov
-	cd 0
-	echo "shared/0" > group
-	cd
-}
-
-function rate_sysfs2
-{
-	echo 0 > /sys/class/net/enp8s0f0/device/sriov/1/group
-	echo 0 > /sys/class/net/enp8s0f0/device/sriov/2/group
-}
-
-function rate2_cleanup
-{
-	cd_sriov2
-	cd 0
-	echo "shared/0" > group
-	cd
 }
 
 if (( bf == 1 )); then

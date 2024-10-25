@@ -109,6 +109,9 @@ def print_domain(esw):
     print("\n === groups ===\n")
     for node in list_for_each_entry('struct mlx5_esw_sched_node', esw.qos.domain.nodes.address_of_(), 'entry'):
         print("node: %x" % node, end='\t')
+        if os.path.isdir('/sys/class/net/enp8s0f0/device/sriov/groups'):
+            print("group id: %#x" % node.group_id, end='\t')
+            print("num_vports: %d" % node.num_vports, end='\t')
         print("type: %s" % type(node.type), end='\t')
         print("ix: %d" % node.ix, end='\t')
 #         print("group_id: %d" % node.group_id, end='\t')
