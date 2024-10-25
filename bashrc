@@ -14168,17 +14168,17 @@ function devlink_ets
 	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
 }
 
-function sysfs_ets
+function fs_ets
 {
 	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/groups/1/tc_bw
 }
 
-function sysfs_ets2
+function fs_ets2
 {
 	echo " 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/groups/1/tc_bw
 }
 
-function sysfs_vf_ets
+function fs_vf_ets
 {
 set -x
 # 	echo 1 > /sys/class/net/enp8s0f0/device/sriov/1/group
@@ -14189,12 +14189,10 @@ set -x
 set +x
 }
 
-function sysfs_vf_ets2
+function fs_vf_ets2
 {
 	echo " 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
 }
-
-
 
 function devlink_ets2
 {
@@ -14357,24 +14355,25 @@ function pf_stats
 	cat /sys/class/net/enp8s0f0/statistics/rx_packets  /sys/class/net/enp8s0f1/statistics/rx_packets
 }
 
-function fs_rate_group
+function fs_rate
 {
-	echo 1 > /sys/class/net/enp8s0f0/device/sriov/1/group
-	echo 1 > /sys/class/net/enp8s0f0/device/sriov/2/group
+	for i in "$@"; do
+		echo 1 > /sys/class/net/$link/device/sriov/$i/group
+	done
 }
 
-function fs_rate_group_m
+function fs_rate_m
 {
 	echo "pci/0000:08:00.0/1" > /sys/class/net/$link2/device/sriov/0/group
 	echo "pci/0000:08:00.1/1" > /sys/class/net/$link/device/sriov/0/group
 }
 
-function fs_rate_group2
+function fs_rate2
 {
 	echo 0 > /sys/class/net/$link/device/sriov/0/group
 	echo 0 > /sys/class/net/$link2/device/sriov/0/group
-	echo 0 > /sys/class/net/enp8s0f0/device/sriov/1/group
-	echo 0 > /sys/class/net/enp8s0f0/device/sriov/2/group
+	echo 0 > /sys/class/net/$link/device/sriov/1/group
+	echo 0 > /sys/class/net/$link/device/sriov/2/group
 }
 
 function rate3

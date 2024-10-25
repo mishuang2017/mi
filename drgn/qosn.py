@@ -83,6 +83,10 @@ def print_mlx5_vport(priv):
                 (vport.qos.sched_node.parent.parent))
 
         if vport.qos.tc.arbiter_node:
+            print("sched_node type: %s, ix: %d" % (type(vport.qos.sched_node.type), vport.qos.sched_node.ix))
+            if vport.qos.sched_node.parent.value_():
+                print("vport.qos.sched_node.parent: %x, type: %s" % \
+                    (vport.qos.sched_node.parent, type(vport.qos.sched_node.parent.type)))
             for i in range(2):
                 node = vport.qos.tc.sched_nodes[i]
                 print("%-35s" % type(node.type), end=' ')
@@ -122,8 +126,8 @@ def print_domain(esw):
             if node2.type.value_() == SCHED_NODE_TYPE_VPORT:
                 vport = node2.vport
                 print("\t---------------")
-                print("\tvport: %d" % vport.vport)
-                print("\t%s" % vport.dev.device.kobj.name)
+                print("\tnode: %x, type: %s, vport: %d" % (node2.value_(), type(node2.type), vport.vport), end=' ')
+                print("\t%s" % vport.dev.device.kobj.name.string_().decode())
             elif node2.type == SCHED_NODE_TYPE_VPORTS_TC_TSAR:
                 print("\tnode: %x, type: %s, ix: %d, tc: %d, max_rate: %d, min_rate: %x, bw_share: %d" % \
                     (node2.value_(), type(node2.type), node2.ix, node2.tc, node2.max_rate, \

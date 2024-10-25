@@ -12659,14 +12659,15 @@ mlx5_esw_devlink_rate_leaf_tc_bw_set
 rate_node_tc_bw_set
 	esw_qos_node_enable_tc_arbitration
 		node->type = SCHED_NODE_TYPE_TC_ARBITER_TSAR
+		esw_qos_copy_vports_node
 		esw_qos_tc_arbiter_scheduling_setup
 			esw_qos_create_tc_arbiter_sched_elem
 				TSAR_ELEMENT_TSAR_TYPE_TC_ARB
 				SCHEDULING_CONTEXT_ELEMENT_TYPE_TSAR
-		esw_qos_create_vports_tc_nodes
-			esw_qos_create_vports_tc_node
-				TSAR_ELEMENT_TSAR_TYPE_DWRR
-				SCHEDULING_CONTEXT_ELEMENT_TYPE_TSAR
+			esw_qos_create_vports_tc_nodes
+				for esw_qos_create_vports_tc_node
+					TSAR_ELEMENT_TSAR_TYPE_DWRR
+					SCHEDULING_CONTEXT_ELEMENT_TYPE_TSAR
 		esw_qos_tc_qos_enable_for_vports_in_node
 			esw_qos_vport_tc_enable
 				esw_qos_vport_tc_prepare
