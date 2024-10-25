@@ -692,7 +692,7 @@ function ethtool-rxvlan-on
 alias restart-virt='systemctl restart libvirtd.service'
 
 # export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
-# export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
 unset PROMPT_COMMAND
@@ -11768,8 +11768,9 @@ function bond_br
 	del-br
 	ovs-vsctl add-br $br
 
-# 	ovs-vsctl add-port $br bond0
-	vxlan1
+	ovs-vsctl add-port $br bond0
+# 	vxlan1
+
 	ifconfig bond0 $link_ip/24
 
 # 	for (( i = 0; i < numvfs; i++)); do
@@ -11781,6 +11782,7 @@ function bond_br
 	ifconfig $rep2 up
 	ovs-vsctl add-port $br $rep1
 	ovs-vsctl add-port $br $rep2
+	ovs-vsctl add-port $br enp8s0f1_0
 # 	ovs-ofctl add-flow $br "in_port=bond0,dl_dst=2:25:d0:13:01:01 action=$rep1"
 
 	up_all_reps 1
@@ -14103,7 +14105,7 @@ set -x
 set +x
 }
 
-function devlink_rate_limit
+function devlink_rate_group
 {
 	local debug=0
 	[[ $# == 1 ]] && debug=1
@@ -14925,15 +14927,6 @@ function build_ctags
 	cd ctags
 	./autogen.sh
 	make-usr
-}
-
-function test10
-{
-	for (( i = 0; i < 20; i ++ )); do
-		sleep 1
-		echo " ====================== $i ======================="
-		python test-all.py --db databases/ofed-5.8/second_db.yaml --from-test test-vf-lag-reload.sh
-	done
 }
 
 function devlink_reload
