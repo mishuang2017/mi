@@ -14409,7 +14409,7 @@ function fs_rate
 function fs_rate_m
 {
 	echo "pci/0000:08:00.0/1" > /sys/class/net/$link2/device/sriov/0/group
-	echo "pci/0000:08:00.1/1" > /sys/class/net/$link/device/sriov/0/group
+	echo "pci/0000:08:00.0/1" > /sys/class/net/$link/device/sriov/0/group
 }
 
 function fs_rate2

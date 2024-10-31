@@ -138,7 +138,7 @@ endfunc
 
 set vb t_vb=     " no visual bell & flas
 
-" set laststatus=2
+set laststatus=2
 
 " highlight Normal term=none cterm=none ctermfg=White ctermbg=Black gui=none guifg=White guibg=Black
 " highlight DiffAdd cterm=none ctermfg=fg ctermbg=Blue gui=none guifg=fg guibg=Blue
