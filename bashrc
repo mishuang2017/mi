@@ -14231,14 +14231,56 @@ function rate_cleanup
 	devlink port fun rate
 }
 
-function rate_group
+function mlxdevm_rate_group
 {
 set -x
 	ethtool -s $link speed 10000 autoneg off
-	rate_cleanup
-	devlink port function rate add pci/$pci/g1 tx_max 1000mbit
-	devlink port function rate set pci/$pci/2 parent g1
-	devlink port fun rate show
+	mlxdevm port function rate add pci/$pci/g1
+	mlxdevm port function rate set pci/$pci/32768 parent g1
+	mlxdevm port function rate set pci/$pci/g1 tx_max 1000
+	mlxdevm port fun rate show
+set +x
+}
+
+function mlxdevm_sf_ets
+{
+set -x
+	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:20 1:0 2:80 3:0 4:0 5:00 6:0 7:0
+set +x
+}
+
+function mlxdevm_sf_ets2
+{
+set -x
+	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+set +x
+}
+
+function mlxdevm_group_ets
+{
+set -x
+	mlxdevm port func rate add pci/$pci/1st_grp
+	mlxdevm port func rate set pci/$pci/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
+	mlxdevm port function rate set pci/$pci/32768 parent 1st_grp
+set +x
+}
+
+function mlxdevm_group_ets2
+{
+set -x
+	mlxdevm port func rate set pci/$pci/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+	mlxdevm port function rate set pci/$pci/32768 noparent
+	mlxdevm port func rate del pci/$pci/1st_grp
+set +x
+}
+
+
+function devlink_group_ets
+{
+set -x
+	devlink port func rate add pci/$pci/1st_grp
+	devlink port func rate set pci/$pci/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
+# 	devlink port function rate set pci/$pci/32768 parent 1st_grp
 set +x
 }
 

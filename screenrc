@@ -1,7 +1,6 @@
 hardstatus alwayslastline
-# hardstatus string '[ %H ][%=%w%=][ %m/%d %c ]'
-hardstatus string "%-w%{= BW}%50>%n %t%{-}%+w%<"
 hardstatus alwayslastline "%{rk}%H %{gk}%c %{yk}%M%d %{wk}%?%-Lw%?%{bw}%n*%f %t%?(%u)%?%{wk}%?%+Lw%?"
+hardstatus string '%{= .g} %H |%=%{K}%{= w}%?%{K}%-Lw%?%{r}(%{W}%{w}%n%{w}*%f%t%?(%u)%?%{r})%{w}%?%{K}%+Lw%?%= %{g}|%{B} %m-%d  %{W}%c %{g} '
 startup_message off
 vbell on
 bind ' ' title

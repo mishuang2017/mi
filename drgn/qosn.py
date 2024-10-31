@@ -116,10 +116,15 @@ def print_domain(esw):
         if os.path.isdir('/sys/class/net/enp8s0f0/device/sriov/groups'):
             print("group id: %#x" % node.group_id, end='\t')
             print("num_vports: %d" % node.num_vports, end='\t')
+            if node.devm.name:
+                print("%5s" % node.devm.name.string_().decode(), end='\t')
+            else:
+                print("%5s" % "", end='\t')
         print("type: %s" % type(node.type), end='\t')
-        print("ix: %d" % node.ix, end='\t')
+#         print("ix: %d" % node.ix, end='\t')
 #         print("group_id: %d" % node.group_id, end='\t')
-        print("%s" % node.esw.dev.device.kobj.name, end='\t')
+        print("%s" % node.esw.dev.device.kobj.name.string_().decode(), end='\t')
+        print("max_rate: %d, min_rate: %x, bw_share: %d" % (node.max_rate, node.min_rate, node.bw_share), end=' ');
         print("parent %x" % node.parent.value_())
 #         print(node)
         for node2 in list_for_each_entry('struct mlx5_esw_sched_node', node.children.address_of_(), 'entry'):

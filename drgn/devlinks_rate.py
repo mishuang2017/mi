@@ -145,6 +145,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
             print(port.devlink_rate.name)
             mlx5_vport = cast("struct mlx5_vport *", port.devlink_rate.priv)
             print("mlx5_vport.vport: %d" % mlx5_vport.vport)
+            print(port.devlink_rate)
 #     for port in list_for_each_entry('struct devlink_port', devlink.port_list.address_of_(), 'list'):
 #         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
