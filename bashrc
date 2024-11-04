@@ -14245,7 +14245,14 @@ set +x
 function mlxdevm_sf_ets
 {
 set -x
-	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:20 1:0 2:80 3:0 4:0 5:00 6:0 7:0
+	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:20 1:10 2:10 3:10 4:10 5:10 6:10 7:20
+set +x
+}
+
+function mlxdevm_show
+{
+set -x
+	mlxdevm port function rate show
 set +x
 }
 
@@ -14259,9 +14266,10 @@ set +x
 function mlxdevm_group_ets
 {
 set -x
-	mlxdevm port func rate add pci/$pci/1st_grp
-	mlxdevm port func rate set pci/$pci/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
-	mlxdevm port function rate set pci/$pci/32768 parent 1st_grp
+	sf_m 1
+	mlxdevm port func rate add pci/$pci/g1
+	mlxdevm port func rate set pci/$pci/g1 tc-bw 0:20 1:0 2:0 3:0 4:0 5:0 6:0 7:80
+	mlxdevm port function rate set pci/$pci/32768 parent g1
 set +x
 }
 
@@ -14270,7 +14278,7 @@ function mlxdevm_group_ets2
 set -x
 	mlxdevm port func rate set pci/$pci/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
 	mlxdevm port function rate set pci/$pci/32768 noparent
-	mlxdevm port func rate del pci/$pci/1st_grp
+	mlxdevm port func rate del pci/$pci/g1
 set +x
 }
 

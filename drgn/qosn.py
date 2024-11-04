@@ -125,7 +125,7 @@ def print_domain(esw):
         print("%s" % node.esw.dev.device.kobj.name.string_().decode(), end='\t')
         print("max_rate: %d, min_rate: %x, bw_share: %d" % (node.max_rate, node.min_rate, node.bw_share), end=' ');
         print("parent %x" % node.parent.value_())
-#         print(node)
+        print(node.devm)
         for node2 in list_for_each_entry('struct mlx5_esw_sched_node', node.children.address_of_(), 'entry'):
             if node2.type.value_() == SCHED_NODE_TYPE_VPORT:
                 vport = node2.vport

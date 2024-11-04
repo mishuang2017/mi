@@ -106,7 +106,7 @@ for mlx5_devm_device in list_for_each_entry('struct mlx5_devm_device', dev_head.
     for mlxdevm_rate_group in list_for_each_entry('struct mlxdevm_rate_group', mlx5_devm_device.device.rate_group_list.address_of_(), 'list'):
         print(mlxdevm_rate_group)
 
-    for mlx5_devm_port in list_for_each_entry('struct mlx5_devm_port', mlx5_devm_device.device.port_list.address_of_(), 'port.list'):
-        print(mlx5_devm_port)
+#     for mlx5_devm_port in list_for_each_entry('struct mlx5_devm_port', mlx5_devm_device.device.port_list.address_of_(), 'port.list'):
+#         print(mlx5_devm_port)
 #         for i in range(8):
 #             print("%x%x%x%x" % mlx5_devm_port.port.dl_port.attrs.switch_id.id[i])
