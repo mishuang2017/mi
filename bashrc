@@ -14165,6 +14165,17 @@ set -x
 set +x
 }
 
+function calltrce_4149525
+{
+	echo 1 > /sys/class/net/enp8s0f0/device/sriov/1/group
+	echo 1 > /sys/class/net/enp8s0f0/device/sriov/2/group
+
+	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
+	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/2/tc_bw
+
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov_numvfs
+}
+
 function devlink_ets
 {
 	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
@@ -14186,8 +14197,9 @@ set -x
 # 	echo 1 > /sys/class/net/enp8s0f0/device/sriov/1/group
 # 	echo 1 > /sys/class/net/enp8s0f0/device/sriov/2/group
 	echo 500 > /sys/class/net/enp8s0f0/device/sriov/1/max_tx_rate
-	echo 100 > /sys/class/net/enp8s0f0/device/sriov/1/min_tx_rate
+# 	echo 100 > /sys/class/net/enp8s0f0/device/sriov/1/min_tx_rate
 	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov/1/max_tx_rate
 set +x
 }
 
@@ -14240,6 +14252,20 @@ set -x
 	mlxdevm port function rate set pci/$pci/g1 tx_max 1000
 	mlxdevm port fun rate show
 set +x
+}
+
+function mlxdevm_4149808
+{
+	mlxdevm port function rate set pci/$pci/32768 tx_max 1000
+	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:20 1:10 2:10 3:10 4:10 5:10 6:10 7:20
+	mlxdevm port function rate set pci/$pci/32768 tx_max 0
+}
+
+function devlink_4149808
+{
+	devlink port function rate set pci/$pci/32768 tx_max 1000
+	devlink port function rate set pci/$pci/32768 tc-bw 0:20 1:10 2:10 3:10 4:10 5:10 6:10 7:20
+	devlink port function rate set pci/$pci/32768 tx_max 0
 }
 
 function mlxdevm_sf_ets

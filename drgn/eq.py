@@ -15,12 +15,12 @@ eq_table = dev = mlx5e_priv.mdev.priv.eq_table
 # print(eq_table.nh)
 print(eq_table.async_eq)
 
-exit(0)
+# exit(0)
 
 # The number is set by "ethtool -L eth0 combined 2"
 for node in radix_tree_for_each(eq_table.comp_eqs.address_of_()):
     eq = Object(prog, 'struct mlx5_eq_comp', address=node[1].value_())
-    print(eq)
+    print(eq.core.eqn)
 
 exit(0)
 
