@@ -30,11 +30,18 @@ def print_mac(mac):
 
 print("\n === vports qos ===\n")
 
-SCHED_NODE_TYPE_VPORTS_TSAR                 = prog['SCHED_NODE_TYPE_VPORTS_TSAR']
-SCHED_NODE_TYPE_VPORT                       = prog['SCHED_NODE_TYPE_VPORT']
-SCHED_NODE_TYPE_RATE_LIMITER                    = prog['SCHED_NODE_TYPE_RATE_LIMITER']
-SCHED_NODE_TYPE_VPORTS_TC_TSAR              = prog['SCHED_NODE_TYPE_VPORTS_TC_TSAR']
-SCHED_NODE_TYPE_TC_ARBITER_TSAR             = prog['SCHED_NODE_TYPE_TC_ARBITER_TSAR']
+#         SCHED_NODE_TYPE_VPORTS_TSAR,
+#         SCHED_NODE_TYPE_VPORT,
+#         SCHED_NODE_TYPE_RATE_LIMITER,
+#         SCHED_NODE_TYPE_VPORT_TC,
+#         SCHED_NODE_TYPE_VPORTS_TC_TSAR,
+#         SCHED_NODE_TYPE_TC_ARBITER_TSAR,
+
+SCHED_NODE_TYPE_VPORTS_TSAR     = prog['SCHED_NODE_TYPE_VPORTS_TSAR']
+SCHED_NODE_TYPE_VPORT           = prog['SCHED_NODE_TYPE_VPORT']
+SCHED_NODE_TYPE_RATE_LIMITER    = prog['SCHED_NODE_TYPE_RATE_LIMITER']
+SCHED_NODE_TYPE_VPORT_TC        = prog['SCHED_NODE_TYPE_VPORT_TC']
+SCHED_NODE_TYPE_VPORTS_TC_TSAR  = prog['SCHED_NODE_TYPE_VPORTS_TC_TSAR']
 SCHED_NODE_TYPE_TC_ARBITER_TSAR = prog['SCHED_NODE_TYPE_TC_ARBITER_TSAR']
 
 def type(type):
@@ -44,10 +51,10 @@ def type(type):
         return "SCHED_NODE_TYPE_VPORT"
     if type == SCHED_NODE_TYPE_RATE_LIMITER:
         return "SCHED_NODE_TYPE_RATE_LIMITER"
+    if type == SCHED_NODE_TYPE_VPORT_TC:
+        return "SCHED_NODE_TYPE_VPORT_TC"
     if type == SCHED_NODE_TYPE_VPORTS_TC_TSAR:
         return "SCHED_NODE_TYPE_VPORTS_TC_TSAR"
-    if type == SCHED_NODE_TYPE_TC_ARBITER_TSAR:
-        return "SCHED_NODE_TYPE_TC_ARBITER_TSAR"
     if type == SCHED_NODE_TYPE_TC_ARBITER_TSAR:
         return "SCHED_NODE_TYPE_TC_ARBITER_TSAR"
 
@@ -75,19 +82,16 @@ def print_mlx5_vport(priv):
         print("vport: %5x" % vport.vport, end=' ')
         print("enabled: %x" % vport.enabled.value_(), end=' ')
         print(vport.qos)
-        if not vport.qos.sched_nodes:
-            node = vport.qos.sched_node
+        node = vport.qos.sched_node
+        print('\n-------')
+        if node:
             print("sched_node type: %s, ix: %d, esw: %x, tx_max: %d, min_rate: %d" % (type(node.type), node.ix, node.esw.value_(), node.max_rate, node.min_rate))
             print("vport.qos.sched_node.parent: %x, type: %s" % (node.parent, type(node.parent.type)))
             print("vport.qos.sched_node.parent.parent: %x" % (node.parent.parent))
 
+        print('\n-------')
         if vport.qos.sched_nodes:
-            print("sched_node type: %s, ix: %d, max_rate: %d, min_rate: %d" % \
-                (type(vport.qos.sched_node.type), vport.qos.sched_node.ix, vport.qos.sched_node.max_rate, vport.qos.sched_node.min_rate))
-            if vport.qos.sched_node.parent.value_():
-                print("vport.qos.sched_node.parent: %x, type: %s" % \
-                    (vport.qos.sched_node.parent, type(vport.qos.sched_node.parent.type)))
-            for i in range(3):
+            for i in range(1):
                 node = vport.qos.sched_nodes[i]
                 print("%-35s" % type(node.type), end=' ')
                 print("node: %x" % node.value_(), end=' ')

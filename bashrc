@@ -14178,7 +14178,7 @@ function calltrce_4149525
 
 function devlink_ets
 {
-	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
+	devlink port function rate set pci/0000:08:00.0/2 tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
 }
 
 function fs_ets
