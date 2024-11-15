@@ -718,8 +718,8 @@ def flow_table(name, table):
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
             print_match(fs_fte, mask)
-            if fs_fte.action.action & 0x40:
-                print("modify_hdr id: %#x" % fs_fte.action.modify_hdr.id)
+            if fs_fte.act_dests.action.action & 0x40:
+                print("modify_hdr id: %#x" % fs_fte.act_dests.action.modify_hdr.id)
             dest_addr = fte.children.address_of_()
             for dest in list_for_each_entry('struct fs_node', dest_addr, 'list'):
                 rule = Object(prog, 'struct mlx5_flow_rule', address=dest.value_())
@@ -752,12 +752,12 @@ def print_fs_dr_rule(fte):
 def print_match(fte, mask):
 #     print_fs_dr_rule(fte)
     print("fs_fte %lx\tflow_source: %x (0: any, 1: uplink: 2: local), refcount: %d" % \
-        (fte.address_of_().value_(), fte.flow_context.flow_source, fte.node.refcount.refs.counter))
+        (fte.address_of_().value_(), fte.act_dests.flow_context.flow_source, fte.node.refcount.refs.counter))
     val = fte.val
 #     print(val)
 #     smac = str(ntohl(hex(val[0])))
     print("%8x: " % fte.index.value_(), end='')
-    tag = fte.flow_context.flow_tag
+    tag = fte.act_dests.flow_context.flow_tag
     if tag:
         print(" flow_tag: %x" % tag, end=' ')
     smac_47_16 = ntohl(val[0].value_())
@@ -948,7 +948,7 @@ def print_match(fte, mask):
         if src_ip:
             print(" dst_ip: %12s" % ipv4(dst_ip), end='')
 
-    print(" action: %4x" % fte.action.action.value_())
+    print(" action: %4x" % fte.act_dests.action.action.value_())
 
 
 ### CT ###

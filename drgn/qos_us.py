@@ -80,17 +80,16 @@ def print_mlx5_vport(priv):
         print_mac(vport.info.mac)
         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
         print("vport: %5x" % vport.vport, end=' ')
-        print("enabled: %x" % vport.enabled.value_(), end=' ')
-        print(vport.qos)
+        print("enabled: %x" % vport.enabled.value_())
+#         print(vport.qos)
         node = vport.qos.sched_node
-        print('\n-------')
+        print('-------')
         if node:
             print("sched_node type: %s, ix: %d, esw: %x, tx_max: %d, min_rate: %d" % (type(node.type), node.ix, node.esw.value_(), node.max_rate, node.min_rate))
             print("vport.qos.sched_node.parent: %x, type: %s" % (node.parent, type(node.parent.type)))
-            print("vport.qos.sched_node.parent.parent: %x" % (node.parent.parent))
 
-        print('\n-------')
         if vport.qos.sched_nodes:
+            print('-------')
             for i in range(1):
                 node = vport.qos.sched_nodes[i]
                 print("%-35s" % type(node.type), end=' ')
@@ -106,8 +105,8 @@ def print_mlx5_vport(priv):
                 print('')
                 if node.parent:
                     print("%-35s" % type(node.parent.parent.type), end=' ')
-                    print("parent parent: %x" % node.parent.parent.value_(), end=' ')
-                print('\n----------------------------------------------')
+                    print("parent parent: %x" % node.parent.parent.value_())
+                print('-----------------------------------------------------------------------------------------------')
         print('')
 
     for node in radix_tree_for_each(vports.address_of_()):
@@ -116,7 +115,7 @@ def print_mlx5_vport(priv):
         print_vport(mlx5_vport)
 
 def print_domain(esw):
-    print("\n === groups ===\n")
+    print(" === groups ===\n")
     for node in list_for_each_entry('struct mlx5_esw_sched_node', esw.qos.domain.nodes.address_of_(), 'entry'):
         print("node: %x" % node, end='\t')
         if os.path.isdir('/sys/class/net/enp8s0f0/device/sriov/groups'):
@@ -152,6 +151,7 @@ def print_domain(esw):
                 print("\tnode: %x, type: %s, ix: %d, tc: %d, max_rate: %d, min_rate: %d, bw_share: %d, vport: %x" % \
                     (node2.value_(), type(node2.type), node2.ix, node2.tc, node2.max_rate, node2.min_rate, node2.bw_share, \
                     node2.vport.value_()))
+        print("")
 print("\n === vports qos port 1 ===\n")
 
 mlx5e_priv = get_mlx5_pf0()

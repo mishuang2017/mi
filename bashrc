@@ -14950,7 +14950,7 @@ set +x
 function meter_rep01
 {
 set -x
-	echo "15000 15000" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "150 150" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 set +x
 }
 
