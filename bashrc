@@ -15211,7 +15211,6 @@ function ipsec2
 function ipsec_software
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-169-100-103" ]] && ip=10.237.169.104
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -15229,9 +15228,13 @@ set -x
 	if (( machine_num == 1 )); then
 		ip1=$link_ip
 		ip2=$link_remote_ip
+		dir1=out
+		dir2=in
 	elif (( machine_num == 2 )); then
-		ip1=$link_ip
-		ip2=$link_remote_ip
+		ip1=$link_remote_ip
+		ip2=$link_ip
+		dir1=in
+		dir2=out
 	fi
 
 	ip xfrm state add src $ip1 dst $ip2 proto esp spi 10001 reqid 100001 \
@@ -15242,9 +15245,10 @@ set -x
 		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
 		sel src $ip2 dst $ip1
 
-	ip xfrm policy add src $ip1 dst $ip2 dir out tmpl src $ip1 dst $ip2 proto esp reqid 100001 mode transport
-	ip xfrm policy add src $ip2 dst $ip1 dir in tmpl src $ip2 dst $ip1 proto esp reqid 100000 mode transport
-	ip xfrm policy add src $ip2 dst $ip1 dir fwd tmpl src $ip2 dst $ip1 proto esp reqid 100000 mode transport
+	ip xfrm policy add src $ip1 dst $ip2 dir $dir1 tmpl src $ip1 dst $ip2 proto esp reqid 100001 mode transport
+	ip xfrm policy add src $ip2 dst $ip1 dir $dir2 tmpl src $ip2 dst $ip1 proto esp reqid 100000 mode transport
+
+# 	ip xfrm policy add src $ip1 dst $ip2 dir fwd tmpl src $ip1 dst $ip2 proto esp reqid 100001 mode transport
 set +x
 }
 
@@ -15300,38 +15304,31 @@ set -x
 	ip -4 address add $link_ip/24 dev enp8s0f0
 
 	if (( machine_num == 1 )); then
-
-		ip xfrm state add src $link_ip dst $link_remote_ip proto esp spi 10001 reqid 100001 \
-			aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
-			sel src $link_ip dst $link_remote_ip offload packet dev enp8s0f0 dir out
-
-		ip xfrm state add src $link_remote_ip dst $link_ip proto esp spi 10000 reqid 100000 \
-			aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
-			sel src $link_remote_ip dst $link_ip offload packet dev enp8s0f0 dir in
-
-		ip xfrm policy add src $link_ip dst $link_remote_ip dir out tmpl src $link_ip dst $link_remote_ip \
-			proto esp reqid 100001 mode transport offload packet dev enp8s0f0
-		ip xfrm policy add src $link_remote_ip dst $link_ip dir in tmpl src $link_remote_ip dst $link_ip \
-			proto esp reqid 100000 mode transport offload packet dev enp8s0f0
-		ip xfrm policy add src $link_remote_ip dst $link_ip dir fwd tmpl src $link_remote_ip dst $link_ip \
-			proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+		ip1=$link_ip
+		ip2=$link_remote_ip
+		dir1=out
+		dir2=in
 	elif (( machine_num == 2 )); then
-
-		ip xfrm state add src $link_remote_ip dst $link_ip proto esp spi 10001 reqid 100001 \
-			aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
-			sel src $link_remote_ip dst $link_ip offload packet dev enp8s0f0 dir in
-
-		ip xfrm state add src $link_ip dst $link_remote_ip proto esp spi 10000 reqid 100000 \
-			aead 'rfc4106(gcm(aes))' 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
-			sel src $link_ip dst $link_remote_ip offload packet dev enp8s0f0 dir out
-
-		ip xfrm policy add src $link_remote_ip dst $link_ip dir in tmpl src $link_remote_ip dst $link_ip \
-			proto esp reqid 100001 mode transport offload packet dev enp8s0f0
-		ip xfrm policy add src $link_ip dst $link_remote_ip dir out tmpl src $link_ip dst $link_remote_ip \
-			proto esp reqid 100000 mode transport offload packet dev enp8s0f0
-		ip xfrm policy add src $link_remote_ip dst $link_ip dir fwd tmpl src $link_ip dst $link_remote_ip \
-			proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+		ip1=$link_remote_ip
+		ip2=$link_ip
+		dir1=in
+		dir2=out
 	fi
+
+	ip xfrm state add src $ip1 dst $ip2 proto esp spi 10001 reqid 100001 \
+		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
+		sel src $ip1 dst $ip2 offload packet dev enp8s0f0 dir $dir1
+
+	ip xfrm state add src $ip2 dst $ip1 proto esp spi 10000 reqid 100000 \
+		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
+		sel src $ip2 dst $ip1 offload packet dev enp8s0f0 dir $dir2
+
+	ip xfrm policy add src $ip1 dst $ip2 dir $dir1 tmpl src $ip1 dst $ip2 \
+		proto esp reqid 100001 mode transport offload packet dev enp8s0f0
+	ip xfrm policy add src $ip2 dst $ip1 dir $dir2 tmpl src $ip2 dst $ip1 \
+		proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+	ip xfrm policy add src $ip2 dst $ip1 dir fwd tmpl src $ip2 dst $ip1 \
+		proto esp reqid 100000 mode transport offload packet dev enp8s0f0
 set +x
 }
 
@@ -15407,7 +15404,6 @@ function ipsec_counters
 function ipsec_crypto
 {
 set -x
-	[[ "$HOSTNAME" == "c-237-169-100-103" ]] && ip=c-237-169-100-104
 	ip xfrm state flush
 	ip xfrm policy flush
 	sleep 1
@@ -15419,45 +15415,30 @@ set -x
 # 	devlink dev eswitch set pci/$pci mode switchdev
 
 	ip address flush enp8s0f0
-	ip -4 address add 172.16.0.1/16 dev enp8s0f0
-# 	ifconfig bond0 172.16.0.1/16 up
+	ip -4 address add $link_ip/16 dev enp8s0f0
 	ip link set enp8s0f0 up
 	ip xfrm state flush
 	ip xfrm policy flush
 
-        ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir out && 
-        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir in &&
-#         ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport &&
-#         ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport &&
-        ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir out tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10000 mode transport  &&
-        ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir in  tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport  &&
-        ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir fwd tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10001 mode transport
-set +x
-	return
+	if (( machine_num == 1 )); then
+		ip1=$link_ip
+		ip2=$link_remote_ip
+		dir1=out
+		dir2=in
+	elif (( machine_num == 2 )); then
+		ip1=$link_remote_ip
+		ip2=$link_ip
+	fi
 
-	ssh root@$ip "
-
-	ip xfrm state flush
-	ip xfrm policy flush
-	sleep 1
-	devlink dev eswitch set pci/$pci mode legacy
-	devlink dev eswitch set pci/$pci encap disable
-
-	ip address flush enp8s0f0
-	ip -4 address add 172.16.0.2/16 dev enp8s0f0
-# 	ifconfig bond0 172.16.0.2/16
-	ip link set enp8s0f0 up
-	ip xfrm state flush
-	ip xfrm policy flush
-
-#         ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir out && 
-#         ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir in &&
-        ip xfrm state add src 172.16.0.2 dst 172.16.0.1 proto esp spi 1001 reqid 10000 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport
-        ip xfrm state add src 172.16.0.1 dst 172.16.0.2 proto esp spi 1000 reqid 10001 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport
-        ip xfrm policy add src 172.16.0.2 dst 172.16.0.1 dir out tmpl src 172.16.0.2 dst 172.16.0.1 proto esp reqid 10000 mode transport
-        ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir in  tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport
-        ip xfrm policy add src 172.16.0.1 dst 172.16.0.2 dir fwd tmpl src 172.16.0.1 dst 172.16.0.2 proto esp reqid 10001 mode transport "
-
+        ip xfrm state add src $ip1 dst $ip2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' \
+		0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir $dir1
+        ip xfrm state add src $ip2 dst $ip1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' \
+		0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir $dir2
+#         ip xfrm state add src $ip1 dst $ip2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport &&
+#         ip xfrm state add src $ip2 dst $ip1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport &&
+        ip xfrm policy add src $ip1 dst $ip2 dir $dir1 tmpl src $ip1 dst $ip2 proto esp reqid 10000 mode transport
+        ip xfrm policy add src $ip2 dst $ip1 dir $dir2  tmpl src $ip2 dst $ip1 proto esp reqid 10001 mode transport
+        ip xfrm policy add src $ip2 dst $ip1 dir fwd tmpl src $ip2 dst $ip1 proto esp reqid 10001 mode transport
 set +x
 }
 
