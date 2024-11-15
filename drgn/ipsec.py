@@ -67,7 +67,7 @@ else:
 
 #     print(ipsec.tx.fc.cnt)
 #     print(ipsec.rx_ipv4.fc.cnt)
-exit(0)
+# exit(0)
 
 def print_net_xfrm_state(net):
     netns_xfrm = net.xfrm
@@ -79,8 +79,9 @@ def print_net_xfrm_state(net):
         print(" --- %d ---\n" % i)
 #         print(x)
         print(x.id)
-        print("x.xso.flags: XFRM_OFFLOAD_IPV6 1, XFRM_OFFLOAD_INBOUND 2, XFRM_OFFLOAD_FULL, 4")
-#         print(x.xso)
+        print(x.xso)
+        print("x.xso.type: XFRM_DEV_OFFLOAD_CRYPTO: 1, XFRM_DEV_OFFLOAD_PACKET: 2")
+        print("x.xso.dir: XFRM_DEV_OFFLOAD_IN: 1, XFRM_DEV_OFFLOAD_OUT: 2")
         i+=1
 
 def print_net_xfrm_policy(net):
