@@ -691,8 +691,8 @@ function ethtool-rxvlan-on
 
 alias restart-virt='systemctl restart libvirtd.service'
 
-# export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
-export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+# export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
 unset PROMPT_COMMAND
@@ -968,8 +968,8 @@ function cloud_linux
 	/bin/cp -f ~cmi/mi/config .config
 	sml
 	if [[ -n $branch ]]; then
-# 		git checkout v$branch -b $branch && make-all all
-		git checkout $branch && make-all all
+		git checkout v$branch -b $branch && make-all all
+# 		git checkout $branch && make-all all
 	else
 		make-all all
 	fi
@@ -14950,7 +14950,7 @@ set +x
 function meter_rep01
 {
 set -x
-	echo "150 150" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
+	echo "1500 1500" > /sys/class/net/enp8s0f0_1/rep_config/miss_rl_cfg
 set +x
 }
 
@@ -15318,6 +15318,8 @@ set -x
 	ip xfrm state add src $ip1 dst $ip2 proto esp spi 10001 reqid 100001 \
 		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
 		sel src $ip1 dst $ip2 offload packet dev enp8s0f0 dir $dir1
+set +x
+	return
 
 	ip xfrm state add src $ip2 dst $ip1 proto esp spi 10000 reqid 100000 \
 		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
@@ -15701,3 +15703,21 @@ set +x
 }
 
 alias reset='git commit --amend --reset-author'
+
+function vf_meter
+{
+	echo 10000 > /sys/class/net/enp8s0f0/device/sriov/1/meters/tx/pps/burst
+	echo 10000 > /sys/class/net/enp8s0f0/device/sriov/1/meters/tx/pps/rate
+
+	echo 10000 > /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/pps/burst
+	echo 10000 > /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/pps/rate
+}
+
+function vf_meter2
+{
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov/1/meters/tx/pps/burst
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov/1/meters/tx/pps/rate
+
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/pps/burst
+	echo 0 > /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/pps/rate
+}

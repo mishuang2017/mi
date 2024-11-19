@@ -12699,8 +12699,13 @@ rate_node_tc_bw_set
 					mlx5_destroy_scheduling_element_cmd(vports_tc_node->ix)
 			mlx5_destroy_scheduling_element_cmd(tc_arbiter_node->ix)
 
-==rep_meter===
+==rep meter===
 
 miss_rl_cfg_store
+
+==vf meter===
+
+vf_meter_common_store
+
 
 
