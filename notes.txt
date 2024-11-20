@@ -12652,6 +12652,10 @@ mlx5_esw_devlink_rate_parent_set
 
 ==ets===
 
+mlxconfig -d /dev/mst/mt41692_pciconf1 q | grep NUM_OF_TC
+        NUM_OF_TC_P1                                _8_TCs(0)
+        NUM_OF_TC_P2                                _8_TCs(0)  
+
 python3 /mswg/projects/fw/fw_ver/hca_fw_tools/vqos_tree/execute.py -d /dev/mst/mt4125_pciconf0
 
 mlx5_esw_devlink_rate_leaf_tc_bw_set

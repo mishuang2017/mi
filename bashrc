@@ -693,6 +693,7 @@ alias restart-virt='systemctl restart libvirtd.service'
 
 export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 # export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
 unset PROMPT_COMMAND
@@ -15318,8 +15319,8 @@ set -x
 	ip xfrm state add src $ip1 dst $ip2 proto esp spi 10001 reqid 100001 \
 		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
 		sel src $ip1 dst $ip2 offload packet dev enp8s0f0 dir $dir1
-set +x
-	return
+# set +x
+# 	return
 
 	ip xfrm state add src $ip2 dst $ip1 proto esp spi 10000 reqid 100000 \
 		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
