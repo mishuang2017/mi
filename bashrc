@@ -3946,7 +3946,7 @@ function tc_vxlan1
 set -x
 	$TC filter add dev $link protocol ip  parent ffff: prio 1 flower $offload \
 		src_mac $local_vm_mac		\
-		dst_mac $remote_vm_mac			\
+		dst_mac $remote_vm_mac		\
 		action tunnel_key set		\
 		src_ip $link_ip			\
 		dst_ip $link_remote_ip		\
@@ -15431,6 +15431,8 @@ set -x
 	elif (( machine_num == 2 )); then
 		ip1=$link_remote_ip
 		ip2=$link_ip
+		dir1=in
+		dir2=out
 	fi
 
         ip xfrm state add src $ip1 dst $ip2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' \

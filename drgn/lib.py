@@ -718,10 +718,10 @@ def flow_table(name, table):
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
 
-#            act_dests = fs_fte.act_dests
-            act_dests = fs_fte
+            act_dests = fs_fte.act_dests
+#             act_dests = fs_fte
             print_match(fs_fte, mask)
-            if fs_fte.action.action & 0x40:
+            if act_dests.action.action & 0x40:
                 print("modify_hdr id: %#x" % act_dests.action.modify_hdr.id)
             dest_addr = fte.children.address_of_()
             for dest in list_for_each_entry('struct fs_node', dest_addr, 'list'):
@@ -753,8 +753,8 @@ def print_fs_dr_rule(fte):
 #     print(fte.fs_dr_rule.dr_actions[1])
 
 def print_match(fte, mask):
-#    act_dests = fte.act_dest
-    act_dests = fte
+    act_dests = fte.act_dests
+#     act_dests = fte
 
 #     print_fs_dr_rule(fte)
     print("fs_fte %lx\tflow_source: %x (0: any, 1: uplink: 2: local), refcount: %d" % \
