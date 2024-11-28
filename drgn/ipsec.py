@@ -48,18 +48,18 @@ else:
     print("\n======================== switchdev ===========================\n")
     tx = ipsec.tx_esw
     rx = ipsec.rx_esw
-    # print(tx)
+#     # print(tx)
     print("\n--- policy ---\n")
-    flow_table("ipsec.tx.pol", tx.ft.pol)
-    flow_table("ipsec.rx.pol", rx.ft.pol)
+#     flow_table("ipsec.tx.pol", tx.ft.pol)
+#     flow_table("ipsec.rx.pol", rx.ft.pol)
 
     print("\n--- stat ---\n")
-    flow_table("ipsec.tx.sa", tx.ft.sa)
-    flow_table("ipsec.rx.sa", rx.ft.sa)
+#     flow_table("ipsec.tx.sa", tx.ft.sa)
+#     flow_table("ipsec.rx.sa", rx.ft.sa)
 
     print("\n--- status ---\n")
-    flow_table("ipsec.tx.status", tx.ft.status)
-    flow_table("ipsec.rx.status", rx.ft.status)
+#     flow_table("ipsec.tx.status", tx.ft.status)
+#     flow_table("ipsec.rx.status", rx.ft.status)
 
 #     print("\n--- fc ---\n")
 #     print(tx.fc.cnt)

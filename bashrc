@@ -339,7 +339,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_24_10;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_01;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_24_10'
@@ -1000,7 +1000,7 @@ function cloud_setup
 	if (( build_kernel == 1 )); then
 		cloud_linux $branch
 	fi
-	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_24_10
+	clone-ofed
 	smm
 	rebase
 
@@ -7462,6 +7462,10 @@ function tm
 		return
 	fi
 
+	if [ ! -f ~/.tmux.conf ]; then
+		return
+	fi
+
 	$cmd has -t $session
 
 	if [ $? != 0 ]; then
@@ -9132,6 +9136,7 @@ alias ofed-configure-4.1="./configure -j --kernel-version 4.1 --kernel-sources /
 
 alias vi_m4='vi compat/config/rdma.m4'
 
+alias ofed-configure-4.4="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.4 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.4-rc6 "
 alias ofed-configure-4.8="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.8 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.8-rc4 "
 alias ofed-configure-4.9="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.9 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.9 "
 alias ofed-configure-4.10="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.10 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.10-IRQ_POLL-OFF "
@@ -14257,6 +14262,7 @@ set +x
 
 function mlxdevm_4149808
 {
+	sf_m 1
 	mlxdevm port function rate set pci/$pci/32768 tx_max 1000
 	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:20 1:10 2:10 3:10 4:10 5:10 6:10 7:20
 	mlxdevm port function rate set pci/$pci/32768 tx_max 0
@@ -15435,15 +15441,17 @@ set -x
 		dir2=out
 	fi
 
+	mode=transport
+	mode=tunnel
         ip xfrm state add src $ip1 dst $ip2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' \
-		0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport offload dev enp8s0f0 dir $dir1
+		0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode $mode offload dev enp8s0f0 dir $dir1
         ip xfrm state add src $ip2 dst $ip1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' \
-		0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport offload dev enp8s0f0 dir $dir2
-#         ip xfrm state add src $ip1 dst $ip2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode transport &&
-#         ip xfrm state add src $ip2 dst $ip1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode transport &&
-        ip xfrm policy add src $ip1 dst $ip2 dir $dir1 tmpl src $ip1 dst $ip2 proto esp reqid 10000 mode transport
-        ip xfrm policy add src $ip2 dst $ip1 dir $dir2  tmpl src $ip2 dst $ip1 proto esp reqid 10001 mode transport
-        ip xfrm policy add src $ip2 dst $ip1 dir fwd tmpl src $ip2 dst $ip1 proto esp reqid 10001 mode transport
+		0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode $mode offload dev enp8s0f0 dir $dir2
+#         ip xfrm state add src $ip1 dst $ip2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode $mode &&
+#         ip xfrm state add src $ip2 dst $ip1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode $mode &&
+        ip xfrm policy add src $ip1 dst $ip2 dir $dir1 tmpl src $ip1 dst $ip2 proto esp reqid 10000 mode $mode
+        ip xfrm policy add src $ip2 dst $ip1 dir $dir2  tmpl src $ip2 dst $ip1 proto esp reqid 10001 mode $mode
+        ip xfrm policy add src $ip2 dst $ip1 dir fwd tmpl src $ip2 dst $ip1 proto esp reqid 10001 mode $mode
 set +x
 }
 
