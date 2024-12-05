@@ -81,16 +81,16 @@ def print_mlx5_vport(priv):
         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
         print("vport: %5x" % vport.vport, end=' ')
         print("enabled: %x" % vport.enabled.value_())
-#         print(vport.qos)
+        print(vport.qos)
         node = vport.qos.sched_node
         print('-------')
         if node:
             print("sched_node type: %s, ix: %d, esw: %x, tx_max: %d, min_rate: %d" % (type(node.type), node.ix, node.esw.value_(), node.max_rate, node.min_rate))
-            print("vport.qos.sched_node.parent: %x, type: %s" % (node.parent, type(node.parent.type)))
+            print("sched_node.parent: %x, type: %s" % (node.parent, type(node.parent.type)))
 
         if vport.qos.sched_nodes:
             print('-------')
-            for i in range(1):
+            for i in range(2):
                 node = vport.qos.sched_nodes[i]
                 print("%-35s" % type(node.type), end=' ')
                 print("node: %x" % node.value_(), end=' ')
@@ -148,8 +148,8 @@ def print_domain(esw):
                         node3.vport.value_()))
             elif node2.type == SCHED_NODE_TYPE_TC_ARBITER_TSAR:
                 print("\t---------------")
-                print("\tnode: %x, type: %s, ix: %d, tc: %d, max_rate: %d, min_rate: %d, bw_share: %d, vport: %x" % \
-                    (node2.value_(), type(node2.type), node2.ix, node2.tc, node2.max_rate, node2.min_rate, node2.bw_share, \
+                print("\tnode: %x, type: %s, ix: %d, max_rate: %d, min_rate: %d, bw_share: %d, vport: %x" % \
+                    (node2.value_(), type(node2.type), node2.ix, node2.max_rate, node2.min_rate, node2.bw_share, \
                     node2.vport.value_()))
         print("")
 print("\n === vports qos port 1 ===\n")

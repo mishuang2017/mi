@@ -1902,7 +1902,7 @@ function mi
 	test -f LINUX_BASE_BRANCH || return
 	make -j $cpu_num2 || return
 	sudo make install_kernel -j $cpu_num2
-	sudo systemctl stop mlx-regex
+# 	sudo systemctl stop mlx-regex
 	sudo /etc/init.d/openibd force-stop
 	reprobe
 # 	force-start
@@ -6943,6 +6943,7 @@ set -x
 	sfnum=$2
 	sf_device=mlx5_core.sf.$((sfnum+1))
 	sf_name=en8f0pf0sf$sfnum
+# 	sf_name=enp8s0f0npf0sf1
 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum $sfnum
 	(( debug == 1 )) && read
@@ -14252,6 +14253,7 @@ function rate_cleanup
 function mlxdevm_rate_group
 {
 set -x
+	sf_m 1
 	ethtool -s $link speed 10000 autoneg off
 	mlxdevm port function rate add pci/$pci/g1
 	mlxdevm port function rate set pci/$pci/32768 parent g1
@@ -14309,7 +14311,7 @@ set +x
 function mlxdevm_group_ets2
 {
 set -x
-	mlxdevm port func rate set pci/$pci/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+	mlxdevm port func rate set pci/$pci/g1 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
 	mlxdevm port function rate set pci/$pci/32768 noparent
 	mlxdevm port func rate del pci/$pci/g1
 set +x
