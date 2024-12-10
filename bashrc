@@ -14250,7 +14250,7 @@ function rate_cleanup
 	devlink port fun rate
 }
 
-function mlxdevm_rate_group
+function devm_rate_group
 {
 set -x
 	sf_m 1
@@ -14262,7 +14262,31 @@ set -x
 set +x
 }
 
-function mlxdevm_4149808
+
+function devm_4197006
+{
+	sf_m
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate add pci/0000:08:00.0/group1
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate add pci/0000:08:00.0/group2
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32769 parent group2
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/group1 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/group2 tc-bw 0:30 1:70 2:0 3:0 4:0 5:0 6:0 7:0
+
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
+}
+
+function devm_4196328
+{
+	sf_m 1
+	mlxdevm port function rate add pci/$pci/g1
+	mlxdevm port function rate set pci/$pci/32768 parent g1
+	mlxdevm port function rate set pci/$pci/g1 tx_max 10000
+	mlxdevm port function rate set pci/$pci/g1 tc-bw 0:20 1:10 2:10 3:10 4:10 5:10 6:10 7:20
+	mlxdevm port function rate set pci/$pci/g1 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+}
+
+function devm_4149808
 {
 	sf_m 1
 	mlxdevm port function rate set pci/$pci/32768 tx_max 1000
@@ -14277,28 +14301,28 @@ function devlink_4149808
 	devlink port function rate set pci/$pci/32768 tx_max 0
 }
 
-function mlxdevm_sf_ets
+function devm_sf_ets
 {
 set -x
 	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:20 1:10 2:10 3:10 4:10 5:10 6:10 7:20
 set +x
 }
 
-function mlxdevm_show
+function devm_show
 {
 set -x
 	mlxdevm port function rate show
 set +x
 }
 
-function mlxdevm_sf_ets2
+function devm_sf_ets2
 {
 set -x
 	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
 set +x
 }
 
-function mlxdevm_group_ets
+function devm_group_ets
 {
 set -x
 	sf_m 1
@@ -14308,7 +14332,7 @@ set -x
 set +x
 }
 
-function mlxdevm_group_ets2
+function devm_group_ets2
 {
 set -x
 	mlxdevm port func rate set pci/$pci/g1 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
@@ -14317,6 +14341,84 @@ set -x
 set +x
 }
 
+function devm_group_sf_ets
+{
+set -x
+	sf_m 1
+	mlxdevm port func rate add pci/$pci/g1
+	mlxdevm port func rate set pci/$pci/32768 tc-bw 0:20 1:0 2:0 3:0 4:0 5:0 6:0 7:80
+	mlxdevm port function rate set pci/$pci/32768 parent g1
+set +x
+}
+
+function devm_group_sf_ets2
+{
+set -x
+	mlxdevm port func rate set pci/$pci/32768 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+# 	mlxdevm port function rate set pci/$pci/32768 noparent
+	mlxdevm port func rate del pci/$pci/g1
+set +x
+}
+
+function devm_4196456
+{
+set -x
+	sf_m 1
+	mlxdevm port func rate add pci/$pci/g1
+	mlxdevm port func rate set pci/$pci/g1 tc-bw 0:20 1:0 2:0 3:0 4:0 5:0 6:0 7:80
+	mlxdevm port function rate set pci/$pci/32768 parent g1
+	mlxdevm port del pci/$pci/32768
+	mlxdevm port func rate del pci/$pci/g1
+set +x
+}
+
+function devm_4196688
+{
+	m=1
+	[[ $# == 1 ]] && m=$1
+	for (( j = 0; j < m; j++ )); do
+		echo $i
+		echo $m
+		echo "=========================================== $j ==========================================="
+		sf_m 1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate add pci/0000:08:00.0/group1
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tx_max 5000 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/group1 tx_max 10000
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tx_max 0 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tx_max 5000 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 noparent
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port del pci/0000:08:00.0/32768
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function set pci/0000:08:00.0/32768 hw_addr 6a:32:51:5f:13:a6 state active
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		sleep 0.1
+		/opt/mellanox/iproute2/sbin/mlxdevm port function rate del pci/0000:08:00.0/group1
+		sleep 1
+	done
+}
 
 function devlink_group_ets
 {
@@ -14324,6 +14426,13 @@ set -x
 	devlink port func rate add pci/$pci/1st_grp
 	devlink port func rate set pci/$pci/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
 # 	devlink port function rate set pci/$pci/32768 parent 1st_grp
+set +x
+}
+
+function devlink_group_ets2
+{
+set -x
+	devlink port func rate set pci/$pci/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
 set +x
 }
 

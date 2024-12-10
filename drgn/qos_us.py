@@ -90,15 +90,30 @@ def print_mlx5_vport(priv):
 
         if vport.qos.sched_nodes:
             print('-------')
-            for i in range(2):
-                node = vport.qos.sched_nodes[i]
+            print("vport.qos.vport.qos.sched_node.children")
+            i = 0
+            for node in list_for_each_entry('struct mlx5_esw_sched_node', vport.qos.sched_node.children.address_of_(), 'entry'):
                 print("%-35s" % type(node.type), end=' ')
                 print("node: %x" % node.value_(), end=' ')
                 print("tc: %d" % node.tc, end=' ')
+                print("ix: %d" % node.ix, end=' ')
+                print('')
+                i += 1
+                if i == 2:
+                    break
+            print('-------')
+            for i in range(2):
+                node = vport.qos.sched_nodes[i]
+                print("vports.qos.sched_nods[%d]" % i, end=' ')
+                print("%-35s" % type(node.type), end=' ')
+                print("node: %x" % node.value_(), end=' ')
+                print("tc: %d" % node.tc, end=' ')
+                print("ix: %d" % node.ix, end=' ')
                 print('')
                 print("%-35s" % type(node.parent.type), end=' ')
                 print("parent: %x" % node.parent.value_(), end=' ')
                 print("tc: %d" % node.parent.tc, end=' ')
+                print("user_bw_share: %d" % node.parent.user_bw_share, end=' ')
                 print("bw_share: %d" % node.parent.bw_share, end=' ')
                 print("max_rate: %d" % node.parent.max_rate, end=' ')
                 print("min_rate: %d" % node.parent.min_rate, end=' ')
@@ -123,7 +138,7 @@ def print_domain(esw):
             print("num_vports: %d" % node.num_vports, end='\t')
             if node.devm.name:
                 print("%5s" % node.devm.name.string_().decode(), end='\t')
-                print(node.devm)
+#                 print(node.devm)
             else:
                 print("%5s" % "", end='\t')
         print("type: %s" % type(node.type), end='\t')
