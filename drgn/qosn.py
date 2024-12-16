@@ -87,7 +87,7 @@ def print_mlx5_vport(priv):
             if vport.qos.sched_node.parent.value_():
                 print("vport.qos.sched_node.parent: %x, type: %s" % \
                     (vport.qos.sched_node.parent, type(vport.qos.sched_node.parent.type)))
-            for i in range(3):
+            for i in range(2):
                 node = vport.qos.tc.sched_nodes[i]
                 print("%-35s" % type(node.type), end=' ')
                 print("node: %x" % node.value_(), end=' ')
@@ -121,7 +121,7 @@ def print_domain(esw):
             print("num_vports: %d" % node.num_vports, end='\t')
             if node.devm.name:
                 print("%5s" % node.devm.name.string_().decode(), end='\t')
-                print(node.devm)
+#                 print(node.devm)
             else:
                 print("%5s" % "", end='\t')
         print("type: %s" % type(node.type), end='\t')

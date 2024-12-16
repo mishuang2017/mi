@@ -90,7 +90,7 @@ def print_mlx5_vport(priv):
 
         if vport.qos.sched_nodes:
             print('-------')
-            print("vport.qos.vport.qos.sched_node.children")
+            print("vport.qos.sched_node.children")
             i = 0
             for node in list_for_each_entry('struct mlx5_esw_sched_node', vport.qos.sched_node.children.address_of_(), 'entry'):
                 print("%-35s" % type(node.type), end=' ')

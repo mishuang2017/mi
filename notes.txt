@@ -12544,6 +12544,9 @@ cmd_port_fn_rate_add
                                   opts->rate_node_name);
         }
 
+
+mnlu_gen_socket_sndrcv
+
 kernel:
 
 devlink_nl_ops
@@ -12710,6 +12713,13 @@ miss_rl_cfg_store
 ==vf meter===
 
 vf_meter_common_store
+
+==hmfs===
+
+mlx5hws_action_type
+
+mlx5hws_action_create_dest_vport
+
 
 
 

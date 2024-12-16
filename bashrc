@@ -12897,6 +12897,12 @@ set -x
 set +x
 }
 
+function hmfs
+{
+	devlink dev param set pci/$pci name flow_steering_mode value "hmfs" \
+		cmode runtime || echo "Failed to set hmfs"
+}
+
 function dmfs
 {
 	if (( ofed == 1 )); then
@@ -14188,6 +14194,11 @@ function devlink_ets
 	devlink port function rate set pci/0000:08:00.0/2 tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
 }
 
+function devlink_ets2
+{
+	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+}
+
 function fs_ets
 {
 	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/groups/1/tc_bw
@@ -14213,11 +14224,6 @@ set +x
 function fs_vf_ets2
 {
 	echo " 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
-}
-
-function devlink_ets2
-{
-	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
 }
 
 function rate_sysfs_55
@@ -14250,6 +14256,18 @@ function rate_cleanup
 	devlink port fun rate
 }
 
+function devlink_syndrome
+{
+set -x
+	devlink port function rate add pci/$pci/g1
+	devlink port function rate set pci/$pci/2 parent g1
+	devlink port function rate set pci/$pci/g1 tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
+	devlink port fun rate show
+	read
+	devlink port function rate set pci/$pci/g1 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+set +x
+}
+
 function devm_rate_group
 {
 set -x
@@ -14262,6 +14280,35 @@ set -x
 set +x
 }
 
+function devm_rate_group_different_esw
+{
+set -x
+	sf_m 1
+	mlxdevm port function rate add pci/$pci2/g1
+	mlxdevm port function rate set pci/$pci/32768 parent g1
+set +x
+}
+
+
+function devm_4196432
+{
+# pci/0000:12:00.0/group1: type node tx_max 10000 tx_share 0 tc_0 bw 50 tc_1 bw 50
+# pci/0000:12:00.0/32768: type leaf tx_max 5000 tx_share 0 tc_0 bw 70 tc_1 bw 30
+# pci/0000:12:00.0/32769: type leaf tx_max 0 tx_share 0 parent group1
+# pci/0000:12:00.0/32770: type leaf tx_max 0 tx_share 0
+# pci/0000:12:00.1/98304: type leaf tx_max 0 tx_share 0
+# pci/0000:12:00.1/98305: type leaf tx_max 0 tx_share 0
+# pci/0000:12:00.1/98306: type leaf tx_max 0 tx_share 0
+
+# /opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:12:00.0/32769 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
+
+# /opt/mellanox/iproute2/sbin/mlxdevm  port function rate show
+	sf_m
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate add pci/0000:08:00.0/group1
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32769 parent group1
+	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32769 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
+}
 
 function devm_4197006
 {
@@ -14319,6 +14366,24 @@ function devm_sf_ets2
 {
 set -x
 	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+set +x
+}
+
+alias qostree='python3 /mswg/projects/fw/fw_ver/hca_fw_tools/vqos_tree/execute.py -d /dev/mst/mt4129_pciconf0'
+
+function devm_4210136
+{
+set -x
+	sf_m
+	mlxdevm port func rate add pci/$pci/g1
+
+	mlxdevm port function rate set pci/$pci/32768 tx_max 30000
+	mlxdevm port function rate set pci/$pci/32769 tx_max 30000
+
+	mlxdevm port function rate set pci/$pci/32768 parent g1
+	mlxdevm port function rate set pci/$pci/32769 parent g1
+
+	mlxdevm port func rate set pci/$pci/g1 tc-bw 0:30 1:70 2:0 3:0 4:0 5:0 6:0 7:0
 set +x
 }
 
