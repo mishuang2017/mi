@@ -22,6 +22,11 @@ print(crash_file)
 
 # from lib_pedit import print_mod_hdr_key
 
+def fs_fte_action_exists():
+    if type_exist("struct fs_fte_action"):
+        return true
+    return false
+
 def kernel(name):
     b = os.popen('uname -r')
     text = b.read()
@@ -718,8 +723,10 @@ def flow_table(name, table):
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
 
-            act_dests = fs_fte.act_dests
-#             act_dests = fs_fte
+            if fs_fte_action_exists():
+                act_dests = fs_fte.act_dests
+            else:
+                act_dests = fs_fte
             print_match(fs_fte, mask)
             if act_dests.action.action & 0x40:
                 print("modify_hdr id: %#x" % act_dests.action.modify_hdr.id)
@@ -753,8 +760,10 @@ def print_fs_dr_rule(fte):
 #     print(fte.fs_dr_rule.dr_actions[1])
 
 def print_match(fte, mask):
-    act_dests = fte.act_dests
-#     act_dests = fte
+    if fs_fte_action_exists():
+        act_dests = fte.act_dests
+    else:
+        act_dests = fte
 
 #     print_fs_dr_rule(fte)
     print("fs_fte %lx\tflow_source: %x (0: any, 1: uplink: 2: local), refcount: %d" % \

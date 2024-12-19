@@ -21,7 +21,7 @@ static void test_list(void)
 	a.v = 1;
 	list_add(&a.list, &head);
 	b.v = 2;
-	list_add_tail(&b.list, &head);
+	list_add(&b.list, &a.list);
 
 	list_for_each_entry(n, &head, list) {
 		pr_info("%d\n", n->v);
