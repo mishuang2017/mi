@@ -24,8 +24,8 @@ print(crash_file)
 
 def fs_fte_action_exists():
     if type_exist("struct fs_fte_action"):
-        return true
-    return false
+        return True
+    return False
 
 def kernel(name):
     b = os.popen('uname -r')
@@ -716,9 +716,9 @@ def flow_table(name, table):
 #         print_mlx5_flow_group_dr(mlx5_flow_group)
         match_criteria_enable = mlx5_flow_group.mask.match_criteria_enable
         mask = mlx5_flow_group.mask.match_criteria
-        print("mlx5_flow_group %lx, id: %d, match_criteria_enable: %#x, refcount: %d, max_ftes: %d" % \
+        print("mlx5_flow_group %lx, id: %d, match_criteria_enable: %#x, refcount: %d, max_ftes: %d, start_index: %#x" % \
             (group, mlx5_flow_group.id, match_criteria_enable, \
-             mlx5_flow_group.node.refcount.refs.counter, mlx5_flow_group.max_ftes))
+             mlx5_flow_group.node.refcount.refs.counter, mlx5_flow_group.max_ftes, mlx5_flow_group.start_index))
         fte_addr = group.children.address_of_()
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())

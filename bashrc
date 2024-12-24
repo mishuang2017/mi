@@ -1588,10 +1588,10 @@ set -x
 	sudo echo 0 > /proc/sys/fs/suid_dumpable
 	# otherwise, will hit this error
 	# Aug 23 09:31:51 c-237-175-60-063 ovs-ctl[4478]: ==4478==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
-	sudo pip install ovs-sphinx-theme docutils
+# 	sudo pip install ovs-sphinx-theme docutils
 
 # 	sudo pip uninstall docutils
-	sudo pip install docutils==0.17.0
+# 	sudo pip install docutils==0.17.0
 # 
         sudo make clean
         ./boot.sh
@@ -2071,8 +2071,8 @@ set -x
 
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
-	$TC filter add dev $rep2 prio 48856 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3 \
-		action mirred egress redirect dev $rep1
+	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+# 		action mirred egress redirect dev $rep1
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 # set +x
