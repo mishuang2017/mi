@@ -1506,6 +1506,7 @@ function reprobe
 {
 set -x
 #	sudo /etc/init.d/openibd stop
+	sudo modprobe -r mlx5_fwctl
 	sudo modprobe -r cls_flower
 	sudo modprobe -r mlx5_fpga_tools
 	sudo modprobe -r mlx5_vdpa
@@ -14792,6 +14793,7 @@ function cloud_setup
 	sm
 	clone-drgn
 	cd drgn
+	git reset --hard 92023c5b
 	sudo ./setup.py build
 	sudo ./setup.py install
 

@@ -31,13 +31,13 @@ print("enabled_vports: %d" % enabled_vports)
 
 i=1
 for node in radix_tree_for_each(vports):
-    print("=== %d ===" % i)
-    i=i+1
     mlx5_eswitch_rep = Object(prog, 'struct mlx5_eswitch_rep', address=node[1].value_())
-#     if mlx5_eswitch_rep.vport == 0xffff:
-    print("port: %x" % mlx5_eswitch_rep.vport)
-    print(mlx5_eswitch_rep.rep_data[0].priv)
-#     print(mlx5_eswitch_rep.rep_data[1])
+    if mlx5_eswitch_rep.vport == 0xffff:
+        print("=== %d ===" % i)
+        print("port: %x" % mlx5_eswitch_rep.vport)
+        print(mlx5_eswitch_rep.rep_data[0])
+        print(mlx5_eswitch_rep.rep_data[1])
+    i=i+1
 
 exit(0)
 print("========================== port 2 ================================")
