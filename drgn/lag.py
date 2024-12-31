@@ -28,6 +28,8 @@ for name in pf0_name,:
     mlx5e_priv = get_mlx5e_priv(name)
     mlx5_lag = mlx5e_priv.mdev.priv.lag
 
+    print(mlx5_lag)
+
     print('-------------')
     MLX5_LAG_MODE_ROCE = prog['MLX5_LAG_MODE_ROCE']
     MLX5_LAG_MODE_SRIOV = prog['MLX5_LAG_MODE_SRIOV']
@@ -50,7 +52,7 @@ for name in pf0_name,:
     print(mlx5_lag.pf[0])
     print(mlx5_lag.pf[1])
     print("mlx5_lag.ports: %d" % mlx5_lag.ports)
-    print(mlx5_lag)
+    print(mlx5_lag.mode)
 #     print("mlx5_lag %x, flags: %x" % (mlx5_lag, mlx5_lag.flags))
 #     print_fib_info(mlx5_lag.lag_mp.mfi)
     print('')

@@ -927,7 +927,7 @@ function cloud_setup0
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-	apt install -y cscope tmux screen exuberant-ctags bison
+	apt install -y cscope tmux screen exuberant-ctags bison flex automake
 	yum install -y cscope tmux screen ctags
 }
 
@@ -14290,6 +14290,18 @@ set -x
 set +x
 }
 
+function devm_4204932
+{
+	sf_m
+
+	mlxdevm port func rate set pci/0000:08:00.0/32768 tx_max 30000
+	mlxdevm port func rate set pci/0000:08:00.0/32769 tx_max 30000
+	mlxdevm port func rate add pci/0000:08:00.0/group1
+	mlxdevm port func rate set pci/0000:08:00.0/group1 tx_max 40000
+	mlxdevm port func rate set pci/0000:08:00.0/32768 parent group1
+	mlxdevm port func rate set pci/0000:08:00.0/32769 parent group1
+	mlxdevm port func rate set pci/0000:08:00.0/group1 tc-bw 0:30 1:40 2:30 3:0 4:0 5:0 6:0 7:0
+}
 
 function devm_4196432
 {
