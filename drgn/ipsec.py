@@ -48,7 +48,7 @@ else:
     print("\n======================== switchdev ===========================\n")
     tx = ipsec.tx_esw
     rx = ipsec.rx_esw
-#     # print(tx)
+    print(tx.ft)
     print("\n--- policy ---\n")
 #     flow_table("ipsec.tx.pol", tx.ft.pol)
 #     flow_table("ipsec.rx.pol", rx.ft.pol)

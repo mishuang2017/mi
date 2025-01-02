@@ -9192,10 +9192,11 @@ alias ofed-configure-rhel-8.4="./configure --with-mlx5-core-and-ib-and-en-mod --
 alias ofed-configure-rhel-8.5="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-372.9.1.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-372.9.1.el8.x86_64 "
 alias ofed-configure-rhel-9.1="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version linux-5.14.0-162.6.1.el9_1.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.14.0-162.6.1.el9_1.x86_64 "
 
-function ofed_configure
+function ofed_all
 {
 # 	smm
-	./configure $(cat /etc/infiniband/info  | grep Configure | cut -d : -f 2 | sed 's/"//') -j $cpu_num2
+	./configure --all -j $cpu_num2
+	mi
 }
 
 function ofed_install
