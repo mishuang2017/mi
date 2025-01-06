@@ -15486,6 +15486,7 @@ function ipsec_packet
 {
 set -x
 	offload=true
+	link0=$link
 	[[ $# == 1 ]] && offload=false
 
 	ip xfrm state flush
@@ -15495,12 +15496,6 @@ set -x
 # 	devlink dev eswitch set pci/$pci encap disable
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
 	devlink dev eswitch set pci/$pci mode switchdev
-	ip address flush enp8s0f0
-	ip link set enp8s0f0 up
-	ip xfrm state flush
-	ip xfrm policy flush
-	ip -4 address add $link_ip/24 dev enp8s0f0
-
 	if (( machine_num == 1 )); then
 		ip1=$link_ip
 		ip2=$link_remote_ip
@@ -15513,22 +15508,30 @@ set -x
 		dir2=out
 	fi
 
+	(( bf == 1 )) && link0=p0
+
+	ip address flush $link0
+	ip link set $link0 up
+	ip xfrm state flush
+	ip xfrm policy flush
+	ip -4 address add $link_ip/24 dev $link0
+
 	ip xfrm state add src $ip1 dst $ip2 proto esp spi 10001 reqid 100001 \
 		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
-		sel src $ip1 dst $ip2 offload packet dev enp8s0f0 dir $dir1
+		sel src $ip1 dst $ip2 offload packet dev $link0 dir $dir1
 # set +x
 # 	return
 
 	ip xfrm state add src $ip2 dst $ip1 proto esp spi 10000 reqid 100000 \
 		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
-		sel src $ip2 dst $ip1 offload packet dev enp8s0f0 dir $dir2
+		sel src $ip2 dst $ip1 offload packet dev $link0 dir $dir2
 
 	ip xfrm policy add src $ip1 dst $ip2 dir $dir1 tmpl src $ip1 dst $ip2 \
-		proto esp reqid 100001 mode transport offload packet dev enp8s0f0
+		proto esp reqid 100001 mode transport offload packet dev $link0
 	ip xfrm policy add src $ip2 dst $ip1 dir $dir2 tmpl src $ip2 dst $ip1 \
-		proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+		proto esp reqid 100000 mode transport offload packet dev $link0
 	ip xfrm policy add src $ip2 dst $ip1 dir fwd tmpl src $ip2 dst $ip1 \
-		proto esp reqid 100000 mode transport offload packet dev enp8s0f0
+		proto esp reqid 100000 mode transport offload packet dev $link0
 set +x
 }
 
