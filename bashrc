@@ -116,6 +116,18 @@ if (( host_num == 0 )); then
 	rhost_num=2
 fi
 
+if (( HOSTNAME == qa-l-vrt-264-bf3-01 )); then
+        host_num=1
+        rhost_num=2
+        machine_num=1
+fi
+
+if (( HOSTNAME == qa-l-vrt-265-bf3-02 )); then
+        host_num=2
+	rhost_num=1
+	machine_num=2
+fi
+
 if (( bf == 1 )); then
 	link=pf0hpf
 	link2=pf1hpf
@@ -773,10 +785,6 @@ function ip1
 	local l=$link
 	ip=$link_ip
 	ipv6=$link_ipv6
-	if (( bf == 1 )); then
-		l=p0
-		ip=$link_remote_ip
-	fi
 	ip addr flush $l
 	ip addr add dev $l $ip/16
 	ip addr add $ipv6/64 dev $l
