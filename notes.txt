@@ -12718,8 +12718,5 @@ vf_meter_common_store
 
 mlx5hws_action_type
 
-mlx5hws_action_create_dest_vport
-
-
 
 

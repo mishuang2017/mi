@@ -39,7 +39,7 @@ for node in radix_tree_for_each(vports):
         print(mlx5_eswitch_rep.rep_data[1])
     i=i+1
 
-exit(0)
+# exit(0)
 print("========================== port 2 ================================")
 mlx5e_priv = lib.get_mlx5_pf1()
 vports = mlx5_eswitch.offloads.vport_reps

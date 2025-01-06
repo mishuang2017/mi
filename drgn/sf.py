@@ -10,13 +10,8 @@ import os
 sys.path.append(".")
 from lib import *
 
-mlx5e_priv = get_mlx5e_priv(pf0_name)
-mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
-# print(mlx5_sf_table)
 # print(mlx5_sf_table.refcount)
 
-# mlx5_sf_hwc_table = mlx5e_priv.mdev.priv.sf_hw_table
-# print(mlx5_sf_hwc_table.hwc[0])
 
 #         .port_index = (unsigned int)32769,
 #         .controller = (u32)0,
@@ -27,21 +22,29 @@ mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
 # print(" === sf rep / mlx5_sf_table.port_indices === ")
 print(" === sf rep / mlx5_sf_table.function_ids === ")
 
-def print_mlx5_sf(sf):
-    print("port_index: %d, controller: %d, id: %d, hw_fn_id: %d, hw_state: %d" % \
-        (sf.port_index, sf.controller, sf.id, sf.hw_fn_id, sf.hw_state))
-
-for node in radix_tree_for_each(mlx5_sf_table.function_ids.address_of_()):
-    print(node)
-    mlx5_sf = Object(prog, 'struct mlx5_sf', address=node[1].value_())
-    print_mlx5_sf(mlx5_sf)
+def print_mlx5_sf(mlx5_sf_table):
+#     print(mlx5_sf_table)
+    for node in radix_tree_for_each(mlx5_sf_table.function_ids.address_of_()):
+        sf = Object(prog, 'struct mlx5_sf', address=node[1].value_())
+        print("port_index: %d, controller: %d, id: %d, hw_fn_id: %d, hw_state: %d" % \
+            (sf.port_index, sf.controller, sf.id, sf.hw_fn_id, sf.hw_state))
 
 # for node in radix_tree_for_each(mlx5_sf_table.port_indices.address_of_()):
 #     mlx5_sf = Object(prog, 'struct mlx5_sf', address=node[1].value_())
 #     print_mlx5_sf(mlx5_sf)
 
-mlx5_nb = mlx5e_priv.mdev.priv.eswitch.nb
-# print(mlx5_nb)
+print("--- port 1 ---\n")
+mlx5e_priv = get_mlx5e_priv(pf0_name)
+mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
+print_mlx5_sf(mlx5_sf_table)
+
+mlx5_sf_hwc_table = mlx5e_priv.mdev.priv.sf_hw_table
+# print(mlx5_sf_hwc_table)
+
+print("--- port 2 ---\n")
+mlx5e_priv = get_mlx5e_priv(pf1_name)
+mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
+print_mlx5_sf(mlx5_sf_table)
 
 print("\n === mlx5e_priv.mdev.priv.eswitch.n_head === \n")
 
