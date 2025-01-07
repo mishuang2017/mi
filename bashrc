@@ -116,13 +116,13 @@ if (( host_num == 0 )); then
 	rhost_num=2
 fi
 
-if (( HOSTNAME == qa-l-vrt-264-bf3-01 )); then
+if [[ "$HOSTNAME" == "qa-l-vrt-264-bf3-01" ]]; then
         host_num=1
         rhost_num=2
         machine_num=1
 fi
 
-if (( HOSTNAME == qa-l-vrt-265-bf3-02 )); then
+if [[ "$HOSTNAME" == "qa-l-vrt-265-bf3-02" ]]; then
         host_num=2
 	rhost_num=1
 	machine_num=2
@@ -1924,6 +1924,7 @@ function tc2
 {
 	TC=/opt/mellanox/iproute2/sbin/tc
 	TC=/images/cmi/iproute2/tc/tc
+	TC=tc
 	local l
 #	for link in p2p1 $rep1 $rep2 $vx_rep; do
 	for l in $link $rep1 $rep2 $rep3 bond0 vxlan1 p0; do
@@ -7063,6 +7064,19 @@ function br_sf
 		netns n12 $vf2 1.1.3.2
 	fi
 	set +x
+}
+
+function br_sf_bf
+{
+set -x;
+	del-br;
+	[[ $# == 1 ]] && ipsec_packet
+	ovs-vsctl add-br $br;
+	ovs-vsctl add-port $br en3f0pf0sf0
+	vxlan1
+	ifconfig enp3s0f0s0 1.1.1.$host_num/24 up
+	ifconfig p0 mtu 1600
+set +x
 }
 
 function br_sf_vxlan_ct

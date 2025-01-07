@@ -20,8 +20,8 @@ def print_esw(priv):
 #     print("mlx5e_priv %#x" % priv.address_of_())
     print("mlx5e_priv.fs.state_destroy %#x" % priv.fs.state_destroy.value_())
 #     print(priv.mdev.mlx5e_res.ct)
-#     print("mlx5_core_dev.num_block_tc %d" % priv.mdev.num_block_tc)
-#     print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
+    print("mlx5_core_dev.num_block_tc %d" % priv.mdev.num_block_tc)
+    print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
     print(priv.mdev.coredev_type)
 
 #     for i in range(priv.mdev.mlx5e_res.dl_port.attrs.switch_id.id_len):
@@ -33,8 +33,8 @@ def print_esw(priv):
     esw = priv.mdev.priv.eswitch
     print("mode: %d" % esw.mode)
     print("mlx5_eswitch %#x" % esw)
-    print(esw.qos)
-    return
+#     print(esw.qos)
+#     return
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
     print("esw->flags: %#x (1 means MLX5_ESWITCH_VPORT_MATCH_METADATA)" % esw.flags)
     print("steering->mode: %#x (1 mens MLX5_FLOW_STEERING_MODE_SMFS)" % priv.mdev.priv.steering.mode)
