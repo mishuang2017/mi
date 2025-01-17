@@ -20,6 +20,7 @@ uplink_priv = mlx5e_rep_priv.uplink_priv
 print(uplink_priv.int_port_priv)
 for port in list_for_each_entry('struct mlx5e_tc_int_port', uplink_priv.int_port_priv.int_ports.address_of_(), 'list'):
 #     print(port)
+    print("netdev index: %d" % port.ifindex)
     print(port.type)
     print("match_metadata: %x" % port.match_metadata)
     print_mlx5_flow_handle(port.rx_rule)

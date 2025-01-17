@@ -26,14 +26,6 @@ if [[ "$(uname -m)" == "aarch64" ]]; then
 	test -f /etc/redhat-release || bf_ubuntu=1
 	bf=1
 fi
-if [[ "$(hostname -s)" == "dev-r630-03" ]]; then
-	host_num=13
-	cloud=0
-fi
-if [[ "$(hostname -s)" == "dev-r630-04" ]]; then
-	host_num=14
-	cloud=0
-fi
 
 if (( host_num % 2 == 0 )); then
 	rhost_num=$((host_num-1))
@@ -76,10 +68,6 @@ function get_vf
 	done
 }
 
-link_remote_ip=192.168.1.$rhost_num
-link2_remote_ip=192.168.2.$rhost_num
-link_remote_ipv6=1::$rhost_num
-
 if (( cloud == 1 )); then
 	link_name=1
 	link=enp8s0f0
@@ -116,17 +104,21 @@ if (( host_num == 0 )); then
 	rhost_num=2
 fi
 
-if [[ "$HOSTNAME" == "qa-l-vrt-264-bf3-01" ]]; then
+if [[ "$HOSTNAME" == "c-237-147-60-p65-00-0-bf2" ]]; then
         host_num=1
         rhost_num=2
         machine_num=1
 fi
 
-if [[ "$HOSTNAME" == "qa-l-vrt-265-bf3-02" ]]; then
+if [[ "$HOSTNAME" == "c-237-147-60-pca-00-0-bf2" ]]; then
         host_num=2
 	rhost_num=1
 	machine_num=2
 fi
+
+link_remote_ip=192.168.1.$rhost_num
+link2_remote_ip=192.168.2.$rhost_num
+link_remote_ipv6=1::$rhost_num
 
 if (( bf == 1 )); then
 	link=pf0hpf
@@ -201,8 +193,8 @@ unset CONFIG_LOCALVERSION_AUTO
 
 link_ip=192.168.1.$host_num
 link2_ip=192.168.2.$host_num
-link_ipv6=1::$host_num
-link2_ipv6=2::$host_num
+link_ipv6=2001:db8::$host_num
+link2_ipv6=2001:db8::$host_num
 
 br=br1
 br2=br2
@@ -5404,7 +5396,7 @@ set -x
 	done
 	ip1
 	vxlan1
-	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
+# 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
 # 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
 # 	geneve
 # 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
@@ -5437,9 +5429,39 @@ set -x
 set +x
 }
 
-
-
 function brx_bf
+{
+set -x
+	del-br
+	ovs-vsctl add-br $br
+
+	ovs-vsctl add-port $br pf0vf0
+# 	ovs-vsctl add-port $br pf0vf1
+# 	ovs-vsctl add-port $br pf0vf2
+# 	ovs-vsctl add-port $br pf0vf3
+
+	ovs-vsctl add-port $br vxlan0 -- set interface vxlan0 type=vxlan \
+		options:remote_ip=$link_remote_ip  \
+		options:key=flow options:dst_port=4789
+	ifconfig p0 $link_ip/24 up
+	ifconfig p0 mtu 1600
+
+# 	ovs-vsctl add-br br2
+# 
+# 	ovs-vsctl add-port br2 pf1vf0
+# 	ovs-vsctl add-port br2 pf1vf1
+# 	ovs-vsctl add-port br2 pf1vf2
+# 	ovs-vsctl add-port br2 pf1vf3
+# 
+# 	ovs-vsctl add-port br2 vxlan1 -- set interface vxlan1 type=vxlan \
+# 		options:remote_ip=$link2_remote_ip  \
+# 		options:key=flow options:dst_port=4789
+# 	ifconfig p1 $link2_ip/24 up
+# 	ifconfig p1 mtu 1600
+set +x
+}
+
+function brx_bf_ct
 {
 set -x
 	BRIDGE=br0-ovs
@@ -6446,12 +6468,12 @@ function netns
 	ip netns del $n 2>/dev/null
 	ip netns add $n
 	ip link set dev $link netns $n
-	ip netns exec $n ip link set mtu 1450 dev $link
+	ip netns exec $n ip link set mtu 1400 dev $link
 	ip netns exec $n ip link set dev $link up
 	ip netns exec $n ip addr add $ip/16 brd + dev $link
 
 	(( $machine_num == 2 )) && ipv6=$((ipv6+10))
-	ip netns exec $n ip addr add 1::$ipv6/64 dev $link
+	ip netns exec $n ip addr add 2001:db8::$ipv6/64 dev $link
 
 #	ip netns exec $n ip r a 2.2.2.0/24 nexthop via 1.1.1.1 dev $link
 }
@@ -7049,7 +7071,8 @@ function br_sf
 	ifconfig $sf1 up
 	ifconfig $sf2 up
 	ifconfig $link up
-	sudo ovs-vsctl add-port $br $link
+# 	sudo ovs-vsctl add-port $br $link
+	vxlan1
 	sudo ovs-vsctl add-port $br $sf1
 	sudo ovs-vsctl add-port $br $sf2
 	vf1=eth3
@@ -9217,7 +9240,7 @@ alias ofed-configure-rhel-9.1="./configure --with-mlx5-core-and-ib-and-en-mod --
 function ofed_all
 {
 # 	smm
-	./configure --all -j $cpu_num2
+	./configure --all --without-sf-cfg-drv -j $cpu_num2
 	mi
 }
 
@@ -14430,6 +14453,7 @@ set -x
 	mlxdevm port func rate add pci/$pci/g1
 	mlxdevm port func rate set pci/$pci/g1 tc-bw 0:20 1:0 2:0 3:0 4:0 5:0 6:0 7:80
 	mlxdevm port function rate set pci/$pci/32768 parent g1
+# 	mlxdevm port func rate set pci/$pci/g1 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
 set +x
 }
 
@@ -14437,8 +14461,8 @@ function devm_group_ets2
 {
 set -x
 	mlxdevm port func rate set pci/$pci/g1 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
-	mlxdevm port function rate set pci/$pci/32768 noparent
-	mlxdevm port func rate del pci/$pci/g1
+# 	mlxdevm port function rate set pci/$pci/32768 noparent
+# 	mlxdevm port func rate del pci/$pci/g1
 set +x
 }
 

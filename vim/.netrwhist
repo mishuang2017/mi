@@ -1,5 +1,3 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =3
-let g:netrw_dirhist_3='/images/cmi/24.07/mlnx-ofa_kernel-4.0/backports'
-let g:netrw_dirhist_2='/labhome/cmi/qos/sysfs/7'
-let g:netrw_dirhist_1='/images/cmi/mlnx-ofa_kernel-4.0/metadata'
+let g:netrw_dirhist_cnt =1
+let g:netrw_dirhist_1='/images/cmi/mlnx-ofa_kernel-4.0/compat/config'
