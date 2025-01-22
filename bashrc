@@ -1008,6 +1008,7 @@ function cloud_setup
 	sm
 	clone-drgn
 	cd drgn
+	git reset --hard 92023c5b
 	sudo ./setup.py build
 	sudo ./setup.py install
 	sudo ln -s /usr/bin/drgn /usr/local/bin/drgn
@@ -15857,6 +15858,7 @@ function linux_br
 alias n1_r_server='n1 /swgwork/cmi/rdma-example/bin/rdma_server'
 alias r_server='/swgwork/cmi/rdma-example/bin/rdma_server'
 alias r_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+alias n1_r_client='n1 /swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 
 function build_libpcap
 {

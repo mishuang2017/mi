@@ -63,6 +63,10 @@ def print_files(files, n):
         file = files[i]
 
         print("%2d" % i, end='\t')
+        print(file.f_op.read_iter)
+
+        continue
+
         if file.f_op.value_() == eventpoll_fops:
             print_eventpoll(file)
         elif file.f_op.value_() == socket_file_ops:

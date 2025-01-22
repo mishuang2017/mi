@@ -36,19 +36,29 @@ def print_files(files, n):
 
         for ib_uverbs_file in list_for_each_entry('struct ib_uverbs_file', ib_uverbs_device.uverbs_file_list.address_of_(), 'list'):
             print(ib_uverbs_file)
+            print(ib_uverbs_file.ucontext)
+#             print(ib_uverbs_file.device)
+#             print(ib_uverbs_file.device.uapi)
             for node in radix_tree_for_each(ib_uverbs_file.idr.address_of_()):
                 ib_uobject = Object(prog, 'struct ib_uobject', address=node[1].value_())
                 print("-----------------------------")
                 print("ib_uobject.id: %d" % ib_uobject.id)
-                if ib_uobject.id == 5:
-                    ib_qp = Object(prog, 'struct ib_qp', address=ib_uobject.object)
-#                     print(ib_qp)
-                    mlx5_ib_qp = container_of(ib_qp.real_qp, "struct mlx5_ib_qp", "ibqp")
-                    print(mlx5_ib_qp.port)
-                    print(mlx5_ib_qp.ibqp.res.type)
-                if ib_uobject.id == 3:
+
+#                 print(ib_uobject.uapi_object)
+#                 print(ib_uobject.uapi_object.type_attrs)
+#                 print(ib_uobject.uapi_object.type_class)
+                type_attrs = ib_uobject.uapi_object.type_attrs
+                type = container_of(type_attrs, "struct uverbs_obj_idr_type", "type")
+                print(address_to_name(hex(type.destroy_object.value_())))
+#                 print(type)
+
+                if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_cq":
                     ib_cq = Object(prog, 'struct mlx5_ib_cq', address=ib_uobject.object)
                     print(ib_cq.ibcq.res.type)
+                if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_qp":
+                    ib_qp = Object(prog, 'struct ib_qp', address=ib_uobject.object)
+                    print(ib_qp.uobject)
+                continue
                 if ib_uobject.id == 2:
                     ib_pd = Object(prog, 'struct mlx5_ib_pd', address=ib_uobject.object)
                     print(ib_pd.ibpd.res.type)
