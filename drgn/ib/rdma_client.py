@@ -10,6 +10,7 @@ import subprocess
 import drgn
 import sys
 import time
+import getopt
 
 sys.path.append("..")
 from lib import *
@@ -57,14 +58,28 @@ def print_files(files, n):
                     print(ib_cq.ibcq.res.type)
                 if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_qp":
                     ib_qp = Object(prog, 'struct ib_qp', address=ib_uobject.object)
-                    print(ib_qp.uobject)
-                continue
-                if ib_uobject.id == 2:
+                    print(ib_qp.res.type)
+                    mlx5_ib_qp = container_of(ib_qp.address_of_(), "struct mlx5_ib_qp", "ibqp")
+#                     print(mlx5_ib_qp)
+                    print("ib_qp: %x" % ib_uobject.object)
+                    print("qp_num: %d" % mlx5_ib_qp.ibqp.qp_num)
+                if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_pd":
                     ib_pd = Object(prog, 'struct mlx5_ib_pd', address=ib_uobject.object)
                     print(ib_pd.ibpd.res.type)
-                if ib_uobject.id == 9:
+                    print("ib_pd: %x" % ib_uobject.object)
+                if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_mr":
                     ib_mr = Object(prog, 'struct mlx5_ib_mr', address=ib_uobject.object)
                     print(ib_mr.ibmr.res.type)
+                    print("ib_mr.ibmr.pd: %x" % ib_mr.ibmr.pd)
+                    print("ib_mr.ibmr.length: %d" % ib_mr.ibmr.length)
+                    print("ib_mr.umem.address: %#x" % ib_mr.umem.address)
+                    print("ib_mr.mmkey.key: %#x" % ib_mr.mmkey.key)
+                    print("ib_mr.access_flags: %x" % ib_mr.access_flags);
+#                     if ib_uobject.id == 7:
+                if address_to_name(hex(type.destroy_object.value_())) == "mmap_obj_cleanup":
+                    mlx5_user_mmap_entry = Object(prog, 'struct mlx5_user_mmap_entry', address=ib_uobject.object)
+                    print("mlx5_user_mmap_entry.page_idx: %d" % mlx5_user_mmap_entry.page_idx)
+                    print("mlx5_user_mmap_entry.rdma_entry.npages: %d" % mlx5_user_mmap_entry.rdma_entry.npages)
 #                 ib_uqp_object = Object(prog, 'struct ib_uqp_object', address=node[1].value_())
 #                 print(ib_uqp_object)
 #                 print(ib_uqp_object.uevent.uobject.object)
@@ -89,6 +104,17 @@ def find_task(name):
             print(f'{pid:<10} {comm}')
             return task
 
-task = find_task("rdma_client")
+# parse command line options:
+try:
+    opts, args = getopt.getopt(sys.argv[1:] ,"p:",["program="])
+except getopt.GetoptError:
+    sys.exit(2)
+
+for o, a in opts:
+    if o in ("-p", "--program"):
+        program = a
+        print(program)
+
+task = find_task(program)
 fdt = task.files.fdt
 print_files(fdt.fd, fdt.max_fds)
