@@ -90,7 +90,7 @@ def print_mlx5_vport(priv):
 
         if vport.qos.sched_nodes:
             print('-------')
-            print("vport.qos.sched_node.children")
+            print("vport.qos.sched_node.children:")
             i = 0
             for node in list_for_each_entry('struct mlx5_esw_sched_node', vport.qos.sched_node.children.address_of_(), 'entry'):
                 print("%-35s" % type(node.type), end=' ')
@@ -101,6 +101,8 @@ def print_mlx5_vport(priv):
                 i += 1
                 if i == 2:
                     break
+            if i == 0:
+                print("\tno child")
             print('-------')
             for i in range(2):
                 node = vport.qos.sched_nodes[i]

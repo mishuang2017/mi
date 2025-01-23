@@ -9256,8 +9256,8 @@ function ofed_install
 	build=MLNX_OFED_LINUX-24.04-0.3.9.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --ovs-dpdk --upstream-libs --without-fw-update --add-kernel-support
 	build=MLNX_OFED_LINUX-24.04-0.6.5.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-24.10-0.5.7.0.102 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
-	build=MLNX_OFED_LINUX-24.10-0.1.7.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-30908-20240321-1550 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
+	build=MLNX_OFED_LINUX-25.01-0.4.2.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 }
 
 # alias ofed-configure2="./configure -j32 --with-linux=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --kernel-version=4.7-rc7 --kernel-sources=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-ipoib-mod --with-mlx5-mod"
@@ -14364,23 +14364,23 @@ function devm_4196432
 
 # /opt/mellanox/iproute2/sbin/mlxdevm  port function rate show
 	sf_m
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate add pci/0000:08:00.0/group1
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32769 parent group1
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32769 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
+	mlxdevm port function rate add pci/0000:08:00.0/group1
+	mlxdevm port function rate set pci/0000:08:00.0/32768 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
+	mlxdevm port function rate set pci/0000:08:00.0/32769 parent group1
+	mlxdevm port function rate set pci/0000:08:00.0/32769 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
 }
 
 function devm_4197006
 {
 	sf_m
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate add pci/0000:08:00.0/group1
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate add pci/0000:08:00.0/group2
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32769 parent group2
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/group1 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/group2 tc-bw 0:30 1:70 2:0 3:0 4:0 5:0 6:0 7:0
+	mlxdevm port function rate add pci/0000:08:00.0/group1
+	mlxdevm port function rate add pci/0000:08:00.0/group2
+	mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
+	mlxdevm port function rate set pci/0000:08:00.0/32769 parent group2
+	mlxdevm port function rate set pci/0000:08:00.0/group1 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
+	mlxdevm port function rate set pci/0000:08:00.0/group2 tc-bw 0:30 1:70 2:0 3:0 4:0 5:0 6:0 7:0
 
-	/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
+	mlxdevm port function rate set pci/0000:08:00.0/32768 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
 }
 
 function devm_4196328
@@ -14507,41 +14507,41 @@ function devm_4196688
 		echo $m
 		echo "=========================================== $j ==========================================="
 		sf_m 1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate add pci/0000:08:00.0/group1
+		mlxdevm port function rate add pci/0000:08:00.0/group1
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tx_max 5000 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
+		mlxdevm port function rate set pci/0000:08:00.0/32768 tx_max 5000 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		mlxdevm port function rate show
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/group1 tx_max 10000
+		mlxdevm port function rate set pci/0000:08:00.0/group1 tx_max 10000
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
+		mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		mlxdevm port function rate show
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tx_max 0 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+		mlxdevm port function rate set pci/0000:08:00.0/32768 tx_max 0 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		mlxdevm port function rate show
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
+		mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		mlxdevm port function rate show
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 tx_max 5000 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
+		mlxdevm port function rate set pci/0000:08:00.0/32768 tx_max 5000 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:08:00.0/32768 noparent
+		mlxdevm port function rate set pci/0000:08:00.0/32768 noparent
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		mlxdevm port function rate show
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port del pci/0000:08:00.0/32768
+		mlxdevm port del pci/0000:08:00.0/32768
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		mlxdevm port function rate show
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function set pci/0000:08:00.0/32768 hw_addr 6a:32:51:5f:13:a6 state active
+		mlxdevm port function set pci/0000:08:00.0/32768 hw_addr 6a:32:51:5f:13:a6 state active
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate show
+		mlxdevm port function rate show
 		sleep 0.1
-		/opt/mellanox/iproute2/sbin/mlxdevm port function rate del pci/0000:08:00.0/group1
+		mlxdevm port function rate del pci/0000:08:00.0/group1
 		sleep 1
 	done
 }
@@ -15856,6 +15856,7 @@ function linux_br
 }
 
 alias n1_r_server='n1 /swgwork/cmi/rdma-example/bin/rdma_server'
+alias n1_r_server_loop='while true; do n1_r_server; sleep 1; done'
 alias r_server='/swgwork/cmi/rdma-example/bin/rdma_server'
 alias r_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 alias n1_r_client='n1 /swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
