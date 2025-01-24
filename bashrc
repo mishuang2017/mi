@@ -1906,8 +1906,8 @@ function mi
 	sudo make install_kernel -j $cpu_num2
 # 	sudo systemctl stop mlx-regex
 	sudo /etc/init.d/openibd force-stop
-	reprobe
-# 	force-start
+	sudo /etc/init.d/openibd force-start
+# 	reprobe
 }
 
 alias make-local='./configure; make -j; sudo make install'

@@ -52,9 +52,11 @@ def print_ib_uverbs(file):
             if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_qp":
                 ib_qp = Object(prog, 'struct ib_qp', address=ib_uobject.object)
                 print(ib_qp.res.type)
-                mlx5_ib_qp = container_of(ib_qp.address_of_(), "struct mlx5_ib_qp", "ibqp")
                 print("ib_qp: %x" % ib_uobject.object)
-                print("qp_num: %d" % mlx5_ib_qp.ibqp.qp_num)
+                print("ib_qp.qp_type: %x" % ib_qp.qp_type)
+                print("qp_num: %d, %#x" % (ib_qp.qp_num, ib_qp.qp_num))
+                mlx5_ib_qp = container_of(ib_qp.address_of_(), "struct mlx5_ib_qp", "ibqp")
+#                 print(mlx5_ib_qp)
             if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_pd":
                 ib_pd = Object(prog, 'struct mlx5_ib_pd', address=ib_uobject.object)
                 print(ib_pd.ibpd.res.type)
@@ -104,10 +106,9 @@ def print_files(files, n):
 #         print(file.f_op)
         print("inode: %lx" % file.f_inode)
 
-#         if file.f_op.value_() == uverbs_mmap_fops:
-#             print_ib_uverbs(file)
-
-        if file.f_op.value_() == ucma_fops:
+        if file.f_op.value_() == uverbs_mmap_fops:
+            print_ib_uverbs(file)
+        elif file.f_op.value_() == ucma_fops:
             print_ucma_file(file)
 
 def find_task(name):
