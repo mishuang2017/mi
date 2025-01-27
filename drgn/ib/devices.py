@@ -20,7 +20,11 @@ devices = prog['devices']
 for node in radix_tree_for_each(devices.address_of_()):
 #     print(node)
     ib_device = Object(prog, 'struct ib_device', address=node[1].value_())
+    print("ib_device %x" % node[1].value_())
     print("ib_device.dev.kobj.name %s" % ib_device.dma_device.kobj.name.string_().decode())
+#     print("   device name: %s" % ib_device.dev.kobj.name.string_().decode())
+#     print(ib_device)
+#     print("device.dev.kobj.name %s" % ib_device.dev.kobj.name.string_().decode())
 #     print(ib_device.phys_port_cnt)
     print("\n=======================")
 
@@ -29,6 +33,8 @@ ib_mad_port_list = prog['ib_mad_port_list']
 print('========================= ib_mad_port_list ===========================')
 for ib_mad_port_private in list_for_each_entry('struct ib_mad_port_private', ib_mad_port_list.address_of_(), 'port_list'):
 #     print(ib_mad_port_private.port_num)
+    
+    print("ib_device %x" % ib_mad_port_private.device)
     print("ib_device name: %s" % (ib_mad_port_private.device.dma_device.kobj.name.string_().decode()))
     print("   device name: %s" % ib_mad_port_private.device.dev.kobj.name.string_().decode())
     # print(ib_mad_port_private.qp_info[0].qp) # no SMI
@@ -36,6 +42,7 @@ for ib_mad_port_private in list_for_each_entry('struct ib_mad_port_private', ib_
     print(ib_mad_port_private.qp_info[1].qp.qp_type)
 #     print(ib_mad_port_private.qp_info[1].qp)
     print("\n=======================")
+    print(ib_mad_port_private.device);
 
 ucma_cmd_table = prog['ucma_cmd_table']
 print(ucma_cmd_table)

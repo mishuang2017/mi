@@ -9131,6 +9131,8 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+git ls-files | xargs sed -i -e 's/htonll/htobe64/g'
+
 +       dump_stack();
 
 ip -d link sh $rep2
@@ -12717,6 +12719,20 @@ vf_meter_common_store
 ==hmfs===
 
 mlx5hws_action_type
+
+===rdma===
+
+mlx5_debug_mask
+export MLX5_DEBUG_MASK=0xff
+export MLX5_DEBUG_FILE=/tmp/mlx5.txt
+
+Table 188 - Completion Queue Entry Fields
+
+wqe_counter
+	sq_wqe_counter
+	rq_wqe_counter
+
+byte_cnt: Applicable for RDMA-read, Atomic and receive completions.
 
 
 

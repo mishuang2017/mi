@@ -15975,3 +15975,30 @@ function vf_meter2
 	echo 0 > /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/pps/burst
 	echo 0 > /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/pps/rate
 }
+
+function install_rdma_core
+{
+	local dir=/swgwork/cmi/rdma-core/build/lib
+
+	cd /lib64/
+
+	/bin/cp $dir/librdmacm.so.1.3.56.0	.
+	/bin/cp $dir/libibverbs.so.1.14.56.0	.
+	/bin/cp $dir/libmlx5.so.1.25.56.0	.
+
+	/bin/rm librdmacm.so.1
+	/bin/rm librdmacm.so
+	/bin/rm libibverbs.so.1
+	/bin/rm libibverbs.so
+	/bin/rm libibverbs/libmlx5-rdmav34.so
+	/bin/rm libmlx5.so.1
+
+	ln -s librdmacm.so.1.3.56.0 librdmacm.so
+	ln -s librdmacm.so.1.3.56.0 librdmacm.so.1
+	ln -s libibverbs.so.1.14.56.0 libibverbs.so
+	ln -s libibverbs.so.1.14.56.0 libibverbs.so.1
+	ln -s libmlx5.so.1.25.56.0 libmlx5.so.1
+
+	cd libibverbs
+	ln -s ../libmlx5.so.1.25.56.0 libmlx5-rdmav34.so
+}

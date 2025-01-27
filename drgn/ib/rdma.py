@@ -5,6 +5,7 @@ from drgn.helpers.linux import *
 from drgn import Object
 from drgn import container_of
 from drgn import cast
+from drgn.helpers.common.type import enum_type_to_class
 
 import subprocess
 import drgn
@@ -12,16 +13,24 @@ import sys
 import time
 import getopt
 
+import ipaddress
+import socket
+import struct
+
 sys.path.append("..")
 from lib import *
 
 uverbs_event_fops = prog['uverbs_event_fops'].address_of_().value_()
+uverbs_async_event_fops = prog['uverbs_async_event_fops'].address_of_().value_()
 uverbs_mmap_fops = prog['uverbs_mmap_fops'].address_of_().value_()
 ucma_fops = prog['ucma_fops'].address_of_().value_()
+tty_fops = prog['tty_fops'].address_of_().value_()
+xfs_file_operations = prog['xfs_file_operations'].address_of_().value_()
+socket_file_ops = prog['socket_file_ops'].address_of_().value_()
 
 def print_ib_uverbs(file):
     ib_uverbs_device = container_of(file.f_inode.i_cdev, "struct ib_uverbs_device", "cdev")
-    print(ib_uverbs_device.dev.kobj.name)
+    print("ib_uverbs_device.dev.kobj.name: %s" % ib_uverbs_device.dev.kobj.name)
 
     uapi = ib_uverbs_device.uapi
 #     print(uapi)
@@ -43,12 +52,14 @@ def print_ib_uverbs(file):
 
             if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_cq":
                 ib_cq = Object(prog, 'struct mlx5_ib_cq', address=ib_uobject.object)
+                mlx5_ib_cq = container_of(ib_cq.address_of_(), "struct mlx5_ib_cq", "ibcq")
                 print(ib_cq.ibcq.res.type)
                 print("ib_cq.ibcq.cqe: %d" % ib_cq.ibcq.cqe)
-                print("ib_cq.mcq.cqn: %d" % ib_cq.mcq.cqn)
+                print("ib_cq.mcq.cqn: %#x" % ib_cq.mcq.cqn)
                 print("ib_cq.mcq.irqn: %d" % ib_cq.mcq.irqn)
                 print("ib_cq.mcq.pid: %d" % ib_cq.mcq.pid)
                 print("ib_cq.cqe_size: %d" % ib_cq.cqe_size)
+
             if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_qp":
                 ib_qp = Object(prog, 'struct ib_qp', address=ib_uobject.object)
                 print(ib_qp.res.type)
@@ -82,6 +93,17 @@ def print_ib_uverbs(file):
 #                 print(ib_uobject.uapi_object.type_attrs)
 #                 print(ib_uobject.uapi_object.type_class)
 
+def route_addr(dir, addr):
+    if addr.ss_family == socket.AF_INET:
+        data0 = addr.__data[0]
+        data1 = addr.__data[1]
+        data2 = addr.__data[2]
+        data3 = addr.__data[3]
+        data4 = addr.__data[4]
+        data5 = addr.__data[5]
+        print("%s: %d:%d:%d:%d" % (dir, data2, data3, data4, data5), end=":")
+        print("%d" % (data0 << 8 | data1))
+
 def print_ucma_file(file):
         ucma_file = file.private_data
         ucma_file = Object(prog, 'struct ucma_file', address=file.private_data)
@@ -91,8 +113,70 @@ def print_ucma_file(file):
             print("backlog: %x" % context.backlog.counter)
             print(context)
 #             print(context.cm_id)
-            print(context.cm_id.route.addr.src_addr)
-            print('-------------------------------------------')
+            addr = context.cm_id.route.addr.src_addr
+            route_addr("src", addr)
+            addr = context.cm_id.route.addr.dst_addr
+            route_addr("dst", addr)
+
+        print('-------------------------------------------')
+
+
+def inet_sk(sk):
+    return cast("struct inet_sock *", sk)
+
+def _ipv4(be32):
+#     return ipaddress.IPv4Address(struct.pack("I", be32.value_()))
+    return ipaddress.IPv4Address(be32.value_())
+
+TcpState = enum_type_to_class(
+    prog["TCP_ESTABLISHED"].type_,
+    "TcpState",
+    exclude=("TCP_MAX_STATES",),
+    prefix="TCP_",
+)
+
+def _brackets(ip):
+    if ip.version == 4:
+        return "{}".format(ip.compressed)
+    elif ip.version == 6:
+        return "[{}]".format(ip.compressed)
+    return ""
+
+def _ip_port(ip, port):
+    return "{:>40}:{:<6}".format(_brackets(ip), port)
+
+def print_socket_file(file):
+        s = Object(prog, 'struct socket', address=file.private_data)
+        sk = s.sk
+        inet = inet_sk(sk)
+
+        tcp_state = TcpState(sk_tcpstate(sk))
+
+        if sk.__sk_common.skc_family == socket.AF_INET:
+            src_ip = _ipv4(sk.__sk_common.skc_rcv_saddr)
+            dst_ip = _ipv4(sk.__sk_common.skc_daddr)
+        elif sk.__sk_common.skc_family == socket.AF_INET6:
+            src_ip = _ipv6(sk.__sk_common.skc_v6_rcv_saddr)
+            dst_ip = _ipv6(sk.__sk_common.skc_v6_daddr)
+        else:
+            return
+
+        src_port = socket.ntohs(inet.inet_sport)
+        dst_port = socket.ntohs(sk.__sk_common.skc_dport)
+
+        cgrp_path = ""
+        if sk_fullsock(sk):
+            cgrp = sock_cgroup_ptr(sk.sk_cgrp_data)
+            cgrp_path = cgroup_path(cgrp).decode()
+
+        print(
+            "{:<12} {} {} {}".format(
+                tcp_state.name,
+                _ip_port(src_ip, src_port),
+                _ip_port(dst_ip, dst_port),
+                cgrp_path,
+            )
+        )
 
 def print_files(files, n):
     for i in range(n):
@@ -100,16 +184,27 @@ def print_files(files, n):
 
         if not file.value_():
             continue
-        print("%2d" % i, end='\t')
+        print("===================================================== %02d =============================================================" % i)
 
 #         print("file: %lx" % file)
 #         print(file.f_op)
         print("inode: %lx" % file.f_inode)
 
-        if file.f_op.value_() == uverbs_mmap_fops:
-            print_ib_uverbs(file)
+        if file.f_op.value_() == tty_fops:
+            print("tty_fops")
+#         elif file.f_op.value_() == uverbs_mmap_fops:
+#             print_ib_uverbs(file)
         elif file.f_op.value_() == ucma_fops:
             print_ucma_file(file)
+        elif file.f_op.value_() == uverbs_event_fops:
+            print("uverbs_event_fops")
+        elif file.f_op.value_() == uverbs_async_event_fops:
+            print("uverbs_async_event_fops")
+        elif file.f_op.value_() == xfs_file_operations:
+            print("xfs_file_operations")
+        elif file.f_op.value_() == socket_file_ops:
+            print("socket_file_ops")
+            print_socket_file(file)
 
 def find_task(name):
     print('PID        COMM')
