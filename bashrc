@@ -15976,6 +15976,9 @@ function vf_meter2
 	echo 0 > /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/pps/rate
 }
 
+export MLX5_DEBUG_MASK=0xff
+export MLX5_DEBUG_FILE=/tmp/mlx5.txt
+
 function install_rdma_core
 {
 	local dir=/swgwork/cmi/rdma-core/build/lib
