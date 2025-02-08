@@ -6,7 +6,10 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 static int test2_init(void)
 {
-	printk(KERN_ALERT "test2 enter, %d, %s\n", HZ, __stringify(FOO));
+	int i = 0;
+
+	for (i = 0; i < 100; i++)
+		printk(KERN_ALERT "test2 enter, %d, %d\n", i, order_base_2(i));
 	return 0;
 }
 

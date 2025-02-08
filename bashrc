@@ -343,7 +343,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_01;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_04;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_01'
@@ -1903,7 +1903,7 @@ function mi
 {
 	test -f LINUX_BASE_BRANCH || return
 	make -j $cpu_num2 || return
-	sudo make install_kernel -j $cpu_num2
+	sudo make install -j $cpu_num2
 # 	sudo systemctl stop mlx-regex
 	sudo /etc/init.d/openibd force-stop
 	sudo /etc/init.d/openibd force-start
@@ -5396,10 +5396,10 @@ set -x
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	ip1
-	vxlan1
+# 	vxlan1
 # 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
 # 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
-# 	geneve
+	geneve
 # 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
 # 	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
 set +x
@@ -6979,8 +6979,10 @@ set -x
 # 	sf_name=enp8s0f0npf0sf1
 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum $sfnum
+set +x
+	return
 	(( debug == 1 )) && read
-	sleep 1
+# 	sleep 1
 	$cmd port function set $sf_name state active
 
 	(( debug == 1 )) && read
@@ -14164,6 +14166,23 @@ set -x
 	devlink dev param set pci/$pci  name esw_port_metadata value $mode cmode runtime
 	devlink dev param show pci/$pci name esw_port_metadata
 set +x
+}
+
+function devlink_groups
+{
+# 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+
+	devlink port func rate add pci/$pci/g1
+	devlink port func rate add pci/$pci/g2
+# 	devlink port func rate set pci/$pci/2 parent g1
+# 	devlink port func rate set pci/$pci/3 parent g2 # not allowed
+
+	devlink port func rate set pci/$pci/g2 parent g1
+}
+
+function devlink_groups2
+{
+	devlink port func rate set pci/$pci/g2 noparent
 }
 
 function devlink_rate_group
