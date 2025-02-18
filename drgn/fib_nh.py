@@ -42,3 +42,18 @@ def print_info(info):
 for i in range(size):
 	for nh in hlist_for_each_entry('struct fib_nh', fib_info_devhash[i].address_of_(), 'nh_hash'):
             lib.print_fib_nh(nh)
+
+for event in prog.type("enum rt_scope_t").enumerators[:-1]:
+    print(event.name)
+    print(event.value)
+
+print(prog.type("enum rt_scope_t").enumerators[0])
+
+RT_SCOPE_UNIVERSE = prog['RT_SCOPE_UNIVERSE']
+print(RT_SCOPE_UNIVERSE)
+
+RT_SCOPE_SITE = prog['RT_SCOPE_SITE']
+print(RT_SCOPE_SITE)
+
+if RT_SCOPE_SITE == prog.type("enum rt_scope_t").enumerators[1].value:
+    print("yes")

@@ -104,13 +104,13 @@ if (( host_num == 0 )); then
 	rhost_num=2
 fi
 
-if [[ "$HOSTNAME" == "c-237-147-60-p65-00-0-bf2" ]]; then
+if [[ "$HOSTNAME" == "c-237-153-180-p3b-00-0-bf2" ]]; then
         host_num=1
         rhost_num=2
         machine_num=1
 fi
 
-if [[ "$HOSTNAME" == "c-237-147-60-pca-00-0-bf2" ]]; then
+if [[ "$HOSTNAME" == "c-237-153-180-p5e-00-0-bf2" ]]; then
         host_num=2
 	rhost_num=1
 	machine_num=2
@@ -1905,8 +1905,7 @@ function mi
 	make -j $cpu_num2 || return
 	sudo make install -j $cpu_num2
 # 	sudo systemctl stop mlx-regex
-	sudo /etc/init.d/openibd force-stop
-	sudo /etc/init.d/openibd force-start
+	sudo /etc/init.d/openibd force-restart
 # 	reprobe
 }
 
@@ -5397,6 +5396,7 @@ set -x
 	done
 	ip1
 # 	vxlan1
+# 	 ovs-ofctl add-flow $br "table=0, ip,in_port=vxlan1,dl_src=02:25:d0:06:01:02,dl_dst=02:25:d0:05:01:02,nw_src=1.1.3.1,nw_dst=1.1.1.1 actions=output:enp8s0f0_1"
 # 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
 # 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
 	geneve
@@ -9260,6 +9260,9 @@ function ofed_install
 	build=OFED-internal-24.10-0.5.7.0.102 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=OFED-internal-30908-20240321-1550 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
 	build=MLNX_OFED_LINUX-25.01-0.4.2.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
+	build=MLNX_OFED_LINUX-25.01-0.6.0 /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --without-fw-update --add-kernel-support
+
+	# /auto/sw/release/mlnx_ofed/IBHPC/OFED-internal-25.01-0.6.0
 }
 
 # alias ofed-configure2="./configure -j32 --with-linux=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --kernel-version=4.7-rc7 --kernel-sources=/mswg2/work/kernel.org/x86_64/linux-4.7-rc7 --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-ipoib-mod --with-mlx5-mod"
@@ -11311,9 +11314,9 @@ function br_ct
 	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
 
 	proto=tcp
-	ovs-ofctl add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
-	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+new actions=ct(commit),normal"
-	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+est actions=normal"
+	ovs-ofctl add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1,zone=99)"
+	ovs-ofctl add-flow $br "table=1, $proto,ct_state=+trk+new actions=ct(zone=99,commit),normal"
+	ovs-ofctl add-flow $br "table=1, $proto,ct_zone=99,ct_state=+trk+est actions=normal"
 
 	proto=icmp
 	ovs-ofctl add-flow $br "table=0, $proto,ct_state=-trk actions=ct(table=1)"
@@ -14356,6 +14359,15 @@ set -x
 set +x
 }
 
+function qos_4280863
+{
+set -x
+	echo  1 > /sys/bus/pci/devices/$pci/sriov_numvfs
+	echo  1 > /sys/class/net/$link/device/sriov/0/group
+	echo  1500 > /sys/class/net/$link/device/sriov/groups/1/max_tx_rate
+set +x
+}
+
 function devm_4204932
 {
 	sf_m
@@ -14438,6 +14450,13 @@ function devm_show
 {
 set -x
 	mlxdevm port function rate show
+set +x
+}
+
+function devlink_show
+{
+set -x
+	devlink port function rate show
 set +x
 }
 

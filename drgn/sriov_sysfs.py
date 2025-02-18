@@ -49,7 +49,7 @@ def print_esw(priv):
     print("esw->dev->priv->sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
 #     for i in range(esw.dev.priv.sriov.num_vfs):
     for i in range(1):
-        print("========================== %d =========================" % i)
+        print("========================== vf %d =========================" % i)
         print(esw.dev.priv.sriov.vfs[i])
         ktype = esw.dev.priv.sriov.vfs[i].kobj.ktype
         print_ktype(ktype)

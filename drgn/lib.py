@@ -575,6 +575,7 @@ def print_tuple(tuple, ct):
     IP_CT_DIR_ORIGINAL = prog['IP_CT_DIR_ORIGINAL'].value_()
     IPPROTO_UDP = prog['IPPROTO_UDP'].value_()
     IPPROTO_TCP = prog['IPPROTO_TCP'].value_()
+    IPPROTO_GRE = prog['IPPROTO_GRE'].value_()
 
     protonum = tuple.tuple.dst.protonum.value_()
     dir = tuple.tuple.dst.dir.value_()
@@ -586,7 +587,7 @@ def print_tuple(tuple, ct):
     if protonum == IPPROTO_UDP:
         dport = ntohs(tuple.tuple.dst.u.udp.port.value_())
         sport = ntohs(tuple.tuple.src.u.udp.port.value_())
-    if dport != 5001 and dport != 4000 and dport != 20000 and dport != 8080:
+    if protonum != IPPROTO_GRE and dport != 5001 and dport != 4000 and dport != 20000 and dport != 5201:
         return
 
     print("============================================================")
@@ -619,7 +620,7 @@ def print_dest(rule):
         (rule.value_(), rule.node.refcount.refs.counter))
 #     print(rule.dest_attr)
     if prog['MLX5_FLOW_DESTINATION_TYPE_COUNTER'] == rule.dest_attr.type:
-        print("\t\t\tdest: counter_id: %x" % (rule.dest_attr.counter_id))
+#         print("\t\t\tdest: counter_id: %x" % (rule.dest_attr.counter_id))
         return
     if prog['MLX5_FLOW_DESTINATION_TYPE_VPORT'] == rule.dest_attr.type or \
        prog['MLX5_FLOW_DESTINATION_TYPE_UPLINK'] == rule.dest_attr.type:
