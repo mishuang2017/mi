@@ -52,10 +52,10 @@ def print_esw(priv):
         print("========================== vf %d =========================" % i)
         print(esw.dev.priv.sriov.vfs[i])
         ktype = esw.dev.priv.sriov.vfs[i].kobj.ktype
-        print_ktype(ktype)
+#         print_ktype(ktype)
 #     print(esw.dev.priv.sriov)
     groups_config = esw.dev.priv.sriov.groups_config
-#     print(groups_config)
+    print(groups_config)
 #     mlx5_esw_rate_group = container_of(groups_config, "struct mlx5_esw_rate_group", "kobj")
 #     print(mlx5_esw_rate_group)
 

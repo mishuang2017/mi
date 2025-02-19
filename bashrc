@@ -6979,8 +6979,8 @@ set -x
 # 	sf_name=enp8s0f0npf0sf1
 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum $sfnum
-set +x
-	return
+# set +x
+# 	return
 	(( debug == 1 )) && read
 # 	sleep 1
 	$cmd port function set $sf_name state active

@@ -12734,5 +12734,78 @@ wqe_counter
 
 byte_cnt: Applicable for RDMA-read, Atomic and receive completions.
 
+===tracing===
 
+#!/bin/bash
+ 
+pushd /sys/kernel/debug/tracing
+
+echo 0 > tracing_on
+
+#cat trace > ~/a.txt
+ 
+echo > set_graph_function
+
+echo 0 > options/func_stack_trace
+
+echo > set_ftrace_filter
+
+cat set_ftrace_filter
+
+cat available_tracers
+
+echo nop > current_tracer
+
+popd
+ 
+#!/bin/bash
+ 
+pushd /sys/kernel/debug/tracing
+
+#function=mlx5_eq_comp_int
+
+# function=mlx5_cq_tasklet_cb
+
+# function=mlx5e_poll_rx_cq
+
+# function=mlx5e_poll_rx_cq
+
+# function=mlx5e_handle_rx_cqe
+
+# function=mlx5e_skb_from_cqe_linear
+
+# function=napi_gro_receive
+
+# function=mlx5_esw_qos_vport_enable
+
+# function=mlx5_esw_qos_vport_disable
+
+# function=mlx5_esw_qos_vport_disable
+
+function=mlx5_esw_qos_pre_cleanup
+
+# function=devlink_rate_nodes_destroy
+ 
+rm -rf ~/a.txt
+
+echo > trace
+
+echo function > current_tracer
+
+echo $function > set_ftrace_filter
+
+echo 1 > options/func_stack_trace
+
+cat /dev/null > trace
+
+echo 1 > tracing_on
+
+popd
+ 
+cat trace > ~/a.txt
+
+cat ~/a.txt
+ 
+cat /sys/kernel/tracing/trace_pipe | tee ~/a.txt
+ 
 
