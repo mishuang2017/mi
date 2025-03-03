@@ -369,6 +369,9 @@ alias clone-drgn='git clone https://github.com/osandov/drgn.git'	# pip3 install 
 alias clone-wrk='git clone git@github.com:wg/wrk.git'
 alias clone-netperf='git clone git@github.com:HewlettPackard/netperf.git'
 alias clone-bisect-tool='git clone http://l-gerrit.mtl.labs.mlnx:8080/upstream/scripts'
+alias clone-smfs='git clone https://github.com/Mellanox/mlx_steering_dump.git'
+alias cd_smfs="cd /sys/kernel/debug/mlx5/$pci/steering/"
+alias parser='/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f'
 alias wget_teams='wget https://packages.microsoft.com/repos/ms-teams/pool/main/t/teams/teams_1.3.00.16851_amd64.deb'	# apt install ./teams_1.3.00.teams_1.3.00.16851_amd64.deb
 
 alias clone-ubuntu-xenial='git clone git://kernel.ubuntu.com/ubuntu/ubuntu-xential.git'
@@ -6982,7 +6985,7 @@ set -x
 # set +x
 # 	return
 	(( debug == 1 )) && read
-# 	sleep 1
+	sleep 1
 	$cmd port function set $sf_name state active
 
 	(( debug == 1 )) && read
@@ -9246,6 +9249,11 @@ function ofed_all
 	./configure --all --without-sf-cfg-drv -j $cpu_num2
 	mi
 }
+
+# Uninstall OFED : ofed_uninstall.sh --force
+ 
+# For adding user space ONLY :
+# build=MLNX_OFED_LINUX-<DRIVER VERSION> /.autodirect/mswg/release/MLNX_OFED/mlnx_ofed_install --user-space-only
 
 function ofed_install
 {
@@ -14177,10 +14185,12 @@ function devlink_groups
 
 	devlink port func rate add pci/$pci/g1
 	devlink port func rate add pci/$pci/g2
+	devlink port func rate add pci/$pci/g3
 # 	devlink port func rate set pci/$pci/2 parent g1
 # 	devlink port func rate set pci/$pci/3 parent g2 # not allowed
 
 	devlink port func rate set pci/$pci/g2 parent g1
+	devlink port func rate set pci/$pci/g1 parent g3
 }
 
 function devlink_groups2
@@ -14468,6 +14478,7 @@ set +x
 }
 
 alias qostree='python3 /mswg/projects/fw/fw_ver/hca_fw_tools/vqos_tree/execute.py -d /dev/mst/mt4129_pciconf0'
+alias qostree_cx6='python3 /mswg/projects/fw/fw_ver/hca_fw_tools/vqos_tree/execute.py -d /dev/mst/mt4125_pciconf0'
 
 function devm_4210136
 {
@@ -16042,4 +16053,19 @@ function install_rdma_core
 
 	cd libibverbs
 	ln -s ../libmlx5.so.1.25.56.0 libmlx5-rdmav34.so
+}
+
+function qos
+{
+	/auto/sw/regression/sw_net_ver_tools/mlnx_qos/x86_64/mlnx_qos -i $link -p 0,1,2,3,4,5,6,7 --trust dscp
+	echo 0:10 1:90 2:0 3:0 4:0 5:0 6:0 7:0 > /sys/class/net/$link/device/sriov/1/tc_bw
+	raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --tos 32
+	raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --tos 0
+}
+
+function group_groups
+{
+	dev; on-sriov; cd_sriov; cd groups; echo 1 > create; echo 2 > create; cd 1; echo 2 > parent
+	dev; on-sriov; cd_sriov; cd groups; echo 1 > create; echo 2 > create; cd 1; echo 2 > parent; cd_sriov; cd 0; echo 1 > group
+	dev; on-sriov; cd_sriov; cd groups; echo 1 > create; echo 2 > create; cd 1; echo 2 > parent; echo 0:10 1:90 2:0 3:0 4:0 5:0 6:0 7:0 > tc_bw
 }

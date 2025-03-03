@@ -17,8 +17,9 @@ def print_health(health):
 
 def print_ktype(ktype):
     print(ktype)
-    default_groups = ktype.default_groups
-    print(default_groups[0])
+#     default_groups = ktype.default_groups
+#     print(default_groups)
+#     print(default_groups[0])
     attrs = default_groups[0].attrs
     print(attrs)
     j = 0
@@ -46,27 +47,38 @@ def print_esw(priv):
     print("esw->enabled_vports: %d" % esw.enabled_vports)
     print("esw->manager_vport: %d" % esw.manager_vport)
     print("esw->esw_funcs->num_vfs: %d" % esw.esw_funcs.num_vfs)
-    print("esw->dev->priv->sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
-#     for i in range(esw.dev.priv.sriov.num_vfs):
+    sriov = esw.dev.priv.sriov
+    print(sriov)
+    print("esw->dev->priv->sriov.num_vfs: %d" % sriov.num_vfs)
+#     for i in range(sriov.num_vfs):
     for i in range(1):
         print("========================== vf %d =========================" % i)
-        print(esw.dev.priv.sriov.vfs[i])
-        ktype = esw.dev.priv.sriov.vfs[i].kobj.ktype
+#         print(sriov.vfs[i])
+        ktype = sriov.vfs[i].kobj.ktype
+        print(ktype)
 #         print_ktype(ktype)
-#     print(esw.dev.priv.sriov)
-    groups_config = esw.dev.priv.sriov.groups_config
-    print(groups_config)
+#     print(sriov)
+    groups_config = sriov.groups_config
+    print(groups_config.ktype)
 #     mlx5_esw_rate_group = container_of(groups_config, "struct mlx5_esw_rate_group", "kobj")
 #     print(mlx5_esw_rate_group)
 
-    config = esw.dev.priv.sriov.config
-    print(config.ktype)
+#     config = sriov.config
+#     print(config.ktype)
+
+#     print(groups_config.sd)
+#     print(sriov.groups_create_attr)
 
 print("===================== port 1 =======================")
 print(pf0_name)
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
 # print(mlx5e_priv.netdev.devlink_port.switch_port)
+
+# vf_eth_attrs = prog['vf_eth_attrs']
+# print(vf_eth_attrs)
+# vf_type_eth = prog['vf_type_eth']
+# print_ktype(vf_type_eth)
 
 exit(0)
 
