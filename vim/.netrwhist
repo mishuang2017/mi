@@ -1,5 +1,6 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =6
+let g:netrw_dirhistcnt =7
+let g:netrw_dirhist_7='/labhome/cmi/revert/3'
 let g:netrw_dirhist_6='/images/cmi/mlnx-ofa_kernel-4.0/backports'
 let g:netrw_dirhist_5='/.autodirect/swgwork/cmi/sosreport-nd-sjc6u-ss-01-vf-vtep-ss-node-issue-2025-02-14-mlsoexe/sos_commands/aide'
 let g:netrw_dirhist_4='/.autodirect/swgwork/cmi/rdma-core/build/bin'

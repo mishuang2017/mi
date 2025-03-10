@@ -96,6 +96,7 @@ def print_mlx5_vport(priv):
                 print("node: %x" % node.value_(), end=' ')
                 print("tc: %d" % node.tc, end=' ')
                 print("ix: %d" % node.ix, end=' ')
+                print("leve: %d" % node.level, end=' ')
                 print('')
                 i += 1
                 if i == 2:
@@ -118,6 +119,7 @@ def print_mlx5_vport(priv):
                 print("bw_share: %d" % node.parent.bw_share, end=' ')
                 print("max_rate: %d" % node.parent.max_rate, end=' ')
                 print("min_rate: %d" % node.parent.min_rate, end=' ')
+                print("leve: %d" % node.level, end=' ')
                 print('')
                 if node.parent:
                     print("%-35s" % type(node.parent.parent.type), end=' ')

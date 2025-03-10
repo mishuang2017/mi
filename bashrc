@@ -5709,8 +5709,8 @@ function tc_stack_devices
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
 	TC=tc
-	TC=/images/cmi/iproute2/tc/tc
 	TC=/opt/mellanox/iproute2/sbin/tc
+	TC=/images/cmi/iproute2/tc/tc
 
 	$TC qdisc del dev $rep1 ingress
 	$TC qdisc del dev $rep2 ingress
@@ -5809,8 +5809,8 @@ function tc_stack_devices_ct
 	[[ "$1" == "hw" ]] && offload="skip_sw"
 
 	TC=tc
-	TC=/images/cmi/iproute2/tc/tc
 	TC=/opt/mellanox/iproute2/sbin/tc
+	TC=/images/cmi/iproute2/tc/tc
 
 	$TC qdisc del dev $rep1 ingress
 	$TC qdisc del dev $rep2 ingress
@@ -8196,7 +8196,7 @@ set -x
 	b=$(git branch | grep \* | cut -d ' ' -f2)
 	echo $b
 # 	commit=$(git slog -50 | grep origin/.*$b | head -1 | cut -f 1 -d " ")
-	commit=$(git slog -50 | grep origin | head -1 | cut -f 1 -d " ")
+	commit=$(git slog -150 | grep origin | head -1 | cut -f 1 -d " ")
 	echo $commit
 	git format-patch -o $dir/$n $commit
 set +x
@@ -14191,6 +14191,20 @@ function devlink_groups
 
 	devlink port func rate set pci/$pci/g2 parent g1
 	devlink port func rate set pci/$pci/g1 parent g3
+}
+
+function devm_groups
+{
+set -x
+# 	mlxdevm dev eswitch set pci/0000:08:00.0 mode switchdev
+
+	mlxdevm port func rate add pci/$pci/g1
+	mlxdevm port func rate add pci/$pci/g2
+# 	mlxdevm port func rate set pci/$pci/2 parent g1
+# 	mlxdevm port func rate set pci/$pci/3 parent g2 # not allowed
+
+	mlxdevm port func rate set pci/$pci/g2 parent g1
+set +x
 }
 
 function devlink_groups2
