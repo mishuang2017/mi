@@ -41,6 +41,7 @@ def print_esw(priv):
 #     print(esw.offloads.ft_offloads)
     if esw.mode == 0:
         return
+    print(esw.qos.domain)
     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags);
     print("esw->total_vports: %d" % esw.total_vports)
     print("esw->num_peers: %d" % esw.num_peers)
