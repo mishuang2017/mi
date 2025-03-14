@@ -33,7 +33,7 @@ def print_esw(priv):
     esw = priv.mdev.priv.eswitch
     print("mode: %d" % esw.mode)
     print("mlx5_eswitch %#x" % esw)
-#     print(esw.qos)
+    print(esw.qos)
 #     return
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
     print("esw->flags: %#x (1 means MLX5_ESWITCH_VPORT_MATCH_METADATA)" % esw.flags)

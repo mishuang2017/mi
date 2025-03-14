@@ -12,7 +12,8 @@ import socket
 # print(__name__)
 
 crash_file = ""
-# crash_file = "/var/crash/vmcore.5"
+# crash_file = "/var/crash/vmcore.1"
+print(crash_file)
 if crash_file == "":
     prog = drgn.program_from_kernel()
 else:

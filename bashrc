@@ -496,6 +496,7 @@ alias dp='sudo ovs-dpctl'
 alias dpd="sudo ~/bin/ovs-df.sh"
 alias dpd-bond='dpd -m | grep -v arp | grep -v "bond0$" | grep offloaded | grep bond0'
 alias dpd0='sudo ovs-dpctl dump-flows --name'
+alias dpd0='ovs-appctl dpctl/dump-flows --names -m'
 alias app='sudo ovs-appctl'
 alias fdbs='sudo ovs-appctl fdb/show'
 alias fdbi='sudo ovs-appctl fdb/show br-int'
@@ -6839,8 +6840,8 @@ function start-switchdev-all
 }
 
 alias mystart=start-switchdev-all
-alias restart='off; dmfs; dmfs2; mystart'
-alias restart2='off; smfs; smfs2; mystart'
+alias restart2='off; dmfs; dmfs2; mystart'
+alias restart='off; smfs; smfs2; mystart'
 
 # assume legacy mode was enabled
 function start-switchdev
@@ -8333,6 +8334,20 @@ function peer
 {
 set -x
 	ip1
+	ip link del $vx > /dev/null 2>&1
+	ip link add name $vx type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
+	ip addr add $link_ip_vxlan/16 brd + dev $vx
+	ip addr add $link_ipv6_vxlan/64 dev $vx
+	ip link set dev $vx up
+	ip link set $vx address $vxlan_mac
+set +x
+}
+
+# work with br_int_port
+function peer_vlan
+{
+set -x
+	vlan $link 32 192.168.1.6
 	ip link del $vx > /dev/null 2>&1
 	ip link add name $vx type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
 	ip addr add $link_ip_vxlan/16 brd + dev $vx
