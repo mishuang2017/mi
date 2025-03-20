@@ -77,7 +77,7 @@ def print_net_xfrm_state(net):
     i=1
     for x in list_for_each_entry('struct xfrm_state', netns_xfrm.state_all.address_of_(), 'km.all'):
         print(" --- %d ---\n" % i)
-#         print(x)
+        print(x)
         print(x.id)
         print(x.xso)
         print("x.xso.type: XFRM_DEV_OFFLOAD_CRYPTO: 1, XFRM_DEV_OFFLOAD_PACKET: 2")

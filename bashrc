@@ -372,6 +372,7 @@ alias clone-bisect-tool='git clone http://l-gerrit.mtl.labs.mlnx:8080/upstream/s
 alias clone-smfs='git clone https://github.com/Mellanox/mlx_steering_dump.git'
 alias cd_smfs="cd /sys/kernel/debug/mlx5/$pci/steering/"
 alias parser='/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f'
+alias parser2="/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci/steering/fdb/dmn_*"
 alias wget_teams='wget https://packages.microsoft.com/repos/ms-teams/pool/main/t/teams/teams_1.3.00.16851_amd64.deb'	# apt install ./teams_1.3.00.teams_1.3.00.16851_amd64.deb
 
 alias clone-ubuntu-xenial='git clone git://kernel.ubuntu.com/ubuntu/ubuntu-xential.git'
@@ -2080,11 +2081,12 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
 	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+set +x
+	return
+
 # 		action mirred egress redirect dev $rep1
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
-# set +x
-# 	return
 	src_mac=02:25:d0:$host_num:01:03
 	dst_mac=02:25:d0:$host_num:01:02
 	$TC filter add dev $rep3 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
@@ -5401,11 +5403,11 @@ set -x
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	ip1
-# 	vxlan1
+	vxlan1
 # 	 ovs-ofctl add-flow $br "table=0, ip,in_port=vxlan1,dl_src=02:25:d0:06:01:02,dl_dst=02:25:d0:05:01:02,nw_src=1.1.3.1,nw_dst=1.1.1.1 actions=output:enp8s0f0_1"
 # 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
 # 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
-	geneve
+# 	geneve
 # 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
 # 	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
 set +x
@@ -6946,7 +6948,11 @@ function sf1
 	n=1
         [[ $# == 1 ]] && n=$1
 
-	$sfcmd port add pci/$pci flavour pcisf pfnum 0 sfnum $n
+	cmd=mlxdevm
+	cmd=devlink
+	$cmd port add pci/$pci flavour pcisf pfnum 0 sfnum $n
+	read
+	$cmd port function set en8f0pf0sf1 state active
 }
 
 function sf_m
@@ -16091,8 +16097,9 @@ function qos
 {
 	/auto/sw/regression/sw_net_ver_tools/mlnx_qos/x86_64/mlnx_qos -i $link -p 0,1,2,3,4,5,6,7 --trust dscp
 	echo 0:10 1:90 2:0 3:0 4:0 5:0 6:0 7:0 > /sys/class/net/$link/device/sriov/1/tc_bw
-	raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --tos 32
-	raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --tos 0
+
+	ip netns exec n11 raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --tos 32 &
+	ip netns exec n11 raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --tos 0
 }
 
 function group_groups

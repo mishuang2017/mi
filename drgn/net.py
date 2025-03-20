@@ -44,6 +44,7 @@ for x, dev in enumerate(get_netdevs()):
     print("%10d" % count, end='\t')
     print("%20s" % address_to_name(hex(dev.netdev_ops.value_())), end='\t')
     print_kind(dev)
+#     print(dev.devlink_port)
     print("")
 
 # 14.73379 455917  455917  kworker/u20:4   mlx5_add_flow_rules
