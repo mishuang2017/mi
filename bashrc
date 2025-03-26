@@ -12138,7 +12138,9 @@ function install-bpftrace
 
 BCC_DIR=/images/cmi/bcc
 BCC_DIR=/usr/share/bcc
-alias trace="sudo $BCC_DIR/tools/trace -t"
+TRACE=/usr/sbin/trace-bpfcc
+TRACE=$BCC_DIR/tools/trace
+alias trace="sudo $TRACE -t"
 alias execsnoop="sudo $BCC_DIR/tools/execsnoop"
 alias tcpaccept="sudo $BCC_DIR/tools/tcpaccept"
 alias funccount="sudo $BCC_DIR/tools/funccount -i 1"
@@ -12148,13 +12150,13 @@ alias trace_psample='trace psample_sample_packet -K'
 function trace1
 {
 	[[ $# != 1 ]] && return
-	sudo $BCC_DIR/tools/trace -t "$1 \"%lx\", arg1"
+	sudo $TRACE -t "$1 \"%lx\", arg1"
 }
 
 function trace2
 {
 	[[ $# != 1 ]] && return
-	sudo $BCC_DIR/tools/trace -t "$1 \"%lx\", arg2"
+	sudo $TRACE -t "$1 \"%lx\", arg2"
 }
 
 function tracer2
@@ -12162,7 +12164,7 @@ function tracer2
 	[[ $# != 1 ]] && return
 	local file=/tmp/bcc_$$.sh
 cat << EOF > $file
-$BCC_DIR/tools/trace -t 'r::$1 "ret: %d", retval' "$1 \"ifindex: %lx\", arg2"
+$TRACE -t 'r::$1 "ret: %d", retval' "$1 \"ifindex: %lx\", arg2"
 EOF
 	echo $file
 	sudo bash $file
@@ -12171,25 +12173,25 @@ EOF
 function trace3
 {
 	[[ $# != 1 ]] && return
-	sudo $BCC_DIR/tools/trace -t "$1 \"%lx\", arg3"
+	sudo $TRACE -t "$1 \"%lx\", arg3"
 }
 
 function trace4
 {
 	[[ $# != 1 ]] && return
-	sudo $BCC_DIR/tools/trace -t "$1 \"%lx\", arg4"
+	sudo $TRACE -t "$1 \"%lx\", arg4"
 }
 
 function trace5
 {
 	[[ $# != 1 ]] && return
-	sudo $BCC_DIR/tools/trace -t "$1 \"%lx\", arg5"
+	sudo $TRACE -t "$1 \"%lx\", arg5"
 }
 
 function trace6
 {
 	[[ $# != 1 ]] && return
-	sudo $BCC_DIR/tools/trace -t "$1 \"%lx\", arg6"
+	sudo $TRACE -t "$1 \"%lx\", arg6"
 }
 
 alias fc1='funccount miniflow_merge_work -i 1'
@@ -12206,7 +12208,7 @@ function tracerx
 	[[ $# != 1 ]] && return
 	local file=/tmp/bcc_$$.sh
 cat << EOF > $file
-$BCC_DIR/tools/trace 'r::$1 "%lx", retval'
+$TRACE 'r::$1 "%lx", retval'
 EOF
 	echo $file
 	sudo bash $file
@@ -12217,7 +12219,7 @@ function tracer
 	[[ $# != 1 ]] && return
 	local file=/tmp/bcc_$$.sh
 cat << EOF > $file
-$BCC_DIR/tools/trace 'r::$1 "%d", retval'
+$TRACE 'r::$1 "%d", retval'
 EOF
 	echo $file
 	sudo bash $file
@@ -12228,7 +12230,7 @@ function traceo
 	[[ $# < 1 ]] && return
 	local file=/tmp/bcc_$$.sh
 cat << EOF > $file
-$BCC_DIR/tools/trace -t 'ovs-vswitchd:$1 "%d", arg1'
+$TRACE -t 'ovs-vswitchd:$1 "%d", arg1'
 EOF
 	if [[ $# == 2 ]]; then
 		sed -i 's/$/& -U/g' $file
@@ -12243,7 +12245,7 @@ function tracecmd
 	[[ $# < 2 ]] && return
 	local file=/tmp/bcc_$$.sh
 cat << EOF > $file
-$BCC_DIR/tools/trace -t '$1:$2 "%lx", arg1'
+$TRACE -t '$1:$2 "%lx", arg1'
 EOF
 	if [[ $# == 2 ]]; then
 		sed -i 's/$/& -U/g' $file
@@ -12258,7 +12260,7 @@ function tracecmd2
 	[[ $# < 2 ]] && return
 	local file=/tmp/bcc_$$.sh
 cat << EOF > $file
-$BCC_DIR/tools/trace -t '$1:$2 "%lx", arg2'
+$TRACE -t '$1:$2 "%lx", arg2'
 EOF
 	if [[ $# == 2 ]]; then
 		sed -i 's/$/& -U/g' $file
@@ -12275,7 +12277,7 @@ function traceo2
 	[[ $# < 1 ]] && return
 	local file=/tmp/bcc_$$.sh
 cat << EOF > $file
-$BCC_DIR/tools/trace 'ovs-vswitchd:$1 "%lx", arg2'
+$TRACE 'ovs-vswitchd:$1 "%lx", arg2'
 EOF
 	if [[ $# == 2 ]]; then
 		sed -i 's/$/& -U/g' $file
@@ -12290,7 +12292,7 @@ function traceo3
 	[[ $# < 1 ]] && return
 	local file=/tmp/bcc_$$.sh
 cat << EOF > $file
-$BCC_DIR/tools/trace 'ovs-vswitchd:$1 "%llx", arg3'
+$TRACE 'ovs-vswitchd:$1 "%llx", arg3'
 EOF
 	if [[ $# == 2 ]]; then
 		sed -i 's/$/& -U/g' $file
@@ -12305,7 +12307,7 @@ function traceor
 	[[ $# < 1 ]] && return
 	local file=/tmp/bcc_$$.sh
 cat << EOF > $file
-$BCC_DIR/tools/trace 'r:ovs-vswitchd:$1 "%lx", retval'
+$TRACE 'r:ovs-vswitchd:$1 "%lx", retval'
 EOF
 	if [[ $# == 2 ]]; then
 		sed -i 's/$/& -U/g' $file
