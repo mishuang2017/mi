@@ -33,8 +33,8 @@ set encoding=utf-8
 
 " set winwidth=80
 " set ignorecase
-set wrap
 set nowrap
+set wrap
 " set autowrite
 
 " imap { {<CR>}<ESC>O

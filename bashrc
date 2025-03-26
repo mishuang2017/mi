@@ -371,8 +371,9 @@ alias clone-netperf='git clone git@github.com:HewlettPackard/netperf.git'
 alias clone-bisect-tool='git clone http://l-gerrit.mtl.labs.mlnx:8080/upstream/scripts'
 alias clone-smfs='git clone https://github.com/Mellanox/mlx_steering_dump.git'
 alias cd_smfs="cd /sys/kernel/debug/mlx5/$pci/steering/"
-alias parser='/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f'
-alias parser2="/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci/steering/fdb/dmn_*"
+# alias parser='/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f'
+alias parser1="/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci/steering/fdb/dmn_*"
+alias parser2="/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci2/steering/fdb/dmn_*"
 alias wget_teams='wget https://packages.microsoft.com/repos/ms-teams/pool/main/t/teams/teams_1.3.00.16851_amd64.deb'	# apt install ./teams_1.3.00.teams_1.3.00.16851_amd64.deb
 
 alias clone-ubuntu-xenial='git clone git://kernel.ubuntu.com/ubuntu/ubuntu-xential.git'
@@ -506,7 +507,7 @@ alias fdb='of show br-int | grep addr; fdbi; of show br-ex | grep addr; fdbe'
 alias fdb-br='of show br | grep addr; sudo ovs-appctl fdb/show br'
 alias app1='sudo ovs-appctl dpctl/dump-flows'
 alias appn='sudo ovs-appctl dpctl/dump-flows --names'
-alias app-ct='sudo ovs-appctl app dpctl/dump-conntrack'
+alias app-ct='sudo ovs-appctl dpctl/dump-conntrack'
 
 alias p1="ping $link_remote_ip"
 alias p=p1
@@ -767,6 +768,7 @@ alias vi-corrupt="cd /labhome/cmi/mi/prg/c/$corrupt_dir; vi corrupt.c"
 alias corrupt="/labhome/cmi/mi/prg/c/$corrupt_dir/corrupt"
 alias n2_corrupt="n2 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s -l 100"
 alias n1_corrupt="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -t 100000 -c"
+alias n0_corrupt="ns0 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -t 100000 -c"
 alias n1_corrupt_t="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -c"
 alias n1_corrupt_server="n1 /labhome/cmi/mi/prg/c/$corrupt_dir/corrupt -s"
 alias cd_sriov=" cd /sys/class/net/$link/device/sriov"
@@ -9069,11 +9071,6 @@ function ecmp
 	cmd_on $HOST2 "ifconfig int0 1.1.1.13/16 up"
 }
 
-alias lag="cat /sys/kernel/debug/mlx5/$pci/lag_affinity"
-alias lag0="echo 0 > /sys/kernel/debug/mlx5/$pci/lag_affinity"
-alias lag1="echo 1 > /sys/kernel/debug/mlx5/$pci/lag_affinity"
-alias lag2="echo 2 > /sys/kernel/debug/mlx5/$pci/lag_affinity"
-
 alias show-links="ip link show dev $link; ip link show dev $link2"
 
 function ip-r0
@@ -16107,4 +16104,17 @@ function group_groups
 	dev; on-sriov; cd_sriov; cd groups; echo 1 > create; echo 2 > create; cd 1; echo 2 > parent
 	dev; on-sriov; cd_sriov; cd groups; echo 1 > create; echo 2 > create; cd 1; echo 2 > parent; cd_sriov; cd 0; echo 1 > group
 	dev; on-sriov; cd_sriov; cd groups; echo 1 > create; echo 2 > create; cd 1; echo 2 > parent; echo 0:10 1:90 2:0 3:0 4:0 5:0 6:0 7:0 > tc_bw
+}
+
+function parser
+{
+	/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci/steering/fdb/dmn_* > /root/nic1.txt
+	/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci2/steering/fdb/dmn_* > /root/nic2.txt
+}
+
+function lag
+{
+set -x
+	more /sys/kernel/debug/mlx5/$pci/lag/*
+set +x
 }

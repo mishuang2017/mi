@@ -17,11 +17,14 @@ MLX5_NUM_TT = prog['MLX5_NUM_TT']
 def print_port_sel(port_sel):
     print(port_sel)
 
+    print('------port_sel start-------')
     mlx5_lag_definer = port_sel.outer.definers
     for i in range(MLX5_NUM_TT.value_()):
         if mlx5_lag_definer[i]:
+            print("---------------------%d-----------------------\n" % i)
             print(mlx5_lag_definer[i].definer)
             flow_table("", mlx5_lag_definer[i].ft)
+    print('------port_sel end-------')
 
 # for name in pf0_name,pf1_name:
 for name in pf0_name,:
@@ -47,7 +50,7 @@ for name in pf0_name,:
 #     print(mlx5_lag.v2p_map)
 #     print(mlx5_lag.tracker)
     port_sel = mlx5_lag.port_sel
-#     print_port_sel(port_sel)
+    print_port_sel(port_sel)
 #     continue
     print(mlx5_lag.pf[0])
     print(mlx5_lag.pf[1])

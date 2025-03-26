@@ -18,7 +18,7 @@ for x, dev in enumerate(get_netdevs()):
     addr = dev.value_()
     if "enp" not in name:
         continue;
-#     print(name)
+    print("name: %s" % name)
 #     if "enp8s0f0_1" not in name:
 #         continue
 
@@ -49,13 +49,13 @@ for x, dev in enumerate(get_netdevs()):
             print("--- flow.attrs: %d, %x ---" % (k, mlx5_flow_attr))
             k=k+1
             print("mlx5_flow_attr.action: %x" % mlx5_flow_attr.action)
-            print("flow.attr.tc_act_cookies_count: %d" % mlx5_flow_attr.tc_act_cookies_count)
-            for m in range(mlx5_flow_attr.tc_act_cookies_count):
-                print("tc_act_cookies[%d]: %x" % (m, mlx5_flow_attr.tc_act_cookies[m]))
+#             print("flow.attr.tc_act_cookies_count: %d" % mlx5_flow_attr.tc_act_cookies_count)
+#             for m in range(mlx5_flow_attr.tc_act_cookies_count):
+#                 print("tc_act_cookies[%d]: %x" % (m, mlx5_flow_attr.tc_act_cookies[m]))
 #             if mlx5_flow_attr.mh:
 #                 print("modify_hdr id: %x" % mlx5_flow_attr.mh.modify_hdr.id)
 #                 print_mod_hdr_key(mlx5_flow_attr.mh.key)
-            print(mlx5_flow_attr.esw_attr[0])
+#             print(mlx5_flow_attr.esw_attr[0])
             print("flow.attr: %x" % mlx5_flow_attr)
 #             print(mlx5_flow_attr.post_act_handle)
 #             print(mlx5_flow_attr.parse_attr)
