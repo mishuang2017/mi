@@ -445,8 +445,11 @@ def print_mlx5_fc(fc):
 def get_mlx5_core_devs():
     devs = {}
 
-    bus_type = prog["pci_bus_type"]
-    subsys_private = bus_type.p
+#    bus_type = prog["pci_bus_type"]
+#    subsys_private = bus_type.p
+#    k_list = subsys_private.klist_devices.k_list
+
+    subsys_private = get_subsys_private("pci")
     k_list = subsys_private.klist_devices.k_list
 
     for dev in list_for_each_entry('struct device_private', k_list.address_of_(), 'knode_bus.n_node'):
@@ -691,7 +694,7 @@ def flow_table2(name, table):
 def print_mlx5_flow_group_dr(group):
     mlx5_fs_dr_matcher =  group.fs_dr_matcher
     print("========================== mlx5_fs_dr_matcher ========================")
-    print(mlx5_fs_dr_matcher.dr_matcher)
+    print(mlx5_fs_dr_matcher.dr_matcher.tx)
 
 def flow_table(name, table):
     print("\nflow table name: %s\nflow table id: 0x%x table_level: %d, \
@@ -715,12 +718,13 @@ def flow_table(name, table):
     for group in list_for_each_entry('struct fs_node', group_addr, 'list'):
         mlx5_flow_group = Object(prog, 'struct mlx5_flow_group', address=group.value_())
 #         print(mlx5_flow_group)
-#         print_mlx5_flow_group_dr(mlx5_flow_group)
         match_criteria_enable = mlx5_flow_group.mask.match_criteria_enable
         mask = mlx5_flow_group.mask.match_criteria
         print("mlx5_flow_group %lx, id: %d, match_criteria_enable: %#x, refcount: %d, max_ftes: %d, start_index: %#x" % \
             (group, mlx5_flow_group.id, match_criteria_enable, \
              mlx5_flow_group.node.refcount.refs.counter, mlx5_flow_group.max_ftes, mlx5_flow_group.start_index))
+#         if match_criteria_enable == 9:
+#             print_mlx5_flow_group_dr(mlx5_flow_group)
         fte_addr = group.children.address_of_()
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())

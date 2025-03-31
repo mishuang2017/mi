@@ -41,6 +41,17 @@ mlx5dr_icm_pool = mlx5dr_domain.ste_icm_pool
 mlx5dr_ste_ctx = mlx5dr_domain.ste_ctx
 # print(mlx5dr_ste_ctx)
 
+def print_mlx5dr_table(dr):
+    print("======= start =======\n")
+    print("mlx5dr_table %x" % dr)
+    for matcher in list_for_each_entry('struct mlx5dr_matcher', dr.matcher_list.address_of_(), 'list_node'):
+        print("mlx5dr_matcher %x" % matcher)
+        print(matcher.dbg_rule_list)
+        for rule in list_for_each_entry('struct mlx5dr_rule', matcher.dbg_rule_list.address_of_(), 'dbg_node'):
+            print(rule)
+            # print(rule.tx.last_rule_ste)
+    print("======= end =======\n")
+
 i = 1
 # ofed
 # for tbl in list_for_each_entry('struct mlx5dr_table', mlx5dr_domain.tbl_list.address_of_(), 'list_node'):
@@ -48,3 +59,6 @@ i = 1
 for tbl in list_for_each_entry('struct mlx5dr_table', mlx5dr_domain.dbg_tbl_list.address_of_(), 'dbg_node'):
     print("%3d: mlx5dr_table %x, id: %4d, %#x" % (i, tbl, tbl.table_id, tbl.table_id))
     i = i + 1
+    if tbl.table_id == 0xb:
+       print_mlx5dr_table(tbl)
+#        print(tbl.tx)
