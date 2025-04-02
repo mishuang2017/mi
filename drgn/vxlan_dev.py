@@ -89,4 +89,5 @@ for i in range(1<<8):
         print("vxlan_sock flags: %x" % vxlan_sock.flags)
 
 for vxlan_dev in list_for_each_entry('struct vxlan_dev', vxlan_net.vxlan_list.address_of_(), 'next'):
+#     print(vxlan_dev.cfg.flags)
     print("vxlan_dev: %x" % vxlan_dev)

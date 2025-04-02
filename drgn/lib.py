@@ -62,12 +62,6 @@ def hostname(name):
     else:
         return False
 
-pf0_name = "enp4s0f0np0"
-pf1_name = "enp4s0f1np1"
-
-pf0_name = "enp4s0f0"
-pf1_name = "enp4s0f1"
-
 (status, hostname) = subprocess.getstatusoutput("hostname")
 
 if hostname.find("c-") == 0:
@@ -235,6 +229,7 @@ def print_exts(e):
             tun = Object(prog, 'struct tcf_tunnel_key', address=a.value_())
             if tun.params.tcft_action == 1:
                 ip_tunnel_key = tun.params.tcft_enc_metadata.u.tun_info.key
+#                 print(ip_tunnel_key)
                 print("\tTCA_TUNNEL_KEY_ACT_SET")
                 print("\tip_tunnel_info: %x" % tun.params.tcft_enc_metadata.u.tun_info.address_of_().value_())
                 print("\ttun_id: 0x%x" % ip_tunnel_key.tun_id.value_())

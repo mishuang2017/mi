@@ -259,6 +259,8 @@ alias mac2="ip l show $link | grep ether; ip link set dev $link address $link2_m
 
 alias vxlan6="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ipv6  options:key=$vni options:dst_port=$vxlan_port"
 alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit"
+alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit options:csum=false options:df_default=true"
+alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit options:csum=false"
 alias vxlan4000="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4000"
 alias vxlan4789="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4789"
 alias vxlan1-2="ovs-vsctl add-port $br2 $vx2 -- set interface $vx2 type=vxlan options:remote_ip=$link2_remote_ip  options:key=$vni options:dst_port=$vxlan_port"
@@ -5130,6 +5132,27 @@ set -x
 set +x
 }
 
+function brx
+{
+set -x
+	del-br
+	vs add-br $br
+  	for (( i = 0; i < numvfs; i++)); do
+# 	for (( i = 1; i < 2; i++)); do
+		local rep=$(get_rep $i)
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+	ip1
+	vxlan1
+# 	 ovs-ofctl add-flow $br "table=0, ip,in_port=vxlan1,dl_src=02:25:d0:06:01:02,dl_dst=02:25:d0:05:01:02,nw_src=1.1.3.1,nw_dst=1.1.1.1 actions=output:enp8s0f0_1"
+# 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
+# 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
+# 	geneve
+# 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
+# 	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
+set +x
+}
+
 function brx-dot1q
 {
 set -x
@@ -5391,27 +5414,6 @@ set -x
 		-- set interface patch-int type=patch options:peer=patch-ex  \
 		-- add-port $ex patch-ex       \
 		-- set interface patch-ex type=patch options:peer=patch-int
-set +x
-}
-
-function brx
-{
-set -x
-	del-br
-	vs add-br $br
-  	for (( i = 0; i < numvfs; i++)); do
-# 	for (( i = 1; i < 2; i++)); do
-		local rep=$(get_rep $i)
-		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
-	done
-	ip1
-	vxlan1
-# 	 ovs-ofctl add-flow $br "table=0, ip,in_port=vxlan1,dl_src=02:25:d0:06:01:02,dl_dst=02:25:d0:05:01:02,nw_src=1.1.3.1,nw_dst=1.1.1.1 actions=output:enp8s0f0_1"
-# 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
-# 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
-# 	geneve
-# 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
-# 	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
 set +x
 }
 
@@ -8343,7 +8345,8 @@ function peer
 set -x
 	ip1
 	ip link del $vx > /dev/null 2>&1
-	ip link add name $vx type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port
+	ip link add name $vx type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port udpcsum df set
+# 	ip link add name $vx type vxlan id $vni dev $link remote $link_remote_ip dstport $vxlan_port df set
 	ip addr add $link_ip_vxlan/16 brd + dev $vx
 	ip addr add $link_ipv6_vxlan/64 dev $vx
 	ip link set dev $vx up
@@ -10986,6 +10989,7 @@ set -x
 	bond=bond0
 	block_id=22
 
+	remote_mac=e8:eb:d3:98:24:8c
 	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1;
 	ethtool -K $rep2 hw-tc-offload on;
 	$TC qdisc add dev $rep2 ingress
