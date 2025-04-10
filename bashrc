@@ -73,6 +73,14 @@ if (( cloud == 1 )); then
 	link=enp8s0f0
 	link2=enp8s0f1
 
+	if (( bf != 1 )); then
+		readlink /sys/class/net/p0 > /dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			link=p0
+			link2=p1
+		fi
+	fi
+
 	link_remote_ip=192.168.1.$rhost_num
 
 	vf1=enp8s0f2
@@ -1344,13 +1352,8 @@ set -x;
 	src_dir=$linux_dir/$driver_dir
 	sudo /bin/cp -f $src_dir/$module.ko /lib/modules/$(uname -r)/kernel/$driver_dir
 
-	sudo modprobe -r bonding
-	sudo modprobe -r act_sample
-	sudo modprobe -r psample
-	sudo modprobe -r mlx5_vdpa
-	sudo modprobe -r mlx5_ib
-	sudo modprobe -r mlx5_core
-	sudo modprobe -v mlx5_core
+	sudo /etc/init.d/openibd force-stop
+	sudo /etc/init.d/openibd force-start
 set +x
 }
 
@@ -1428,7 +1431,6 @@ mybuild1 ()
 
 	sudo modprobe -r $module
 	sudo modprobe -v $module
-
 }
 
 alias bo=mybuild2
@@ -7092,7 +7094,7 @@ function br_sf
 	ifconfig $sf2 up
 	ifconfig $link up
 # 	sudo ovs-vsctl add-port $br $link
-	vxlan1
+# 	vxlan1
 	sudo ovs-vsctl add-port $br $sf1
 	sudo ovs-vsctl add-port $br $sf2
 	vf1=eth3
@@ -12870,13 +12872,21 @@ function bond_stat
 
 	for (( i = 0; i < 10000; i++ )); do
 		[[ $# == 1 ]] && t=$1
-		c1=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
-		c2=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
+		t1=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
+		t2=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
+		r1=$(ethtool -S $link  | grep rx_packets_phy | awk '{print $2}')
+		r2=$(ethtool -S $link2 | grep rx_packets_phy | awk '{print $2}')
 		sleep $t
-		c3=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
-		c4=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
-		expr $c3 - $c1
-		expr $c4 - $c2
+		t3=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
+		t4=$(ethtool -S $link2 | grep tx_packets_phy | awk '{print $2}')
+		r3=$(ethtool -S $link  | grep rx_packets_phy | awk '{print $2}')
+		r4=$(ethtool -S $link2 | grep rx_packets_phy | awk '{print $2}')
+		echo "tx"
+		expr $t3 - $t1
+		expr $t4 - $t2
+		echo "rx"
+		expr $r3 - $r1
+		expr $r4 - $r2
 		echo "------------"
 	done
 }
@@ -13006,6 +13016,12 @@ set +x
 	fi
 
 set +x
+}
+
+function hmfs
+{
+	devlink dev param set pci/$pci name flow_steering_mode value "hmfs" \
+		cmode runtime || echo "Failed to set steering mode"
 }
 
 function smfs
@@ -15016,21 +15032,6 @@ function ln-crash
 	cat ${dir}dump* | makedumpfile-R.pl $crash_dir/vmcore.$n
 	ln -s ${dir}dmesg* $n.dmesg
 }
-
-# uncomment the following for built-in kernel
-# VMLINUX=/usr/lib/debug/boot/vmlinux-$(uname -r)
-alias crash1="$CRASH -i /root/.crash $VMLINUX"
-
-alias c0="$CRASH -i /root/.crash $crash_dir/vmcore.0 $VMLINUX"
-alias c1="$CRASH -i /root/.crash $crash_dir/vmcore.1 $VMLINUX"
-alias c2="$CRASH -i /root/.crash $crash_dir/vmcore.2 $VMLINUX"
-alias c3="$CRASH -i /root/.crash $crash_dir/vmcore.3 $VMLINUX"
-alias c4="$CRASH -i /root/.crash $crash_dir/vmcore.4 $VMLINUX"
-alias c5="$CRASH -i /root/.crash $crash_dir/vmcore.5 $VMLINUX"
-alias c6="$CRASH -i /root/.crash $crash_dir/vmcore.6 $VMLINUX"
-alias c7="$CRASH -i /root/.crash $crash_dir/vmcore.7 $VMLINUX"
-alias c8="$CRASH -i /root/.crash $crash_dir/vmcore.8 $VMLINUX"
-alias c9="$CRASH -i /root/.crash $crash_dir/vmcore.9 $VMLINUX"
 
 alias ls='ls --color=auto'
 

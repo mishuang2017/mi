@@ -47,3 +47,4 @@ for x, dev in enumerate(get_netdevs()):
         print("bonding.curr_active_slave: %s" % bonding.curr_active_slave.dev.name.string_().decode())
     print(bonding.params.mode)
 #     print(bonding)
+    print(bonding.recv_probe)

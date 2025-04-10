@@ -691,6 +691,16 @@ def print_mlx5_flow_group_dr(group):
     print("========================== mlx5_fs_dr_matcher ========================")
     print(mlx5_fs_dr_matcher.dr_matcher.tx)
 
+def print_mlx5_flow_group_hws(group):
+    mlx5_fs_hws_matcher =  group.fs_hws_matcher
+    print("========================== mlx5_fs_hws_matcher ========================")
+    matcher = mlx5_fs_hws_matcher.matcher
+    print(matcher)
+
+    #fc = mlx5_fs_hws_matcher.matcher.matcher.mt.fc
+    #for i in range(10):
+        #print(fc[i])
+
 def flow_table(name, table):
     print("\nflow table name: %s\nflow table id: 0x%x table_level: %d, \
         type: %x (FS_FT_FDB: %d, FS_FT_NIC_RX: %d, FS_FT_NIC_TX, %d, \
@@ -720,10 +730,16 @@ def flow_table(name, table):
              mlx5_flow_group.node.refcount.refs.counter, mlx5_flow_group.max_ftes, mlx5_flow_group.start_index))
 #         if match_criteria_enable == 9:
 #             print_mlx5_flow_group_dr(mlx5_flow_group)
+        if table.id == 0xd and match_criteria_enable:
+            print_mlx5_flow_group_hws(mlx5_flow_group)
         fte_addr = group.children.address_of_()
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
 
+#             if fs_fte.fs_hws_rule.hws_fs_actions:
+#                 if fs_fte.fs_hws_rule.num_fs_actions == 2:
+#                     print(fs_fte.fs_hws_rule.num_fs_actions)
+#                     print(fs_fte.fs_hws_rule.hws_fs_actions.action[1])
             if fs_fte_action_exists():
                 act_dests = fs_fte.act_dests
             else:
