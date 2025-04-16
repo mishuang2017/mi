@@ -454,13 +454,7 @@ alias chown1="sudo chown -R cmi.mtl ."
 alias sb='tmux save-buffer'
 
 alias sm="cd /$images/cmi"
-alias sms="cd /$images/cmi/mi"
-alias smip="cd /$images/cmi/iproute2"
-alias smipu="cd /$images/cmi/iproute2-upstream"
-alias smb2="cd /$images/cmi/bcc/tools"
-alias smb="cd /$images/cmi/bcc/examples/tracing"
 alias smk="cd /$images/cmi/mi/drgn"
-alias smdo="cd ~cmi/mi/drgn/ovs"
 alias sk="cd /swgwork/cmi"
 alias 1.sh="smk; cd ct; ./1.sh"
 
@@ -472,49 +466,22 @@ if [[ "$USER" == "mi" ]]; then
 	arch=$(uname -m)
 fi
 
-alias spec="cd /$images/mi/rpmbuild/SPECS"
 alias sml="cd /$images/cmi/linux"
-alias sml2="cd /$images/cmi/linux_dmytro"
-alias sml3="cd /$images/cmi/linux3"
-alias sm5="cd /$images/cmi/5.4"
-alias 5c="cd /$images/cmi/5.4-ct"
-alias sm-build="cdr; cd build"
-alias smu="cd /$images/cmi/upstream"
 alias smm="cd /$images/cmi/mlnx-ofa_kernel-4.0"
-alias smm8="cd /$images/cmi/5.8/mlnx-ofa_kernel-4.0"
-alias smm9="cd /$images/cmi/5.9/mlnx-ofa_kernel-4.0"
-alias o5="cd /$images/cmi/ofed-5.0/mlnx-ofa_kernel-4.0"
-alias o5-5.4="cd /$images/cmi/ofed-5.0/mlnx-ofa_kernel-4.0"
-alias m7="cd /$images/cmi/ofed-4.7/mlnx-ofa_kernel-4.0"
-alias m6="cd /$images/cmi/ofed-4.6/mlnx-ofa_kernel-4.0"
 alias cd-test="cd $linux_dir/tools/testing/selftests/tc-testing/"
-alias vi-action="vi $linux_dir/tools/testing/selftests/tc-testing/tc-tests/actions//tests.json"
-alias vi-filter="vi $linux_dir/tools/testing/selftests/tc-testing/tc-tests/filters//tests.json"
 alias smo="cd /$images/cmi/ovs"
 alias smo2="cd /$images/cmi/openvswitch"
 alias rmswp='find . -name *.swp -exec rm {} \;'
 
-alias smc="sm; cd crash; vi net.c"
-alias smi='cd /var/lib/libvirt/images'
-alias smi2='cd /etc/libvirt/qemu'
-
-alias smn='cd /etc/sysconfig/network-scripts/'
-
 alias bfdb='bridge fdb'
-alias bfdb1='bridge fdb | grep 25'
 alias vs='sudo ovs-vsctl'
 alias of='sudo ovs-ofctl'
 alias dp='sudo ovs-dpctl'
 alias dpd="sudo ~/bin/ovs-df.sh"
-alias dpd-bond='dpd -m | grep -v arp | grep -v "bond0$" | grep offloaded | grep bond0'
 alias dpd0='sudo ovs-dpctl dump-flows --name'
 alias dpd0='ovs-appctl dpctl/dump-flows --names -m'
 alias app='sudo ovs-appctl'
 alias fdbs='sudo ovs-appctl fdb/show'
-alias fdbi='sudo ovs-appctl fdb/show br-int'
-alias fdbe='sudo ovs-appctl fdb/show br-ex'
-alias fdb='of show br-int | grep addr; fdbi; of show br-ex | grep addr; fdbe'
-alias fdb-br='of show br | grep addr; sudo ovs-appctl fdb/show br'
 alias app1='sudo ovs-appctl dpctl/dump-flows'
 alias appn='sudo ovs-appctl dpctl/dump-flows --names'
 alias app-ct='sudo ovs-appctl dpctl/dump-conntrack'
@@ -523,69 +490,9 @@ alias p1="ping $link_remote_ip"
 alias p=p1
 alias p2="ping $link2_remote_ip"
 
-# tc -s filter show dev enp4s0f0_1 root
-alias tcss="tc -stats filter show dev $link protocol ip parent ffff:"
-alias tcss="tc -stats filter show dev $link ingress"
-alias tcs2="tc filter show dev $link protocol arp parent ffff:"
-alias tcs3="tc filter show dev $link protocol 802.1Q parent ffff:"
-
-alias tcss-rep2="tc -stats filter show dev $rep2 parent ffff:"
-alias tcss-rep2-ip="tc -stats filter show dev $rep2  protocol ip parent ffff:"
-alias tcss-rep2-ipv6="tc -stats filter show dev $rep2  protocol ipv6 parent ffff:"
-alias tcss-rep2-arp="tc -stats filter show dev $rep2  protocol arp parent ffff:"
-alias rep2='tcss-rep2-ip'
-alias rep2-all='tcss-rep2'
-
-alias tcss-rep3="tc -stats filter show dev $rep3 parent ffff:"
-alias tcss-rep3-ip="tc -stats filter show dev $rep3 protocol ip parent ffff:"
-alias rep3='tcss-rep3-ip'
-
-alias tcss-rep-port2="tc -stats filter show dev enp4s0f1_1 parent ffff:"
-alias tcss-rep-ip-port2="tc -stats filter show dev enp4s0f1_1 protocol ip parent ffff:"
-
-alias tcss-rep="tc -stats filter show dev $rep1 ingress"
-alias tcss-rep-ip="tc -stats filter show dev $rep1 protocol ip parent ffff:"
-alias tcss-rep-arp="tc -stats filter show dev $rep1 protocol arp parent ffff:"
-alias rep='tcss-rep'
-
-alias tl=tcss-link
-alias tcss-link-ip="tc -stats filter show dev $link  protocol ip parent ffff:"
-alias tcss-link-arp="tc -stats filter show dev $link  protocol arp parent ffff:"
-alias tcss-link="tc -stats filter show dev $link parent ffff:"
-
-alias tcss-vxlan="tc -stats filter show dev $vx_rep parent ffff:"
-alias vxlan=tcss-vxlan
-alias tcss-vxlan-arp="tc -stats filter show dev $vx_rep  protocol arp parent ffff:"
-alias tcss-vxlan-all="tc -stats filter show dev $vx_rep ingress"
-
-alias tcss-vx-ip="tc -stats filter show dev $vx  protocol ip parent ffff:"
-alias tcss-vx-arp="tc -stats filter show dev $vx  protocol arp parent ffff:"
-alias tcss-vx="tc -stats filter show dev $vx ingress"
-
-# "tc -s filter show dev enp4s0f0_0 ingress"
-
-alias tcs-rep="tc filter show dev $rep1 protocol ip parent ffff:"
-alias tcs-arp-rep="tc filter show dev $rep1 protocol arp parent ffff:"
-
 alias s="[[ $UID == 0 ]] && su - cmi"
-alias susu='sudo su'
-alias s2='su - mi'
-alias s0="[[ $UID == 0 ]] && su cmi"
 alias e=exit
-alias vnc2="ssh cmi@10.7.2.14"
-# Unable to negotiate with 10.7.2.14 port 22: no matching key exchange method found. Their offer: diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1
-alias vnc="ssh cmi@10.75.68.111"
 alias netstat1='netstat -ntlp'
-
-alias 13='ssh -X root@10.75.205.13'
-alias 14='ssh -X root@10.75.205.14'
-
-alias 15='ssh root@10.75.205.15'
-alias 16='ssh root@10.75.205.16'
-alias 17='ssh root@10.75.205.17'
-alias 18='ssh root@10.75.205.18'
-alias 9='ssh root@10.75.205.9'
-alias 8='ssh root@10.75.205.8'
 
 alias b3='lspci -d 15b3: -nn'
 
@@ -598,7 +505,6 @@ alias ll='ls -lh'
 alias df='df -h'
 
 alias vi='vim'
-alias vd='vimdiff'
 alias vipr='vi ~/.profile'
 alias virca='vi ~/.bashrc*'
 alias visc='vi ~/.screenrc'
@@ -609,49 +515,10 @@ alias vij='vi ~/Documents/jd.txt'
 alias vi1='vi ~/Documents/ovs.txt'
 alias vi2='vi ~/Documents/mirror.txt'
 alias vip='vi ~/Documents/private.txt'
-alias viperf='vi ~/Documents/perf.txt'
-alias vime='sudo vim /boot/grub/menu.lst'
-alias vig='sudo vim /boot/grub2/grub.cfg'
-alias vig1='sudo vim /boot/grub/grub.conf'
-alias vig2='sudo vim /etc/default/grub'
-alias vit='vi ~/.tmux.conf'
 alias vic='vi ~/.crash'
-alias viu='vi /etc/udev/rules.d/82-net-setup-link.rules'
 alias vigdb='vi ~/.gdbinit'
 
-alias vi_update_skb='vi -t mlx5e_rep_tc_update_skb'
-alias  vi_psample="vi net/psample/psample.c include/net/psample.h"
-alias  vi_sample2="vi drivers/net/ethernet/mellanox/mlx5/core/esw/sample.c drivers/net/ethernet/mellanox/mlx5/core/esw/sample.h "
-alias   vi_sample="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.c drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.h drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/sample.c drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/sample.h"
-alias       vi_ct="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h "
-alias      vi_cts="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c drivers/net/ethernet/mellanox/mlx5/core/esw/sample.c \
-	              drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h drivers/net/ethernet/mellanox/mlx5/core/esw/sample.h"
-alias  vi_mod_hdr='vi drivers/net/ethernet/mellanox/mlx5/core/en/mod_hdr.c '
-alias    vi_vport="vi drivers/net/ethernet/mellanox/mlx5/core/esw/vporttbl.c "
-alias vi_offloads="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c "
-alias     vi_term="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c"
-alias      vi_esw="vi drivers/net/ethernet/mellanox/mlx5/core/eswitch.h "
-alias  vi_mapping='vi drivers/net/ethernet/mellanox/mlx5/core/en/mapping.c drivers/net/ethernet/mellanox/mlx5/core/en/mapping.h '
-alias   vi_chains="vi drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.h "
-alias     vi_post="vi drivers/net/ethernet/mellanox/mlx5/core/en/tc/post_act.c drivers/net/ethernet/mellanox/mlx5/core/en/tc/post_act.h "
-alias    vi_post2="vi drivers/net/ethernet/mellanox/mlx5/core/lib/post_action.c drivers/net/ethernet/mellanox/mlx5/core/lib/post_action.h "
-alias    vi_en_tc="vi drivers/net/ethernet/mellanox/mlx5/core/en_tc.c "
-
-alias r12="vi /labhome/cmi/sflow/ofproto/0/r12/*"
-
-alias vi_esw2="vi include/linux/mlx5/eswitch.h "
-
-alias vi_netdev-offload-tc="vi lib/netdev-offload-tc.c"
-alias                vi-tc="vi lib/netdev-offload-tc.c"
-alias              vi-dpdk="vi lib/netdev-offload-dpdk.c"
-alias    vi_netdev-offload="vi lib/netdev-offload.c"
-alias      vi_dpif-netlink="vi lib/dpif-netlink.c"
-alias           vi_offload='vi lib/dpif-netdev.c lib/dpif-offload-netdev.c lib/dpif.c lib/dpif-offload-provider.h lib/dpif-offload.c lib/dpif-offload-netlink.c lib/netdev-offload-tc.c'
-alias           vi_offload='vi lib/netdev-offload-tc.c lib/dpif-netdev.c lib/dpif.c lib/dpif-offload-provider.h lib/dpif-offload.c lib/dpif-offload-netlink.c '
-alias            vi_ovs_in='vi utilities/ovs-kmod-ctl.in'
-
 alias vi_errno='vi include/uapi/asm-generic/errno.h '
-alias vi_act_ct='vi net/sched/act_ct.c '
 
 
 alias rm='rm -i'
@@ -16125,3 +15992,13 @@ set -x
 	more /sys/kernel/debug/mlx5/$pci/lag/*
 set +x
 }
+
+function ethtool_symmetric
+{
+	ethtool -x $link
+
+# 	ethtool -X $link xfrm symmetric-xor
+	ethtool -X $link xfrm symmetric-or-xor
+# 	ethtool -X $link xfrm none
+}
+
