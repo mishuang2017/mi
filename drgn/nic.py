@@ -15,7 +15,7 @@ print_mlx5e_tc_flow_flags()
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     addr = dev.value_()
-    if name != "enp8s0f0":
+    if name != "enp8s0f0v0":
         continue;
     print(name)
 
@@ -32,12 +32,13 @@ for x, dev in enumerate(get_netdevs()):
         print_mlx5e_tc_flow(flow)
         attr = flow.attr
         print("mlx5_flow_attr %x" % attr)
-#         mlx5_ct_ft = attr.ct_attr.ft
-#         print(mlx5_ct_ft.refcount)
-#         print(attr.ct_attr)
+        mlx5_ct_ft = attr.ct_attr.ft
+        if mlx5_ct_ft:
+            print(mlx5_ct_ft)
+            print(attr.ct_attr)
 
-#         pre_ct = mlx5_ct_ft.pre_ct
-#         flow_table("pre_ct", pre_ct.ft)
+            pre_ct = mlx5_ct_ft.pre_ct
+            flow_table("pre_ct", pre_ct.ft)
 
 #         pre_ct_nat = mlx5_ct_ft.pre_ct_nat
 #         flow_table("pre_ct_nat", pre_ct_nat.ft)

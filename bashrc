@@ -5006,13 +5006,22 @@ function brx
 set -x
 	del-br
 	vs add-br $br
+
   	for (( i = 0; i < numvfs; i++)); do
-# 	for (( i = 1; i < 2; i++)); do
 		local rep=$(get_rep $i)
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	ip1
 	vxlan1
+
+#   	for (( i = 0; i < numvfs; i++)); do
+# 		local rep=$(get_rep2 $i)
+# 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+# 	done
+
+# 	ip2
+# 	ovs-vsctl add-port $br $vx2 -- set interface $vx2 type=vxlan options:remote_ip=$link2_remote_ip  options:key=$vni options:dst_port=$vxlan_port
+
 # 	 ovs-ofctl add-flow $br "table=0, ip,in_port=vxlan1,dl_src=02:25:d0:06:01:02,dl_dst=02:25:d0:05:01:02,nw_src=1.1.3.1,nw_dst=1.1.1.1 actions=output:enp8s0f0_1"
 # 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
 # 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
