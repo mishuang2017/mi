@@ -52,7 +52,7 @@ map <F4> :call SComment()<CR>
 map <F5> :call RemovePlus()<CR>
 map <F6> :call Endif()<CR>
 
-map <F7> :retab!<CR>
+" map <F7> :retab!<CR>
 " map <F7> :!make<CR>:!make run<CR>
 " imap <F7> <ESC>:!make<CR>:!make run<CR>
 map <F8> :!make -j 32<CR>

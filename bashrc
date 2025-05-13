@@ -865,10 +865,6 @@ function cloud_setup
 	local branch=$1
 	local build_kernel=0
 
-	if (( UID == 0 )); then
-		echo "please run as non-root user"
-		return
-	fi
 	sudo yum install -y cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
 		python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
 		bcc-tools pv minicom
@@ -1954,8 +1950,8 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
 	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-set +x
-	return
+# set +x
+# 	return
 
 # 		action mirred egress redirect dev $rep1
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
@@ -14818,11 +14814,6 @@ function cloud_setup
 	local branch=$1
 	local build_kernel=0
 
-	if (( UID == 0 )); then
-		echo "please run as non-root user"
-		read
-	fi
-
 	sudo apt install -y linux-crashdump kexec-tools rsync iperf3 htop pciutils vim diffstat texinfo gdb \
 		dh-autoreconf zip bison flex cmake llvm sshpass ssh-askpass
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
@@ -16009,5 +16000,15 @@ function ethtool_symmetric
 # 	ethtool -X $link xfrm symmetric-xor
 	ethtool -X $link xfrm symmetric-or-xor
 # 	ethtool -X $link xfrm none
+}
+
+function multi_port_vhca_enable
+{
+	mlxconfig -d $pci -y set MULTI_PORT_VHCA_EN=1
+}
+
+function multi_port_vhca_disable
+{
+	mlxconfig -d $pci -y set MULTI_PORT_VHCA_EN=0
 }
 

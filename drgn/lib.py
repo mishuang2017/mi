@@ -12,7 +12,7 @@ import socket
 # print(__name__)
 
 crash_file = ""
-# crash_file = "/var/crash/vmcore.1"
+# crash_file = "/var/crash/vmcore.3"
 print(crash_file)
 if crash_file == "":
     prog = drgn.program_from_kernel()
@@ -697,9 +697,16 @@ def print_mlx5_flow_group_hws(group):
     matcher = mlx5_fs_hws_matcher.matcher
     print(matcher)
 
-    #fc = mlx5_fs_hws_matcher.matcher.matcher.mt.fc
-    #for i in range(10):
-        #print(fc[i])
+    for i in range(16):
+        rules = matcher.rules[i]
+        for rule in list_for_each_entry('struct mlx5hws_bwc_rule', rules.address_of_(), 'list_node'):
+            print(rule.rule)
+#             for j in range(32):
+#                 print(rule.rule.tag.match[j])
+
+    fc = mlx5_fs_hws_matcher.matcher.matcher.mt.fc
+#     for i in range(10):
+#         print(fc[i])
 
 def flow_table(name, table):
     print("\nflow table name: %s\nflow table id: 0x%x table_level: %d, \
@@ -713,6 +720,8 @@ def flow_table(name, table):
 #     print("flow table address")
 #     print("%lx" % table.value_())
     fs_node = Object(prog, 'struct fs_node', address=table.value_())
+    if table.fs_hws_table.hws_table:
+        print(table.fs_hws_table.hws_table.ctx.queues)
 #     print("%lx" % fs_node.address_of_())
 #     print(fs_node)
     group_addr = fs_node.address_of_()
@@ -736,10 +745,10 @@ def flow_table(name, table):
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
 
-#             if fs_fte.fs_hws_rule.hws_fs_actions:
-#                 if fs_fte.fs_hws_rule.num_fs_actions == 2:
-#                     print(fs_fte.fs_hws_rule.num_fs_actions)
-#                     print(fs_fte.fs_hws_rule.hws_fs_actions.action[1])
+            if fs_fte.fs_hws_rule.hws_fs_actions:
+                print("num_fs_actions: %d" % fs_fte.fs_hws_rule.num_fs_actions)
+                for a in range(fs_fte.fs_hws_rule.num_fs_actions):
+                    print(fs_fte.fs_hws_rule.hws_fs_actions[a].action)
             if fs_fte_action_exists():
                 act_dests = fs_fte.act_dests
             else:

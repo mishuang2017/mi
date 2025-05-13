@@ -18,7 +18,18 @@ print(dev.device.kobj.name)
 
 priv = dev.priv
 steering = priv.steering
-# print(steering)
+vport_dests = steering.fdb_root_ns.fs_hws_context.hws_pool.vport_dests
+print(steering.fdb_root_ns.fs_hws_context.hws_pool.vport_dests)
+print("==steering.fdb_root_ns.fs_hws_context.hws_pool.vport_dests==")
+for node in radix_tree_for_each(vport_dests.address_of_()):
+    action = Object(prog, 'struct mlx5hws_action', address=node[1].value_())
+    print("mlx5hws_action %x" % node[1].value_())
+    print(action)
+# print("==steering.fdb_root_ns.fs_hws_context.hws_pool.vport_vhca_dests==")
+# vport_vhca_dests = steering.fdb_root_ns.fs_hws_context.hws_pool.vport_vhca_dests
+# for node in radix_tree_for_each(vport_vhca_dests.address_of_()):
+#     action = Object(prog, 'struct mlx5hws_action', address=node[1].value_())
+#     print(action)
 
 print('')
 print("FDB_BYPASS_PATH: %d" % prog['FDB_BYPASS_PATH'])
