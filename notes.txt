@@ -9131,6 +9131,34 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+[root@pxehp-ocp04 bootp-2.4.3]# netstat -tupnl
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      2470/sshd: /usr/sbi
+tcp        0      0 127.0.0.1:631           0.0.0.0:*               LISTEN      2592/cupsd
+tcp        0      0 0.0.0.0:697             0.0.0.0:*               LISTEN      2641/ypbind
+tcp        0      0 0.0.0.0:37925           0.0.0.0:*               LISTEN      2523/rpc.statd
+tcp        0      0 0.0.0.0:111             0.0.0.0:*               LISTEN      1/systemd
+tcp6       0      0 :::22                   :::*                    LISTEN      2470/sshd: /usr/sbi
+tcp6       0      0 ::1:631                 :::*                    LISTEN      2592/cupsd
+tcp6       0      0 :::698                  :::*                    LISTEN      2641/ypbind
+tcp6       0      0 :::48551                :::*                    LISTEN      2523/rpc.statd
+tcp6       0      0 :::111                  :::*                    LISTEN      1/systemd
+udp        0      0 0.0.0.0:68              0.0.0.0:*                           2147/dhclient
+udp        0      0 0.0.0.0:111             0.0.0.0:*                           1/systemd
+udp        0      0 127.0.0.1:323           0.0.0.0:*                           1906/chronyd
+udp        0      0 0.0.0.0:697             0.0.0.0:*                           2641/ypbind
+udp        0      0 127.0.0.1:1003          0.0.0.0:*                           2523/rpc.statd
+udp        0      0 0.0.0.0:5353            0.0.0.0:*                           1840/avahi-daemon:
+udp        0      0 0.0.0.0:40053           0.0.0.0:*                           1840/avahi-daemon:
+udp        0      0 0.0.0.0:41836           0.0.0.0:*                           2523/rpc.statd
+udp6       0      0 :::53668                :::*                                1840/avahi-daemon:
+udp6       0      0 :::111                  :::*                                1/systemd
+udp6       0      0 ::1:323                 :::*                                1906/chronyd
+udp6       0      0 :::698                  :::*                                2641/ypbind
+udp6       0      0 :::5353                 :::*                                1840/avahi-daemon:
+udp6       0      0 :::36708                :::*                                2523/rpc.statd
+
 git ls-files | xargs sed -i -e 's/htonll/htobe64/g'
 
 +       dump_stack();

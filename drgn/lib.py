@@ -720,8 +720,8 @@ def flow_table(name, table):
 #     print("flow table address")
 #     print("%lx" % table.value_())
     fs_node = Object(prog, 'struct fs_node', address=table.value_())
-    if table.fs_hws_table.hws_table:
-        print(table.fs_hws_table.hws_table.ctx.queues)
+#     if table.fs_hws_table.hws_table:
+#         print(table.fs_hws_table.hws_table.ctx.queues)
 #     print("%lx" % fs_node.address_of_())
 #     print(fs_node)
     group_addr = fs_node.address_of_()

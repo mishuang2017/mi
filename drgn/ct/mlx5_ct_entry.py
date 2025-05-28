@@ -28,7 +28,7 @@ zone_ht = ct_priv.zone_ht
 
 for i, mlx5_ct_ft in enumerate(hash(zone_ht, 'struct mlx5_ct_ft', 'node')):
     print(mlx5_ct_ft.refcount)
-    continue
+#     continue
     print("mlx5_ct_ft.ct_entries_ht:")
     ct_entries_ht = mlx5_ct_ft.ct_entries_ht
     for j, mlx5_ct_entry in enumerate(hash(ct_entries_ht, 'struct mlx5_ct_entry', 'node')):

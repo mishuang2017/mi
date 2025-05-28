@@ -11793,8 +11793,8 @@ function bond_xmit_mode
 function bond_setup
 {
 	off
-	dmfs
-	dmfs2
+# 	dmfs
+# 	dmfs2
 	bond_delete
 	sleep 1
 set -x
