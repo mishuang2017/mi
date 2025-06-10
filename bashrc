@@ -5129,6 +5129,10 @@ set -x
 	done
 
 # 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal" 
+# 	ovs-ofctl add-flow $br -O openflow13 "dl_type=0x86dd,nw_proto=58,icmp_type=128,action=flood"
+# 	ovs-ofctl add-flow $br -O openflow13 "dl_type=0x86dd,nw_proto=58,icmp_type=129,action=flood"
+# 	ovs-ofctl add-flow $br -O openflow13 "dl_type=0x86dd,nw_proto=58,icmp_type=128,action=normal"
+# 	ovs-ofctl add-flow $br -O openflow13 "dl_type=0x86dd,nw_proto=58,icmp_type=129,action=normal"
 set +x
 }
 
