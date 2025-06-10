@@ -11437,9 +11437,9 @@ function br_pf
 	ovs-vsctl add-port $br $rep2
 	ovs-vsctl add-port $br $link
 
-	ovs-vsctl -- --id=@p get port $rep1 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m
-	ovs-ofctl add-flow $br "tcp,in_port=$rep2, dl_src=02:25:d0:45:01:02, dl_dst=98:03:9b:03:46:60, actions=output:$link"
-	ovs-ofctl add-flow $br "tcp,in_port=$link, dl_src=98:03:9b:03:46:60, dl_dst=02:25:d0:45:01:02, ip, actions=dec_ttl, output:$rep2"
+# 	ovs-vsctl -- --id=@p get port $rep1 -- --id=@m create mirror name=m0 select-all=true output-port=@p -- set bridge $br mirrors=@m
+# 	ovs-ofctl add-flow $br "tcp,in_port=$rep2, dl_src=02:25:d0:45:01:02, dl_dst=98:03:9b:03:46:60, actions=output:$link"
+# 	ovs-ofctl add-flow $br "tcp,in_port=$link, dl_src=98:03:9b:03:46:60, dl_dst=02:25:d0:45:01:02, ip, actions=dec_ttl, output:$rep2"
 }
 
 function br_multiport_esw
@@ -16012,3 +16012,19 @@ function multi_port_vhca_disable
 	mlxconfig -d $pci -y set MULTI_PORT_VHCA_EN=0
 }
 
+function vf_meter
+{
+	# set sender tx
+
+	cd /sys/class/net/enp8s0f0/device/sriov/1/meters/tx/bps
+	# set bw to 100Mbit
+	echo 100000000 > rate
+	echo 100000000 > burst
+
+	# or set receiver rx
+
+	cd /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/bps
+	# set bw to 100Mbit
+	echo 100000000 > rate
+	echo 100000000 > burst
+}

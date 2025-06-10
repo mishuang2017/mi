@@ -18,7 +18,7 @@ devs = get_netdevs()
 jiffies = prog['jiffies']
 print(jiffies)
 
-exit(0)
+# exit(0)
 
 IP_CT_ESTABLISHED_REPLY = prog['IP_CT_ESTABLISHED_REPLY']
 print("%d" % IP_CT_ESTABLISHED_REPLY)
@@ -36,6 +36,14 @@ mlx5e_priv = get_mlx5_pf0()
 print(mlx5e_priv.netdev.name)
 mlx5e_priv = get_mlx5_pf1()
 print(mlx5e_priv.netdev.name)
+
+mdev = mlx5e_priv.mdev
+
+bfregs = mdev.priv.bfregs
+print(bfregs)
+for bfreg in list_for_each_entry('struct mlx5_uars_page', bfregs.reg_head.list.address_of_(), 'list'):
+    print(bfreg)
+
 
 # https://drgn.readthedocs.io/en/latest/case_studies/kyber_stack_trace.html
 

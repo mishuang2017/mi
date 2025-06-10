@@ -12836,4 +12836,43 @@ cat ~/a.txt
  
 cat /sys/kernel/tracing/trace_pipe | tee ~/a.txt
  
+===route===
+
+ip route get 192.168.1.84
+ip route show scope host table all
+ip route show scope link table all
+ip route show scope global
+
+ip nexthop add id 39 dev $link
+ip nexthop add id 40 dev $link2
+ip nexthop add id 38 group 39/40
+
+ip route r 3.3.3.0/24 nhid 38 proto static metric 20
+
+
+iproute2:
+
+print_route
+
+tb[RTA_DST] is key
+
+===ipv6===
+
+include/net/ndisc.h
+
+#define NDISC_ROUTER_SOLICITATION       133
+#define NDISC_ROUTER_ADVERTISEMENT      134
+#define NDISC_NEIGHBOUR_SOLICITATION    135
+#define NDISC_NEIGHBOUR_ADVERTISEMENT   136
+#define NDISC_REDIRECT                  137
+
+net/ipv6/icmp.c:983:    case NDISC_ROUTER_SOLICITATION:
+net/ipv6/icmp.c:985:    case NDISC_NEIGHBOUR_SOLICITATION:
+
+icmp6_is_nd
+flow_compose_l4
+
+parse_icmpv6
+
+
 

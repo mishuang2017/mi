@@ -31,24 +31,26 @@ def print_meter(mlx5e_priv):
     for node in radix_tree_for_each(vports):
         i=i+1
         mlx5_eswitch_rep = Object(prog, 'struct mlx5_eswitch_rep', address=node[1].value_())
-        if mlx5_eswitch_rep.vport != 0xffff:
+#         if mlx5_eswitch_rep.vport != 0xffff:
+        if mlx5_eswitch_rep.vport != 2:
             continue
         mlx5e_rep_priv = mlx5_eswitch_rep.rep_data[0].priv
         print("=== %d ===" % mlx5_eswitch_rep.vport)
         print("mlx5e_rep_priv: %x" % mlx5e_rep_priv)
-        print(mlx5e_rep_priv)
+#         continue
         if mlx5e_rep_priv:
             mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=mlx5e_rep_priv)
-#                 print(mlx5e_rep_priv.netdev.name)
-    #             print(" ================== drop_red_rule ==================")
-    #             print_mlx5_flow_handle(rep_meter.drop_red_rule)
-    #             print(" ================== end drop_red_rule ==================")
-    #             print(rep_meter.meter_hndl)
-    #             print(rep_meter.meter_hndl.flow_meters)
-    #             print(" ============  handle ===============")
-    #             flow_meters = rep_meter.meter_hndl.flow_meters
-    #             print(" ============ end handle ===============")
-    #             print(rep_meter.meter_hndl.flow_meters.aso)
+#           print(mlx5e_rep_priv)
+            print(mlx5e_rep_priv.netdev.name)
+            print(" ================== drop_red_rule ==================")
+#             print_mlx5_flow_handle(rep_meter.drop_red_rule)
+#             print(" ================== end drop_red_rule ==================")
+#             print(rep_meter.meter_hndl)
+#             print(rep_meter.meter_hndl.flow_meters)
+#             print(" ============  handle ===============")
+#             flow_meters = rep_meter.meter_hndl.flow_meters
+#             print(" ============ end handle ===============")
+#             print(rep_meter.meter_hndl.flow_meters.aso)
 #                 print("rep_meter.meter_hndl.obj_id: %d, rep_meter.meter_hndl.idx: %d" %
 #                     (rep_meter.meter_hndl.obj_id, rep_meter.meter_hndl.idx))
     #             print(rep_meter.meter_hndl.meters_obj.meters_map[0])
@@ -59,7 +61,10 @@ def print_meter(mlx5e_priv):
 
     # print(mlx5e_priv.aso)
             uplink_priv = mlx5e_rep_priv.uplink_priv
+#             print(uplink_priv)
             flow_meters = uplink_priv.flow_meters
+            print(flow_meters)
+            continue
             print("flow_meters.log_granularity: %d" % flow_meters.log_granularity)
             for mlx5e_flow_meter_aso_obj in list_for_each_entry('struct mlx5e_flow_meter_aso_obj',
                 flow_meters.partial_list.address_of_(), 'entry'):

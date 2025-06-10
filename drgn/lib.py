@@ -745,10 +745,10 @@ def flow_table(name, table):
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
 
-            if fs_fte.fs_hws_rule.hws_fs_actions:
-                print("num_fs_actions: %d" % fs_fte.fs_hws_rule.num_fs_actions)
-                for a in range(fs_fte.fs_hws_rule.num_fs_actions):
-                    print(fs_fte.fs_hws_rule.hws_fs_actions[a].action)
+#             if fs_fte.fs_hws_rule.hws_fs_actions:
+#                 print("num_fs_actions: %d" % fs_fte.fs_hws_rule.num_fs_actions)
+#                 for a in range(fs_fte.fs_hws_rule.num_fs_actions):
+#                     print(fs_fte.fs_hws_rule.hws_fs_actions[a].action)
             if fs_fte_action_exists():
                 act_dests = fs_fte.act_dests
             else:
@@ -1259,6 +1259,8 @@ def print_fib_info(fib):
 #     if protocol != 2:
 #         return
     print("==================================================================================================")
+    if fib.fib_nhs == 2:
+        print(fib)
     print("%-15s %x" % (name, fib), end='\t')
     print("oif: %4d" % oif, end='\t');
     print("fib_protocol: %3d" % protocol, end='\t')
