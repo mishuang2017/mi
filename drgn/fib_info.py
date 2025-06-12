@@ -16,7 +16,22 @@ size = prog['fib_info_hash_size']
 print(size)
 for i in range(size):
     for fib in hlist_for_each_entry('struct fib_info', fib_info_hash[i].address_of_(), 'fib_hash'):
-        print_fib_info(fib)
+        if fib.nh:
+#             print(fib)
+            if fib.nh.is_group:
+                print("==================================================================================================")
+#                 print(fib.nh.nh_grp)
+                print("fib_info %x" % fib)
+                for j in range(fib.nh.nh_grp.num_nh):
+                    fib_nh = fib.nh.nh_grp.nh_entries[j].nh.nh_info.fib_nh
+                    nh_common = fib_nh.nh_common
+                    name = nh_common.nhc_dev.name.string_().decode()
+                    oif = nh_common.nhc_oif
+                    weight = nh_common.nhc_weight
+                    print("\tnum_nh: %d, %-15s oif: %4d, weight: %d" % \
+                        (j, name, oif, weight))
+        else:
+            print_fib_info(fib)
 
 print('')
 RT_SCOPE_HOST = prog['RT_SCOPE_HOST']
@@ -55,3 +70,12 @@ print(RT_SCOPE_UNIVERSE)
 #define RTPROT_OSPF             188     /* OSPF Routes */
 #define RTPROT_RIP              189     /* RIP Routes */
 #define RTPROT_EIGRP            192     /* EIGRP Routes */
+
+fib_info_devhash = prog['fib_info_devhash']
+for i in range(1<<8):
+        hlist_node = fib_info_devhash[i]
+        if hlist_node.first:
+                print("--------------------------------------")
+#                 print(hlist_node)
+                for nh in hlist_for_each_entry("struct fib_nh", hlist_node.address_of_(), "nh_hash"):
+                    print_fib_nh(nh)

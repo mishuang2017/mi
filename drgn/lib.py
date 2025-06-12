@@ -1237,7 +1237,8 @@ def print_fib_nh(nh):
 #         return
 
 #     print("fib_nh %lx" % nh)
-    print("\tname: %10s" % name, end='')
+#     print("\tname: %10s fib_nh %x" % (name, nh.address_of_()), end='')
+    print("\tname: %10s " % (name), end='')
     print("  saddr: %15s" % ipv4(socket.ntohl(nh.nh_saddr.value_())), end='')
     print("  gw: %15s" % ipv4(socket.ntohl(nh.nh_common.nhc_gw.ipv4.value_())), end='')
     print("  weight: %4d" % nh.nh_common.nhc_weight.value_(), end='')
@@ -1259,9 +1260,9 @@ def print_fib_info(fib):
 #     if protocol != 2:
 #         return
     print("==================================================================================================")
-    if fib.fib_nhs == 2:
-        print(fib)
-    print("%-15s %x" % (name, fib), end='\t')
+#     if fib.fib_nhs == 2:
+#         print(fib)
+    print("%-15s fib_info %x" % (name, fib), end='\t')
     print("oif: %4d" % oif, end='\t');
     print("fib_protocol: %3d" % protocol, end='\t')
     print("saddr: %15s" % ipv4(ntohl(saddr.value_())), end='\t')

@@ -349,11 +349,12 @@ alias start1c='virsh start vm1 --console'
 alias dud='du -h -d 1'
 alias dus='du -sh * | sort -h'
 
+alias clone-ubuntu-24.04='git clone git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/noble'
 alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_04;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_07;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_01'
@@ -579,7 +580,7 @@ function ethtool-rxvlan-on
 alias restart-virt='systemctl restart libvirtd.service'
 
 export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
-# export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
@@ -16022,13 +16023,39 @@ function vf_meter
 
 	cd /sys/class/net/enp8s0f0/device/sriov/1/meters/tx/bps
 	# set bw to 100Mbit
-	echo 100000000 > rate
-	echo 100000000 > burst
+	for (( i = 100000000; i < 100000000 + 1; i++ )); do
+		echo $i > rate
+		echo $i > burst
+		sleep 1
+	done
+# 	echo 100000000 > burst
 
 	# or set receiver rx
 
-	cd /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/bps
+# 	cd /sys/class/net/enp8s0f0/device/sriov/2/meters/rx/bps
 	# set bw to 100Mbit
-	echo 100000000 > rate
-	echo 100000000 > burst
+# 	echo 100000000 > rate
+# 	echo 100000000 > burst
+}
+
+function vf_meter2
+{
+set -x
+	k=0
+	while true; do
+		for (( i = 0; i < 3; i++ )); do
+			for j in tx rx; do
+				echo "/sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/rate"
+				echo "/sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/burst"
+				echo $((100000000+k)) > /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/rate
+				echo $((100000000+k)) > /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/burst
+# 				echo $((100+k)) > /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/pps/rate
+# 				echo $((100+k)) > /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/pps/burst
+				cat /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/rate
+				k=$((k+1))
+				sleep 1
+			done
+		done
+	done
+set +x
 }

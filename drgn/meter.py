@@ -32,8 +32,8 @@ def print_meter(mlx5e_priv):
         i=i+1
         mlx5_eswitch_rep = Object(prog, 'struct mlx5_eswitch_rep', address=node[1].value_())
 #         if mlx5_eswitch_rep.vport != 0xffff:
-        if mlx5_eswitch_rep.vport != 2:
-            continue
+#         if mlx5_eswitch_rep.vport != 2:
+#             continue
         mlx5e_rep_priv = mlx5_eswitch_rep.rep_data[0].priv
         print("=== %d ===" % mlx5_eswitch_rep.vport)
         print("mlx5e_rep_priv: %x" % mlx5e_rep_priv)
@@ -42,7 +42,7 @@ def print_meter(mlx5e_priv):
             mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=mlx5e_rep_priv)
 #           print(mlx5e_rep_priv)
             print(mlx5e_rep_priv.netdev.name)
-            print(" ================== drop_red_rule ==================")
+#             print(" ================== drop_red_rule ==================")
 #             print_mlx5_flow_handle(rep_meter.drop_red_rule)
 #             print(" ================== end drop_red_rule ==================")
 #             print(rep_meter.meter_hndl)

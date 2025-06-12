@@ -12845,7 +12845,9 @@ ip route show scope global
 
 ip nexthop add id 39 dev $link
 ip nexthop add id 40 dev $link2
-ip nexthop add id 38 group 39/40
+ip nexthop add id 41 dev $link3
+ip nexthop add id 42 dev $link4
+ip nexthop add id 38 group 39/40/41/42
 
 ip route r 3.3.3.0/24 nhid 38 proto static metric 20
 

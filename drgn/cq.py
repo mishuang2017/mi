@@ -33,6 +33,7 @@ def print_channel(priv):
 #         print(channels[i].sq[0].cq.mcq.tasklet_ctx.comp)
 #         print(channels[i].rq.cq.mcq.tasklet_ctx.comp)
 
+        print(channels[i].sq[0].cq)
         print("sq[0].cq.napi: %d" % channels[i].sq[0].cq.napi.napi_id.value_())
         print("rq.cq.napi: %d" % channels[i].rq.cq.napi.napi_id.value_())
 

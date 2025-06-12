@@ -49,12 +49,14 @@ def print_mlx5_vport(priv):
 
     for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())
+        if mlx5_vport.vport != 2:
+            continue
         print("\n==================== %d ================" % mlx5_vport.vport)
         print_vport(mlx5_vport)
-        if mlx5_vport.egress.acl:
-            flow_table("", mlx5_vport.egress.acl)
+        flow_meters = mlx5_vport.ingress.offloads.meter_xps[0].meter_hndl.flow_meters
+        print(flow_meters.aso)
 
 mlx5e_priv = get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)
-mlx5e_priv = get_mlx5_pf1()
-print_mlx5_vport(mlx5e_priv)
+# mlx5e_priv = get_mlx5_pf1()
+# print_mlx5_vport(mlx5e_priv)
