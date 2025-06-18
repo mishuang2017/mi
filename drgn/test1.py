@@ -38,11 +38,23 @@ mlx5e_priv = get_mlx5_pf1()
 print(mlx5e_priv.netdev.name)
 
 mdev = mlx5e_priv.mdev
+# print(mdev.mlx5e_res)
 
-bfregs = mdev.priv.bfregs
-print(bfregs)
-for bfreg in list_for_each_entry('struct mlx5_uars_page', bfregs.reg_head.list.address_of_(), 'list'):
-    print(bfreg)
+num_bfregs = mdev.mlx5e_res.hw_objs.num_bfregs
+print(num_bfregs)
+for i in range(num_bfregs):
+    print('-----------------------%d------------------------------' % i)
+    print(mdev.mlx5e_res.hw_objs.bfregs[i])
+
+def print_mlx5_uars_page(mdev):
+    bfregs = mdev.priv.bfregs
+    # print(bfregs)
+    print('-----------------------reg_head------------------------------')
+    for bfreg in list_for_each_entry('struct mlx5_uars_page', bfregs.reg_head.list.address_of_(), 'list'):
+        print(bfreg)
+    print('-----------------------wc_head------------------------------')
+    for bfreg in list_for_each_entry('struct mlx5_uars_page', bfregs.wc_head.list.address_of_(), 'list'):
+        print(bfreg)
 
 
 # https://drgn.readthedocs.io/en/latest/case_studies/kyber_stack_trace.html

@@ -349,6 +349,7 @@ alias start1c='virsh start vm1 --console'
 alias dud='du -h -d 1'
 alias dus='du -sh * | sort -h'
 
+alias clone-ethtool-ofed='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/ethtool --branch=mlnx_ofed_25_07'
 alias clone-ubuntu-24.04='git clone git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/noble'
 alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
@@ -15998,15 +15999,6 @@ set -x
 set +x
 }
 
-function ethtool_symmetric
-{
-	ethtool -x $link
-
-# 	ethtool -X $link xfrm symmetric-xor
-	ethtool -X $link xfrm symmetric-or-xor
-# 	ethtool -X $link xfrm none
-}
-
 function multi_port_vhca_enable
 {
 	mlxconfig -d $pci -y set MULTI_PORT_VHCA_EN=1
@@ -16023,7 +16015,7 @@ function vf_meter
 
 	cd /sys/class/net/enp8s0f0/device/sriov/1/meters/tx/bps
 	# set bw to 100Mbit
-	for (( i = 100000000; i < 100000000 + 1; i++ )); do
+	for (( i = 100000000; i < 100000000 + 1000; i++ )); do
 		echo $i > rate
 		echo $i > burst
 		sleep 1
@@ -16040,22 +16032,56 @@ function vf_meter
 
 function vf_meter2
 {
-set -x
 	k=0
 	while true; do
 		for (( i = 0; i < 3; i++ )); do
-			for j in tx rx; do
-				echo "/sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/rate"
-				echo "/sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/burst"
-				echo $((100000000+k)) > /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/rate
-				echo $((100000000+k)) > /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/burst
+# 				echo "/sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/rate"
+# 				echo "/sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/burst"
+				echo $((100000000+k)) > /sys/class/net/$link/device/sriov/$i/meters/tx/bps/rate &
+				echo $((100000000+k)) > /sys/class/net/$link/device/sriov/$i/meters/rx/bps/rate
 # 				echo $((100+k)) > /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/pps/rate
 # 				echo $((100+k)) > /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/pps/burst
-				cat /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/rate
+# 				cat /sys/class/net/enp8s0f0/device/sriov/$i/meters/$j/bps/rate
 				k=$((k+1))
-				sleep 1
-			done
+# 				sleep 1
 		done
 	done
-set +x
 }
+
+function num_doorbells
+{
+	/opt/mellanox/iproute2/sbin/devlink dev param show pci/0000:08:00.0 name num_doorbells
+	/opt/mellanox/iproute2/sbin/devlink dev param set pci/0000:08:00.0 name num_doorbells value 8 cmode driverinit
+	/opt/mellanox/iproute2/sbin/devlink dev reload pci/0000:08:00.0
+}
+
+# ethtool_set_rxfh
+# mlx5e_set_rxfh
+function ethtool_symmetric
+{
+	ethtool -x $link
+
+# 	ethtool -X $link xfrm symmetric-xor
+	ethtool -X $link xfrm symmetric-or-xor
+# 	ethtool -X $link xfrm none
+}
+
+#
+# /images/cmi/ethtool/ethtool --set-rxfh-indir enp8s0f0 hfunc xor
+# /images/cmi/ethtool/ethtool --set-rxfh-indir enp8s0f0 equal 1
+# /images/cmi/ethtool/ethtool --config-ntuple enp8s0f0 rx-flow-hash udp4 dfn
+# /images/cmi/ethtool/ethtool --config-ntuple enp8s0f0 rx-flow-hash udp4 sdfn # new command for kernel 6.15 to specify both source and dest
+#
+# 3.712488 118053  118053  ethtool         mlx5e_ethtool_set_rxnfc
+#         mlx5e_ethtool_set_rxnfc+0x5 [mlx5_core]
+#         ethtool_set_rxnfc+0x152 [kernel]
+#         __dev_ethtool+0xb56 [kernel]
+#         dev_ethtool+0xaf [kernel]
+#         dev_ioctl+0x1b0 [kernel]
+#         sock_do_ioctl+0xab [kernel]
+#         sock_ioctl+0x214 [kernel]
+#         __x64_sys_ioctl+0x96 [kernel]
+#         x64_sys_call+0x1209 [kernel]
+#         do_syscall_64+0x72 [kernel]
+#         entry_SYSCALL_64_after_hwframe+0x76 [kernel]
+ 

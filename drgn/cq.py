@@ -40,6 +40,7 @@ def print_channel(priv):
 
 priv = get_mlx5e_priv(pf0_name)
 print(priv.channels.params.rx_cq_moderation)
-print(priv.channels.params)
+print(priv.channels.params.tx_cq_moderation)
+# print(priv.channels.params)
 
-print_channel(priv)
+# print_channel(priv)

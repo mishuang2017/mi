@@ -63,7 +63,9 @@ def print_meter(mlx5e_priv):
             uplink_priv = mlx5e_rep_priv.uplink_priv
 #             print(uplink_priv)
             flow_meters = uplink_priv.flow_meters
-            print(flow_meters)
+            if flow_meters:
+                if flow_meters.aso:
+                    print(flow_meters.aso)
             continue
             print("flow_meters.log_granularity: %d" % flow_meters.log_granularity)
             for mlx5e_flow_meter_aso_obj in list_for_each_entry('struct mlx5e_flow_meter_aso_obj',

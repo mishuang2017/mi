@@ -55,6 +55,7 @@ def print_mlx5_vport(priv):
         print_vport(mlx5_vport)
         flow_meters = mlx5_vport.ingress.offloads.meter_xps[0].meter_hndl.flow_meters
         print(flow_meters.aso)
+#         print(flow_meters)
 
 mlx5e_priv = get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)

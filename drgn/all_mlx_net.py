@@ -28,6 +28,7 @@ for x, dev in enumerate(get_netdevs()):
     print("dev.num_tc: %d" % dev.num_tc)
     print(dev.tc_to_txq)
     print("dev.real_num_tx_queues: %d" % dev.real_num_tx_queues)
+    print(dev.ethtool_ops)
 #     print(dev.dcbnl_ops)
 
 #     if dev.devlink_port:
@@ -38,6 +39,7 @@ for x, dev in enumerate(get_netdevs()):
 
     mlx5e_priv_addr = addr + prog.type('struct net_device').size
     mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
+#     print(mlx5e_priv.aso)
 #     print("wq: %x" % mlx5e_priv.wq)
 #     print(mlx5e_priv.ipsec)
 #     print(mlx5e_priv.vhca_id)
