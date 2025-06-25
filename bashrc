@@ -862,7 +862,7 @@ function cloud_linux
 	fi
 }
 
-function cloud_setup
+function cloud_setup_yum
 {
 	local branch=$1
 	local build_kernel=0
