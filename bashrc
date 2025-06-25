@@ -126,7 +126,6 @@ fi
 
 link_remote_ip=192.168.1.$rhost_num
 link2_remote_ip=192.168.2.$rhost_num
-link_remote_ipv6=1::$rhost_num
 
 if (( bf == 1 )); then
 	link=pf0hpf
@@ -203,6 +202,9 @@ link_ip=192.168.1.$host_num
 link2_ip=192.168.2.$host_num
 link_ipv6=2001:db8::$host_num
 link2_ipv6=2001:db8::$host_num
+link_ipv6_vxlan=2001:db8::200
+link_ipv6_vxlan2=2001:db8::201
+link_remote_ipv6=2001:db8::$rhost_num
 
 br=br1
 br2=br2
@@ -225,8 +227,6 @@ bridge_name=$br
 link_ip_vlan=1.1.1.100
 link_ip_vxlan=1.1.1.200
 link_ip_vxlan2=1.1.1.201
-link_ipv6_vxlan=1::200
-link_ipv6_vxlan2=1::201
 
 brd_mac=ff:ff:ff:ff:ff:ff
 
@@ -16085,3 +16085,9 @@ function ethtool_symmetric
 #         do_syscall_64+0x72 [kernel]
 #         entry_SYSCALL_64_after_hwframe+0x76 [kernel]
  
+# net/mlx5e: Add TX PTP port object support
+function ptp
+{
+	ethtool --set-priv-flags $link tx_port_ts on
+	ethtool -S $link | grep ptp
+}
