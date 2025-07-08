@@ -862,6 +862,22 @@ function cloud_linux
 	fi
 }
 
+function cloud_linux_upstream
+{
+	local branch=$1
+
+	cd /images/cmi
+	cp /swgwork/cmi/linux.tar.gz .
+	tar zvxf linux.tar.gz
+	/bin/rm -f linux.tar.gz &
+	cd linux
+	/bin/cp -f ~cmi/mi/config .config
+	sml
+	git branch -D net-next-mlx5
+	fetch net-next-mlx5
+	make-all all
+}
+
 function cloud_setup_yum
 {
 	local branch=$1
@@ -958,7 +974,7 @@ set +x
 
 # alias on-sriov1="echo $numvfs > /sys/devices/pci0000:00/0000:00:02.0/0000:04:00.0/sriov_numvfs"
 # alias on-sriov2="echo $numvfs > /sys/devices/pci0000:00/0000:00:02.0/0000:04:00.1/sriov_numvfs"
-alias on-sriov1="echo 1 > /sys/class/net/$link/device/sriov_numvfs"
+alias on-sriov0="echo 0 > /sys/class/net/$link/device/sriov_numvfs"
 alias on-sriov="echo $numvfs > /sys/class/net/$link/device/sriov_numvfs"
 alias on-sriov2="echo $numvfs > /sys/class/net/$link2/device/sriov_numvfs"
 alias on-sriov3="echo $numvfs > /sys/class/net/$link3/device/sriov_numvfs"
@@ -1447,6 +1463,7 @@ function build_ovs
 set -x; 
 	src_dir=$linux_dir/net/openvswitch
 	cd $dir_dir;
+	del-br
 	make -C $linux_dir M=$src_dir modules || {
 		set +x	
 		return
@@ -7882,6 +7899,8 @@ function burn5
 set -x
 	mlxburn -d $pci -fw /root/fw-ConnectX5.mlx -conf_dir /root/customised_ini
 
+	mlxburn -d $pci -fw_dir /mswg/release/host_fw/fw-41692/fw-41692-rel-32_43_1000/
+
 	return
 
 # 	mlxfwup -d $pci -f 16.27.1016
@@ -8704,11 +8723,6 @@ function mlxconfig-disable-prio-tag
 	sudo mlxfwreset -y -d $pci reset
 }
 
-alias krestart='systemctl restart kdump'
-alias kstatus='systemctl status kdump'
-alias kstop='systemctl stop kdump'
-alias kstart='systemctl start kdump'
-
 function reboot1
 {
 	uname=$(uname -r)
@@ -9073,16 +9087,11 @@ set +x
 
 alias restart-udev='sudo systemctl restart systemd-udevd.service'
 
-alias ofed-configure-memtrack='./configure --with-mlx5-core-and-en-mod --with-memtrack -j'
-alias ofed-configure="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2"
-alias ofed-configure-memtrack="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-memtrack --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod -j $cpu_num2"
-alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2"
-alias ofed-configure-all="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod --with-ipoib-mod --with-srp-mod --with-iser-mod --with-isert-mod --with-mlxdevm-mod --with-nfsrdma-mod --with-srp-mod --with-memtrack -j $cpu_num2 --with-mlx5-ipsec"
 alias ofed-configure-all="./configure -j \
     --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
     --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv --with-mlxfw-mod --with-ipoib-mod"
 alias ofed-configure-all="./configure -j \
-	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack \
+	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --without-memtrack \
 	--with-ipoib-cm --with-user_mad-mod --with-nfsrdma-mod"
 # 	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack --with-sf-cfg-drv --with-sf-sfc "
 alias ofed-configure-memtrack="ofed-configure-all --with-memtrack"
@@ -9130,6 +9139,7 @@ alias ofed-configure-5.16="./configure --with-mlx5-core-and-ib-and-en-mod --with
 alias ofed-configure-5.17="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.17-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.17-rc7 "
 alias ofed-configure-6.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.2-rc6 "
 alias ofed-configure-6.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.3 "
+alias ofed-configure-6.15="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.15 "
 
 alias ofed-configure-4.14.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.14.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.14.3 "
 alias ofed-configure-693="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod --with-memtrack -j $cpu_num2 \
@@ -9441,7 +9451,25 @@ set -x
 	ip netns exec $ns ip addr add 1.1.$n.1/24 brd + dev $veth
 	ip netns exec $ns ip link set dev $veth up
 	ip netns exec $ns ip route add default via 1.1.$n.100
+
+	ovs-vsctl add-port $br $rep
 set +x
+}
+
+function veths_br
+{
+set -x
+	local n=1
+	[[ $# == 1 ]] && n=$1
+
+	echo 1 > /proc/sys/net/ipv4/ip_forward
+
+	del-br
+	ovs-vsctl add-br $br
+
+	for (( i = 1; i <= n; i++ )); do
+		veth2 $i
+	done
 }
 
 function veths_nat
@@ -14117,7 +14145,7 @@ function devlink_groups
 function devm_groups
 {
 set -x
-# 	mlxdevm dev eswitch set pci/0000:08:00.0 mode switchdev
+	mlxdevm dev eswitch set pci/0000:08:00.0 mode switchdev
 
 	mlxdevm port func rate add pci/$pci/g1
 	mlxdevm port func rate add pci/$pci/g2
@@ -14125,6 +14153,17 @@ set -x
 # 	mlxdevm port func rate set pci/$pci/3 parent g2 # not allowed
 
 	mlxdevm port func rate set pci/$pci/g2 parent g1
+	read
+# 	mlxdevm port func rate set pci/$pci/g2 noparent
+# 	read
+
+	mlxdevm port func rate del pci/$pci/g1
+	mlxdevm port func rate del pci/$pci/g2
+
+	read
+
+	mlxdevm port func rate add pci/$pci/g1
+	mlxdevm port func rate add pci/$pci/g2
 set +x
 }
 
@@ -15060,7 +15099,7 @@ alias default=grub2-set-default
 
 function cloud_grub
 {
-	if grep crashkernel=512M /etc/default/grub; then
+	if grep crashkernel=1024M /etc/default/grub; then
 		sudo systemctl start kdump
 		sudo systemctl enable kdump
 	else
@@ -15069,7 +15108,7 @@ function cloud_grub
 			return
 		fi
 
-		sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=512M\"/" /etc/default/grub
+		sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=1024M\"/" /etc/default/grub
 		if (( bf_ubuntu == 1 )); then
 			sudo sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
 			sudo bash -c 'cat << EOF >> /etc/default/kdump-tools

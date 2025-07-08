@@ -38,7 +38,7 @@ print_mlx5e_tc_flow_flags()
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     addr = dev.value_()
-    if name != "enp8s0f0v0":
+    if name != "enp8s0f0":
         continue;
     print(name)
 

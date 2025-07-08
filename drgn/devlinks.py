@@ -49,21 +49,26 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #     print(devlink._net)
 #     print(devlink.ops.reload_down)
 #     print(devlink.ops.reload_up)
-    mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
-    print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
-    print("mlx5_priv %x" % mlx5_core_dev.priv.address_of_())
-#     print(mlx5_core_dev.priv.fw_reset)
-    print("mlx5_eswitch %x" % mlx5_core_dev.priv.eswitch)
-    print("mlx5_core_dev.coredev_type: ")
-    print(mlx5_core_dev.coredev_type)
-#     continue
+    if pci_name.startswith("0000"):
+        mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
+        print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
+        print("mlx5_priv %x" % mlx5_core_dev.priv.address_of_())
+    #     print(mlx5_core_dev.priv.fw_reset)
+        print("mlx5_eswitch %x" % mlx5_core_dev.priv.eswitch)
+        print("mlx5_core_dev.coredev_type: ")
+        print(mlx5_core_dev.coredev_type)
+    #     continue
+    elif pci_name.startswith("mlx5_core.eth"):
+        mlx5e_dev = Object(prog, 'struct mlx5e_dev', address=devlink.priv.address_of_().value_())
+        print("mlx5e_dev.priv.netdev.name: %s" % mlx5e_dev.priv.netdev.name.string_().decode())
+        print("devlink_port: %x" % mlx5e_dev.dl_port.address_of_())
     print("\t=== devlink_port start ===")
 
     # new kernel
     for node in radix_tree_for_each(devlink.ports.address_of_()):
         port = Object(prog, 'struct devlink_port', address=node[1].value_())
 #         print(port)
-        print("\tport index: %#x, %d" % (port.index, port.index))
+        print("\tdevlink_port %x, port index: %#x, %d" % (port.address_of_(), port.index, port.index))
 #         print(port.ops.port_fn_hw_addr_get)
 #         print(port.switch_port)
         print(port.type_eth.ifname);

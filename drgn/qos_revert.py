@@ -65,12 +65,13 @@ def print_mlx5_vport(priv):
         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
         print("vport: %5x" % vport.vport, end=' ')
         print("enabled: %x" % vport.enabled.value_())
-        print(vport.qos)
+#         print(vport.qos.sched_node)
         node = vport.qos.sched_node
-        print('-------')
+        print('--- %x ----' % node)
         if node:
-            print("sched_node type: %s, ix: %d, esw: %x, tx_max: %d, min_rate: %d" % (type(node.type), node.ix, node.esw.value_(), node.max_rate, node.min_rate))
-            print("sched_node.parent: %x, type: %s" % (node.parent, type(node.parent.type)))
+            print("sched_node type: %d, ix: %d, esw: %x, tx_max: %d, min_rate: %d" % (node.type, node.ix, node.esw.value_(), node.max_rate, node.min_rate))
+            if node.parent:
+                print("sched_node.parent: %x, type: %d" % (node.parent, node.parent.type))
         print('')
 
     for node in radix_tree_for_each(vports.address_of_()):
@@ -79,10 +80,10 @@ def print_mlx5_vport(priv):
         print_vport(mlx5_vport)
 
 def print_nodes(nodes):
-    print(" === groups ===\n")
+    print(" === nodes ===\n")
 
     for node in list_for_each_entry('struct mlx5_esw_sched_node', nodes.address_of_(), 'entry'):
-        print("node: %x" % node, end='\t')
+        print("mlx5_esw_sched_node %x" % node, end='\t')
         if os.path.isdir('/sys/class/net/enp8s0f0/device/sriov/groups'):
             print("group id: %#x" % node.node_id, end='\t')
             print("num_vports: %d" % node.num_vports, end='\t')
@@ -91,7 +92,7 @@ def print_nodes(nodes):
 #                 print(node.devm)
             else:
                 print("%5s" % "", end='\t')
-        print("type: %s" % type(node.type), end='\t')
+        print("type: %d" % node.type, end='\t')
 #         print("ix: %d" % node.ix, end='\t')
 #         print("node_id: %d" % node.node_id, end='\t')
         print("%s" % node.esw.dev.device.kobj.name.string_().decode(), end='\t')
@@ -101,8 +102,11 @@ def print_nodes(nodes):
             if node2.type.value_() == SCHED_NODE_TYPE_VPORT:
                 vport = node2.vport
                 print("\t---------------")
-                print("\tnode: %x, type: %s, vport: %d" % (node2.value_(), type(node2.type), vport.vport), end=' ')
+#                 print("\tnode: %x, type: %d, vport: %d" % (node2.value_(), type(node2.type), vport.vport), end=' ')
+                print("\tmlx5_esw_sche_node %x, type: %d, vport: %d" % (node2.value_(), node2.type, vport.vport), end=' ')
                 print("\t%s" % vport.dev.device.kobj.name.string_().decode())
+            else:
+                print("\tmlx5_esw_sche_node %x, type: %d" % (node2.value_(), node2.type), end=' ')
         print("")
 print("\n === vports qos port 1 ===\n")
 
