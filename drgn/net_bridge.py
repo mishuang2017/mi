@@ -29,12 +29,12 @@ def print_net_bridge(bridge):
 
     print("\n=== bridge.fdb_hash_tbl, struct net_bridge_fdb_entry ===")
     for i, net_bridge_fdb_entry in enumerate(hash(bridge.fdb_hash_tbl, 'struct net_bridge_fdb_entry', 'rhnode')):
-        if net_bridge_fdb_entry.flags & 1 << prog['BR_FDB_OFFLOADED'].value_():
-#             print(net_bridge_fdb_entry)
-            print("%d: " % i, end='')
-            print("key.addr: %s " % mac(net_bridge_fdb_entry.key.addr.addr), end='')
-            print("dst port name: %-20s" % net_bridge_fdb_entry.dst.dev.name.string_().decode(), end='')
-            print("flag: %lx (BR_FDB_ADDED_BY_EXT_LEARN | BR_FDB_OFFLOADED)" % net_bridge_fdb_entry.flags)
+#         if not net_bridge_fdb_entry.flags & 1 << prog['BR_FDB_OFFLOADED'].value_():
+#             continue
+        print("%d: " % i, end='')
+        print("key.addr: %s " % mac(net_bridge_fdb_entry.key.addr.addr), end='')
+        print("dst port name: %-20s" % net_bridge_fdb_entry.dst.dev.name.string_().decode(), end='')
+        print("flag: %lx (BR_FDB_ADDED_BY_EXT_LEARN | BR_FDB_OFFLOADED)" % net_bridge_fdb_entry.flags)
 
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
@@ -42,7 +42,7 @@ for x, dev in enumerate(get_netdevs()):
 #         print("state: %x, %x" % (dev.state, prog['__LINK_STATE_NOCARRIER']))
         # ignore docker0
         if not (dev.state & 1 << prog['__LINK_STATE_NOCARRIER'].value_()):
-            print(name)
+            print("bridge name: %s" % name)
             net_bridge_addr = dev.value_() + prog.type('struct net_device').size
             net_bridge = Object(prog, 'struct net_bridge', address=net_bridge_addr)
             print_net_bridge(net_bridge)

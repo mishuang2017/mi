@@ -59,6 +59,7 @@ def print_mlx5_vport(priv):
         node = vport.qos.sched_node
         if node.value_() == 0:
             return
+#         print(vport.devm_port.mlxdevm_rate)
         print("mlx5_vport %x" % vport.address_of_(), end=' ')
         print("vport: %4x, %4d, metadata: %4x" % (vport.vport, vport.vport, vport.metadata), end=' ')
         print_mac(vport.info.mac)
@@ -106,7 +107,7 @@ def print_nodes(nodes):
                 print("\tmlx5_esw_sche_node %x, type: %d, vport: %d" % (node2.value_(), node2.type, vport.vport), end=' ')
                 print("\t%s" % vport.dev.device.kobj.name.string_().decode())
             else:
-                print("\tmlx5_esw_sche_node %x, type: %d" % (node2.value_(), node2.type), end=' ')
+                print("\tchild group mlx5_esw_sche_node %x, type: %d" % (node2.value_(), node2.type))
         print("")
 print("\n === vports qos port 1 ===\n")
 

@@ -357,8 +357,7 @@ alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
 alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_07;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
-alias clone-iproute2-ct='git clone https://github.com/roidayan/iproute2 --branch=ct-one-table'
-alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_01'
+alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_07'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
 alias clone-systemtap='git clone git://sourceware.org/git/systemtap.git'
 alias clone-systemd='git clone git@github.com:systemd/systemd.git'
@@ -884,9 +883,10 @@ function cloud_setup_yum
 	local build_kernel=0
 
 	sudo yum install -y cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
-		python3-devel dh-autoreconf xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
+		python3-devel xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
 		bcc-tools pv minicom
 	sudo yum install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
+	sudo yum install -y dh-autoreconf
 	sudo yum install -y python-devel
 	sudo yum install -y platform-python-devel
 # 	sudo yum install -y memstrack busybox
@@ -9160,6 +9160,7 @@ alias ofed-configure-rhel-9.1="./configure --with-mlx5-core-and-ib-and-en-mod --
 function ofed_all
 {
 # 	smm
+	./ofed_scripts/cleanup
 	./configure --all --without-sf-cfg-drv -j $cpu_num2
 	mi
 }
@@ -16129,4 +16130,17 @@ function ptp
 {
 	ethtool --set-priv-flags $link tx_port_ts on
 	ethtool -S $link | grep ptp
+}
+
+function cloud_ofed
+{
+	sm
+	mkdir 2
+	cd 2
+	clone-ofed
+	cd mlnx-ofa_kernel-4.0
+	git fetch --tags
+	cd ..
+	tar zcvf 1.tar.gz mlnx-ofa_kernel-4.0
+	scp 1.tar.gz root@$1:/root
 }

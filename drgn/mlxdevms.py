@@ -62,7 +62,11 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
     # new kernel
     for node in radix_tree_for_each(mlxdevm.ports.address_of_()):
         port = Object(prog, 'struct mlxdevm_port', address=node[1].value_())
-        print(port)
+        if port.index != 1:
+            continue
+        print("mlxdevm_port %x" % node[1].value_())
+        print(port.mlxdevm_rate)
+        print(port.mlxdevm_rate.parent)
 #         print(port.dl_port)
         print("\tport index: %x, %d" % (port.index, port.index))
         print(port.ops.port_fn_hw_addr_get)
