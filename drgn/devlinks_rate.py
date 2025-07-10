@@ -158,8 +158,8 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print(devlink_rate.name)
         print(devlink_rate.type)
         if devlink_rate.type == DEVLINK_RATE_TYPE_NODE:
-            mlx5_esw_rate_group = cast("struct mlx5_esw_rate_group *", devlink_rate.priv)
-            print("mlx5_esw_rate_group.tsar_ix: %d" % mlx5_esw_rate_group.tsar_ix)
+            mlx5_esw_sched_node = cast("struct mlx5_esw_sched_node *", devlink_rate.priv)
+            print("mlx5_esw_sched_node.ix: %d" % mlx5_esw_sched_node.ix)
         elif devlink_rate.type == DEVLINK_RATE_TYPE_LEAF:
             mlx5_vport = cast("struct mlx5_vport *", devlink_rate.priv)
             print("mlx5_vport.vport: %d" % mlx5_vport.vport)

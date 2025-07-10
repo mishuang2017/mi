@@ -7863,34 +7863,14 @@ function vsconfig2
 
 function syndrome
 {
-	if [[ $# != 2 ]]; then
-		echo "eg: # syndrome 16.24.0166 0x6231F3"
-		return
-	fi
-
-	local ver=$(echo $1 | sed 's/\./_/g')
-	local type
-	if echo $ver | grep ^26; then
-		type=4125
-	elif echo $ver | grep ^22; then
-		type=4125
-	elif echo $ver | grep ^16; then
-		type=4119
-	elif echo $ver | grep ^14; then
-		type=4117
-	else
-		echo "wrong verions: $ver"
-		return
-	fi
-# 	local file=/mswg/release/BUILDS/fw-$type/fw-$type-rel-$ver-build-001/etc/syndrome_list.log
 	file=/auto/host_fw_release/fw-4125/fw-4125-rel-22_33_0830-build-001/etc/syndrome_list.log
+	file=/auto/host_fw_release/fw-4129/fw-4129-rel-28_43_0220-build-001/etc/syndrome_list.log
+	file=/swgwork/cmi/syndrome_list.log
 	echo $file
-	grep -i $2 $file
+	grep -i $1 $file
 }
 
-alias syn5='syndrome 16.30.1004'
-alias syn='syndrome 26.29.2002'
-
+alias syn=syndrome
 
 # mlxfwup
 
@@ -14168,82 +14148,6 @@ set -x
 set +x
 }
 
-function devlink_groups2
-{
-	devlink port func rate set pci/$pci/g2 noparent
-}
-
-function devlink_rate_group
-{
-	local debug=0
-	[[ $# == 1 ]] && debug=1
-set -x
-# 	devlink port func rate set pci/$pci/2 tx_share 30mbit
-# 	(( debug == 1 )) && read
-
-# 	devlink port func rate set pci/$pci/2 tx_max 40mbit
-# 	(( debug == 1 )) && read
-
-# 	devlink port func rate set pci/$pci/3 tx_share 50mbit
-# 	(( debug == 1 )) && read
-# 	devlink port func rate set pci/$pci/3 tx_max 60mbit
-# 	(( debug == 1 )) && read
-
-	# pci/0000:08:00.0/2: type leaf tx_share 30Mbit tx_max 40Mbit
-	# pci/0000:08:00.0/3: type leaf tx_share 50Mbit tx_max 60Mbit
-
-	devlink port func rate add pci/$pci/1st_grp
-# 	devlink port func rate add pci/$pci/1st_grp tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
-# 	devlink port func rate add pci/$pci/1st_grp
-	(( debug == 1 )) && read
-# 	devlink port func rate add pci/$pci/2nd_grp
-# 	(( debug == 1 )) && read
-
-# 	devlink port func rate set pci/$pci/1st_grp tx_share 80000mbit
-	(( debug == 1 )) && read
-	devlink port func rate set pci/$pci/1st_grp tx_max 100mbit
-# 	(( debug == 1 )) && read
-
-# 	devlink port func rate set pci/$pci/2nd_grp tx_share 20000mbit
-# 	(( debug == 1 )) && read
-# 	devlink port func rate set pci/$pci/2nd_grp tx_max 2000mbit
-# 	(( debug == 1 )) && read
-
-	# pci/0000:08:00.0/2nd_grp: type node tx_share 10Mbit tx_max 20Mbit
-	# pci/0000:08:00.0/1st_grp: type node tx_share 30Mbit tx_max 40Mbit
-
-	devlink port func rate set pci/$pci/2 parent 1st_grp
-	(( debug == 1 )) && read
-# 	devlink port func rate set pci/$pci/3 parent 2nd_grp
-# 	(( debug == 1 )) && read
-	devlink port func rate show
-	(( debug == 1 )) && read
-
-# 	devlink port func rate set pci/$pci/2 noparent
-# 	(( debug == 1 )) && read
-# 	devlink port func rate set pci/$pci/3 noparent
-# 	(( debug == 1 )) && read
-# 	devlink port func rate show
-# 	(( debug == 1 )) && read
-
-# 	devlink port func rate del pci/$pci/1st_grp
-# 	(( debug == 1 )) && read
-# 	devlink port func rate del pci/$pci/2nd_grp
-# 	(( debug == 1 )) && read
-set +x
-}
-
-function calltrce_4149525
-{
-	echo 1 > /sys/class/net/enp8s0f0/device/sriov/1/group
-	echo 1 > /sys/class/net/enp8s0f0/device/sriov/2/group
-
-	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
-	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/2/tc_bw
-
-	echo 0 > /sys/class/net/enp8s0f0/device/sriov_numvfs
-}
-
 function devlink_ets
 {
 	devlink port function rate set pci/0000:08:00.0/2 tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
@@ -14254,49 +14158,10 @@ function devlink_ets2
 	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
 }
 
-function fs_ets
-{
-	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/groups/1/tc_bw
-}
-
-function fs_ets2
-{
-	echo " 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/groups/1/tc_bw
-}
-
-function fs_vf_ets
-{
-set -x
-# 	echo 1 > /sys/class/net/enp8s0f0/device/sriov/1/group
-# 	echo 1 > /sys/class/net/enp8s0f0/device/sriov/2/group
-	echo 500 > /sys/class/net/enp8s0f0/device/sriov/1/max_tx_rate
-# 	echo 100 > /sys/class/net/enp8s0f0/device/sriov/1/min_tx_rate
-	echo " 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
-	echo 0 > /sys/class/net/enp8s0f0/device/sriov/1/max_tx_rate
-set +x
-}
-
-function fs_vf_ets2
-{
-	echo " 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0" > /sys/class/net/enp8s0f0/device/sriov/1/tc_bw
-}
-
-function rate_sysfs_55
-{
-	for i in {0..2} ; do echo 55 > /sys/class/net/$link/device/sriov/$i/group ; done
-}
-function rate_sysfs2
-{
-	for i in {0..2} ; do echo 0 > /sys/class/net/$link/device/sriov/$i/group ; done
-}
-
 function ovs_test
 {
 	make check TESTSUITEFLAGS='1'
 }
-
-alias rate_show="devlink port fun rate"
-alias rate_show2="mlxdevm port fun rate show"
 
 function rate_cleanup
 {
@@ -16143,4 +16008,12 @@ function cloud_ofed
 	cd ..
 	tar zcvf 1.tar.gz mlnx-ofa_kernel-4.0
 	scp 1.tar.gz root@$1:/root
+}
+
+function git-net-next
+{
+	git remote add net-next git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git
+	git fetch net-next main
+	git checkout FETCH_HEAD
+	git switch -c main
 }

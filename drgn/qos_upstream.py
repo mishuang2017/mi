@@ -137,22 +137,12 @@ def print_nodes(nodes):
 
     for node in list_for_each_entry('struct mlx5_esw_sched_node', nodes.address_of_(), 'entry'):
         print("node: %x" % node, end='\t')
-        if os.path.isdir('/sys/class/net/enp8s0f0/device/sriov/groups'):
-            print("group id: %#x" % node.group_id, end='\t')
-            print("num_vports: %d" % node.num_vports, end='\t')
-            if node.devm.name:
-                print("%5s" % node.devm.name.string_().decode(), end='\t')
-#                 print(node.devm)
-            else:
-                print("%5s" % "", end='\t')
         print("type: %s" % type(node.type), end='\t')
 #         print("ix: %d" % node.ix, end='\t')
-#         print("group_id: %d" % node.group_id, end='\t')
         print("%s" % node.esw.dev.device.kobj.name.string_().decode(), end='\t')
         print("max_rate: %d, min_rate: %d, bw_share: %d" % (node.max_rate, node.min_rate, node.bw_share), end=' ');
         print("parent %x" % node.parent.value_())
         print("leve: %d" % node.level)
-        print("node.num_groups: %d" % node.num_groups)
         for node2 in list_for_each_entry('struct mlx5_esw_sched_node', node.children.address_of_(), 'entry'):
             if node2.type.value_() == SCHED_NODE_TYPE_VPORT:
                 vport = node2.vport
@@ -170,10 +160,9 @@ def print_nodes(nodes):
                         node3.vport.value_()))
             elif node2.type == SCHED_NODE_TYPE_TC_ARBITER_TSAR or node2.type == SCHED_NODE_TYPE_VPORTS_TSAR:
                 print("\t---------------")
-                print("\tnode: %x, type: %s, ix: %d, max_rate: %d, min_rate: %d, bw_share: %d, vport: %x, num_vports: %d" % \
+                print("\tnode: %x, type: %s, ix: %d, max_rate: %d, min_rate: %d, bw_share: %d, vport: %x" % \
                     (node2.value_(), type(node2.type), node2.ix, node2.max_rate, node2.min_rate, node2.bw_share, \
-                    node2.vport.value_(), node2.num_vports))
-                print("\tgroup id: %d" % node2.group_id)
+                    node2.vport.value_()))
                 print("\tleve: %d" % node2.level)
             else:
                 print(node)
