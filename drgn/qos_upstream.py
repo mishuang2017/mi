@@ -84,8 +84,10 @@ def print_mlx5_vport(priv):
         node = vport.qos.sched_node
         print('-------')
         if node:
-            print("sched_node type: %s, ix: %d, esw: %x, tx_max: %d, min_rate: %d" % (type(node.type), node.ix, node.esw.value_(), node.max_rate, node.min_rate))
-            print("sched_node.parent: %x, type: %s" % (node.parent, type(node.parent.type)))
+            print("sched_node: %x, type: %s, ix: %d, esw: %x, tx_max: %d, min_rate: %d, level: %d" % \
+                (node, type(node.type), node.ix, node.esw.value_(), node.max_rate, node.min_rate, node.level))
+            print("sched_node.parent: %x, type: %s, ix: %d, level: %d" % \
+                (node.parent, type(node.parent.type), node.parent.ix, node.parent.level))
 
         if vport.qos.sched_nodes:
             print('-------')
@@ -141,19 +143,19 @@ def print_nodes(nodes):
 #         print("ix: %d" % node.ix, end='\t')
         print("%s" % node.esw.dev.device.kobj.name.string_().decode(), end='\t')
         print("max_rate: %d, min_rate: %d, bw_share: %d" % (node.max_rate, node.min_rate, node.bw_share), end=' ');
-        print("parent %x" % node.parent.value_())
+        print("parent %x" % node.parent.value_(), end=' ')
         print("leve: %d" % node.level)
         for node2 in list_for_each_entry('struct mlx5_esw_sched_node', node.children.address_of_(), 'entry'):
             if node2.type.value_() == SCHED_NODE_TYPE_VPORT:
                 vport = node2.vport
                 print("\t---------------")
                 print("\tnode: %x, type: %s, vport: %d" % (node2.value_(), type(node2.type), vport.vport), end=' ')
-                print("\t%s" % vport.dev.device.kobj.name.string_().decode())
+                print("\t%s" % vport.dev.device.kobj.name.string_().decode(), end=' ')
                 print("\tleve: %d" % node.level)
             elif node2.type == SCHED_NODE_TYPE_VPORTS_TC_TSAR:
-                print("\tnode: %x, type: %s, ix: %d, tc: %d, max_rate: %d, min_rate: %d, bw_share: %d" % \
+                print("\tnode: %x, type: %s, ix: %d, tc: %d, max_rate: %d, min_rate: %d, bw_share: %d, level: %d" % \
                     (node2.value_(), type(node2.type), node2.ix, node2.tc, node2.max_rate, \
-                    node2.min_rate, node2.bw_share))
+                    node2.min_rate, node2.bw_share, node2.level))
                 for node3 in list_for_each_entry('struct mlx5_esw_sched_node', node2.children.address_of_(), 'entry'):
                     print("\t\tnode: %x, type: %s, ix: %d, tc: %d, max_rate: %d, min_rate: %d, bw_share: %d, vport: %x" % \
                         (node3.value_(), type(node3.type), node3.ix, node3.tc, node3.max_rate, node3.min_rate, node3.bw_share, \
@@ -162,7 +164,7 @@ def print_nodes(nodes):
                 print("\t---------------")
                 print("\tnode: %x, type: %s, ix: %d, max_rate: %d, min_rate: %d, bw_share: %d, vport: %x" % \
                     (node2.value_(), type(node2.type), node2.ix, node2.max_rate, node2.min_rate, node2.bw_share, \
-                    node2.vport.value_()))
+                    node2.vport.value_()), end=' ')
                 print("\tleve: %d" % node2.level)
             else:
                 print(node)

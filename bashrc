@@ -837,7 +837,9 @@ function bf2_linux
 	ln -s linux-bluefield-5.15 linux
 	/bin/rm -f linux-bluefield-5.15.tar.gz &
 	cd linux
-	/bin/cp -f /swgwork/cmi/config.bf2.5.15/config .config
+#	/bin/cp -f /swgwork/cmi/config.bf2.5.15/config .config
+	/bin/cp /boot/config-$(uname -r) .config
+	bf_config
 
 	make-all all
 }
@@ -1769,7 +1771,7 @@ function bf_config
 
 function make-all
 {
-	[[ $UID == 0 ]] && return
+# 	[[ $UID == 0 ]] && return
 	test -f MAINTAINERS || return
 
 	unset CONFIG_LOCALVERSION_AUTO
@@ -14148,14 +14150,21 @@ set -x
 set +x
 }
 
-function devlink_ets
+function dev_ets
 {
-	devlink port function rate set pci/0000:08:00.0/2 tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
+	devlink port func rate add pci/$pci/g1
+	devlink port func rate set pci/$pci/1 parent g1
+
+	devlink port function rate set pci/$pci/2 tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
+	devlink port function rate set pci/$pci/g1 tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
 }
 
-function devlink_ets2
+function dev_ets2
 {
-	devlink port function rate set pci/0000:08:00.0/1st_grp tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+	devlink port func rate set pci/$pci/1 noparent
+	devlink port function rate set pci/0000:08:00.0/2  tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+	devlink port function rate set pci/0000:08:00.0/g1 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
+	devlink port func rate del pci/$pci/g1
 }
 
 function ovs_test
@@ -14303,7 +14312,7 @@ set -x
 set +x
 }
 
-function devlink_show
+function dev_show
 {
 set -x
 	devlink port function rate show
@@ -16010,10 +16019,25 @@ function cloud_ofed
 	scp 1.tar.gz root@$1:/root
 }
 
-function git-net-next
+function cloud_linux_net_next
 {
+	cd /images/cmi
+	cp /swgwork/cmi/linux.tar.gz .
+	tar zvxf linux.tar.gz
+	/bin/rm -f linux.tar.gz &
+	cd linux
+
 	git remote add net-next git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git
 	git fetch net-next main
 	git checkout FETCH_HEAD
 	git switch -c main
+
+	/bin/cp -f ~cmi/mi/config .config
+	sml
+	if [[ -n $branch ]]; then
+		git checkout v$branch -b $branch && make-all all
+# 		git checkout $branch && make-all all
+	else
+		make-all all
+	fi
 }
