@@ -51,12 +51,14 @@ map <F3> :call CComment2()<CR>
 map <F4> :call SComment()<CR>
 map <F5> :call RemovePlus()<CR>
 map <F6> :call Endif()<CR>
+map <F7> :call Print1()<CR>
+map <F8> :call Print2()<CR>
 
 " map <F7> :retab!<CR>
 " map <F7> :!make<CR>:!make run<CR>
 " imap <F7> <ESC>:!make<CR>:!make run<CR>
-map <F8> :!make -j 32<CR>
-imap <F8> <ESC>:w<ESC>:!make all<CR>
+" map <F8> :!make -j 32<CR>
+" imap <F8> <ESC>:w<ESC>:!make all<CR>
 map <F9> :w<CR>:!make run<CR>
 
 map <F10> :!make clean<CR>
@@ -118,6 +120,14 @@ endfunc
 
 function Endif()
 	s/$/\r#endif/
+endfunc
+
+function Print1()
+	s/$/\r\tprintf("%s: cmi\\n", __func__);/
+endfunc
+
+function Print2()
+	s/$/\r\tpr_info("%s: %d\\n", __func__, __LINE__);/
 endfunc
 
 function OVS()

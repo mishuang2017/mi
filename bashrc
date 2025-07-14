@@ -14154,6 +14154,7 @@ function dev_ets
 {
 	devlink port func rate add pci/$pci/g1
 	devlink port func rate set pci/$pci/1 parent g1
+	devlink port func rate set pci/$pci/3 parent g1
 
 	devlink port function rate set pci/$pci/2 tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
 	devlink port function rate set pci/$pci/g1 tc-bw 0:20 1:0 2:0 3:0 4:0 5:80 6:0 7:0
