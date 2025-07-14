@@ -7883,6 +7883,9 @@ set -x
 
 	mlxburn -d $pci -fw_dir /mswg/release/host_fw/fw-41692/fw-41692-rel-32_43_1000/
 
+	# cx7
+	mlxburn -d $pci -fw_dir /mswg/release/host_fw/fw-4129/fw-4129-rel-28_43_1014/
+
 	return
 
 # 	mlxfwup -d $pci -f 16.27.1016
@@ -13871,52 +13874,6 @@ function mdev_create
 function systemd_yum
 {
 	sudo yum install -y meson gperf libcap-devel libmount-devel
-}
-
-function rsync_sflow
-{
-	rsync -tvr /labhome/cmi/sflow/* 10.141.18.5:~/sflow
-}
-
-function rsync_sflow2
-{
-	rsync -tvr /labhome/cmi/sflow/* bc-vnc02:~/sflow
-}
-
-function rsync1
-{
-	rsync -tvr $1 vnc14:~
-}
-
-function rsync2
-{
-	rsync -tvr $1 bc-vnc02:~
-}
-
-function load_unload_test
-{
-	local i=1
-	while true; do
-		echo "==============$i==========="
-		reprobe
-		sleep 2
-		mystart
-		sleep 2
-		i=$((i+1))
-	done
-}
-
-function loop
-{
-	local i=1
-	while true; do
-		echo "==============$i==========="
-		bash test-ovs-ct-scapy-udp-2ports.sh
-		sleep 2
-		bash test-ovs-ct-scapy-udp-aging-ovs.sh
-		sleep 2
-		i=$((i+1))
-	done
 }
 
 function vport_match_mode_get
