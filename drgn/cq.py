@@ -23,9 +23,9 @@ def print_channel(priv):
         print("channel[%d]" % i, end=' ')
 #         print(channels[i])
 #         print(channels[i].sq[0].cq.mcq.irqn.value_())
-        print("sqn: %#x" % channels[i].sq[0].sqn)
-#         print(channels[i].rq.stats)
-        print("rq.cq.mcq.irqn: %d" % channels[i].rq.cq.mcq.irqn.value_())
+#         print("sqn: %#x" % channels[i].sq[0].sqn)
+        print(channels[i].rq.page_pool)
+#         print("rq.cq.mcq.irqn: %d" % channels[i].rq.cq.mcq.irqn.value_())
 
 #         print(channels[i].sq[0].cq.mcq.vector.value_())
 #         print(channels[i].rq.cq.mcq.vector.value_())
@@ -33,14 +33,21 @@ def print_channel(priv):
 #         print(channels[i].sq[0].cq.mcq.tasklet_ctx.comp)
 #         print(channels[i].rq.cq.mcq.tasklet_ctx.comp)
 
-        print(channels[i].sq[0].cq)
-        print("sq[0].cq.napi: %d" % channels[i].sq[0].cq.napi.napi_id.value_())
-        print("rq.cq.napi: %d" % channels[i].rq.cq.napi.napi_id.value_())
+#         print(channels[i].sq[0].cq)
+#         print("sq[0].cq.napi: %d" % channels[i].sq[0].cq.napi.napi_id.value_())
+#         print("rq.cq.napi: %d" % channels[i].rq.cq.napi.napi_id.value_())
 
 
 priv = get_mlx5e_priv(pf0_name)
-print(priv.channels.params.rx_cq_moderation)
-print(priv.channels.params.tx_cq_moderation)
+# print(priv.channels.params.rx_cq_moderation)
+# print(priv.channels.params.tx_cq_moderation)
 # print(priv.channels.params)
 
-# print_channel(priv)
+print_channel(priv)
+
+page_pools = prog['page_pools']
+print(page_pools)
+for node in radix_tree_for_each(page_pools.address_of_()):
+    pool = Object(prog, 'struct page_pool', address=node[1].value_())
+    print(pool.slow)
+#     print(node)

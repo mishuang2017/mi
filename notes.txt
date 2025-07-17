@@ -12876,5 +12876,25 @@ flow_compose_l4
 
 parse_icmpv6
 
+===page_pool===
 
+6.6.63 kernel
+Fix Dec 23 00:00:04 avalearn1377 kernel: page_pool_release_retry() stalled pool shutdown: id 12, 448 inflight 265294 sec
+
+6.8 kernel fixes it
+
+a379972973a8 Merge branch 'net-page_pool-add-netlink-based-introspection'
+637567e4a3ef tools: ynl: add sample for getting page-pool information
+be0096676e23 net: page_pool: mute the periodic warning for visible page pools
+d49010adae73 net: page_pool: expose page pool stats via netlink
+69cb4952b6f6 net: page_pool: report when page pool was destroyed
+7aee8429eedd net: page_pool: report amount of memory held by page pools
+d2ef6aa077bd net: page_pool: add netlink notifications for state changes
+950ab53b77ab net: page_pool: implement GET in the netlink API
+839ff60df3ab net: page_pool: add nlspec for basic access to page pools
+7cc9e6d77f85 eth: link netdev to page_pools in drivers
+02b3de80c5f8 net: page_pool: stash the NAPI ID for easier access
+083772c9f972 net: page_pool: record pools per netdev
+f17c69649c69 net: page_pool: id the page pools
+23cfaf67ba5d net: page_pool: factor out uninit
 

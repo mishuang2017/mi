@@ -28,7 +28,7 @@ for x, dev in enumerate(get_netdevs()):
     print("dev.num_tc: %d" % dev.num_tc)
     print(dev.tc_to_txq)
     print("dev.real_num_tx_queues: %d" % dev.real_num_tx_queues)
-    print(dev.ethtool_ops)
+#     print(dev.ethtool_ops)
 #     print(dev.dcbnl_ops)
 
 #     if dev.devlink_port:
@@ -49,8 +49,11 @@ for x, dev in enumerate(get_netdevs()):
 #     print(mlx5e_priv.init)
 #     print(mlx5e_priv.fs.vlan_strip_disable)
     if name in "enp8s0f0":
-        print("yes")
-        print(mlx5e_priv.channels.params.mqprio)
+            print(dev.page_pools)
+            for pool in hlist_for_each_entry('struct page_pool', dev.page_pools.address_of_(), 'user.list'):
+                print(pool.user)
+#         print("yes")
+#         print(mlx5e_priv.channels.params.mqprio)
 
 #     ppriv = mlx5e_priv.ppriv
 #     if ppriv:

@@ -13,7 +13,9 @@ from lib import *
 for cpu in for_each_online_cpu(prog):
     if type_exist("struct page_pool_recycle_stats"):
         bytes += per_cpu_ptr(a.cpu_bstats, cpu).bytes.v.a.a.counter
-                packets += per_cpu_ptr(a.cpu_bstats, cpu).packets.v.a.a.counter
+        packets += per_cpu_ptr(a.cpu_bstats, cpu).packets.v.a.a.counter
+
+exit(0)
 
 print(sys.path)
 
