@@ -1895,6 +1895,8 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=$remote_mac
 	$TC filter add dev $rep2 prio 3 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
+ set +x
+ 	return
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
 	$TC filter add dev $rep2 prio 1 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $link
 
@@ -9146,7 +9148,8 @@ function ofed_all
 {
 # 	smm
 	./ofed_scripts/cleanup
-	./configure --all --without-sf-cfg-drv -j $cpu_num2
+# 	./configure --all --without-sf-cfg-drv -j $cpu_num2
+	ofed-configure-all
 	mi
 }
 
@@ -14068,6 +14071,28 @@ set -x
 set +x
 }
 
+function devlink_group
+{
+# 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+
+	devlink port func rate add pci/$pci/g1
+	devlink port func rate set pci/$pci/1 parent g1
+}
+
+function devlink_groups
+{
+# 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+
+	devlink port func rate add pci/$pci/g1
+	devlink port func rate add pci/$pci/g2
+	devlink port func rate add pci/$pci/g3
+# 	devlink port func rate set pci/$pci/2 parent g1
+# 	devlink port func rate set pci/$pci/3 parent g2 # not allowed
+
+	devlink port func rate set pci/$pci/g2 parent g1
+	devlink port func rate set pci/$pci/g1 parent g3
+}
+
 function devlink_groups
 {
 # 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
@@ -15402,12 +15427,13 @@ set -x
 	ip xfrm state add src $ip1 dst $ip2 proto esp spi 10001 reqid 100001 \
 		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c335 128 mode transport \
 		sel src $ip1 dst $ip2 offload packet dev $link0 dir $dir1
-# set +x
-# 	return
 
 	ip xfrm state add src $ip2 dst $ip1 proto esp spi 10000 reqid 100000 \
 		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
 		sel src $ip2 dst $ip1 offload packet dev $link0 dir $dir2
+
+#  set +x
+#  	return
 
 	ip xfrm policy add src $ip1 dst $ip2 dir $dir1 tmpl src $ip1 dst $ip2 \
 		proto esp reqid 100001 mode transport offload packet dev $link0
@@ -15417,6 +15443,49 @@ set -x
 		proto esp reqid 100000 mode transport offload packet dev $link0
 set +x
 }
+
+function ipsec_restore
+{
+	offload=true
+	link0=$link
+	[[ $# == 1 ]] && offload=false
+
+	remote_mac=94:6d:ae:29:5b:64
+	TC=/images/cmi/iproute2/tc/tc
+	TC=tc
+
+	$TC qdisc del dev $rep1 ingress;
+	ip xfrm state flush
+	ip xfrm policy flush
+	sleep 1
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+	devlink dev eswitch set pci/$pci mode switchdev
+	echo 1 > /sys/class/net/enp8s0f0/device/sriov_numvfs
+
+	ip1=$link_ip
+	ip2=$link_remote_ip
+
+	ip address flush $link0
+	ip link set $link0 up
+	ip xfrm state flush
+	ip xfrm policy flush
+	ip -4 address add $link_ip/24 dev $link0
+
+set -x
+	ip xfrm state add src $ip2 dst $ip1 proto esp spi 10000 reqid 100000 \
+		aead "rfc4106(gcm(aes))" 0x010203047aeaca3f87d060a12f4a4487d5a5c336 128 mode transport \
+		sel src $ip2 dst $ip1 offload packet dev $link0 dir out
+
+	ethtool -K $rep1 hw-tc-offload on 
+	ip link set $rep1 promisc on
+	$TC qdisc add dev $rep1 ingress 
+
+	src_mac=02:25:d0:$host_num:01:02
+	dst_mac=$remote_mac
+	$TC filter add dev $rep1 prio 3 protocol ip  parent ffff: flower src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
+set +x
+}
+
 
 function ipsec_ipv6
 {
@@ -15484,7 +15553,7 @@ set +x
 
 function ipsec_counters
 {
-	ethtool -S $link | grep ipsec
+	ethtool -S $link | egrep "ipsec_rx_pkts|ipsec_tx_pkts"
 }
 
 function ipsec_crypto

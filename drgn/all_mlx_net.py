@@ -48,10 +48,10 @@ for x, dev in enumerate(get_netdevs()):
 #     print(mlx5e_priv)
 #     print(mlx5e_priv.init)
 #     print(mlx5e_priv.fs.vlan_strip_disable)
-    if name in "enp8s0f0":
-            print(dev.page_pools)
-            for pool in hlist_for_each_entry('struct page_pool', dev.page_pools.address_of_(), 'user.list'):
-                print(pool.user)
+#     if name in "enp8s0f0":
+#             print(dev.page_pools)
+#             for pool in hlist_for_each_entry('struct page_pool', dev.page_pools.address_of_(), 'user.list'):
+#                 print(pool.alloc)
 #         print("yes")
 #         print(mlx5e_priv.channels.params.mqprio)
 
