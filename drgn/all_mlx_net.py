@@ -19,8 +19,8 @@ for x, dev in enumerate(get_netdevs()):
 #         continue;
 #     if name not in "en8f0pf0sf1":
 #         continue;
-    if name not in "enp8s0f0":
-        continue;
+#     if name not in "enp8s0f0":
+#         continue;
     print("===================================================")
     print(name)
     print(ops)

@@ -21,10 +21,10 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_())
     print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
     print(mlx5_core_dev.coredev_type)
-    for i in range(6):
-        if mlx5_core_dev.priv.adev[i]:
+#     for i in range(6):
+#         if mlx5_core_dev.priv.adev[i]:
 #             print(mlx5_core_dev.priv.adev[i].adev)
-            print(mlx5_core_dev.priv.adev[i].adev.dev.kobj.name)
+#             print(mlx5_core_dev.priv.adev[i].adev.dev.kobj.name)
     print('')
 
 

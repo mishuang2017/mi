@@ -50,7 +50,7 @@ for dev in list_for_each_entry('struct device_private', k_list.address_of_(), 'k
 #         print(pci_dev.physfn.sriov)
     else:
         print("pci_dev.sriov")
-        print(pci_dev.sriov)
+#         print(pci_dev.sriov)
 #         if pci_dev.sriov:
 #             print(pci_dev.sriov.drivers_autoprobe)
     print("")

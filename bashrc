@@ -355,7 +355,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_07;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_10;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_07'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
@@ -1235,6 +1235,7 @@ set -x;
 	src_dir=$linux_dir/$driver_dir
 	sudo /bin/cp -f $src_dir/$module.ko /lib/modules/$(uname -r)/kernel/$driver_dir
 
+	reprobe
 	sudo /etc/init.d/openibd force-stop
 	sudo /etc/init.d/openibd force-start
 set +x
@@ -1859,7 +1860,7 @@ set -x
 
 	$TC qdisc add dev $link ingress_block 22 ingress
 	$TC qdisc add dev $link2 ingress_block 22 ingress
-	$TC filter add block 22 protocol ip pref 25 flower dst_ip 192.168.0.0/16 action drop
+	$TC filter add block 22 protocol ip pref 25 flower dst_ip 192.168.0.0/24 action drop
 #	$TC filter add dev $link protocol ip pref 25 flower skip_hw src_mac $remote_mac dst_mac $link_mac action drop
 set +x
 }
@@ -14717,12 +14718,15 @@ function cloud_setup
 	local branch=$1
 	local build_kernel=0
 
-	sudo apt install -y linux-crashdump kexec-tools rsync iperf3 htop pciutils vim diffstat texinfo gdb \
-		dh-autoreconf zip bison flex cmake llvm sshpass ssh-askpass
+	sudo apt install -y rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv
+	sudo apt install -y dracut-network
+	sudo apt install -y kexec-tools
+	sudo apt install -y linux-crashdump
+	sudo apt install -y dh-autoreconf
+	sudo apt install -y llvm sshpass ssh-askpass iperf3
 # 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
 	sudo apt install -y python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
-	sudo apt install -y dracut-network
 
 	# sudo update-alternatives --config python3
 	build_libkdumpfile
@@ -14957,7 +14961,7 @@ alias default=grub2-set-default
 
 function cloud_grub
 {
-	if grep crashkernel=1024M /etc/default/grub; then
+	if grep crashkernel=1G /etc/default/grub; then
 		sudo systemctl start kdump
 		sudo systemctl enable kdump
 	else
@@ -14966,13 +14970,15 @@ function cloud_grub
 			return
 		fi
 
-		sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=1024M\"/" /etc/default/grub
+		sudo sed -i 's/\s*\S*crashkernel\S*//g' /etc/default/grub
+		sudo sed -i 's/\s*\S*crashkernel\S*//g' /boot/loader/entries/*
+		sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=1G\"/" /etc/default/grub
 		if (( bf_ubuntu == 1 )); then
 			sudo sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
-			sudo bash -c 'cat << EOF >> /etc/default/kdump-tools
-KDUMP_CMDLINE_APPEND="module_blacklist=mlx5_core,mlx5_ib,mlxbf_gige,mlxbf_tmfifo,openvswitch,ib_umad,ib_uverbs,ib_cm,mlxdevm,ib_core,mlx_compat,mlxbf_pka,auth_rpcgss"
-EOF
-'
+# 			sudo bash -c 'cat << EOF >> /etc/default/kdump-tools
+# KDUMP_CMDLINE_APPEND="module_blacklist=mlx5_core,mlx5_ib,mlxbf_gige,mlxbf_tmfifo,openvswitch,ib_umad,ib_uverbs,ib_cm,mlxdevm,ib_core,mlx_compat,mlxbf_pka,auth_rpcgss"
+# EOF
+# '
 		else
 			sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 		fi
@@ -15402,8 +15408,8 @@ set -x
 	sleep 1
 # 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
-	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
-	devlink dev eswitch set pci/$pci mode switchdev
+# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+# 	devlink dev eswitch set pci/$pci mode switchdev
 	if (( machine_num == 1 )); then
 		ip1=$link_ip
 		ip2=$link_remote_ip
@@ -15563,11 +15569,11 @@ set -x
 	ip xfrm policy flush
 	sleep 1
 # 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
-# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value smfs cmode runtime
 # 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
 # 	devlink dev eswitch set pci/$pci decap disable
-# 	devlink dev eswitch set pci/$pci mode switchdev
+	devlink dev eswitch set pci/$pci mode switchdev
 
 	ip address flush enp8s0f0
 	ip -4 address add $link_ip/16 dev enp8s0f0
@@ -15593,6 +15599,8 @@ set -x
 		0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode $mode offload dev enp8s0f0 dir $dir1
         ip xfrm state add src $ip2 dst $ip1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' \
 		0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode $mode offload dev enp8s0f0 dir $dir2
+set +x
+	return
 #         ip xfrm state add src $ip1 dst $ip2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode $mode &&
 #         ip xfrm state add src $ip2 dst $ip1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode $mode &&
         ip xfrm policy add src $ip1 dst $ip2 dir $dir1 tmpl src $ip1 dst $ip2 proto esp reqid 10000 mode $mode
@@ -16038,7 +16046,7 @@ function cloud_ofed
 	sm
 	mkdir 2
 	cd 2
-	clone-ofed
+	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_07
 	cd mlnx-ofa_kernel-4.0
 	git fetch --tags
 	cd ..
