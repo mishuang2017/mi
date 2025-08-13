@@ -67,13 +67,14 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     # new kernel
     for node in radix_tree_for_each(devlink.ports.address_of_()):
         port = Object(prog, 'struct devlink_port', address=node[1].value_())
-        if port.index != 1:
-            continue
-        print(port.devlink_rate.parent)
+#         if port.index != 1:
+#             continue
+#         print(port.devlink_rate)
         print("\tdevlink_port %x, port index: %#x, %d" % (port.address_of_(), port.index, port.index))
 #         print(port.ops.port_fn_hw_addr_get)
 #         print(port.switch_port)
-        print(port.type_eth.ifname);
+        print("\tport.type_eth.ifname: %s" % port.type_eth.ifname.string_().decode());
+        print("\t", end='')
         for i in range(port.attrs.switch_id.id_len):
             print("%02x:" % port.attrs.switch_id.id[7-i], end="")
         print("")

@@ -80,7 +80,10 @@ net = prog['init_net']
 print("\n======================== rx ===========================\n")
 # print_sadb(sadb)
 
-flow_table("rx_ipv4", ipsec.rx_ipv4.ft.sa)
+flow_table("rx_ipv4.ft.sa", ipsec.rx_ipv4.ft.sa)
+flow_table("rx_ipv4.ft_pol", ipsec.rx_ipv4.ft.pol)
+flow_table("rx_ipv4.pol_miss_ft", ipsec.rx_ipv4.pol_miss_ft)
+# print(ipsec.rx_ipv4)
 
 # print(ipsec.aso)
 # print(ipsec.aso.maso)

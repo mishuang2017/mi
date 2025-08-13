@@ -23,15 +23,15 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     pci_name = devlink.dev.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue
-    print(devlink.ops.port_new)
-    print(devlink.ops.port_del)
-    print(devlink.ops.reload_down)
-    print(devlink.ops.reload_up)
+#     print(devlink.ops.port_new)
+#     print(devlink.ops.port_del)
+#     print(devlink.ops.reload_down)
+#     print(devlink.ops.reload_up)
 #     print(devlink.ops.port_function_hw_addr_get)
 
     print("========================== devlink.dev.kobj.name: %s index: %d =========================" % (pci_name, devlink.index))
     print("devlink %x" % devlink.address_of_())
-    print("devlink.features: %x" % devlink.features)
+#     print("devlink.features: %x" % devlink.features)
 #     if pci_name.find("mlx5_core.sf") == 0:
 #         auxiliary_device = container_of(devlink.dev, 'struct auxiliary_device', "dev")
 #         print("\tauxiliary_device.name: %s" % auxiliary_device.name.string_().decode())

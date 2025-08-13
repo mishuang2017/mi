@@ -1979,12 +1979,12 @@ set -x
 
 # 		action mirred egress redirect dev $rep1
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 	src_mac=02:25:d0:$host_num:01:03
 	dst_mac=02:25:d0:$host_num:01:02
 	$TC filter add dev $rep3 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
 	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
-	$TC filter add dev $rep3 prio 3 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 set +x
 }
 
@@ -6895,7 +6895,7 @@ set -x
 	sf_device=mlx5_core.sf.$((sfnum+1))
 	sf_name=en8f0pf0sf$sfnum
 # 	sf_name=enp8s0f0npf0sf1
-	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+	devlink dev eswitch set $pci mode switchdev
 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum $sfnum
 # set +x
 # 	return
@@ -7270,15 +7270,6 @@ set -x
 #	sudo echo "GRUB_DEFAULT=\"CentOS Linux ($kernel) 7 (Core)\"" >> $file
 
 	# net.ifnames=0 to set name to eth0
-
-	if (( host_num == 14)); then
-		sudo echo "GRUB_CMDLINE_LINUX=\"intel_iommu=on iommu=bt net.ifnames=1 biosdevname=0 pci=realloc crashkernel=256M hugepagesz=2M hugepages=1024\"" >> $file
-	fi
-# 	sudo echo "GRUB_CMDLINE_LINUX=\"intel_iommu=on biosdevname=0 pci=realloc crashkernel=256M console=tty0 console=ttyS1,$base_baud kgdbwait kgdboc=ttyS1,$base_baud\"" >> $file
-	if (( host_num == 13)); then
-		sudo echo "GRUB_CMDLINE_LINUX=\"pcie_ports=native intel_iommu=on iommu=bt net.ifnames=1 biosdevname=0 pci=realloc isolcpus=8,10,12,14 intel_idle.max_cstate=0 nohz_full=8,10,12,14 intel_pstate=disable crashkernel=256M hugepagesz=2M hugepages=1024\"" >> $file
-# 		sudo echo "GRUB_CMDLINE_LINUX=\"intel_iommu=on biosdevname=0 pci=realloc crashkernel=256M console=tty0 console=ttyS1,$base_baud kgdboc=ttyS1,$base_baud nokaslr\"" >> $file
-	fi
 
 	sudo echo "GRUB_TERMINAL_OUTPUT=\"console\"" >> $file
 # 	sudo echo "GRUB_TERMINAL_OUTPUT=\"serial\"" >> $file
@@ -14961,20 +14952,14 @@ alias default=grub2-set-default
 
 function cloud_grub
 {
-	if grep crashkernel=1G /etc/default/grub; then
-		sudo systemctl start kdump
-		sudo systemctl enable kdump
+	if grep "crashkernel=1G " /etc/default/grub; then
+		systemctl start kdump
+		systemctl enable kdump
 	else
-		if (( UID == 0 )); then
-			echo "please run as non-root user"
-			return
-		fi
-
-		sudo sed -i 's/\s*\S*crashkernel\S*//g' /etc/default/grub
-		sudo sed -i 's/\s*\S*crashkernel\S*//g' /boot/loader/entries/*
-		sudo sed -i "/GRUB_CMDLINE_LINUX/s/\"$/ crashkernel=1G\"/" /etc/default/grub
+		sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /etc/default/grub
+		sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /boot/loader/entries/*
 		if (( bf_ubuntu == 1 )); then
-			sudo sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
+			sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
 # 			sudo bash -c 'cat << EOF >> /etc/default/kdump-tools
 # KDUMP_CMDLINE_APPEND="module_blacklist=mlx5_core,mlx5_ib,mlxbf_gige,mlxbf_tmfifo,openvswitch,ib_umad,ib_uverbs,ib_cm,mlxdevm,ib_core,mlx_compat,mlxbf_pka,auth_rpcgss"
 # EOF
@@ -15408,8 +15393,8 @@ set -x
 	sleep 1
 # 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
-# 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
-# 	devlink dev eswitch set pci/$pci mode switchdev
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
+	devlink dev eswitch set pci/$pci mode switchdev
 	if (( machine_num == 1 )); then
 		ip1=$link_ip
 		ip2=$link_remote_ip

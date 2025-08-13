@@ -84,7 +84,7 @@ def print_nodes(nodes):
     print(" === nodes ===\n")
 
     for node in list_for_each_entry('struct mlx5_esw_sched_node', nodes.address_of_(), 'entry'):
-        print("mlx5_esw_sched_node %x" % node, end='\t')
+        print("mlx5_esw_sched_node %x, ix: %#x" % (node, node.ix), end='\t')
         if os.path.isdir('/sys/class/net/enp8s0f0/device/sriov/groups'):
             print("group id: %#x" % node.node_id, end='\t')
             print("num_vports: %d" % node.num_vports, end='\t')

@@ -15,7 +15,7 @@ dev = mlx5e_priv.netdev
 # exit(0)
 
 ipsec = mlx5e_priv.ipsec
-# print(ipsec)
+print(ipsec)
 print(mlx5e_priv.netdev.xfrmdev_ops)
 
 sadb = ipsec.sadb

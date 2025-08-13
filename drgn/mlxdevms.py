@@ -20,6 +20,7 @@ mlxdevms = prog['mlxdevms']
 # print(mlxdevms)
 for node in radix_tree_for_each(mlxdevms.address_of_()):
     mlxdevm = Object(prog, 'struct mlxdevm', address=node[1].value_())
+#    print(mlxdevm)
     pci_name = mlxdevm.dev.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue
@@ -62,8 +63,8 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
     # new kernel
     for node in radix_tree_for_each(mlxdevm.ports.address_of_()):
         port = Object(prog, 'struct mlxdevm_port', address=node[1].value_())
-        if port.index != 1:
-            continue
+#         if port.index != 1:
+#             continue
         print("mlxdevm_port %x" % node[1].value_())
         print(port.mlxdevm_rate)
         print(port.mlxdevm_rate.parent)
@@ -77,6 +78,11 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
         print("")
 
     print("\t=== mlxdevm_port end ===")
+
+    print("\t=== mlxdevm_rate start ===")
+    for rate in list_for_each_entry('struct mlxdevm_rate', mlxdevm.rate_list.address_of_(), 'list'):
+        print(rate)
+    print("\t=== mlxdevm_rate end ===")
 
     # old kernel 
 #     for port in list_for_each_entry('struct mlxdevm_port', mlxdevm.port_list.address_of_(), 'list'):
