@@ -739,8 +739,8 @@ def flow_table(name, table):
              mlx5_flow_group.node.refcount.refs.counter, mlx5_flow_group.max_ftes, mlx5_flow_group.start_index))
 #         if match_criteria_enable == 9:
 #             print_mlx5_flow_group_dr(mlx5_flow_group)
-        if table.id == 0xd and match_criteria_enable:
-            print_mlx5_flow_group_hws(mlx5_flow_group)
+#         if table.id == 0xd and match_criteria_enable:
+#             print_mlx5_flow_group_hws(mlx5_flow_group)
         fte_addr = group.children.address_of_()
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())

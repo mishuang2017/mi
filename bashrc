@@ -385,7 +385,6 @@ alias cd_smfs="cd /sys/kernel/debug/mlx5/$pci/steering/"
 # alias parser='/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f'
 alias parser1="/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci/steering/fdb/dmn_*"
 alias parser2="/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci2/steering/fdb/dmn_*"
-alias wget_teams='wget https://packages.microsoft.com/repos/ms-teams/pool/main/t/teams/teams_1.3.00.16851_amd64.deb'	# apt install ./teams_1.3.00.teams_1.3.00.16851_amd64.deb
 
 alias clone-ubuntu-xenial='git clone git://kernel.ubuntu.com/ubuntu/ubuntu-xential.git'
 alias clone-ubuntu='git clone git://kernel.ubuntu.com/ubuntu/ubuntu-bionic.git'
@@ -793,7 +792,7 @@ function create-images
 function cloud_setup0
 {
 	cd /root
-	apt install -y git
+	env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends git
 	yum install -y git
 	test -d /root/bin || git clone https://github.com/mishuang2017/bin.git
 	test -d /root/mi || git clone https://github.com/mishuang2017/mi.git --branch=master
@@ -812,7 +811,7 @@ function cloud_setup0
 	chown cmi.mtl /images/cmi
 	ln -s ~cmi/mi /images/cmi
 
-	apt install -y cscope tmux screen exuberant-ctags bison flex automake
+	env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends cscope tmux screen exuberant-ctags bison flex automake
 	yum install -y cscope tmux screen ctags
 }
 
@@ -918,7 +917,7 @@ function cloud_setup_yum
 # 	sm
 # 	git clone https://github.com/iovisor/bcc.git
 	if (( bf == 1 )); then
-		apt install -y bpfcc-tools
+		env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends bpfcc-tools
 	fi
 
 # 	sm
@@ -1978,13 +1977,18 @@ set -x
 # 	return
 
 # 		action mirred egress redirect dev $rep1
-	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
+
+	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac action mirred egress redirect dev $rep3
+
+# 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+# 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep3
 	src_mac=02:25:d0:$host_num:01:03
 	dst_mac=02:25:d0:$host_num:01:02
 	$TC filter add dev $rep3 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
-	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
-	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
+	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac action mirred egress redirect dev $rep2
+
+# 	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep2
+# 	$TC filter add dev $rep3 prio 2 protocol arp parent ffff: flower $offload  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 set +x
 }
 
@@ -14660,7 +14664,7 @@ function build_bcc
 {
 	sm
 	test -d /images/cmi/bcc || clone-bcc
-	sudo apt install -y zip bison build-essential cmake flex git libedit-dev \
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends zip bison build-essential cmake flex git libedit-dev \
 	  libllvm14 llvm-14-dev libclang-14-dev python3 zlib1g-dev libelf-dev libfl-dev python3-setuptools \
 	  liblzma-dev libdebuginfod-dev arping netperf iperf
 	mkdir -p bcc/build; cd bcc/build
@@ -14709,15 +14713,16 @@ function cloud_setup
 	local branch=$1
 	local build_kernel=0
 
-	sudo apt install -y rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv
-	sudo apt install -y dracut-network
-	sudo apt install -y kexec-tools
-	sudo apt install -y linux-crashdump
-	sudo apt install -y dh-autoreconf
-	sudo apt install -y llvm sshpass ssh-askpass iperf3
-# 	sudo apt install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
-	sudo apt install -y liblzo2-dev libncurses5-dev # for crash
-	sudo apt install -y python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends dracut-network
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends kexec-tools
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends linux-crashdump
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends dh-autoreconf
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends llvm sshpass ssh-askpass iperf3
+# 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends liblzo2-dev libncurses5-dev # for crash
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
 
 	# sudo update-alternatives --config python3
 	build_libkdumpfile
@@ -14733,7 +14738,7 @@ function cloud_setup
 	sm
 	git clone https://github.com/iovisor/bcc.git
 	build_bcc
-# 	apt install -y bpfcc-tools
+# 	env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends bpfcc-tools
 
 	sm
 	clone-crash
