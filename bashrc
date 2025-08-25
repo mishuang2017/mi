@@ -658,13 +658,16 @@ alias cd_sriov2=" cd /sys/class/net/$link2/device/sriov"
 
 function ip1
 {
+set -x
 	local l=$link
+	[[ $# == 1 ]] && l=$1
 	ip=$link_ip
 	ipv6=$link_ipv6
 	ip addr flush $l
 	ip addr add dev $l $ip/16
 	ip addr add $ipv6/64 dev $l
 	ip link set $l up
+set +x
 }
 
 function ip8
@@ -883,7 +886,7 @@ function cloud_setup_yum
 	local branch=$1
 	local build_kernel=0
 
-	sudo yum install -y cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
+	sudo yum install -y ctags cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
 		python3-devel xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
 		bcc-tools pv minicom
 	sudo yum install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
@@ -5455,13 +5458,31 @@ set -x
 	del-br
 	ip1
 	vs add-br $br
-#   	for (( i = 0; i < numvfs; i++)); do
-	for (( i = 1; i < 2; i++)); do
+# 	for (( i = 1; i < 2; i++)); do
+  	for (( i = 0; i < numvfs; i++)); do
 		local rep=$(get_rep $i)
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	ovs-vsctl add-port $br $gre -- set interface $gre type=gre \
 		options:remote_ip=$link_remote_ip  options:key=$vni
+# 	sflow_create
+set +x
+}
+
+function br_gre6
+{
+set -x
+	del-br
+	ip1
+	vs add-br $br
+# 	for (( i = 1; i < 2; i++)); do
+  	for (( i = 0; i < numvfs; i++)); do
+		local rep=$(get_rep $i)
+		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
+	done
+	ovs-vsctl add-port $br $gre -- set interface $gre type=ip6gre \
+		options:local_ip=$link_ipv6  \
+		options:remote_ip=$link_remote_ipv6  options:key=$vni
 # 	sflow_create
 set +x
 }
@@ -11757,7 +11778,7 @@ function bond_br
 	ovs-vsctl add-port $br bond0
 # 	vxlan1
 
-	ifconfig bond0 $link_ip/24
+	ip1 bond0
 
 # 	for (( i = 0; i < numvfs; i++)); do
 # 		local rep=$(get_rep $i)
@@ -11829,12 +11850,10 @@ set +x
 	bond_create
 	sleep 1
 
-	ifconfig bond0 0
 	bi
 	bi2
 	set_netns_all 1
 
-# 	ifconfig bond0 $link_ip
 	bond_br
 
 	return
@@ -12761,6 +12780,8 @@ function bond_stat
 {
 	local t=1
 
+# 	link=eth2
+# 	link2=eth3
 	for (( i = 0; i < 10000; i++ )); do
 		[[ $# == 1 ]] && t=$1
 		t1=$(ethtool -S $link  | grep tx_packets_phy | awk '{print $2}')
@@ -12892,6 +12913,12 @@ function hmfs
 		cmode runtime || echo "Failed to set hmfs"
 }
 
+function hmfs2
+{
+	devlink dev param set pci/$pci2 name flow_steering_mode value "hmfs" \
+		cmode runtime || echo "Failed to set hmfs"
+}
+
 function dmfs
 {
 	if (( ofed == 1 )); then
@@ -12961,6 +12988,8 @@ set -x
 set +x
 	fi
 }
+
+alias get-fs0='devlink dev  param show pci/0000:08:00.0 name flow_steering_mode'
 
 function get-fs
 {
@@ -13748,7 +13777,6 @@ set -x
 set +x
 }
 
-
 function sflow_clear
 {
 	local bridge=$br
@@ -13841,13 +13869,6 @@ function sflowtool_tcpdump
 function ovs_run_test
 {
 	make check TESTSUITEFLAGS=$1
-}
-
-function test_cleanup
-{
-set -x
-	/opt/python/2.7.3/bin/python2.7 /opt/python/2.7.3/bin/SetupCleanup.py --clusterIPs $1 $2
-set +x
 }
 
 function asap_dev_test
