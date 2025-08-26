@@ -22,11 +22,16 @@ for node in radix_tree_for_each(devices.address_of_()):
     ib_device = Object(prog, 'struct ib_device', address=node[1].value_())
     print("ib_device %x" % node[1].value_())
     print("ib_device.dev.kobj.name %s" % ib_device.dma_device.kobj.name.string_().decode())
+    print("ib_device.is_switch: %d" % ib_device.is_switch)
+    print("ib_device.phys_port_cnt: %d" % ib_device.phys_port_cnt)
+    print(ib_device.port_data[0].immutable)
 #     print("   device name: %s" % ib_device.dev.kobj.name.string_().decode())
 #     print(ib_device)
 #     print("device.dev.kobj.name %s" % ib_device.dev.kobj.name.string_().decode())
 #     print(ib_device.phys_port_cnt)
     print("\n=======================")
+
+exit(0)
 
 ib_mad_port_list = prog['ib_mad_port_list']
 

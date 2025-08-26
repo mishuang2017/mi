@@ -2489,7 +2489,6 @@ set +x
 set +x
 }
 
-alias tc3=tc-mirror-vf-test3
 function tc-mirror-vf-test3
 {
 set -x
@@ -5473,7 +5472,7 @@ function br_gre6
 {
 set -x
 	del-br
-	ip1
+	ip1 bond0
 	vs add-br $br
 # 	for (( i = 1; i < 2; i++)); do
   	for (( i = 0; i < numvfs; i++)); do
@@ -10479,6 +10478,7 @@ function tc1
 # 	$TC filter add dev $rep2 prio 3 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 
 # ovs-ofctl add-flow $br "table=0,priority=10,in_port=$pf,tcp,tp_dst=9999,nw_dst=8.9.10.1 actions=mod_nw_dst:192.168.0.2,mod_tp_dst:5001,mod_dl_dst=$VF_MAC,ct(commit),dec_ttl,$rep"
+
         tc filter add dev $link ingress prio 1 chain 0 proto ip flower skip_hw ip_flags nofrag \
                 action pedit ex munge eth dst set 24:8a:07:ad:77:99 pipe \
                 action pedit ex munge ip src set 8.9.10.1 pipe \
@@ -10488,7 +10488,18 @@ function tc1
         tcs $link
 }
 
-alias cp-rpm='scp mi@10.12.205.13:~/rpmbuild/RPMS/x86_64/* .'
+# modify header before ct is not supported to offload if miss to action is not supported
+function tc3
+{
+	tc2
+	tc-setup $rep2
+        tc filter add dev $rep2 ingress prio 1 chain 0 proto ip flower \
+		ip_proto tcp dst_ip 8.9.10.10 ct_state -trk \
+                action pedit ex munge ip src set 8.9.10.1 pipe \
+                action ct pipe \
+                action goto chain 1
+        tcs $rep2
+}
 
 function tc-panic
 {
@@ -11688,7 +11699,7 @@ set +x
 	set_mac 2
 }
 
-function bond_create
+function bond_create_sysfs
 {
 set -x
 	ifenslave -d bond0 $link $link2 2> /dev/null
@@ -11697,8 +11708,33 @@ set -x
 	ip link set $link2 nomaster
 	rmmod bonding
 	sleep 1
-	modprobe bonding mode=4 miimon=100
+
+	modprobe bonding
+	echo +bond0 > /sys/class/net/bonding_masters
+	echo 2 > /sys/class/net/bond0/bonding/mode
+	echo 1 > /sys/class/net/bond0/bonding/xmit_hash_policy
+	echo 100 > /sys/class/net/bond0/bonding/miimon
+	echo 100 > /sys/class/net/bond0/bonding/downdelay
+	echo 100 > /sys/class/net/bond0/bonding/updelay
+
+	ip link set dev $link down
+	ip link set dev $link2 down
+
+	echo +$link > /sys/class/net/bond0/bonding/slaves
+	echo +$link2 > /sys/class/net/bond0/bonding/slaves
+	echo 1 > /sys/class/net/bond0/bonding/all_slaves_active
+set +x
+}
+
+function bond_create
+{
+set -x
+	ifenslave -d bond0 $link $link2 2> /dev/null
 	sleep 1
+	ip link set $link nomaster
+	ip link set $link2 nomaster
+	rmmod bonding
+	modprobe bonding
 
 	ip link set dev $link down
 	ip link set dev $link2 down
@@ -11847,7 +11883,7 @@ set -x
 set +x
 	bond_switchdev
 	sleep 1
-	bond_create
+	bond_create_sysfs
 	sleep 1
 
 	bi
@@ -12989,7 +13025,11 @@ set +x
 	fi
 }
 
-alias get-fs0='devlink dev  param show pci/0000:08:00.0 name flow_steering_mode'
+function get-fs0
+{
+	devlink dev  param show pci/0000:08:00.0 name flow_steering_mode
+	devlink dev  param show pci/0000:08:00.1 name flow_steering_mode
+}
 
 function get-fs
 {
@@ -16086,4 +16126,10 @@ function cloud_linux_net_next
 	else
 		make-all all
 	fi
+}
+
+function fix_python
+{
+	/bin/rm /bin/python3
+	ln -s /bin/python3.9 /bin/python3
 }

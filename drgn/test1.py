@@ -12,13 +12,19 @@ from lib import *
 
 print(sys.path)
 
+dev_list = prog['dev_list']
+
+for dev in list_for_each_entry('struct cma_device', dev_list.address_of_(), 'list'):
+    print(dev.device.dev.kobj.name)
+
+exit(0)
+
 devs = get_netdevs()
 # print(devs)
 
 jiffies = prog['jiffies']
 print(jiffies)
 
-# exit(0)
 
 IP_CT_ESTABLISHED_REPLY = prog['IP_CT_ESTABLISHED_REPLY']
 print("%d" % IP_CT_ESTABLISHED_REPLY)
