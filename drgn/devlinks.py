@@ -20,6 +20,7 @@ devlinks = prog['devlinks']
 # print(devlinks)
 for node in radix_tree_for_each(devlinks.address_of_()):
     devlink = Object(prog, 'struct devlink', address=node[1].value_())
+#     print(devlink.rel)
     pci_name = devlink.dev.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue

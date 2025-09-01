@@ -6919,7 +6919,7 @@ set -x
 	sf_device=mlx5_core.sf.$((sfnum+1))
 	sf_name=en8f0pf0sf$sfnum
 # 	sf_name=enp8s0f0npf0sf1
-	devlink dev eswitch set $pci mode switchdev
+	devlink dev eswitch set pci/$pci mode switchdev
 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum $sfnum
 # set +x
 # 	return
@@ -16132,4 +16132,16 @@ function fix_python
 {
 	/bin/rm /bin/python3
 	ln -s /bin/python3.9 /bin/python3
+}
+
+function vpd
+{
+	cat /sys/bus/pci/devices/0000:08:00.0/vpd
+}
+
+function b2b_gre_ipv6_xor_policy1_hmfs_pf0_vf0
+{
+	export PYTHONPATH='/auto/swgwork/ziyadat/code/drivertest/master/drivertest/'
+	cd /swgwork/ziyadat/code/drivertest/master/drivertest/drivertest
+	dtr -t direct_tests/tests/ping/ping.py -c b2b_gre_ipv6_xor_policy1_hmfs_pf0_vf0 --logs_dir /tmp/dtr_run_{INC}  --no_restore
 }

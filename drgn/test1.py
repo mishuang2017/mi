@@ -12,12 +12,24 @@ from lib import *
 
 print(sys.path)
 
+shd_list = prog['shd_list']
+# print(shd_list)
+
+for mlx5_shd in list_for_each_entry('struct mlx5_shd', shd_list.address_of_(), 'list'):
+    print(mlx5_shd)
+    print("mlx5_shd.faux_dev.dev.driver_data", end=' ')
+    print(mlx5_shd.faux_dev.dev.driver_data)
+    devlink = container_of(mlx5_shd, "struct devlink", "priv")
+    print(devlink.rel)
+#     print(devlink.dev.kobj)
+
+exit(0)
+
 dev_list = prog['dev_list']
 
 for dev in list_for_each_entry('struct cma_device', dev_list.address_of_(), 'list'):
     print(dev.device.dev.kobj.name)
 
-exit(0)
 
 devs = get_netdevs()
 # print(devs)
