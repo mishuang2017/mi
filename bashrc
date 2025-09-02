@@ -362,7 +362,6 @@ alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kern
 alias clone-systemtap='git clone git://sourceware.org/git/systemtap.git'
 alias clone-systemd='git clone git@github.com:systemd/systemd.git'
 alias clone-crash-upstream='git clone git@github.com:crash-utility/crash.git'
-alias clone-crash='git clone https://github.com/mishuang2017/crash.git'
 alias clone-mi='git clone https://github.com/mishuang2017/mi --branch=master'
 alias clone-bin='git clone https://github.com/mishuang2017/bin.git'
 alias clone-c='git clone https://github.com/mishuang2017/c.git'
@@ -558,6 +557,18 @@ alias tune2="ethtool -C $link adaptive-rx on"
 alias tune3="ethtool -c $link"
 
 alias lsblk_all='lsblk -o name,label,partlabel,mountpoint,size,uuid,fstype'
+
+alias clone-crash='git clone https://github.com/mishuang2017/crash.git --branch=AI_hackathon_2025'
+
+function build_crash
+{
+	sm
+	clone-crash
+	cp /swgwork/cmi/gdb-16.2.tar.gz crash
+	sudo yum install -y gmp-devel mpfr-devel
+	cd crash
+	make -j 20 lzo
+}
 
 ETHTOOL=/images/cmi/ethtool/ethtool
 function ethtool-rxvlan-off
@@ -881,14 +892,19 @@ function cloud_linux_upstream
 	make-all all
 }
 
+function cloud_setup1
+{
+	sudo yum install -y ctags cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
+		python3-devel xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
+		bcc-tools pv minicom
+}
+
 function cloud_setup_yum
 {
 	local branch=$1
 	local build_kernel=0
 
-	sudo yum install -y ctags cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
-		python3-devel xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
-		bcc-tools pv minicom
+	cloud_setup1
 	sudo yum install -y libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo yum install -y dh-autoreconf
 	sudo yum install -y python-devel
@@ -9097,6 +9113,8 @@ alias ofed-configure-all="./configure -j \
 	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --without-memtrack \
 	--with-ipoib-cm --with-user_mad-mod --with-nfsrdma-mod"
 # 	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --with-memtrack --with-sf-cfg-drv --with-sf-sfc "
+# alias ofed-configure-all="./configure -j \
+# 	--with-core-mod --with-mlx5-mod --with-mlx5-ipsec"
 alias ofed-configure-memtrack="ofed-configure-all --with-memtrack"
 
 alias ofed-configure-4.1="./configure -j --kernel-version 4.1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.1 \
@@ -16131,7 +16149,7 @@ function cloud_linux_net_next
 function fix_python
 {
 	/bin/rm /bin/python3
-	ln -s /bin/python3.9 /bin/python3
+	ln -s /usr/local/bin/python3.10 /bin/python3
 }
 
 function vpd
