@@ -127,7 +127,7 @@ function Print1()
 endfunc
 
 function Print2()
-	s/$/\r\tpr_info("%s: %d\\n", __func__, __LINE__);/
+	s/$/\r\tpr_info("%s: cmi: %d\\n", __func__, __LINE__);/
 endfunc
 
 function OVS()

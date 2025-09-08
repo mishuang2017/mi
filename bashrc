@@ -933,6 +933,8 @@ function cloud_setup_yum
 
 	cloud_grub
 
+	build_crash
+
 # 	sm
 # 	git clone https://github.com/iovisor/bcc.git
 	if (( bf == 1 )); then
@@ -954,11 +956,6 @@ function cloud_setup_yum
 # 	smo
 # 	./boot.sh
 # 	install-ovs
-
-	sm
-	clone-crash
-	cd crash
-	make lzo -j 4
 }
 
 function cloud_ofed_cp
@@ -11902,6 +11899,7 @@ set +x
 	bond_switchdev
 	sleep 1
 	bond_create_sysfs
+# 	bond_create
 	sleep 1
 
 	bi

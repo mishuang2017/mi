@@ -12,7 +12,7 @@ from lib import *
 
 def print_esw(priv):
 #     print(priv.netdev.xfrmdev_ops)
-    print("mlx5e_priv %#x" % priv.address_of_())
+#     print("mlx5e_priv %#x" % priv.address_of_())
     print("mlx5_core_dev %#x" % priv.mdev)
     print(priv.mdev.coredev_type)
     print("mlx5_priv %#x" % priv.mdev.priv.address_of_())

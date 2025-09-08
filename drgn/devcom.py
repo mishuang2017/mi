@@ -26,6 +26,7 @@ def print_devcom_dev_list():
 print(" ==== devcom_comp_list ==== ")
 devcom_comp_list = prog['devcom_comp_list']
 for devcom in list_for_each_entry('struct mlx5_devcom_comp', devcom_comp_list.address_of_(), 'comp_list'):
+    print(devcom)
     if devcom.id != MLX5_DEVCOM_ESW_OFFLOADS:
         continue
     print(devcom.ready)
