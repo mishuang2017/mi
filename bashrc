@@ -357,7 +357,7 @@ alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
 alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_10;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
-alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_07'
+alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_10'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
 alias clone-systemtap='git clone git://sourceware.org/git/systemtap.git'
 alias clone-systemd='git clone git@github.com:systemd/systemd.git'
@@ -11884,8 +11884,8 @@ function bond_xmit_mode
 function bond_setup
 {
 	off
-# 	dmfs
-# 	dmfs2
+ 	hmfs
+ 	hmfs2
 	bond_delete
 	sleep 1
 set -x
@@ -16160,4 +16160,14 @@ function b2b_gre_ipv6_xor_policy1_hmfs_pf0_vf0
 	export PYTHONPATH='/auto/swgwork/ziyadat/code/drivertest/master/drivertest/'
 	cd /swgwork/ziyadat/code/drivertest/master/drivertest/drivertest
 	dtr -t direct_tests/tests/ping/ping.py -c b2b_gre_ipv6_xor_policy1_hmfs_pf0_vf0 --logs_dir /tmp/dtr_run_{INC}  --no_restore
+}
+
+function cloud_linux_rhel95
+{
+	sm
+	git clone /auto/sw/work/inbox_drivers/RHEL/tree/rhel-9 --branch=9.5
+	ln -s rhel-9 linux
+	cd linux
+	cp /swgwork/cmi/config.rhel-9.4 .config
+	m all
 }

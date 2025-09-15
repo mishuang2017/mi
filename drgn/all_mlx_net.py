@@ -23,7 +23,7 @@ for x, dev in enumerate(get_netdevs()):
 #         continue;
     print("===================================================")
     print(name)
-    print(ops)
+    print(dev.netdev_ops.ndo_get_port_parent_id)
 
     print("dev.num_tc: %d" % dev.num_tc)
     print(dev.tc_to_txq)
