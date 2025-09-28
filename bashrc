@@ -254,6 +254,9 @@ function get_pci
 }
 get_pci
 
+pci_1=0000:08:00.0
+pci_2=0000:08:00.1
+
 alias dpdk-test="sudo build/app/testpmd -c7 -n3 --log-level 8 --vdev=net_pcap0,iface=$link --vdev=net_pcap1,iface=$link2 -- -i --nb-cores=2 --nb-ports=2 --total-num-mbufs=2048"
 
 # testpmd> set fwd flowgen
@@ -494,6 +497,7 @@ alias e=exit
 alias netstat1='netstat -ntlp'
 
 alias b3='lspci -d 15b3: -nn'
+alias b4='lspci -d 1af4: -nn'
 
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -1369,8 +1373,6 @@ set -x;
 
 set +x
 }
-alias b4=mybuild4
-
 alias make.sparse="COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' > ~/build.txt 2>&1"
 
 function mybuild_psample
@@ -1501,7 +1503,7 @@ set -x
 	sudo echo 0 > /proc/sys/fs/suid_dumpable
 	# otherwise, will hit this error
 	# Aug 23 09:31:51 c-237-175-60-063 ovs-ctl[4478]: ==4478==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
-# 	sudo pip install ovs-sphinx-theme docutils
+	sudo pip install ovs-sphinx-theme docutils
 
 # 	sudo pip uninstall docutils
 # 	sudo pip install docutils==0.17.0
@@ -1511,7 +1513,8 @@ set -x
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 
 	sudo yum -y install libasan
-	./configure CFLAGS="-g -O2 -fsanitize=address -fno-omit-frame-pointer -fno-common" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+	./configure CFLAGS="-g -O2" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+# 	./configure CFLAGS="-g -O2 -fsanitize=address -fno-omit-frame-pointer -fno-common" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
 #	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
@@ -1818,7 +1821,9 @@ function mi
 	make -j $cpu_num2 || return
 	sudo make install -j $cpu_num2
 # 	sudo systemctl stop mlx-regex
+	sudo systemctl stop virtio-net-controller.service
 	sudo /etc/init.d/openibd force-restart
+	sudo systemctl start virtio-net-controller.service
 # 	reprobe
 }
 
@@ -5236,11 +5241,11 @@ set -x
 
 	ovs-ofctl del-flows $br
 	ovs-ofctl add-flow $br table=0,priority=1,action=drop
-	ovs-ofctl add-flow $br table=0,priority=2,in_port=2,dl_dst=02:25:d0:14:01:03,action=normal
-	ovs-ofctl add-flow $br table=0,priority=2,in_port=3,dl_dst=02:25:d0:14:01:02,action=normal
+	ovs-ofctl add-flow $br table=0,priority=2,in_port=2,dl_dst=02:25:d0:09:01:03,action=normal
+	ovs-ofctl add-flow $br table=0,priority=2,in_port=3,dl_dst=02:25:d0:09:01:02,action=normal
 
-	ovs-ofctl add-flow $br table=0,priority=2,in_port=2,dl_src=02:25:d0:14:01:02,dl_dst=ff:ff:ff:ff:ff:ff,action=normal
-	ovs-ofctl add-flow $br table=0,priority=3,in_port=2,dl_src=02:25:d0:14:01:03,dl_dst=ff:ff:ff:ff:ff:ff,action=normal
+	ovs-ofctl add-flow $br table=0,priority=2,in_port=2,dl_src=02:25:d0:09:01:02,dl_dst=ff:ff:ff:ff:ff:ff,action=normal
+	ovs-ofctl add-flow $br table=0,priority=3,in_port=2,dl_src=02:25:d0:09:01:03,dl_dst=ff:ff:ff:ff:ff:ff,action=normal
 set +x
 }
 
@@ -6898,31 +6903,6 @@ function sf1
 	$cmd port function set en8f0pf0sf1 state active
 }
 
-function sf_m
-{
-	n=2
-	[[ $# == 1 ]] && n=$1
-	for (( i = 1; i <= n; i++)); do
-		echo '---------------------'
-		echo $i
-		echo '---------------------'
-		sf_create /images/cmi/iproute2/mlxdevm/mlxdevm $i
-		# sf_create /opt/mellanox/iproute2/sbin/mlxdevm $i
-	done
-}
-
-function sf_d
-{
-	n=2
-	[[ $# == 1 ]] && n=$1
-	for (( i = 1; i <= n; i++)); do
-		echo '---------------------'
-		echo $i
-		echo '---------------------'
-		sf_create devlink $i
-	done
-}
-
 function sf_create
 {
 set -x
@@ -6952,6 +6932,31 @@ set -x
 	sleep 1
 	devlink dev reload auxiliary/$sf_device
 set +x
+}
+
+function sf_m
+{
+	n=2
+	[[ $# == 1 ]] && n=$1
+	for (( i = 1; i <= n; i++)); do
+		echo '---------------------'
+		echo $i
+		echo '---------------------'
+		sf_create /images/cmi/iproute2/mlxdevm/mlxdevm $i
+		# sf_create /opt/mellanox/iproute2/sbin/mlxdevm $i
+	done
+}
+
+function sf_d
+{
+	n=2
+	[[ $# == 1 ]] && n=$1
+	for (( i = 1; i <= n; i++)); do
+		echo '---------------------'
+		echo $i
+		echo '---------------------'
+		sf_create devlink $i
+	done
 }
 
 function sf_create_static
@@ -9180,7 +9185,8 @@ function ofed_all
 # 	smm
 	./ofed_scripts/cleanup
 # 	./configure --all --without-sf-cfg-drv -j $cpu_num2
-	ofed-configure-all
+	./configure --all -j $cpu_num2
+# 	ofed-configure-all
 	mi
 }
 
@@ -14784,12 +14790,8 @@ function build_doca
 	ninja -C build install
 }
 
-# ubuntu
-function cloud_setup
+function cloud_setup2
 {
-	local branch=$1
-	local build_kernel=0
-
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends dracut-network
@@ -14800,7 +14802,15 @@ function cloud_setup
 # 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends liblzo2-dev libncurses5-dev # for crash
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
+}
 
+# ubuntu
+function cloud_setup
+{
+	local branch=$1
+	local build_kernel=0
+
+	cloud_setup2
 	# sudo update-alternatives --config python3
 	build_libkdumpfile
 	sm
@@ -16111,10 +16121,13 @@ function ptp
 function cloud_ofed
 {
 	sm
+	/bin/rm -rf 2
 	mkdir 2
 	cd 2
-	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_07
+	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_10
 	cd mlnx-ofa_kernel-4.0
+	fetch mlnx_ofed_25_07
+	fetch mlnx_ofed_25_04
 	git fetch --tags
 	cd ..
 	tar zcvf 1.tar.gz mlnx-ofa_kernel-4.0
@@ -16170,4 +16183,20 @@ function cloud_linux_rhel95
 	cd linux
 	cp /swgwork/cmi/config.rhel-9.4 .config
 	m all
+}
+ 
+# dpctl/add-flow "ufid:c5f9a0b1-3399-4436-b742-30825c64a1e5,recirc_id(0),in_port(3),eth(src=56:52:2d:21:66:66/FF:FF:FF:FF:FF:FF,dst=92:c1:04:ce:fd:51/FF:FF:FF:FF:FF:FF),eth_type(0x0800),ipv4(src=1.1.1.1/255.255.255.0,dst=2.2.2.2/255.255.255.0,proto=0x6),ip_frag=0x0,tcp(src=8080/0xff00,dst=8080/0xff),tcp_flags(0x0/0xff)" 2
+
+function dpctl_add_flow
+{
+	ovs-appctl \
+		dpctl/add-flow "ufid:c5f9a0b1-3399-4436-b742-30825c64a1e5,recirc_id(0),in_port(3),eth(src=56:52:2d:21:66:66/FF:FF:FF:FF:FF:FF,dst=92:c1:04:ce:fd:51/FF:FF:FF:FF:FF:FF),eth_type(0x0800),ipv4(src=1.1.1.1/255.255.255.0,dst=2.2.2.2/255.255.255.0,proto=0x6,frag=first),tcp(src=8080/0xff00,dst=8080/0xff),tcp_flags(0x0/0xff)" 2
+	ovs-appctl \
+		dpctl/dump-flows  type=tc
+}
+
+function ofctl_all
+{
+	ovs-ofctl del-flows $br
+	ovs-ofctl add-flow $br dl_type=0x0800,actions=all
 }

@@ -620,6 +620,7 @@ def print_dest(rule):
 #     print(rule.dest_attr)
     if prog['MLX5_FLOW_DESTINATION_TYPE_COUNTER'] == rule.dest_attr.type:
 #         print("\t\t\tdest: counter_id: %x" % (rule.dest_attr.counter_id))
+#         print(rule.dest_attr.counter)
         return
     if prog['MLX5_FLOW_DESTINATION_TYPE_VPORT'] == rule.dest_attr.type or \
        prog['MLX5_FLOW_DESTINATION_TYPE_UPLINK'] == rule.dest_attr.type:
@@ -745,9 +746,11 @@ def flow_table(name, table):
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
 
-#             if fs_fte.fs_hws_rule.hws_fs_actions:
-#                 print("num_fs_actions: %d" % fs_fte.fs_hws_rule.num_fs_actions)
+            if fs_fte.fs_hws_rule.hws_fs_actions:
+                print("num_fs_actions: %d" % fs_fte.fs_hws_rule.num_fs_actions)
+                print(fs_fte.fs_hws_rule.bwc_rule.bwc_matcher.matcher)
 #                 for a in range(fs_fte.fs_hws_rule.num_fs_actions):
+#                     print(fs_fte.fs_hws_rule.hws_fs_actions[a])
 #                     print(fs_fte.fs_hws_rule.hws_fs_actions[a].action)
             if fs_fte_action_exists():
                 act_dests = fs_fte.act_dests
