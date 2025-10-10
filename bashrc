@@ -6929,6 +6929,7 @@ set -x
 	devlink dev param show auxiliary/$sf_device name enable_eth
 	sleep 1
 	devlink dev param set auxiliary/$sf_device name enable_eth value true cmode driverinit
+	devlink dev param set auxiliary/$sf_device name enable_roce value false cmode driverinit
 	sleep 1
 	devlink dev reload auxiliary/$sf_device
 set +x
@@ -6942,8 +6943,9 @@ function sf_m
 		echo '---------------------'
 		echo $i
 		echo '---------------------'
-		sf_create /images/cmi/iproute2/mlxdevm/mlxdevm $i
-		# sf_create /opt/mellanox/iproute2/sbin/mlxdevm $i
+		sf_create mlxdevm $i
+# 		sf_create /images/cmi/iproute2/mlxdevm/mlxdevm $i
+# 		sf_create /opt/mellanox/iproute2/sbin/mlxdevm $i
 	done
 }
 
@@ -11895,12 +11897,12 @@ function bond_setup
 	bond_delete
 	sleep 1
 set -x
-	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+# 	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 # 	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
 # 	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
-# 	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-# 	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 set +x
 	bond_switchdev
 	sleep 1
@@ -15363,7 +15365,7 @@ function bf2_on_sriov
 }
 
 #define MLX5_FW_REPORTER_PF_GRACEFUL_PERIOD 60000
-function reset1
+function pci_reset
 {
 	grace_period=$(devlink health show pci/$pci reporter fw_fatal -j |  jq '.[][][].grace_period')
 	echo "grace_period=$grace_period"
@@ -16199,4 +16201,16 @@ function ofctl_all
 {
 	ovs-ofctl del-flows $br
 	ovs-ofctl add-flow $br dl_type=0x0800,actions=all
+}
+
+alias mount1='/auto/GLIT/lab-support/scripts/mount_script/mount.sh -u root -p 3tango -r'
+
+function reset0
+{
+	echo "SW_RESET 1" > /dev/rshim0/misc
+}
+
+function reset1
+{
+	echo "SW_RESET 1" > /dev/rshim1/misc
 }

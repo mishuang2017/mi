@@ -123,7 +123,7 @@ function Endif()
 endfunc
 
 function Print1()
-	s/$/\r\tprintf("%s: cmi\\n", __func__);/
+	s/$/\r\tprintf("%s: cmi: %d\\n", __func__, __LINE__);/
 endfunc
 
 function Print2()
