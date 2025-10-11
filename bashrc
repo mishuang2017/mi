@@ -6906,7 +6906,7 @@ function sf1
 function sf_create
 {
 set -x
-	debug=0
+	debug=1
 	cmd=$1
 	sfnum=$2
 	sf_device=mlx5_core.sf.$((sfnum+1))
@@ -12114,8 +12114,10 @@ function install-bpftrace
 
 BCC_DIR=/images/cmi/bcc
 BCC_DIR=/usr/share/bcc
-TRACE=/usr/sbin/trace-bpfcc
+
+alias install_bcc='apt install bpfcc-tools'
 TRACE=$BCC_DIR/tools/trace
+TRACE=/usr/sbin/trace-bpfcc
 alias trace="sudo $TRACE -t"
 alias execsnoop="sudo $BCC_DIR/tools/execsnoop"
 alias tcpaccept="sudo $BCC_DIR/tools/tcpaccept"
@@ -16213,4 +16215,12 @@ function reset0
 function reset1
 {
 	echo "SW_RESET 1" > /dev/rshim1/misc
+}
+
+function virtio
+{
+	local n=0
+	[[ $# == 1 ]] && n=$1
+
+	echo $n > /sys/bus/pci/drivers/virtio-pci/0000:11:00.2/sriov_numvfs
 }
