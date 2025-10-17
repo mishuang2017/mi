@@ -12117,7 +12117,7 @@ BCC_DIR=/usr/share/bcc
 
 alias install_bcc='apt install bpfcc-tools'
 TRACE=$BCC_DIR/tools/trace
-TRACE=/usr/sbin/trace-bpfcc
+(( debian == 1 )) && TRACE=/usr/sbin/trace-bpfcc
 alias trace="sudo $TRACE -t"
 alias execsnoop="sudo $BCC_DIR/tools/execsnoop"
 alias tcpaccept="sudo $BCC_DIR/tools/tcpaccept"
@@ -14831,10 +14831,7 @@ function cloud_setup
 	build_bcc
 # 	env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends bpfcc-tools
 
-	sm
-	clone-crash
-	cd crash
-	make lzo -j 4
+	build_crash
 }
 
 function root-login
