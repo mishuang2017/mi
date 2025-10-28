@@ -23,11 +23,11 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     pci_name = devlink.dev.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue
-#     print(devlink.ops.port_new)
+#     print(devlink.ops)
 #     print(devlink.ops.port_del)
 #     print(devlink.ops.reload_down)
 #     print(devlink.ops.reload_up)
-#     print(devlink.ops.port_function_hw_addr_get)
+    print(devlink.ops.port_function_hw_addr_get)
 
     print("========================== devlink.dev.kobj.name: %s index: %d =========================" % (pci_name, devlink.index))
     print("devlink %x" % devlink.address_of_())
@@ -68,10 +68,12 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print("\tdevlink_port.switch_port: %d" % port.switch_port)
         print("\tport index: %x" % port.index)
 #         print(port.type)
-        mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
-#         print(mlx5_devlink_port.vport.vport)
-        netdev = Object(prog, 'struct net_device', address=port.type_dev)
-        print("\tnetdev.name: %s" % netdev.name)
+
+#         mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
+#         print("\tmlx5_devlink_port.vport.vport: %d" % mlx5_devlink_port.vport.vport)
+#         netdev = Object(prog, 'struct net_device', address=port.type_dev)
+#         print("\tnetdev.name: %s" % netdev.name)
+
 #         print("\n\tport index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
 #              print(port.attrs)

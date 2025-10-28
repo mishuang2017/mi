@@ -1821,9 +1821,9 @@ function mi
 	make -j $cpu_num2 || return
 	sudo make install -j $cpu_num2
 # 	sudo systemctl stop mlx-regex
-	sudo systemctl stop virtio-net-controller.service
+# 	sudo systemctl stop virtio-net-controller.service
 	sudo /etc/init.d/openibd force-restart
-	sudo systemctl start virtio-net-controller.service
+# 	sudo systemctl start virtio-net-controller.service
 # 	reprobe
 }
 
@@ -6884,10 +6884,10 @@ set -x
 # 	mlxconfig -d /dev/mst/mt4129_pciconf0.1 s PF_NUM_OF_VF_VALID=True
 # 	mlxconfig -d /dev/mst/mt4129_pciconf0.1 s PF_BAR2_ENABLE=0  PF_NUM_OF_VF=4 NUM_OF_VFS=4
 
-	mlxconfig -d /dev/mst/mt4129_pciconf0 s PF_NUM_OF_VF_VALID=False
-	mlxconfig -d /dev/mst/mt4129_pciconf0 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 NUM_OF_VFS=4
-	mlxconfig -d /dev/mst/mt4129_pciconf0.1 s PF_NUM_OF_VF_VALID=False
-	mlxconfig -d /dev/mst/mt4129_pciconf0.1 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 NUM_OF_VFS=4
+	mlxconfig -d /dev/mst/mt41692_pciconf0 s PF_NUM_OF_VF_VALID=False
+	mlxconfig -d /dev/mst/mt41692_pciconf0 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 NUM_OF_VFS=4
+	mlxconfig -d /dev/mst/mt41692_pciconf0.1 s PF_NUM_OF_VF_VALID=False
+	mlxconfig -d /dev/mst/mt41692_pciconf0.1 s PF_BAR2_ENABLE=0  PF_SF_BAR_SIZE=10 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 NUM_OF_VFS=4
 set +x
 }
 
@@ -14805,6 +14805,7 @@ function cloud_setup2
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends llvm sshpass ssh-askpass iperf3
 # 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends liblzo2-dev libncurses5-dev # for crash
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends libgmp-dev libmpfr-dev # for new crash
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
 }
 
@@ -15869,7 +15870,15 @@ alias ct_action_on_nat_conns1="/usr/sbin/devlink dev param set pci/0000:08:00.0 
 
 alias bridge_fdb='cat /sys/kernel/debug/mlx5/0000:08:00.0/esw/bridge/tst1/fdb'
 alias bridge_fdb2='cat /sys/kernel/debug/mlx5/0000:08:00.1/esw/bridge/tst1/fdb'
-alias rshim_install='rpm -Uvh /mswg/release/sw_mc_soc/packages/rshim-latest.rpm'
+
+function  rshim_install
+{
+	rpm -Uvh /mswg/release/sw_mc_soc/packages/rshim-latest.rpm
+
+	systemctl daemon-reload
+	systemctl enable rshim
+	systemctl start rshim
+}
 
 function multiport_esw_fw
 {

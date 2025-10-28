@@ -21,6 +21,11 @@ devlinks = prog['devlinks']
 for node in radix_tree_for_each(devlinks.address_of_()):
     devlink = Object(prog, 'struct devlink', address=node[1].value_())
 #     print(devlink.rel)
+
+    # in legacy mode
+#     mlx5e_dev = cast("struct mlx5e_dev *", devlink.priv)
+#     print(mlx5e_dev)
+
     pci_name = devlink.dev.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue
@@ -72,7 +77,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #             continue
 #         print(port.devlink_rate)
         print("\tdevlink_port %x, port index: %#x, %d" % (port.address_of_(), port.index, port.index))
-#         print(port.ops.port_fn_hw_addr_get)
+        print(port.ops)
 #         print(port.switch_port)
         print("\tport.type_eth.ifname: %s" % port.type_eth.ifname.string_().decode());
         print("\t", end='')
