@@ -16230,3 +16230,39 @@ function virtio
 
 	echo $n > /sys/bus/pci/drivers/virtio-pci/0000:11:00.2/sriov_numvfs
 }
+
+function ipsec_tunnle_crypto1
+{
+	ip addr flush $link
+	ip x p f
+	ip x s f
+
+	ifconfig $link 2.2.2.2/16
+	ip addr add 1.1.1.1/24 dev $link
+
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 dir out tmpl src 2.2.2.2 dst 2.2.2.3 proto esp reqid 0x5a9fb551 mode tunnel
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 dir in tmpl src 2.2.2.3 dst 2.2.2.2 proto esp reqid 0x83392bf3 mode tunnel
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 dir fwd tmpl src 2.2.2.3 dst 2.2.2.2 proto esp reqid 0x83392bf3 mode tunnel
+	ip xfrm state add src 2.2.2.2 dst 2.2.2.3 proto esp spi 0x5a9fb551 reqid 0x5a9fb551 mode tunnel aead 'rfc4106(gcm(aes))' \
+		0x066c0cff00a3a49a16696993a1cfcd6340833f12 128 offload crypto dev $link dir out flag esn 
+	ip xfrm state add src 2.2.2.3 dst 2.2.2.2 proto esp spi 0x83392bf3 reqid 0x83392bf3 mode tunnel aead 'rfc4106(gcm(aes))' \
+		0x1e5cfd63a5779381d6a7315ff4f44732aaa7c60c 128 offload crypto dev $link dir in flag esn  replay-window 64
+}
+
+function ipsec_tunnle_crypto2
+{
+	ip addr flush $link
+	ip x p f
+	ip x s f
+
+	ifconfig $link 2.2.2.3/16
+	ip addr add 1.1.1.2/24 dev $link
+
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 dir out tmpl src 2.2.2.3 dst 2.2.2.2 proto esp reqid 0x83392bf3 mode tunnel
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 dir in tmpl src 2.2.2.2 dst 2.2.2.3 proto esp reqid 0x5a9fb551 mode tunnel
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 dir fwd tmpl src 2.2.2.2 dst 2.2.2.3 proto esp reqid 0x5a9fb551 mode tunnel
+	ip xfrm state add src 2.2.2.3 dst 2.2.2.2 proto esp spi 0x83392bf3 reqid 0x83392bf3 mode tunnel aead 'rfc4106(gcm(aes))' \
+		0x1e5cfd63a5779381d6a7315ff4f44732aaa7c60c 128 offload crypto dev $link dir out flag esn 
+	ip xfrm state add src 2.2.2.2 dst 2.2.2.3 proto esp spi 0x5a9fb551 reqid 0x5a9fb551 mode tunnel aead 'rfc4106(gcm(aes))' \
+		0x066c0cff00a3a49a16696993a1cfcd6340833f12 128 offload crypto dev $link dir in flag esn replay-window 64
+}

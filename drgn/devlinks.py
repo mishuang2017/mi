@@ -77,7 +77,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #             continue
 #         print(port.devlink_rate)
         print("\tdevlink_port %x, port index: %#x, %d" % (port.address_of_(), port.index, port.index))
-        print(port.ops)
+#         print(port.ops)
 #         print(port.switch_port)
         print("\tport.type_eth.ifname: %s" % port.type_eth.ifname.string_().decode());
         print("\t", end='')

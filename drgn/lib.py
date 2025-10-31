@@ -746,9 +746,9 @@ def flow_table(name, table):
         for fte in list_for_each_entry('struct fs_node', fte_addr, 'list'):
             fs_fte = Object(prog, 'struct fs_fte', address=fte.value_())
 
-            if fs_fte.fs_hws_rule.hws_fs_actions:
-                print("num_fs_actions: %d" % fs_fte.fs_hws_rule.num_fs_actions)
-                print(fs_fte.fs_hws_rule.bwc_rule.bwc_matcher.matcher)
+#             if fs_fte.fs_hws_rule.hws_fs_actions:
+#                 print("num_fs_actions: %d" % fs_fte.fs_hws_rule.num_fs_actions)
+#                 print(fs_fte.fs_hws_rule.bwc_rule.bwc_matcher.matcher)
 #                 for a in range(fs_fte.fs_hws_rule.num_fs_actions):
 #                     print(fs_fte.fs_hws_rule.hws_fs_actions[a])
 #                     print(fs_fte.fs_hws_rule.hws_fs_actions[a].action)
