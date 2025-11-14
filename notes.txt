@@ -7652,7 +7652,7 @@ add it to grub
 [64108.283095]  do_syscall_64               6e/0x190
 [64108.283997]  entry_SYSCALL_64_after_hwframe               3d/0xa2
 
-mlxlink  -m -d 04:00.0
+mlxlink  -m -d 08:00.0
 
 mlx5e_get_max_num_channels
 

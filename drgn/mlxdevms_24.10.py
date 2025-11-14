@@ -17,12 +17,12 @@ from lib import *
 # prog = drgn.program_from_core_dump("/var/crash/vmcore.4")
 # prog = drgn.program_from_kernel()
 mlxdevms = prog['mlxdevms']
-print(mlxdevms)
+# print(mlxdevms)
 for node in radix_tree_for_each(mlxdevms.address_of_()):
     mlxdevm = Object(prog, 'struct mlxdevm', address=node[1].value_())
-    print(mlxdevm)
-    continue
-    pci_name = mlxdevm.dev.kobj.name.string_().decode()
+#     print(mlxdevm)
+#     continue
+    pci_name = mlxdevm.device.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue
 #     print(mlxdevm.ops.eswitch_encap_mode_set)
@@ -51,58 +51,41 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
 #     print(mlxdevm._net)
 #     print(mlxdevm.ops.reload_down)
 #     print(mlxdevm.ops.reload_up)
-    mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=mlxdevm.priv.address_of_().value_())
-    print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
-    print("mlx5_priv %x" % mlx5_core_dev.priv.address_of_())
-#     print(mlx5_core_dev.priv.fw_reset)
-    print("mlx5_eswitch %x" % mlx5_core_dev.priv.eswitch)
-    print("mlx5_core_dev.coredev_type: ")
-    print(mlx5_core_dev.coredev_type)
 #     continue
     print("\t=== mlxdevm_port start ===")
 
     # new kernel
-    for node in radix_tree_for_each(mlxdevm.ports.address_of_()):
-        port = Object(prog, 'struct mlxdevm_port', address=node[1].value_())
-        if port.index != 1:
-            continue
-        print("mlxdevm_port %x" % node[1].value_())
-        print(port.mlxdevm_rate)
-        print(port.mlxdevm_rate.parent)
+#     for node in radix_tree_for_each(mlxdevm.ports.address_of_()):
+#         port = Object(prog, 'struct mlxdevm_port', address=node[1].value_())
+#         if port.index != 1:
+#             continue
+#         print("mlxdevm_port %x" % node[1].value_())
+#         print(port.mlxdevm_rate)
+#         print(port.mlxdevm_rate.parent)
 #         print(port.dl_port)
-        print("\tport index: %x, %d" % (port.index, port.index))
-        print(port.ops.port_fn_hw_addr_get)
+#         print("\tport index: %x, %d" % (port.index, port.index))
+#         print(port.ops.port_fn_hw_addr_get)
 #         print(port.switch_port)
-        print(port.type_eth.ifname);
-        for i in range(port.attrs.switch_id.id_len):
-            print("%02x:" % port.attrs.switch_id.id[i], end="")
-        print("")
+#         print(port.type_eth.ifname);
+#         for i in range(port.attrs.switch_id.id_len):
+#             print("%02x:" % port.attrs.switch_id.id[i], end="")
+#         print("")
 
     print("\t=== mlxdevm_port end ===")
 
     # old kernel 
-#     for port in list_for_each_entry('struct mlxdevm_port', mlxdevm.port_list.address_of_(), 'list'):
+    for port in list_for_each_entry('struct mlxdevm_port', mlxdevm.port_list.address_of_(), 'list'):
 #         print(port)
-#         print(port.type)
-#         print("port index: %x" % port.index)
-#         mlx5_mlxdevm_port = container_of(port, "struct mlx5_mlxdevm_port", "dl_port")
-#         print(mlx5_mlxdevm_port.vport.vport)
-#         netdev = Object(prog, 'struct net_device', address=port.type_dev)
-#         print(netdev.name)
-#         print("\n\tport index: %x" % port.index)
+        print(port.type)
+        print("port index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
 #              print(port.attrs)
 
     continue
-    for node in radix_tree_for_each(mlxdevm.params.address_of_()):
-#         print(node)
-        param = Object(prog, 'struct mlxdevm_param_item', address=node[1].value_())
-#         if param.driverinit_value_valid:
-        print(param)
-        print(param.param.name)
-#     print("=== mlxdevm.param_list ===")
-#     print(mlxdevm.param_list)
-#     for item in list_for_each_entry('struct mlxdevm_param_item', mlxdevm.param_list.address_of_(), 'list'):
+    print("=== mlxdevm.param_list ===")
+    print(mlxdevm.param_list)
+    for item in list_for_each_entry('struct mlxdevm_param_item', mlxdevm.param_list.address_of_(), 'list'):
         print("-------------------------------------------------------------")
-#         print(item)
-#         print(item.param.id)
+        print(item)
+        print(item.param.id)
+        print(item.param)

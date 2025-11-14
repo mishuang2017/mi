@@ -8132,7 +8132,7 @@ set -x
 	b=$(git branch | grep \* | cut -d ' ' -f2)
 	echo $b
 # 	commit=$(git slog -50 | grep origin/.*$b | head -1 | cut -f 1 -d " ")
-	commit=$(git slog -150 | grep origin | head -1 | cut -f 1 -d " ")
+	commit=$(git slog -200 | grep origin | head -1 | cut -f 1 -d " ")
 	echo $commit
 	git format-patch -o $dir/$n $commit
 set +x
@@ -14797,7 +14797,6 @@ function build_doca
 function cloud_setup2
 {
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv
-	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends dracut-network
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends kexec-tools
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends linux-crashdump
@@ -15672,16 +15671,14 @@ set -x
 		dir2=out
 	fi
 
-	mode=transport
 	mode=tunnel
+	mode=transport
         ip xfrm state add src $ip1 dst $ip2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' \
 		0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode $mode offload dev enp8s0f0 dir $dir1
         ip xfrm state add src $ip2 dst $ip1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' \
 		0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode $mode offload dev enp8s0f0 dir $dir2
-set +x
-	return
-#         ip xfrm state add src $ip1 dst $ip2 proto esp spi 1000 reqid 10000 aead 'rfc4106(gcm(aes))' 0xac18639de255c27fd5bee9bd94fbcf6ad97168b0 128 mode $mode &&
-#         ip xfrm state add src $ip2 dst $ip1 proto esp spi 1001 reqid 10001 aead 'rfc4106(gcm(aes))' 0x3a189a7f9374955d3817886c8587f1da3df387ff 128 mode $mode &&
+# set +x
+# 	return
         ip xfrm policy add src $ip1 dst $ip2 dir $dir1 tmpl src $ip1 dst $ip2 proto esp reqid 10000 mode $mode
         ip xfrm policy add src $ip2 dst $ip1 dir $dir2  tmpl src $ip2 dst $ip1 proto esp reqid 10001 mode $mode
         ip xfrm policy add src $ip2 dst $ip1 dir fwd tmpl src $ip2 dst $ip1 proto esp reqid 10001 mode $mode
@@ -16231,7 +16228,7 @@ function virtio
 	echo $n > /sys/bus/pci/drivers/virtio-pci/0000:11:00.2/sriov_numvfs
 }
 
-function ipsec_tunnle_crypto1
+function ipsec_tunnel_crypto1
 {
 	ip addr flush $link
 	ip x p f
@@ -16249,7 +16246,7 @@ function ipsec_tunnle_crypto1
 		0x1e5cfd63a5779381d6a7315ff4f44732aaa7c60c 128 offload crypto dev $link dir in flag esn  replay-window 64
 }
 
-function ipsec_tunnle_crypto2
+function ipsec_tunnel_crypto2
 {
 	ip addr flush $link
 	ip x p f
@@ -16265,4 +16262,48 @@ function ipsec_tunnle_crypto2
 		0x1e5cfd63a5779381d6a7315ff4f44732aaa7c60c 128 offload crypto dev $link dir out flag esn 
 	ip xfrm state add src 2.2.2.2 dst 2.2.2.3 proto esp spi 0x5a9fb551 reqid 0x5a9fb551 mode tunnel aead 'rfc4106(gcm(aes))' \
 		0x066c0cff00a3a49a16696993a1cfcd6340833f12 128 offload crypto dev $link dir in flag esn replay-window 64
+}
+
+function ipsec_tunnel_packet1
+{
+	ip addr flush $link
+	ip x p f
+	ip x s f
+
+	ifconfig $link 2.2.2.2/16
+	ip addr add 1.1.1.1/24 dev $link
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode cmod runtime value dmfs
+
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 offload packet dev $link dir out tmpl src 2.2.2.2 dst 2.2.2.3 proto esp reqid 0x5a9fb551 mode tunnel
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 offload packet dev $link dir in tmpl src 2.2.2.3 dst 2.2.2.2 proto esp reqid 0x83392bf3 mode tunnel
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 dir fwd tmpl src 2.2.2.3 dst 2.2.2.2 proto esp reqid 0x83392bf3 mode tunnel
+	ip xfrm state add src 2.2.2.2 dst 2.2.2.3 proto esp spi 0x5a9fb551 reqid 0x5a9fb551 mode tunnel aead 'rfc4106(gcm(aes))' \
+		0x066c0cff00a3a49a16696993a1cfcd6340833f12 128 offload packet dev $link dir out flag esn 
+	ip xfrm state add src 2.2.2.3 dst 2.2.2.2 proto esp spi 0x83392bf3 reqid 0x83392bf3 mode tunnel aead 'rfc4106(gcm(aes))' \
+		0x1e5cfd63a5779381d6a7315ff4f44732aaa7c60c 128 offload packet dev $link dir in flag esn  replay-window 64
+}
+
+function ipsec_tunnel_packet2
+{
+	ip addr flush $link
+	ip x p f
+	ip x s f
+
+	ifconfig $link 2.2.2.3/16
+	ip addr add 1.1.1.2/24 dev $link
+	devlink dev param set pci/0000:08:00.0 name flow_steering_mode cmod runtime value dmfs
+
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 offload packet dev $link dir out tmpl src 2.2.2.3 dst 2.2.2.2 proto esp reqid 0x83392bf3 mode tunnel
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 offload packet dev $link dir in tmpl src 2.2.2.2 dst 2.2.2.3 proto esp reqid 0x5a9fb551 mode tunnel
+	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 dir fwd tmpl src 2.2.2.2 dst 2.2.2.3 proto esp reqid 0x5a9fb551 mode tunnel
+	ip xfrm state add src 2.2.2.3 dst 2.2.2.2 proto esp spi 0x83392bf3 reqid 0x83392bf3 mode tunnel \
+		aead 'rfc4106(gcm(aes))' 0x1e5cfd63a5779381d6a7315ff4f44732aaa7c60c 128 offload packet dev $link dir out flag esn 
+	ip xfrm state add src 2.2.2.2 dst 2.2.2.3 proto esp spi 0x5a9fb551 reqid 0x5a9fb551 mode tunnel \
+		aead 'rfc4106(gcm(aes))' 0x066c0cff00a3a49a16696993a1cfcd6340833f12 128 offload packet dev $link dir in flag esn replay-window 64
+}
+
+function cross_esw_qos
+{
+	devlink port function rate add pci/0000:08:00.0/g1
+	devlink port function rate set pci/0000:08:00.1/65537 parent pci/0000:08:00.0/g1
 }

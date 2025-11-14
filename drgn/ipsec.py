@@ -76,39 +76,6 @@ else:
     flow_table("ft_ipsec_tx_pol", mlx5e_priv.mdev.priv.eswitch.offloads.ft_ipsec_tx_pol);
 # exit(0)
 
-def print_net_xfrm_state(net):
-    netns_xfrm = net.xfrm
-
-    print("\n======================== net.xfrm.state ===========================\n")
-
-    i=1
-    for x in list_for_each_entry('struct xfrm_state', netns_xfrm.state_all.address_of_(), 'km.all'):
-        print(" --- %d ---\n" % i)
-        print(x)
-        print(x.id)
-        print(x.xso)
-        print("x.xso.type: XFRM_DEV_OFFLOAD_CRYPTO: 1, XFRM_DEV_OFFLOAD_PACKET: 2")
-        print("x.xso.dir: XFRM_DEV_OFFLOAD_IN: 1, XFRM_DEV_OFFLOAD_OUT: 2")
-        i+=1
-
-def print_net_xfrm_policy(net):
-    netns_xfrm = net.xfrm
-
-    print("\n======================== net.xfrm.policy ===========================\n")
-
-    i=1
-    for x in list_for_each_entry('struct xfrm_policy_walk_entry', netns_xfrm.policy_all.address_of_(), 'all'):
-        print(" --- %d ---\n" % i)
-#         print(x)
-        policy = container_of(x, "struct xfrm_policy", "walk")
-#         print(policy)
-        print(policy.xdo)
-        i+=1
-
-net = prog['init_net']
-# print_net_xfrm_state(net)
-# print_net_xfrm_policy(net)
-
 def print_counters():
     print("\n======================== counters ===========================\n")
 
