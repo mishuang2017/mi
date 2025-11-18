@@ -29,7 +29,8 @@ def print_mlx5_vport(priv):
     # print(vports)
 
     def print_vport(vport):
-        print(vport)
+#         print(vport)
+        print("vport.vport: %x" % vport.vport)
 #         print("mlx5_vport %x" % vport.address_of_(), end=' ')
 #         print("vport: %4x, metadata: %4x" % (vport.vport, vport.metadata), end=' ')
 #         print_mac(vport.info.mac)
@@ -38,7 +39,7 @@ def print_mlx5_vport(priv):
 #             print(vport.dl_port.devlink_rate)
 #         print("vport: %5x" % vport.vport, end=' ')
 #         print("enabled: %x" % vport.enabled, end=' ')
-#         print(vport.qos)
+        print(vport.qos)
 #         print(vport.ingress.offloads.meter_xps[0])
 #         print(vport.egress.offloads.meter_xps[0])
         print('')

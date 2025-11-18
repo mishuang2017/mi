@@ -550,6 +550,12 @@ alias qlog='less /var/log/libvirt/qemu/vm1.log'
 # alias vd='virsh dumpxml vm1'
 alias simx='/opt/simx/bin/manage_vm_simx_support.py -n vm2'
 
+function sfs4
+{
+	mlxconfig -d 0000:03:00.0 set SRIOV_EN=1 NUM_OF_VFS=4 PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=2 PF_SF_BAR_SIZE=10
+	mlxconfig -d 0000:03:00.1 set SRIOV_EN=1 NUM_OF_VFS=4 PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=2 PF_SF_BAR_SIZE=10
+}
+
 alias vfs4="mlxconfig -d $pci2 set SRIOV_EN=1 NUM_OF_VFS=4"
 alias vfq="mlxconfig -d $pci q"
 alias vfq2="mlxconfig -d $pci2 q"

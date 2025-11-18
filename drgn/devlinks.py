@@ -27,8 +27,8 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #     print(mlx5e_dev)
 
     pci_name = devlink.dev.kobj.name.string_().decode()
-#     if pci_name != "0000:08:00.0":
-#         continue
+    if pci_name != "0000:08:00.0":
+        continue
 #     print(devlink.ops.eswitch_encap_mode_set)
 #     print(devlink.ops)
 
@@ -83,6 +83,7 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print("\t", end='')
         for i in range(port.attrs.switch_id.id_len):
             print("%02x:" % port.attrs.switch_id.id[7-i], end="")
+        print(port.attrs)
         print("")
 
     print("\t=== devlink_port end ===")

@@ -86,7 +86,7 @@ def print_nodes(nodes):
     for node in list_for_each_entry('struct mlx5_esw_sched_node', nodes.address_of_(), 'entry'):
         print("mlx5_esw_sched_node %x, ix: %#x" % (node, node.ix), end='\t')
         if os.path.isdir('/sys/class/net/enp8s0f0/device/sriov/groups'):
-            print("group id: %#x" % node.node_id, end='\t')
+            print("group id: %#x" % node.group_id, end='\t')
             print("num_vports: %d" % node.num_vports, end='\t')
             if node.devm.name:
                 print("%5s" % node.devm.name.string_().decode(), end='\t')
@@ -95,7 +95,7 @@ def print_nodes(nodes):
                 print("%5s" % "", end='\t')
         print("type: %d" % node.type, end='\t')
 #         print("ix: %d" % node.ix, end='\t')
-#         print("node_id: %d" % node.node_id, end='\t')
+#         print("group_id: %d" % node.group_id, end='\t')
         print("%s" % node.esw.dev.device.kobj.name.string_().decode(), end='\t')
         print("max_rate: %d, min_rate: %d, bw_share: %d" % (node.max_rate, node.min_rate, node.bw_share), end=' ');
         print("parent %x" % node.parent.value_())
@@ -104,7 +104,7 @@ def print_nodes(nodes):
                 vport = node2.vport
                 print("\t---------------")
 #                 print("\tnode: %x, type: %d, vport: %d" % (node2.value_(), type(node2.type), vport.vport), end=' ')
-                print("\tmlx5_esw_sche_node %x, type: %d, vport: %d" % (node2.value_(), node2.type, vport.vport), end=' ')
+                print("\tmlx5_esw_sched_node %x, type: %d, vport: %d" % (node2.value_(), node2.type, vport.vport), end=' ')
                 print("\t%s" % vport.dev.device.kobj.name.string_().decode())
             else:
                 print("\tchild group mlx5_esw_sche_node %x, type: %d" % (node2.value_(), node2.type))
