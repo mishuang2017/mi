@@ -556,7 +556,7 @@ function sfs4
 	mlxconfig -d 0000:03:00.1 set SRIOV_EN=1 NUM_OF_VFS=4 PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=2 PF_SF_BAR_SIZE=10
 }
 
-alias vfs4="mlxconfig -d $pci2 set SRIOV_EN=1 NUM_OF_VFS=4"
+alias vfs4="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=4"
 alias vfq="mlxconfig -d $pci q"
 alias vfq2="mlxconfig -d $pci2 q"
 alias vfsm="mlxconfig -d $linik_bdf set NUM_VF_MSIX=16"
@@ -6909,6 +6909,17 @@ function sf1
 	$cmd port function set en8f0pf0sf1 state active
 }
 
+function sf_create_bf
+{
+	cmd=mlxdevm
+        [[ $# == 1 ]] && cmd=$1
+
+	$cmd port add pci/0000:03:00.0  flavour pcisf pfnum 0 sfnum 0 controller 1
+	$cmd port function set en3f0c1pf0sf0 state active
+}
+
+alias sf_create_bf_devlink='_sf_create_bf devlink'
+
 function sf_create
 {
 set -x
@@ -6970,10 +6981,10 @@ function sf_d
 function sf_create_static
 {
 set -x
-	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+# 	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
 
 	cmd=/opt/mellanox/iproute2/sbin/mlxdevm
-	cmd=/images/cmi/iproute2/mlxdevm/mlxdevm
+# 	cmd=/images/cmi/iproute2/mlxdevm/mlxdevm
 	debug=0
 	sf_device=mlx5_core.sf.2
 	sf_name=en8f0pf0sf1
@@ -8713,8 +8724,8 @@ function disable-virt
 
 function install-mft
 {
-	mkdir -p /mswg
-	sudo mount 10.4.0.102:/vol/mswg/mswg /mswg/
+# 	mkdir -p /mswg
+# 	sudo mount 10.4.0.102:/vol/mswg/mswg /mswg/
 #	/mswg/release/mft/latest/install.sh
 	/mswg/release/mft/mftinstall
 }
@@ -9168,6 +9179,7 @@ alias ofed-configure-5.15="./configure --with-mlx5-core-and-ib-and-en-mod --with
 alias ofed-configure-5.15-uek="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15.0-101.103.2.1.el9uek.x86_64/ "
 alias ofed-configure-5.16="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.16-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.16-rc7 "
 alias ofed-configure-5.17="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.17-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.17-rc7 "
+alias ofed-configure-6.0="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.0 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.0 "
 alias ofed-configure-6.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.2-rc6 "
 alias ofed-configure-6.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.3 "
 alias ofed-configure-6.15="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.15 "
@@ -11903,12 +11915,12 @@ function bond_setup
 	bond_delete
 	sleep 1
 set -x
-# 	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-# 	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 # 	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
 # 	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
-	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+# 	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
 set +x
 	bond_switchdev
 	sleep 1
@@ -16312,4 +16324,22 @@ function cross_esw_qos
 {
 	devlink port function rate add pci/0000:08:00.0/g1
 	devlink port function rate set pci/0000:08:00.1/65537 parent pci/0000:08:00.0/g1
+}
+
+# bdf=$(sudo mst status | grep -A 1 "mt4129" | grep -E -o '[0-9]{2}:[0-9]{2}\.[0-9]')
+# bd=$(echo $bdf | cut -d'.' -f 1)
+# vf_bdf=$(realpath /sys/devices/pci0000:*/0000:*/0000:$bd.*/net/* | grep "v" | tail -1 | grep -E -o '[0-9]{2}:[0-9]{2}\.[0-9]' | tail -1)
+# vf_bar0=$(sudo lspci -s $vf_bdf -vvv | grep -m 1 -i "region 0" | cut -d ' ' -f 5)
+
+function memdebug_read
+{
+	memdebug -d /dev/mst/mt4129_pciconf0 -p 884c00000 -c Read -s 0x20 -i PA -a MEM
+}
+
+function memdebug_write
+{
+	# lspci -vvv find bar0 for a vf.
+	# cmdq_phy_addr[31:12] offset is 0x14
+	memdebug -d /dev/mst/mt4129_pciconf0 -p 884c00014 -c Write -s 0x4 -i PA -a MEM -w af005056
+	# memdebug -d /dev/mst/mt4131_pciconf0 -p 884c00018 -c Write -s 0x4 -i PA -a MEM -w 00000001
 }

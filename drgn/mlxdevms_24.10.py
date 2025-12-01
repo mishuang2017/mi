@@ -56,7 +56,8 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
 
     # old kernel 
     for port in list_for_each_entry('struct mlxdevm_port', mlxdevm.port_list.address_of_(), 'list'):
-#         print(port)
+        print("mlxdevm_port %x" % port)
+        print(port.attrs)
         print(port.type)
         print("port index: %x" % port.index)
 #         if port.index & 0xffff == 0xffff:
