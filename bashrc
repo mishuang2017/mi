@@ -1536,15 +1536,16 @@ set +x
 function install-ovs2
 {
 set -x
-        make clean
-        ./boot.sh
-	export PKG_CONFIG_PATH=/root/dpdk.org/build/lib/pkgconfig/
-	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=static
+#         make clean
+#         ./boot.sh
+# 	export PKG_CONFIG_PATH=/root/dpdk.org/build/lib/pkgconfig/
+# 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=static
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
 #	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
-	make -j CFLAGS="-Werror -g"
-	sudo make install -j
-	restart-ovs
+	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=static --with-doca=static
+# 	make -j CFLAGS="-Werror -g"
+# 	sudo make install -j
+# 	restart-ovs
 set +x
 }
 
@@ -5413,7 +5414,7 @@ set +x
 function brx_bf_ct
 {
 set -x
-	BRIDGE=br0-ovs
+	BRIDGE=$br
 	del-br
 	ovs-vsctl add-br $BRIDGE
 	ovs-vsctl add-port $BRIDGE pf0vf0
@@ -5447,7 +5448,7 @@ set +x
 function brx_bf_nat
 {
 set -x
-	BRIDGE=br0-ovs
+	BRIDGE=$br
 	del-br
 	ovs-vsctl add-br $BRIDGE
 	ovs-vsctl add-port $BRIDGE pf0vf0
@@ -16344,4 +16345,49 @@ function memdebug_write
 	# cmdq_phy_addr[31:12] offset is 0x14
 	memdebug -d /dev/mst/mt4129_pciconf0 -p 884c00014 -c Write -s 0x4 -i PA -a MEM -w af005056
 	# memdebug -d /dev/mst/mt4131_pciconf0 -p 884c00018 -c Write -s 0x4 -i PA -a MEM -w 00000001
+}
+
+function br_doca_hugepages
+{
+	mkdir -p /hugepages
+	mount -t hugetlbfs hugetlbfs /hugepages
+	echo 4096 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+}
+
+function br_doca_config
+{
+	ovs-vsctl --no-wait set Open_vSwitch . other_config:doca-init=true
+	ovs-vsctl set Open_vSwitch . other_config:hw-offload=true
+	systemctl restart openvswitch
+}
+
+function br_doca
+{
+	ovs-vsctl --no-wait add-br $br -- set bridge $br datapath_type=netdev
+	ovs-vsctl add-port $br enp8s0f0 -- set Interface enp8s0f0 type=dpdk
+	ovs-vsctl add-port $br $rep1 -- set Interface $rep1 type=dpdk
+	ovs-vsctl add-port $br $rep2 -- set Interface $rep2 type=dpdk
+	ovs-vsctl add-port $br $rep3 -- set Interface $rep3 type=dpdk
+	# legacy dpdk way, but need to restart ovs
+# 	ovs-vsctl add-port $br rep0 -- set Interface rep0 type=dpdk options:dpdk-devargs=0000:08:00.0,representor=0
+# 	ovs-vsctl add-port $br rep1 -- set Interface rep1 type=dpdk options:dpdk-devargs=0000:08:00.0,representor=1
+# 	ovs-vsctl add-port $br rep2 -- set Interface rep2 type=dpdk options:dpdk-devargs=0000:08:00.0,representor=2
+# 	systemctl restart openvswitch
+}
+
+function br_doca_vxlan
+{
+	ovs-vsctl add-br br-phy -- set Bridge br-phy datapath_type=netdev -- br-set-external-id br-phy bridge-id br-phy \
+		-- set bridge br-phy fail-mode=standalone other_config:hwaddr=10:70:fd:43:6e:60
+	ovs-vsctl add-port br-phy $link -- set Interface $link type=dpdk
+	ip addr add $link_ip/16 dev br-phy
+	ovs-vsctl add-br br-ovs -- set Bridge br-ovs datapath_type=netdev -- br-set-external-id br-ovs bridge-id br-ovs \
+		-- set bridge br-ovs fail-mode=standalone
+	ovs-vsctl add-port br-ovs $rep1 -- set Interface $rep1 type=dpdk
+	ovs-vsctl add-port br-ovs $rep2 -- set Interface $rep2 type=dpdk
+	ovs-vsctl add-port br-ovs $rep3 -- set Interface $rep3 type=dpdk
+	ovs-vsctl add-port br-ovs vxlan0 -- set interface vxlan0 type=vxlan options:local_ip=$link_ip options:remote_ip=$link_remote_ip options:key=$vni options:dst_port=4789
+
+	ip link set dev br-ovs up
+	ip link set dev br-phy up
 }
