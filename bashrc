@@ -871,6 +871,7 @@ function cloud_linux
 {
 	local branch=$1
 
+	cloud_grub
 	cd /images/cmi
 	cp /swgwork/cmi/linux.tar.gz .
 	tar zvxf linux.tar.gz
@@ -890,6 +891,7 @@ function cloud_linux_upstream
 {
 	local branch=$1
 
+	cloud_grub
 	cd /images/cmi
 	cp /swgwork/cmi/linux.tar.gz .
 	tar zvxf linux.tar.gz
@@ -941,7 +943,8 @@ function cloud_setup_yum
 	sudo ./setup.py install
 	sudo ln -s /usr/bin/drgn /usr/local/bin/drgn
 
-	cloud_grub
+	build_kexec
+	build_makedumpfile
 
 	build_crash
 
@@ -1813,6 +1816,7 @@ function make-all
 
 	# for bluefield
 	(( bf_ubuntu == 1 )) && update_grub
+	cloud_grub
 
 # 	/bin/rm -rf ~/.ccache
 }
@@ -14842,7 +14846,8 @@ function cloud_setup
 	sudo ./setup.py build
 	sudo ./setup.py install
 
-	cloud_grub
+	build_kexec
+	build_makedumpfile
 
 	sm
 	git clone https://github.com/iovisor/bcc.git
@@ -15041,6 +15046,8 @@ test -f /proc/config.gz && modprobe configs > /dev/null 2>&1
 function build_kexec
 {
 	sm
+	test -d kexec-tools && return
+
 	git clone git://git.kernel.org/pub/scm/utils/kernel/kexec/kexec-tools.git
 	cd kexec-tools
 	./bootstrap
@@ -15050,6 +15057,7 @@ function build_kexec
 function build_makedumpfile
 {
 	sm
+	test -d makedumpfile && return
 	sudo yum install -y snappy-devel bzip2-devel lzo-devel libzstd-devel
 	sudo apt-get -y install libsnappy-dev libzstd-dev
 	git clone https://github.com/makedumpfile/makedumpfile.git
@@ -15063,24 +15071,18 @@ alias default=grub2-set-default
 
 function cloud_grub
 {
-	if grep "crashkernel=1G " /etc/default/grub; then
-		systemctl start kdump
-		systemctl enable kdump
-	else
-		sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /etc/default/grub
-		sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /boot/loader/entries/*
-		if (( bf_ubuntu == 1 )); then
-			sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
-# 			sudo bash -c 'cat << EOF >> /etc/default/kdump-tools
+	sudo systemctl start kdump
+	sudo systemctl enable kdump
+	sudo sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /etc/default/grub
+	sudo sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /boot/loader/entries/*
+	sudo sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
+	sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+	sudo sed -i 's/timeout=5/timeout=20/' /boot/grub2/grub.cfg
+
+# 	sudo bash -c 'cat << EOF >> /etc/default/kdump-tools
 # KDUMP_CMDLINE_APPEND="module_blacklist=mlx5_core,mlx5_ib,mlxbf_gige,mlxbf_tmfifo,openvswitch,ib_umad,ib_uverbs,ib_cm,mlxdevm,ib_core,mlx_compat,mlxbf_pka,auth_rpcgss"
 # EOF
 # '
-		else
-			sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-		fi
-		build_kexec
-		build_makedumpfile
-	fi
 }
 
 test -f ~cmi/mi/cloud_alias && source ~cmi/mi/cloud_alias
