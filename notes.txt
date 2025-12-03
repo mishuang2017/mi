@@ -9131,6 +9131,14 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+[root@c-237-169-180-182 ~]# journalctl --list-boots
+IDX BOOT ID                          FIRST ENTRY                 LAST ENTRY
+  0 fd7cf5c62f914adaa4255de693c96b75 Tue 2025-12-02 09:27:07 IST Wed 2025-12-03 03:27:03 IST
+[root@c-237-169-180-182 ~]# date
+Wed Dec  3 03:27:53 AM IST 2025
+[root@c-237-169-180-182 ~]#  cat /proc/sys/kernel/random/boot_id
+fd7cf5c6-2f91-4ada-a425-5de693c96b75
+
 [root@pxehp-ocp04 bootp-2.4.3]# netstat -tupnl
 Active Internet connections (only servers)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
