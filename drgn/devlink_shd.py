@@ -84,11 +84,11 @@ for mlx5_shd in list_for_each_entry('struct mlx5_shd', shd_list.address_of_(), '
     for dev in list_for_each_entry('struct mlx5_core_dev', mlx5_shd.dev_list.address_of_(), 'shd_list'):
         print("\tmlx5_core_dev %#x, %s, mlx5_shd %#x" % (dev, dev.device.kobj.name.string_().decode(), dev.shd))
 
-exit(0)
+# exit(0)
 
 devlink_rels = prog['devlink_rels']
 for node in radix_tree_for_each(devlink_rels.address_of_()):
     print('-------------------------------------')
     rel = Object(prog, 'struct devlink_rel', address=node[1].value_())
     print("rel.index: %d, rel.devlink_index: %d, nested_in.devlink_index: %d" % (rel.index, rel.devlink_index, rel.nested_in.devlink_index))
-#     print(rel)
+    print(rel)

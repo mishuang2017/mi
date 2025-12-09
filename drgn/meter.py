@@ -12,6 +12,7 @@ from lib import *
 # struct mlx5_eswitch_rep
 
 def print_meter(mlx5e_priv):
+#     print(mlx5e_priv.aso)
     mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
     print(mlx5e_priv.ppriv)
     vports = mlx5_eswitch.offloads.vport_reps
@@ -65,7 +66,10 @@ def print_meter(mlx5e_priv):
             flow_meters = uplink_priv.flow_meters
             if flow_meters:
                 if flow_meters.aso:
+                    print("====================start uplink_priv.flow_meters.aso=============================")
+                    # same as mlx5e_priv.aso on ofed 5.8
                     print(flow_meters.aso)
+                    print("====================end uplink_priv.flow_meters.aso=============================")
             continue
             print("flow_meters.log_granularity: %d" % flow_meters.log_granularity)
             for mlx5e_flow_meter_aso_obj in list_for_each_entry('struct mlx5e_flow_meter_aso_obj',

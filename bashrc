@@ -1522,7 +1522,7 @@ set -x
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 
 	sudo yum -y install libasan
-	./configure CFLAGS="-g -O2" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
+	./configure CFLAGS="-g -O0" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 # 	./configure CFLAGS="-g -O2 -fsanitize=address -fno-omit-frame-pointer -fno-common" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
@@ -1536,16 +1536,10 @@ set +x
 function install-ovs2
 {
 set -x
-#         make clean
-#         ./boot.sh
-# 	export PKG_CONFIG_PATH=/root/dpdk.org/build/lib/pkgconfig/
-# 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=static
-# 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-debug
-#	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=$DPDK_BUILD
-	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=static --with-doca=static
+	./configure CFLAGS="-g -O2" --prefix=/usr --localstatedir=/var --sysconfdir=/etc --with-dpdk=static --with-doca=static
 # 	make -j CFLAGS="-Werror -g"
-# 	sudo make install -j
-# 	restart-ovs
+	sudo make install -j 10
+	restart-ovs
 set +x
 }
 
@@ -9338,6 +9332,7 @@ set -x
 	sudo ovs-appctl vlog/set tc:file:DBG
 	sudo ovs-appctl vlog/set dpif_netlink:file:DBG
 	sudo ovs-appctl vlog/set netdev_offload_tc:file:DBG
+	sudo ovs-appctl vlog/set netdev_offload_doca:file:DBG
 
 	sudo ovs-appctl vlog/set netlink:file:DBG
 	sudo ovs-appctl vlog/set ofproto_dpif_xlate:file:DBG
@@ -10562,7 +10557,7 @@ set +x
 
 alias gdb-kcore="/usr/bin/gdb $linux_dir/vmlinux /proc/kcore"
 alias gdb_ovs='gdb /usr/sbin/ovs-vswitchd'
-alias gdb_ovs='gdb /images/cmi/openvswitch/vswitchd/ovs-vswitchd'
+alias gdb_ovs='gdb /images/cmi/ovs/vswitchd/ovs-vswitchd'
 
 function add-symbol-file
 {
@@ -16325,8 +16320,8 @@ function ipsec_tunnel_packet2
 
 function cross_esw_qos
 {
-	devlink port function rate add pci/0000:08:00.0/g1
-	devlink port function rate set pci/0000:08:00.1/65537 parent pci/0000:08:00.0/g1
+	devlink port function rate add pci/0000:08:00.1/g1
+	devlink port function rate set pci/0000:08:00.0/1 parent pci/0000:08:00.1/g1
 }
 
 # bdf=$(sudo mst status | grep -A 1 "mt4129" | grep -E -o '[0-9]{2}:[0-9]{2}\.[0-9]')

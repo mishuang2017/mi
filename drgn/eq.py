@@ -18,9 +18,19 @@ print(eq_table.async_eq)
 # exit(0)
 
 # The number is set by "ethtool -L eth0 combined 2"
+i = 0;
 for node in radix_tree_for_each(eq_table.comp_eqs.address_of_()):
     eq = Object(prog, 'struct mlx5_eq_comp', address=node[1].value_())
-    print(eq.core.eqn)
+    print("%d: eq.core.eqn: %d" % (i, eq.core.eqn))
+    i = i + 1
+    cq_table = eq.core.cq_table
+
+    j = 0;
+    for node in radix_tree_for_each(cq_table.tree.address_of_()):
+        cq = Object(prog, 'struct mlx5_core_cq', address=node[1].value_())
+        print("%d: cq.cqn: %d" % (j, cq.cqn))
+        j = j + 1
+
 
 exit(0)
 

@@ -21,10 +21,15 @@ def print_channel(priv):
     for i in range(num):
 #     for i in range(1):
         print("channel[%d]" % i, end=' ')
-#         print(channels[i])
+#         print(channels[i].napi.index)
+#         print("channels[i].napi %x" % channels[i].napi.address_of_())
+#         print(channels[i].stats)
+#         print(channels[i].napi.config)
 #         print(channels[i].sq[0].cq.mcq.irqn.value_())
 #         print("sqn: %#x" % channels[i].sq[0].sqn)
-        print(channels[i].rq.page_pool)
+#         print(channels[i].rq.cq.napi.index)
+#         print("channels[i].rq.cq.napi: %x" % channels[i].rq.cq.napi)
+        print(channels[i].rq.cq.mcq.cqn)
 #         print("rq.cq.mcq.irqn: %d" % channels[i].rq.cq.mcq.irqn.value_())
 
 #         print(channels[i].sq[0].cq.mcq.vector.value_())
@@ -37,13 +42,14 @@ def print_channel(priv):
 #         print("sq[0].cq.napi: %d" % channels[i].sq[0].cq.napi.napi_id.value_())
 #         print("rq.cq.napi: %d" % channels[i].rq.cq.napi.napi_id.value_())
 
-
 priv = get_mlx5e_priv(pf0_name)
 # print(priv.channels.params.rx_cq_moderation)
 # print(priv.channels.params.tx_cq_moderation)
 # print(priv.channels.params)
 
 print_channel(priv)
+
+exit(0)
 
 page_pools = prog['page_pools']
 print(page_pools)

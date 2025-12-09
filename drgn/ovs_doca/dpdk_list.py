@@ -19,3 +19,9 @@ print(dpdk_list)
 
 for netdev_doca in list_for_each_entry('struct netdev_doca', dpdk_list.address_of_(), 'list_node'):
     print(netdev_doca)
+
+ovs_doca_log = prog['ovs_doca_log']
+print(ovs_doca_log)
+
+log_stream= prog['ovs_doca_log']
+print(log_stream)
