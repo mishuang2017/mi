@@ -33,7 +33,7 @@ print(fs_dr_domain.dr_domain.refcount)
 # print(fs_dr_domain)
 
 mlx5dr_domain = fs_dr_domain.dr_domain
-# print(mlx5dr_domain)
+print(mlx5dr_domain.send_ring.cq.mcq)
 
 mlx5dr_icm_pool = mlx5dr_domain.ste_icm_pool
 # print(mlx5dr_icm_pool)

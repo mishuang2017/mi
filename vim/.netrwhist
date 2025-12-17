@@ -1,5 +1,7 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =3
+let g:netrw_dirhistcnt =5
+let g:netrw_dirhist_5='/labhome/cmi/mi/drgn'
+let g:netrw_dirhist_4='/labhome/cmi/qos'
 let g:netrw_dirhist_3='/labhome/cmi/mi/drgn/4.19.36-bd'
 let g:netrw_dirhist_2='/images/cmi/mlnx-ofa_kernel-4.0/backports'
 let g:netrw_dirhist_1='/images/cmi/mlnx-ofa_kernel-4.0/compat/config'
@@ -8,5 +10,3 @@ let g:netrw_dirhist_9='/images/cmi/mlnx-ofa_kernel-4.0/backports'
 let g:netrw_dirhist_8='/labhome/cmi/mi/patch/tc'
 let g:netrw_dirhist_7='/labhome/cmi/revert'
 let g:netrw_dirhist_6='/images/cmi/mlnx-ofa_kernel-4.0/compat'
-let g:netrw_dirhist_5='/images/cmi/mlnx-ofa_kernel-4.0/drivers/block'
-let g:netrw_dirhist_4='/images/cmi/mlnx-ofa_kernel-4.0/drivers'

@@ -358,7 +358,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_10;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_10'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
@@ -600,7 +600,7 @@ function ethtool-rxvlan-on
 alias restart-virt='systemctl restart libvirtd.service'
 
 export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
-export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+# export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
@@ -908,7 +908,7 @@ function cloud_setup1
 {
 	sudo yum install -y ctags cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
 		python3-devel xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
-		bcc-tools pv minicom
+		bcc-tools pv minicom automake
 }
 
 function cloud_setup_yum
@@ -923,8 +923,8 @@ function cloud_setup_yum
 	sudo yum install -y platform-python-devel
 # 	sudo yum install -y memstrack busybox
 
-	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering --ovn
-	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s --ovn
+# 	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering --ovn
+# 	(( machine_num == 2 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering -s --ovn
 	sm
 
 	if (( build_kernel == 1 )); then
@@ -1826,9 +1826,9 @@ function mi
 	make -j $cpu_num2 || return
 	sudo make install -j $cpu_num2
 # 	sudo systemctl stop mlx-regex
-# 	sudo systemctl stop virtio-net-controller.service
+	sudo systemctl stop virtio-net-controller.service
 	sudo /etc/init.d/openibd force-restart
-# 	sudo systemctl start virtio-net-controller.service
+	sudo systemctl start virtio-net-controller.service
 # 	reprobe
 }
 
@@ -9157,6 +9157,7 @@ alias ofed-configure-4.16="./configure --with-mlx5-core-and-ib-and-en-mod --with
 alias ofed-configure-4.17="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.17-rc1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.17-rc1 "
 alias ofed-configure-4.18="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18 "
 alias ofed-configure-4.19="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.19 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.19 "
+alias ofed-configure-4.19k="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.19 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.19.90-89.11.v2401.ky10.x86_64/ "
 alias ofed-configure-4.20="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.20 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.20 "
 alias ofed-configure-5.0="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.0 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.0 "
 alias ofed-configure-5.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.2 "
@@ -9193,7 +9194,7 @@ alias ofed-configure-1127="./configure --with-mlx5-core-and-ib-and-en-mod --with
 alias ofed-configure-1149="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --with-memtrack \
 	--kernel-version 3.10.0-1149.el7.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-3.10.0-1149.el7.x86_64 "
 
-alias ofed-configure-rhel-8.1="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-147.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-147.el8.x86_64 "
+alias ofed-configure-rhel-8.1="./configure --all -j $cpu_num2 --kernel-version 4.18.0-147.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-147.el8.x86_64 "
 alias ofed-configure-rhel-8.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-193.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-193.el8.x86_64/"
 alias ofed-configure-rhel-8.4="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-305.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-305.el8.x86_64 "
 alias ofed-configure-rhel-8.5="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-372.9.1.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-372.9.1.el8.x86_64 "
@@ -9203,8 +9204,8 @@ function ofed_all
 {
 # 	smm
 	./ofed_scripts/cleanup
-# 	./configure --all --without-sf-cfg-drv -j $cpu_num2
-	./configure --all -j $cpu_num2
+	./configure --all --with-sf-cfg-drv -j $cpu_num2
+# 	./configure --all -j $cpu_num2
 # 	ofed-configure-all
 	mi
 }
@@ -11542,8 +11543,6 @@ function br_multiport_esw
 	ovs-vsctl add-port $br $rep3
 	ovs-vsctl add-port $br $link
 	ovs-vsctl add-port $br $link2
-	ovs-vsctl add-port $br enp4s0f1_1
-	ovs-vsctl add-port $br enp4s0f1_2
 }
 
 function br_pf_ct
@@ -14411,6 +14410,7 @@ set +x
 }
 
 alias qostree='python3 /mswg/projects/fw/fw_ver/hca_fw_tools/vqos_tree/execute.py -d /dev/mst/mt4129_pciconf0'
+alias qostree_bf3='python3 /mswg/projects/fw/fw_ver/hca_fw_tools/vqos_tree/execute.py -d /dev/mst/mt41692_pciconf0'
 alias qostree_cx6='python3 /mswg/projects/fw/fw_ver/hca_fw_tools/vqos_tree/execute.py -d /dev/mst/mt4125_pciconf0'
 
 function devm_4210136
@@ -16021,6 +16021,8 @@ function install_rdma_core
 
 function qos
 {
+	# set on p0/p1 on dpu
+	# disable services lldpad.service and lldpad.socket
 	/auto/sw/regression/sw_net_ver_tools/mlnx_qos/x86_64/mlnx_qos -i $link -p 0,1,2,3,4,5,6,7 --trust dscp
 	echo 0:10 1:90 2:0 3:0 4:0 5:0 6:0 7:0 > /sys/class/net/$link/device/sriov/1/tc_bw
 
@@ -16151,6 +16153,7 @@ function cloud_ofed
 	cd mlnx-ofa_kernel-4.0
 	fetch mlnx_ofed_25_07
 	fetch mlnx_ofed_25_04
+	fetch mlnx_ofed_24_10
 	git fetch --tags
 	cd ..
 	tar zcvf 1.tar.gz mlnx-ofa_kernel-4.0
@@ -16386,3 +16389,18 @@ function br_doca_vxlan
 	ip link set dev br-ovs up
 	ip link set dev br-phy up
 }
+
+function clean
+{
+	./ofed_scripts/cleanup
+	git branch -D backport-mlnx_ofed_26_01
+}
+
+alias all=ofed-configure-all
+function o1
+{
+	ofed
+	ofed3 mlnx_ofed_26_01
+}
+
+alias push='git push origin HEAD:refs/for/mlnx_ofed_26_01'

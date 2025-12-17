@@ -27,12 +27,13 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #     print(mlx5e_dev)
 
     pci_name = devlink.dev.kobj.name.string_().decode()
-    if pci_name != "0000:08:00.0":
-        continue
+#     if pci_name != "0000:08:00.0":
+#         continue
 #     print(devlink.ops.eswitch_encap_mode_set)
 #     print(devlink.ops)
 
     print("========================== devlink.dev.kobj.name: %s index: %d =========================" % (pci_name, devlink.index))
+#     print("devlink.index: %d" % devlink.index)
     print("devlink %x" % devlink.address_of_())
 #     if pci_name.find("mlx5_core.sf") == 0:
 #         auxiliary_device = container_of(devlink.dev, 'struct auxiliary_device', "dev")
@@ -76,10 +77,11 @@ for node in radix_tree_for_each(devlinks.address_of_()):
 #         if port.index != 1:
 #             continue
 #         print(port.devlink_rate)
-        print("\tdevlink_port %x, port index: %#x, %d" % (port.address_of_(), port.index, port.index))
+        print("\tdevlink_port %x, port index: %#x, %d, rel_index: %d" % (port.address_of_(), port.index, port.index, port.rel_index))
 #         print(port.ops)
 #         print(port.switch_port)
         print("\tport.type_eth.ifname: %s" % port.type_eth.ifname.string_().decode());
+        continue
         print("\t", end='')
         for i in range(port.attrs.switch_id.id_len):
             print("%02x:" % port.attrs.switch_id.id[7-i], end="")
