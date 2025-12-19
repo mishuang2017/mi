@@ -65,7 +65,7 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
 
     print("\t=== mlxdevm_port end ===")
 
-    continue
+#     continue
     print("=== mlxdevm.param_list ===")
     print(mlxdevm.param_list)
     for item in list_for_each_entry('struct mlxdevm_param_item', mlxdevm.param_list.address_of_(), 'list'):

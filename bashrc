@@ -599,8 +599,8 @@ function ethtool-rxvlan-on
 
 alias restart-virt='systemctl restart libvirtd.service'
 
-export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
-# export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+# export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
@@ -16404,3 +16404,21 @@ function o1
 }
 
 alias push='git push origin HEAD:refs/for/mlnx_ofed_26_01'
+alias cd_sf='cd /sys/bus/auxiliary/drivers/mlx5_core.sf'
+
+function sf_cpu_affinity
+{
+	devlink dev eswitch set pci/0000:08:00.0 mode switchdev
+	mlxdevm port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum 1
+	sleep 1
+	mlxdevm port function set en8f0pf0sf1 state active
+	sleep 1
+	cd /sys/bus/auxiliary/drivers/mlx5_core.sf
+	echo mlx5_core.sf.2 > unbind
+	sleep 1
+	mlxdevm port fun set pci/0000:08:00.0/32768 max_io_eqs 16
+	sleep 1
+	echo mlx5_core.sf.2 > bind
+	mlxdevm dev param set auxiliary/mlx5_core.sf.2 name cpu_affinity value 0-15 cmode driverinit
+	devlink dev reload auxiliary/mlx5_core.sf.2
+}
