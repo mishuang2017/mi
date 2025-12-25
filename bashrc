@@ -271,7 +271,7 @@ alias mac2="ip l show $link | grep ether; ip link set dev $link address $link2_m
 alias vxlan6="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ipv6  options:key=$vni options:dst_port=$vxlan_port"
 alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit"
 alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit options:csum=false options:df_default=true"
-alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit options:csum=false"
+alias vxlan1="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit options:csum=true"
 alias vxlan4000="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4000"
 alias vxlan4789="ovs-vsctl add-port $br $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=4789"
 alias vxlan1-2="ovs-vsctl add-port $br2 $vx2 -- set interface $vx2 type=vxlan options:remote_ip=$link2_remote_ip  options:key=$vni options:dst_port=$vxlan_port"
@@ -1826,9 +1826,9 @@ function mi
 	make -j $cpu_num2 || return
 	sudo make install -j $cpu_num2
 # 	sudo systemctl stop mlx-regex
-	sudo systemctl stop virtio-net-controller.service
+# 	sudo systemctl stop virtio-net-controller.service
 	sudo /etc/init.d/openibd force-restart
-	sudo systemctl start virtio-net-controller.service
+# 	sudo systemctl start virtio-net-controller.service
 # 	reprobe
 }
 
@@ -15861,6 +15861,7 @@ function linux_br
 }
 
 alias n1_r_server='n1 /swgwork/cmi/rdma-example/bin/rdma_server'
+alias n2_r_server='n2 /swgwork/cmi/rdma-example/bin/rdma_server'
 alias n1_r_server_loop='while true; do n1_r_server; sleep 1; done'
 alias r_server='/swgwork/cmi/rdma-example/bin/rdma_server'
 alias r_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
@@ -16397,13 +16398,8 @@ function clean
 }
 
 alias all=ofed-configure-all
-function o1
-{
-	ofed
-	ofed3 mlnx_ofed_26_01
-}
-
 alias push='git push origin HEAD:refs/for/mlnx_ofed_26_01'
+
 alias cd_sf='cd /sys/bus/auxiliary/drivers/mlx5_core.sf'
 
 function sf_cpu_affinity
@@ -16421,4 +16417,29 @@ function sf_cpu_affinity
 	echo mlx5_core.sf.2 > bind
 	mlxdevm dev param set auxiliary/mlx5_core.sf.2 name cpu_affinity value 0-15 cmode driverinit
 	devlink dev reload auxiliary/mlx5_core.sf.2
+}
+
+function mlxdev_roce
+{
+	mlxdevm port fun cap set pci/0000:03:00.0/196609 roce false
+}
+
+function vrf
+{
+	vrf=vrf1
+
+	ip link d $vrf > /dev/null 2>&1
+
+	ip link add name $vrf type vrf table 1
+	ip link set dev $vrf up
+	sysctl -w net.ipv4.conf.$vrf.forwarding=1
+	ip addr flush $link
+	ip link set $link down
+	ip link set $link master $vrf
+	ip link set $link up
+	ip addr add $link_ip/24 dev $link
+
+	ip route add 192.168.1.0/24 dev $link vrf $vrf
+	ip route show vrf vrf1
+	echo "ip vrf exec $vrf ping $link_remote_ip"
 }

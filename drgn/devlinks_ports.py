@@ -69,7 +69,8 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print("\tport index: %x" % port.index)
 #         print(port.type)
 
-#         mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
+        mlx5_devlink_port = container_of(port, "struct mlx5_devlink_port", "dl_port")
+        print(mlx5_devlink_port.dl_port.index)
 #         print("\tmlx5_devlink_port.vport.vport: %d" % mlx5_devlink_port.vport.vport)
 #         netdev = Object(prog, 'struct net_device', address=port.type_dev)
 #         print("\tnetdev.name: %s" % netdev.name)
