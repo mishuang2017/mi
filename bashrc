@@ -73,13 +73,13 @@ if (( cloud == 1 )); then
 	link=enp8s0f0
 	link2=enp8s0f1
 
-	if (( bf != 1 )); then
-		readlink /sys/class/net/p0 > /dev/null 2>&1
-		if [ $? -eq 0 ]; then
-			link=p0
-			link2=p1
-		fi
-	fi
+# 	if (( bf != 1 )); then
+# 		readlink /sys/class/net/p0 > /dev/null 2>&1
+# 		if [ $? -eq 0 ]; then
+# 			link=p0
+# 			link2=p1
+# 		fi
+# 	fi
 
 	link_remote_ip=192.168.1.$rhost_num
 
@@ -4959,6 +4959,7 @@ set -x
 set +x
 }
 
+alias br1=br_int_port_ct
 function br_int_port_ct
 {
     del-br
@@ -4974,7 +4975,7 @@ set -x
     ovs-vsctl add-port br-int $rep1
     ovs-vsctl add-port br-int $rep2
     ovs-vsctl add-port br-int $rep3
-    ovs-vsctl add-port br-int $rep4
+#     ovs-vsctl add-port br-int $rep4
     ovs-vsctl add-port br-int $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit
 
     ovs-ofctl add-flow br-int "priority=100,in_port=$rep2,ip,tcp,actions=ct(table=200,zone=201,nat)"
@@ -4982,10 +4983,11 @@ set -x
     ovs-ofctl add-flow br-int "table=200,priority=100,in_port=$rep2,ip,tcp,ct_state=+est+trk,actions=normal"
 
     ovs-ofctl add-flow br-int "priority=100,in_port=$vx,ip,tcp,actions=ct(table=202,zone=201,nat)"
-    ovs-ofctl add-flow br-int "table=202,priority=100,in_port=$vx,ip,tcp,ct_state=+est+trk,actions=normal"
+    ovs-ofctl add-flow br-int "table=202,priority=100,in_port=$vx,ip,tcp,ct_state=+new+trk,actions=$rep2"
+    ovs-ofctl add-flow br-int "table=202,priority=100,in_port=$vx,ip,tcp,ct_state=+est+trk,actions=$rep2"
 
-    mirror1
-    ifconfig eth2 up 
+#     mirror1
+#     ifconfig eth2 up 
 
 set +x
 }
@@ -14715,16 +14717,17 @@ function initramfs_get()
 
 function prepare_udev()
 {
-	ASAP_DEVTEST_SCRIPTS=/images/cmi/asap_dev_reg/udev-scripts
+	ASAP_DEVTEST_SCRIPTS=/swgwork/cmi/asap_dev_reg/udev-scripts
 	if [ ! -f "/etc/udev/rules.d/82-net-setup-link.rules" ]; then
-		cp -f $ASAP_DEVTEST_SCRIPTS/82-net-setup-link.rules /etc/udev/rules.d/.
-		cp -f $ASAP_DEVTEST_SCRIPTS/vf-net-link-name.sh /etc/udev/.
+		sudo cp -f $ASAP_DEVTEST_SCRIPTS/82-net-setup-link.rules /etc/udev/rules.d/.
+		sudo cp -f $ASAP_DEVTEST_SCRIPTS/vf-net-link-name.sh /etc/udev/.
 	fi
-	cp -f $ASAP_DEVTEST_SCRIPTS/legacy-name.sh /etc/udev/.
-	cp -f $ASAP_DEVTEST_SCRIPTS/83-net-setup-link.rules /etc/udev/rules.d/.
+	sudo cp -f $ASAP_DEVTEST_SCRIPTS/legacy-name.sh /etc/udev/.
+	sudo cp -f $ASAP_DEVTEST_SCRIPTS/83-net-setup-link.rules /etc/udev/rules.d/.
 
-	touch /etc/udev/rules.d/90-rdma-hw-modules.rules
-	udevadm control --reload
+	sudo touch /etc/udev/rules.d/90-rdma-hw-modules.rules
+	sudo udevadm control --reload
+	reprobe
 }
 
 function none_test
@@ -16442,4 +16445,9 @@ function vrf
 	ip route add 192.168.1.0/24 dev $link vrf $vrf
 	ip route show vrf vrf1
 	echo "ip vrf exec $vrf ping $link_remote_ip"
+}
+
+function max_255
+{
+	mlnx_qos -i $link -r 255,255,255,255,255,255,255,255
 }

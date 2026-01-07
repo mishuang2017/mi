@@ -12770,6 +12770,17 @@ wqe_counter
 
 byte_cnt: Applicable for RDMA-read, Atomic and receive completions.
 
+perftest
+ibv_reg_mr_ex
+
+rdma-core
+ibv_cmd_reg_mr_ex
+UVERBS_METHOD_REG_MR
+
+ofed
+ib_uverbs_handler_UVERBS_METHOD_REG_MR
+mlx5_ib_reg_user_mr
+
 ===tracing===
 
 #!/bin/bash
