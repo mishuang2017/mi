@@ -8389,6 +8389,8 @@ ibv_rc_pingpong/ibv_srq_pingpong/ibv_ud_pingpong
 
 ib_send_lat/ib_read_lat/ib_write_lat
 
+ --run_infinitely
+
 ib_write_bw -a # to start server
 ib_write_bw -a <hostname> # to start client
 
@@ -12780,6 +12782,95 @@ UVERBS_METHOD_REG_MR
 ofed
 ib_uverbs_handler_UVERBS_METHOD_REG_MR
 mlx5_ib_reg_user_mr
+
+rdma_create_id
+__rdma_create_id
+
+static ssize_t (*ucma_cmd_table[])(struct ucma_file *file,
+                                   const char __user *inbuf,
+                                   int in_len, int out_len) = {
+        [RDMA_USER_CM_CMD_CREATE_ID]     = ucma_create_id,
+        [RDMA_USER_CM_CMD_DESTROY_ID]    = ucma_destroy_id,
+        [RDMA_USER_CM_CMD_BIND_IP]       = ucma_bind_ip,
+        [RDMA_USER_CM_CMD_RESOLVE_IP]    = ucma_resolve_ip,
+        [RDMA_USER_CM_CMD_RESOLVE_ROUTE] = ucma_resolve_route,
+        [RDMA_USER_CM_CMD_QUERY_ROUTE]   = ucma_query_route,
+        [RDMA_USER_CM_CMD_CONNECT]       = ucma_connect,
+        [RDMA_USER_CM_CMD_LISTEN]        = ucma_listen,
+        [RDMA_USER_CM_CMD_ACCEPT]        = ucma_accept,
+        [RDMA_USER_CM_CMD_REJECT]        = ucma_reject,
+        [RDMA_USER_CM_CMD_DISCONNECT]    = ucma_disconnect,
+        [RDMA_USER_CM_CMD_INIT_QP_ATTR]  = ucma_init_qp_attr,
+        [RDMA_USER_CM_CMD_GET_EVENT]     = ucma_get_event,
+        [RDMA_USER_CM_CMD_GET_OPTION]    = NULL,
+        [RDMA_USER_CM_CMD_SET_OPTION]    = ucma_set_option,
+        [RDMA_USER_CM_CMD_NOTIFY]        = ucma_notify,
+        [RDMA_USER_CM_CMD_JOIN_IP_MCAST] = ucma_join_ip_multicast,
+        [RDMA_USER_CM_CMD_LEAVE_MCAST]   = ucma_leave_multicast,
+        [RDMA_USER_CM_CMD_MIGRATE_ID]    = ucma_migrate_id,
+        [RDMA_USER_CM_CMD_QUERY]         = ucma_query,
+        [RDMA_USER_CM_CMD_BIND]          = ucma_bind,
+        [RDMA_USER_CM_CMD_RESOLVE_ADDR]  = ucma_resolve_addr,
+        [RDMA_USER_CM_CMD_JOIN_MCAST]    = ucma_join_multicast,
+        [RDMA_USER_CM_CMD_RESOLVE_IB_SERVICE] = ucma_resolve_ib_service,
+        [RDMA_USER_CM_CMD_WRITE_CM_EVENT] = ucma_write_cm_event,
+};
+
+kernel function mlx5_ib_post_send() is only used when connect
+84.16639 24871   24871   rdma_client     mlx5_ib_post_send
+        mlx5_ib_post_send+0x5 [mlx5_ib]
+        ib_send_mad+0x26d [ib_core]
+        ib_post_send_mad+0x16e [ib_core]
+        ib_send_cm_req+0x2f8 [ib_cm]
+        cma_connect_ib+0x1fd [rdma_cm]
+        rdma_connect_locked+0x93 [rdma_cm]
+        rdma_connect_ece+0x46 [rdma_cm]
+        ucma_connect+0x161 [rdma_ucm]
+        ucma_write+0xbb [rdma_ucm]
+        vfs_write+0xfd [kernel]
+        ksys_write+0xcb [kernel]
+        __x64_sys_write+0x1d [kernel]
+        x64_sys_call+0x16f8 [kernel]
+        do_syscall_64+0x74 [kernel]
+        entry_SYSCALL_64_after_hwframe+0x76 [kernel]
+
+(gdb) print *(struct ibv_context *)0x7f7dabcb1150
+$9 = {
+  device = 0x397a2e0,
+  ops = {
+    _compat_query_device = 0x7f7dac089410 <ibv_query_device>,
+    _compat_query_port = 0x7f7dac089430 <ibv_query_port>,
+    _compat_alloc_pd = 0x7f7dabd43760 <mlx5_alloc_pd>,
+    _compat_dealloc_pd = 0x7f7dabd452c0 <mlx5_free_pd>,
+    _compat_reg_mr = 0x7f7dabd452e0 <mlx5_reg_mr>,
+    _compat_rereg_mr = 0x7f7dabd45630 <mlx5_rereg_mr>,
+    _compat_dereg_mr = 0x7f7dabd451b0 <mlx5_dereg_mr>,
+    alloc_mw = 0x7f7dabd45700 <mlx5_alloc_mw>,
+    bind_mw = 0x7f7dabd3b5b0 <mlx5_bind_mw>,
+    dealloc_mw = 0x7f7dabd457a0 <mlx5_dealloc_mw>,
+    _compat_create_cq = 0x7f7dabd45ff0 <mlx5_create_cq>,
+    poll_cq = 0x7f7dabd139c0 <mlx5_poll_cq_v1>,
+    req_notify_cq = 0x7f7dabd0a6d0 <mlx5_arm_cq>,
+    _compat_cq_event = 0x7f7dabd0a040 <mlx5_cq_event>,
+    _compat_resize_cq = 0x7f7dabd4cd20 <mlx5_resize_cq>,
+    _compat_destroy_cq = 0x7f7dabd460d0 <mlx5_destroy_cq>,
+    _compat_create_srq = 0x7f7dabd4d1b0 <mlx5_create_srq>,
+    _compat_modify_srq = 0x7f7dabd46170 <mlx5_modify_srq>,
+    _compat_query_srq = 0x7f7dabd461b0 <mlx5_query_srq>,
+    _compat_destroy_srq = 0x7f7dabd46770 <mlx5_destroy_srq>,
+    post_srq_recv = 0x7f7dabd42c60 <mlx5_post_srq_recv>,
+    _compat_create_qp = 0x7f7dabd4ada0 <mlx5_create_qp>,
+    _compat_query_qp = 0x7f7dabd468a0 <mlx5_query_qp>,
+    _compat_modify_qp = 0x7f7dabd4b9a0 <mlx5_modify_qp>,
+    _compat_destroy_qp = 0x7f7dabd461f0 <mlx5_destroy_qp>,
+    post_send = 0x7f7dabd3b5a0 <mlx5_post_send>,
+    post_recv = 0x7f7dabd39f40 <mlx5_post_recv>,
+    _compat_create_ah = 0x7f7dabd46a50 <mlx5_create_ah>,
+    _compat_destroy_ah = 0x7f7dabd4c260 <mlx5_destroy_ah>,
+    _compat_attach_mcast = 0x7f7dabd46e20 <mlx5_attach_mcast>,
+    _compat_detach_mcast = 0x7f7dabd46e30 <mlx5_detach_mcast>,
+    _compat_async_event = 0x7f7dabd42a50 <mlx5_async_event>
+  },
 
 ===tracing===
 

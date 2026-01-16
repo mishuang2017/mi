@@ -15870,6 +15870,13 @@ alias r_server='/swgwork/cmi/rdma-example/bin/rdma_server'
 alias r_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 alias n1_r_client='n1 /swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 
+function r_server
+{
+	while true; do
+		/swgwork/cmi/rdma-example/bin/rdma_server
+	done
+}
+
 function build_libpcap
 {
 	sm
@@ -16450,4 +16457,52 @@ function vrf
 function max_255
 {
 	mlnx_qos -i $link -r 255,255,255,255,255,255,255,255
+	cd /sys/class/net/$link/qos
 }
+
+function brx0
+{
+	del-br
+set -x
+	ovs-vsctl add-br br-phy
+	ovs-vsctl add-port br-phy $link
+	ovs-vsctl add-port br-phy p0 tag=32 -- set interface p0 type=internal
+	#     ovs-vsctl add-port br-phy p0 -- set interface p0 type=internal
+	ifconfig $link 0
+	ifconfig p0 $link_ip/16 up
+
+
+	ovs-vsctl add-br br-int
+	ovs-vsctl add-port br-int $rep1
+	ovs-vsctl add-port br-int $rep2
+	ovs-vsctl add-port br-int $rep3
+	ovs-vsctl add-port br-int $vx -- set interface $vx type=vxlan options:remote_ip=$link_remote_ip  options:key=$vni options:dst_port=$vxlan_port options:tos=inherit
+
+
+	ifconfig br-phy up
+	ifconfig br-int up
+set +x
+}
+
+function brx2
+{
+	brx0
+set -x
+	ovs-ofctl add-flow br-int "table=0, in_port=$rep2,dl_src=02:25:d0:16:01:02, actions=vxlan1"
+# 	ovs-ofctl add-flow br-int "table=0, in_port=$rep3,dl_src=02:25:d0:16:01:03, actions=vxlan1"
+set +x
+}
+
+
+function brx1
+{
+	brx0
+set -x
+	ovs-vsctl add-port br-int patch-int -- set interface patch-int type=patch options:peer=patch-phy
+	ovs-vsctl add-port br-phy patch-phy -- set interface patch-phy type=patch options:peer=patch-int
+
+# 	ovs-ofctl add-flow br-int "table=0, in_port=vxlan1, actions=patch-int"
+set +x
+}
+
+alias devm=/opt/mellanox/iproute2/sbin/mlxdevm
