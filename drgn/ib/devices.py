@@ -29,7 +29,14 @@ for node in radix_tree_for_each(devices.address_of_()):
 #     print("   device name: %s" % ib_device.dev.kobj.name.string_().decode())
 #     print(ib_device)
 #     print("device.dev.kobj.name %s" % ib_device.dev.kobj.name.string_().decode())
-#     print(ib_device.phys_port_cnt)
+    print(ib_device.phys_port_cnt)
+    #
+    # #define RDMA_CORE_CAP_PROT_ROCE         0x00200000
+    # 0x1a03005
+    #
+    i=1 # ib standard, start from 1
+    print("ib_device.port_data[1].immutable.core_cap_flags: %x" % ib_device.port_data[i].immutable.core_cap_flags)
+    print(ib_device.port_data[i])
     print("\n=======================")
 
 exit(0)

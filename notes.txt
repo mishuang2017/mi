@@ -12783,8 +12783,30 @@ ofed
 ib_uverbs_handler_UVERBS_METHOD_REG_MR
 mlx5_ib_reg_user_mr
 
+rdma_create_event_channel
+ucma_fops->ucma_open
+
 rdma_create_id
 __rdma_create_id
+
+rdma_resolve_addr(RESOLVE_ADDR)
+ucma_resolve_addr
+rdma_resolve_addr
+rdma_resolve_ip
+addr_resolve
+addr4_resolve
+ip_route_output_key
+
+rdma_get_cm_event
+ucma_get_event
+
+? userspace function
+ucma_resolve_route
+rdma_resolve_route
+cma_resolve_iboe_route
+cma_work_handler
+cma_cm_event_handler
+ucma_event_handler
 
 static ssize_t (*ucma_cmd_table[])(struct ucma_file *file,
                                    const char __user *inbuf,
