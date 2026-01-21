@@ -74,6 +74,10 @@ if is_arm():
 
 print("pf0_name: %s" % pf0_name)
 
+MLX5_FLOW_STEERING_MODE_SMFS = prog['MLX5_FLOW_STEERING_MODE_SMFS']
+MLX5_FLOW_STEERING_MODE_DMFS = prog['MLX5_FLOW_STEERING_MODE_DMFS']
+MLX5_FLOW_STEERING_MODE_HMFS = prog['MLX5_FLOW_STEERING_MODE_HMFS']
+
 def get_pci(name):
     (status, output) = subprocess.getstatusoutput("basename `readlink /sys/class/net/" + name + "/device`")
     return output

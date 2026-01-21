@@ -23,6 +23,7 @@ def print_esw(priv):
 #     print("mlx5_core_dev.num_block_tc %d" % priv.mdev.num_block_tc)
 #     print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
     print(priv.mdev.coredev_type)
+    print("priv.mdev.caps.embedded_cpu: %d" % priv.mdev.caps.embedded_cpu)
 
 #     for i in range(priv.mdev.mlx5e_res.dl_port.attrs.switch_id.id_len):
 #         print("%02x:" % priv.mdev.mlx5e_res.dl_port.attrs.switch_id.id[i], end='')
@@ -37,7 +38,12 @@ def print_esw(priv):
 #     return
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
     print("esw->flags: %#x (1 means MLX5_ESWITCH_VPORT_MATCH_METADATA)" % esw.flags)
-    print("steering->mode: %#x (1 means MLX5_FLOW_STEERING_MODE_SMFS)" % priv.mdev.priv.steering.mode)
+    if priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_SMFS:
+        print(MLX5_FLOW_STEERING_MODE_SMFS)
+    elif priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_DMFS:
+        print(MLX5_FLOW_STEERING_MODE_DMFS)
+    elif priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_HMFS:
+        print(MLX5_FLOW_STEERING_MODE_HMFS)
 #     print(esw.offloads.ft_offloads)
     if esw.mode == 0:
         return
@@ -49,6 +55,7 @@ def print_esw(priv):
     print("esw->enabled_vports: %d" % esw.enabled_vports)
     print("esw->manager_vport: %#x" % esw.manager_vport)
     print("esw->esw_funcs->num_vfs: %d" % esw.esw_funcs.num_vfs)
+#     print(esw.esw_funcs)
     print("esw->dev->priv->sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
     print("esw->dev->priv->sriov.max_vfs: %d" % esw.dev.priv.sriov.max_vfs)
     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags)
@@ -79,7 +86,7 @@ mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
 # print(mlx5e_priv.netdev.devlink_port.switch_port)
 
-# exit(0)
+exit(0)
 
 print("===================== port 2 =======================")
 mlx5e_priv2 = get_mlx5e_priv(pf1_name)

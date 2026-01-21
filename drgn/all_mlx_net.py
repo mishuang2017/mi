@@ -14,7 +14,7 @@ from lib import *
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     addr = dev.value_()
-    print(dev.netdev_ops)
+#     print(dev.netdev_ops)
     ops = address_to_name(hex(dev.netdev_ops))
 #     if "mlx5e" not in ops:
 #         continue;
