@@ -197,8 +197,10 @@ def print_files(files, n):
         if file.f_op.value_() == tty_fops:
             print("tty_fops")
         elif file.f_op.value_() == uverbs_mmap_fops:
+            print("uverbs_mmap_fops")
             print_ib_uverbs(file)
         elif file.f_op.value_() == ucma_fops:
+            print("ucma_fops")
             print_ucma_file(file)
         elif file.f_op.value_() == uverbs_event_fops:
             print("uverbs_event_fops")

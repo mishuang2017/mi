@@ -12783,11 +12783,17 @@ ofed
 ib_uverbs_handler_UVERBS_METHOD_REG_MR
 mlx5_ib_reg_user_mr
 
+
+mod -s rdma_ucm /lib/modules/6.18.0/extra/mlnx-ofa_kernel/drivers/infiniband/core/rdma_ucm.ko
+
+  3 ff193ba506cd0d80 ff193ba55903aa40 ff193ba50854cce8 CHR  /dev/infiniband/rdma_cm	ucma_fops
+  4 ff193ba506cd0000 ff193ba58915b710 ff193ba508549aa8 CHR  /dev/infiniband/uverbs0	uverbs_mmap_fops
+
 rdma_create_event_channel
 ucma_fops->ucma_open
 
 rdma_create_id
-__rdma_create_id
+struct rdma_id_private * __rdma_create_id()
 
 rdma_resolve_addr(RESOLVE_ADDR)
 ucma_resolve_addr
