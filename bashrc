@@ -839,7 +839,7 @@ function cloud_setup0
 	yum install -y cscope tmux screen ctags
 }
 
-function bf2_linux_5.4
+function bf_linux_5.4
 {
 	cd /images/cmi
 	cp /swgwork/cmi/linux_bf_5.4/linux-bluefield.tar.gz .
@@ -852,7 +852,7 @@ function bf2_linux_5.4
 	make-all all
 }
 
-function bf2_linux
+function bf_linux
 {
 	cd /images/cmi
 	cp /swgwork/cmi/linux-bluefield-5.15.tar.gz .
@@ -861,6 +861,19 @@ function bf2_linux
 	/bin/rm -f linux-bluefield-5.15.tar.gz &
 	cd linux
 #	/bin/cp -f /swgwork/cmi/config.bf2.5.15/config .config
+	/bin/cp /boot/config-$(uname -r) .config
+	bf_config
+
+	make-all all
+}
+
+function bf_linux_upstream
+{
+	cd /images/cmi
+	cp /swgwork/cmi/linux.tar.gz .
+	tar zvxf linux.tar.gz
+	/bin/rm -f linux.tar.gz &
+	cd linux
 	/bin/cp /boot/config-$(uname -r) .config
 	bf_config
 
@@ -16467,7 +16480,7 @@ set -x
 	ovs-vsctl add-br br-phy
 	ovs-vsctl add-port br-phy $link
 	ovs-vsctl add-port br-phy p0 tag=32 -- set interface p0 type=internal
-	#     ovs-vsctl add-port br-phy p0 -- set interface p0 type=internal
+# 	ovs-vsctl add-port br-phy p0 -- set interface p0 type=internal
 	ifconfig $link 0
 	ifconfig p0 $link_ip/16 up
 
@@ -16489,6 +16502,7 @@ function brx2
 	brx0
 set -x
 	ovs-ofctl add-flow br-int "table=0, in_port=$rep2,dl_src=02:25:d0:16:01:02, actions=vxlan1"
+	ovs-ofctl add-flow br-int "table=0, in_port=vxlan1,icmp, actions=$rep3"
 # 	ovs-ofctl add-flow br-int "table=0, in_port=$rep3,dl_src=02:25:d0:16:01:03, actions=vxlan1"
 set +x
 }
@@ -16501,7 +16515,9 @@ set -x
 	ovs-vsctl add-port br-int patch-int -- set interface patch-int type=patch options:peer=patch-phy
 	ovs-vsctl add-port br-phy patch-phy -- set interface patch-phy type=patch options:peer=patch-int
 
-# 	ovs-ofctl add-flow br-int "table=0, in_port=vxlan1, actions=patch-int"
+# 	ovs-ofctl -O OpenFlow13 add-flow br-int "recirc_id(0),tunnel(tun_id=0x4,src=192.168.1.16,dst=192.168.1.15,flags=+df+key),in_port=vxlan_sys_4789,eth_src=02:25:d0:16:01:02,eth_dst=ff:ff:ff:ff:ff:ff,eth_type=0x0806,arp_spa=1.1.3.1,arp_tpa=1.1.3.2,arp_op=1,actions=output:enp8s0f0"
+
+# 	ovs-ofctl add-flow br-phy "table=0, in_port=$link,dl_src=02:25:d0:16:01:02,dl_dst=ff:ff:ff:ff:ff:ff,arp actions=drop"
 set +x
 }
 

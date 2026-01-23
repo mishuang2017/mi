@@ -49,7 +49,7 @@ def print_esw(priv):
         return
 #     print(esw.qos.domain)
     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags);
-    print("esw->offloads_inactive: %d" % esw.offloads_inactive)
+#     print("esw->offloads_inactive: %d" % esw.offloads_inactive)
     print("esw->total_vports: %d" % esw.total_vports)
     print("esw->num_peers: %d" % esw.num_peers)
     print("esw->enabled_vports: %d" % esw.enabled_vports)
