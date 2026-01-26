@@ -41,10 +41,10 @@ ctx_table = prog['ctx_table']
 # print(ctx_table)
 for node in radix_tree_for_each(ctx_table.address_of_()):
     ucma_context = Object(prog, 'struct ucma_context', address=node[1].value_())
-    print(ucma_context.id)
+    print("ucma_context.id: %x" % ucma_context.id)
 #     print(ucma_context)
 #     print(ucma_context.file.filp)
-    print(ucma_context.cm_id)   # struct rdma_cm_id
+#     print(ucma_context.cm_id)   # struct rdma_cm_id
     rdma_id_private = container_of(ucma_context.cm_id, "struct rdma_id_private", "id")
 
     dst_addr = rdma_id_private.id.route.addr.dst_addr
@@ -57,4 +57,7 @@ for node in radix_tree_for_each(ctx_table.address_of_()):
 
 #     print(rdma_id_private.cm_id.ib)
     cm_id_private = container_of(rdma_id_private.cm_id.ib, "struct cm_id_private", "id")
-#     print(cm_id_private)
+    print(cm_id_private)
+
+#     print(ucma_context.cm_id)
+#     print(rdma_id_private)

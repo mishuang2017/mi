@@ -12795,7 +12795,8 @@ ucma_fops->ucma_open
 rdma_create_id
 struct rdma_id_private * __rdma_create_id()
 
-rdma_resolve_addr(RESOLVE_ADDR)
+user api: rdma_resolve_addr(RESOLVE_ADDR)
+kernel:
 ucma_resolve_addr
 rdma_resolve_addr
 rdma_resolve_ip
@@ -12805,6 +12806,81 @@ ip_route_output_key
 
 rdma_get_cm_event
 ucma_get_event
+
+cm_recv_handler
+        INIT_DELAYED_WORK(&work->work, cm_work_handler);
+
+---client---
+5.174522 265     265     kworker/u125:0  cm_recv_handler
+        cm_recv_handler+0x5 [ib_cm]
+        ib_mad_recv_done+0x5a2 [ib_core]
+        __ib_process_cq+0xb8 [ib_core]
+        ib_cq_poll_work+0x2f [ib_core]
+        process_one_work+0x211 [kernel]
+        worker_thread+0x199 [kernel]
+        kthread+0x10e [kernel]
+        ret_from_fork+0x18e [kernel]
+        ret_from_fork_asm+0x1a [kernel]
+
+---server---
+10.14603 223565  223565  kworker/u49:0   cm_recv_handler
+        cm_recv_handler+0x1 [ib_cm]
+        ib_mad_recv_done+0x556 [ib_core]
+        __ib_process_cq+0xb9 [ib_core]
+        ib_cq_poll_work+0x2b [ib_core]
+        process_one_work+0x246 [kernel]
+        worker_thread+0x58 [kernel]
+        kthread+0x132 [kernel]
+        ret_from_fork+0x1f [kernel]
+
+10.15467 223565  223565  kworker/u49:0   cm_recv_handler
+        cm_recv_handler+0x1 [ib_cm]
+        ib_mad_recv_done+0x556 [ib_core]
+        __ib_process_cq+0xb9 [ib_core]
+        ib_cq_poll_work+0x2b [ib_core]
+        process_one_work+0x246 [kernel]
+        worker_thread+0x58 [kernel]
+        kthread+0x132 [kernel]
+        ret_from_fork+0x1f [kernel]
+------------
+
+3.615876 53193   53193   kworker/u96:3   ucma_event_handler
+        ucma_event_handler+0x5 [rdma_ucm]
+        addr_handler+0x107 [rdma_cm]
+        process_one_req+0x4c [ib_core]
+        process_one_work+0x211 [kernel]
+        worker_thread+0x199 [kernel]
+        kthread+0x10e [kernel]
+        ret_from_fork+0x18e [kernel]
+        ret_from_fork_asm+0x1a [kernel]
+
+3.621850 53193   53193   kworker/u96:3   ucma_event_handler
+        ucma_event_handler+0x5 [rdma_ucm]
+        cma_work_handler+0x6e [rdma_cm]
+        process_one_work+0x211 [kernel]
+        worker_thread+0x199 [kernel]
+        kthread+0x10e [kernel]
+        ret_from_fork+0x18e [kernel]
+        ret_from_fork_asm+0x1a [kernel]
+
+3.631785 13012   13012   kworker/3:1     ucma_event_handler
+        ucma_event_handler+0x5 [rdma_ucm]
+        cma_ib_handler+0x9d [rdma_cm]
+        cm_process_work+0x2b [ib_cm]
+        cm_queue_work_unlock+0x41 [ib_cm]
+        cm_rep_handler+0x316 [ib_cm]
+        cm_work_handler+0x463 [ib_cm]
+        process_one_work+0x211 [kernel]
+        worker_thread+0x199 [kernel]
+        kthread+0x10e [kernel]
+        ret_from_fork+0x18e [kernel]
+        ret_from_fork_asm+0x1a [kernel]
+
+cm_work_handler
+	m_handler (cma_ib_handler)
+
+ucma_event_handler
+	list_add_tail(&uevent->list, &ctx->file->event_list);
 
 ? userspace function
 ucma_resolve_route
@@ -12843,6 +12919,52 @@ static ssize_t (*ucma_cmd_table[])(struct ucma_file *file,
         [RDMA_USER_CM_CMD_RESOLVE_IB_SERVICE] = ucma_resolve_ib_service,
         [RDMA_USER_CM_CMD_WRITE_CM_EVENT] = ucma_write_cm_event,
 };
+
+ibv_alloc_pd
+4.822931 46683   46683   rdma_client     ib_uverbs_alloc_pd
+        ib_uverbs_alloc_pd+0x5 [ib_uverbs]
+        ib_uverbs_run_method+0x344 [ib_uverbs]
+        ib_uverbs_cmd_verbs+0x1a4 [ib_uverbs]
+        ib_uverbs_ioctl+0xe8 [ib_uverbs]
+        __x64_sys_ioctl+0xa0 [kernel]
+        x64_sys_call+0x1274 [kernel]
+        do_syscall_64+0x72 [kernel]
+        entry_SYSCALL_64_after_hwframe+0x76 [kernel]
+
+ibv_create_cq
+3.701957 45746   45746   rdma_client     mlx5_ib_create_cq
+        mlx5_ib_create_cq+0x5 [mlx5_ib]
+        ib_uverbs_run_method+0x344 [ib_uverbs]
+        ib_uverbs_cmd_verbs+0x1a4 [ib_uverbs]
+        ib_uverbs_ioctl+0xe8 [ib_uverbs]
+        __x64_sys_ioctl+0xa0 [kernel]
+        x64_sys_call+0x1274 [kernel]
+        do_syscall_64+0x72 [kernel]
+        entry_SYSCALL_64_after_hwframe+0x76 [kernel]
+
+rdma_create_qp
+5.230559 45772   45772   rdma_client     mlx5_ib_create_qp
+        mlx5_ib_create_qp+0x5 [mlx5_ib]
+        ib_create_qp_user+0x43 [ib_core]
+        ib_uverbs_handler_UVERBS_METHOD_QP_CREATE+0x4ab [ib_uverbs]
+        ib_uverbs_run_method+0x344 [ib_uverbs]
+        ib_uverbs_cmd_verbs+0x1a4 [ib_uverbs]
+        ib_uverbs_ioctl+0xe8 [ib_uverbs]
+        __x64_sys_ioctl+0xa0 [kernel]
+        x64_sys_call+0x1274 [kernel]
+        do_syscall_64+0x72 [kernel]
+        entry_SYSCALL_64_after_hwframe+0x76 [kernel]
+
+3.155094 45786   45786   rdma_client     mlx5_ib_reg_user_mr
+        mlx5_ib_reg_user_mr+0x5 [mlx5_ib]
+        ib_uverbs_handler_UVERBS_METHOD_INVOKE_WRITE+0xd0 [ib_uverbs]
+        ib_uverbs_run_method+0x344 [ib_uverbs]
+        ib_uverbs_cmd_verbs+0x1a4 [ib_uverbs]
+        ib_uverbs_ioctl+0xe8 [ib_uverbs]
+        __x64_sys_ioctl+0xa0 [kernel]
+        x64_sys_call+0x1274 [kernel]
+        do_syscall_64+0x72 [kernel]
+        entry_SYSCALL_64_after_hwframe+0x76 [kernel]
 
 kernel function mlx5_ib_post_send() is only used when connect
 84.16639 24871   24871   rdma_client     mlx5_ib_post_send

@@ -15879,9 +15879,12 @@ function linux_br
 alias n1_r_server='n1 /swgwork/cmi/rdma-example/bin/rdma_server'
 alias n2_r_server='n2 /swgwork/cmi/rdma-example/bin/rdma_server'
 alias n1_r_server_loop='while true; do n1_r_server; sleep 1; done'
-alias r_server='/swgwork/cmi/rdma-example/bin/rdma_server'
+# alias r_server='/swgwork/cmi/rdma-example/bin/rdma_server'
 alias r_client='/swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 alias n1_r_client='n1 /swgwork/cmi/rdma-example/bin/rdma_client -s textstringaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+# /swgwork/cmi/rdma-core/build/bin/rdma_server
+# /swgwork/cmi/rdma-core/build/bin/rdma_client -s 192.168.1.16
 
 function r_server
 {

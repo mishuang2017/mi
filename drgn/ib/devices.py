@@ -36,7 +36,11 @@ for node in radix_tree_for_each(devices.address_of_()):
     #
     i=1 # ib standard, start from 1
     print("ib_device.port_data[1].immutable.core_cap_flags: %x" % ib_device.port_data[i].immutable.core_cap_flags)
-    print(ib_device.port_data[i])
+#     print(ib_device.port_data[i])
+#     print(ib_device.client_data)
+#     for node in radix_tree_for_each(ib_device.client_data.address_of_()):
+#         ib_client = Object(prog, 'u32', address=node[1].value_())
+#         print(ib_client)
     print("\n=======================")
 
 exit(0)

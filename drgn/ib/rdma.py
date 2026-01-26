@@ -59,7 +59,7 @@ def print_ib_uverbs(file):
                 mlx5_ib_qp = container_of(ib_qp.address_of_(), "struct mlx5_ib_qp", "ibqp")
 #                 print(mlx5_ib_qp)
 
-            continue
+#             continue
 
             if address_to_name(hex(type.destroy_object.value_())) == "uverbs_free_cq":
                 ib_cq = Object(prog, 'struct mlx5_ib_cq', address=ib_uobject.object)
