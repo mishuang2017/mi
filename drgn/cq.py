@@ -28,11 +28,13 @@ def print_channel(priv):
 #         print(channels[i].sq[0].cq.mcq.irqn.value_())
 #         print("sqn: %#x" % channels[i].sq[0].sqn)
 #         print(channels[i].rq.cq.napi.index)
+        print(channels[i].rq.dim)
 #         print("channels[i].rq.cq.napi: %x" % channels[i].rq.cq.napi)
-        print(channels[i].rq.cq.mcq.cqn)
+#         print(channels[i].rq.cq.mcq.cqn)
 #         print("rq.cq.mcq.irqn: %d" % channels[i].rq.cq.mcq.irqn.value_())
 
 #         print(channels[i].sq[0].cq.mcq.vector.value_())
+        print(channels[i].sq[0].dim)
 #         print(channels[i].rq.cq.mcq.vector.value_())
 
 #         print(channels[i].sq[0].cq.mcq.tasklet_ctx.comp)

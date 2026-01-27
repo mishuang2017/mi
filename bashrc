@@ -16525,3 +16525,6 @@ set +x
 }
 
 alias devm=/opt/mellanox/iproute2/sbin/mlxdevm
+
+alias sf_bind='echo mlx5_core.sf.2 > /sys/bus/auxiliary/drivers/mlx5_core.sf/bind'
+alias sf_unbind='echo mlx5_core.sf.2 > /sys/bus/auxiliary/drivers/mlx5_core.sf/unbind'
