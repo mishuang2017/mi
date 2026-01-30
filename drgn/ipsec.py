@@ -15,9 +15,9 @@ dev = mlx5e_priv.netdev
 # exit(0)
 
 xfrm_state_dev_gc_list = prog['xfrm_state_dev_gc_list']
-print(xfrm_state_dev_gc_list)
+# print(xfrm_state_dev_gc_list)
 
-exit(0)
+# exit(0)
 
 ipsec = mlx5e_priv.ipsec
 print(ipsec)

@@ -188,7 +188,7 @@ net = prog['init_net']
 print_net_xfrm_state(net)
 # print_net_xfrm_policy(net)
 
-exit(0)
+print(ipsec.rx_ipv4)
 
 # print_sadb(sadb)
 
@@ -197,12 +197,29 @@ print("\n======================== rx ===========================\n")
 # print_sadb(sadb)
 
 flow_table("rx_ipv4.ft.sa", ipsec.rx_ipv4.ft.sa)
+flow_table("rx_ipv4.ft.status", ipsec.rx_ipv4.ft.status)
 flow_table("rx_ipv4.ft_pol", ipsec.rx_ipv4.ft.pol)
 flow_table("rx_ipv4.pol_miss_ft", ipsec.rx_ipv4.pol_miss_ft)
 # print(ipsec.rx_ipv4)
 
+exit(0)
 # print(ipsec.aso)
 # print(ipsec.aso.maso)
+
+def print_counters():
+    print("\n======================== counters ===========================\n")
+
+    fc = ipsec_priv.decap_rule_counter
+    print("decap_rule_counter       id: %x, packets: %d" % (fc.id, fc.cache.packets))
+    fc = ipsec_priv.decap_miss_rule_counter
+    print("decap_miss_rule_counter  id: %x, packets: %d" % (fc.id, fc.cache.packets))
+
+    fc = ipsec_priv.tx_chk_rule_counter
+    print("tx_chk_rule_counter      id: %x, packets: %d" % (fc.id, fc.cache.packets))
+    fc = ipsec_priv.tx_chk_drop_rule_counter
+    print("tx_chk_drop_rule_counter id: %x, packets: %d" % (fc.id, fc.cache.packets))
+
+print_counters()
 
 
 print("\n======================== ipsec_priv ===========================\n")
@@ -224,18 +241,3 @@ flow_table("ipsec_fdb_tx_chk", ipsec_priv.ipsec_fdb_tx_chk)
 
 uar = mlx5e_priv.mdev.priv.uar
 # print(uar)
-
-def print_counters():
-    print("\n======================== counters ===========================\n")
-
-    fc = ipsec_priv.decap_rule_counter
-    print("decap_rule_counter       id: %x, packets: %d" % (fc.id, fc.cache.packets))
-    fc = ipsec_priv.decap_miss_rule_counter
-    print("decap_miss_rule_counter  id: %x, packets: %d" % (fc.id, fc.cache.packets))
-
-    fc = ipsec_priv.tx_chk_rule_counter
-    print("tx_chk_rule_counter      id: %x, packets: %d" % (fc.id, fc.cache.packets))
-    fc = ipsec_priv.tx_chk_drop_rule_counter
-    print("tx_chk_drop_rule_counter id: %x, packets: %d" % (fc.id, fc.cache.packets))
-
-# print_counters()
