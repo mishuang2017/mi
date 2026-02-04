@@ -16,8 +16,8 @@ for x, dev in enumerate(get_netdevs()):
     addr = dev.value_()
 #     print(dev.netdev_ops)
     ops = address_to_name(hex(dev.netdev_ops))
-#     if "mlx5e" not in ops:
-#         continue;
+    if "mlx5e" not in ops:
+        continue;
 #     if name not in "en8f0pf0sf1":
 #         continue;
 #     if name not in "enp8s0f0":
@@ -40,6 +40,7 @@ for x, dev in enumerate(get_netdevs()):
 
     mlx5e_priv_addr = addr + prog.type('struct net_device').size
     mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
+    print(mlx5e_priv.mdev.caps.embedded_cpu)
 #     print(mlx5e_priv.aso)
 #     print("wq: %x" % mlx5e_priv.wq)
 #     print(mlx5e_priv.ipsec)

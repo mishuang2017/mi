@@ -15683,7 +15683,7 @@ set -x
 # 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
 # 	devlink dev eswitch set pci/$pci decap disable
-	devlink dev eswitch set pci/$pci mode switchdev
+# 	devlink dev eswitch set pci/$pci mode switchdev
 
 	ip address flush enp8s0f0
 	ip -4 address add $link_ip/16 dev enp8s0f0

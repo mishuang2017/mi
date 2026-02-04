@@ -922,6 +922,11 @@ def print_match(fte, mask):
     if reg_c5_mask:
         print(" reg_c5 (fteid, meter red: 0, green: 2): %4x" % reg_c5, end='')
 
+    reg_c4 = ntohl(val[55].value_())
+    reg_c4_mask = ntohl(mask[55].value_())
+    if reg_c4:
+        print(" reg_c4: %4x/%4x" % (reg_c4, reg_c4_mask), end='')
+
     reg_c2 = ntohl(val[57].value_())
     if reg_c2:
         print(" reg_c2 (ct_state|ct_zone, est=2, trk=4, nat=8, new=80, MLX5_CT_STATE_NEW_BIT): %4x" % reg_c2, end='')
@@ -933,6 +938,14 @@ def print_match(fte, mask):
     reg_c0 = ntohl(val[59].value_())
     if reg_c0:
         print(" reg_c0: %4x" % reg_c0, end='')
+
+    ipsec = ntohl(val[61].value_())
+    if ipsec:
+        print(" ipsec: %4x" % ipsec, end='')
+
+    ipsec = ntohl(mask[61].value_())
+    if ipsec:
+        print(" ipsec mask: %4x" % ipsec, end='')
 
     if vni:
         smac_47_16 = ntohl(val[32].value_())

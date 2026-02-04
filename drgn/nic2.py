@@ -48,9 +48,10 @@ for x, dev in enumerate(get_netdevs()):
     print(dev.name)
 
     fs = mlx5e_priv.fs
-    print(fs)
-    flow_table("l2", fs.l2.ft.t)
-#     flow_table("ttc", fs.ttc.t)
+#     print(fs)
+#     flow_table("l2", fs.l2.ft.t)
+    flow_table("ttc", fs.ttc.t)
+    print(fs.ttc.groups)
     continue
     print(fs.udp)
 #     print(fs.arfs)
