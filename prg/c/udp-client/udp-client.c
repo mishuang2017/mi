@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
 	struct sockaddr_in	 servaddr; 
 	char *server_name = "localhost";
 	extern char *optarg;
-	int i, t = 1;
-	int interval = 1;
-	int verbose = 0;
+	int i, t = 10000;
+	int interval = 2;
+	int verbose = 1;
 	unsigned char  service_type = 0xe0 | IPTOS_LOWDELAY | IPTOS_RELIABILITY;
 
 	while ((c = getopt(argc, argv, "c:t:i:v")) != -1) {
@@ -65,21 +65,25 @@ int main(int argc, char *argv[])
 
 	for (i = 0; i < t; i++) {
 		char str[100];
+		int ret;
+
 		snprintf(str, 100, "%s %d\0", hello, i);
-		sendto(sockfd, (const char *)str, strlen(str), 
+		printf("%s: before sendto\n", __func__);
+		ret = sendto(sockfd, (const char *)str, strlen(str), 
 			MSG_CONFIRM, (const struct sockaddr *) &servaddr, 
 				sizeof(servaddr)); 
+		printf("%s: sendto: %d\n", __func__, ret);
 		if (verbose)
 			printf("Hello message sent %d.\n", i + 1); 
 			
-#if 0
+// #if 0
 		n = recvfrom(sockfd, (char *)buffer, MAXLINE, 
 					MSG_WAITALL, (struct sockaddr *) &servaddr, 
 					&len); 
 		buffer[n] = '\0'; 
 		if (verbose)
 			printf("Server : %s\n", buffer); 
-#endif
+// #endif
 		sleep(interval);
 	}
 

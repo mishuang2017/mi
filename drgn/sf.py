@@ -94,7 +94,7 @@ for node in radix_tree_for_each(mlx5_sf_dev_table.devices.address_of_()):
 #                         .kobj = (struct kobject){
 #                                 .name = (const char *)0xffff9660120d3de0 = "mlx5_core.sf.2",
 
-# exit(0)
+exit(0)
 
 print('')
 dev_head = prog['dev_head']

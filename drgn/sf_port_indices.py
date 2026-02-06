@@ -84,13 +84,13 @@ while True:
     i=i+1
  
  
-print(" === sf === ")
+print(" === mlx5_sf_dev === ")
 
 mlx5_sf_dev_table = mlx5e_priv.mdev.priv.sf_dev_table
 for node in radix_tree_for_each(mlx5_sf_dev_table.devices.address_of_()):
     mlx5_sf_dev = Object(prog, 'struct mlx5_sf_dev', address=node[1].value_())
     print(mlx5_sf_dev.adev.dev.kobj.name.string_().decode())
-#     print(mlx5_sf_dev)
+    print(mlx5_sf_dev)
 
 # (struct mlx5_sf_dev){
 #         .adev = (struct auxiliary_device){

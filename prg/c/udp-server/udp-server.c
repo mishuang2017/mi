@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	char *hello = "Hello from server\0"; 
 	struct sockaddr_in servaddr, cliaddr; 
 	unsigned char  service_type = 0xe0 | IPTOS_LOWDELAY | IPTOS_RELIABILITY;
-	int bidirectional = 0;
+	int bidirectional = 1;
 
 	while ((c = getopt(argc, argv, "b")) != -1) {
 		switch (c) {
@@ -59,11 +59,13 @@ int main(int argc, char *argv[])
 
 	int len, n; 
 	while (1) {
+		printf("ready receive\n");
 		n = recvfrom(sockfd, (char *)buffer, MAXLINE, 
 					MSG_WAITALL, ( struct sockaddr *) &cliaddr, 
 					&len); 
 		buffer[n] = '\0'; 
 		printf("Client : %s\n", buffer); 
+		sleep(1);
 		if (bidirectional) {
 			n = sendto(sockfd, (const char *)hello, strlen(hello) + 1,
 				MSG_CONFIRM, (const struct sockaddr *) &cliaddr,

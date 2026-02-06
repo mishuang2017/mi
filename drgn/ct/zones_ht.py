@@ -21,8 +21,8 @@ for i, flow_table in enumerate(hash(zones_ht, 'struct tcf_ct_flow_table', 'node'
     print(flow_table.ref)
     # old kernel
 #     zone = flow_table.zone
-    zone = flow_table.key.zone
-    print("zone: %d" % zone)
+#     zone = flow_table.key.zone
+#     print("zone: %d" % zone)
 
     nf_ft = flow_table.nf_ft
     cb_list = nf_ft.flow_block.cb_list

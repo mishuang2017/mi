@@ -10,10 +10,15 @@ sys.path.append(libpath)
 # import lib
 from lib import *
 
+MLX5_EVENT_TYPE_MAX = prog['MLX5_EVENT_TYPE_MAX']
+
 mlx5e_priv =  get_mlx5e_priv(pf0_name)
 eq_table = dev = mlx5e_priv.mdev.priv.eq_table
-# print(eq_table.nh)
-print(eq_table.async_eq)
+for i in range(MLX5_EVENT_TYPE_MAX):
+    head = eq_table.nh[i].head
+    if head:
+        print(head)
+# print(eq_table.async_eq)
 
 # exit(0)
 
