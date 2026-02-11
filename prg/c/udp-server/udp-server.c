@@ -65,7 +65,6 @@ int main(int argc, char *argv[])
 					&len); 
 		buffer[n] = '\0'; 
 		printf("Client : %s\n", buffer); 
-		sleep(1);
 		if (bidirectional) {
 			n = sendto(sockfd, (const char *)hello, strlen(hello) + 1,
 				MSG_CONFIRM, (const struct sockaddr *) &cliaddr,

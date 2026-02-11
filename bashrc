@@ -917,6 +917,7 @@ function cloud_linux_upstream
 	make-all all
 }
 
+# yum --enablerepo='*'  install bison
 function cloud_setup1
 {
 	sudo yum install -y ctags cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
@@ -6929,6 +6930,7 @@ function sf_create_bf
         [[ $# == 1 ]] && cmd=$1
 
 	$cmd port add pci/0000:03:00.0  flavour pcisf pfnum 0 sfnum 0 controller 1
+	read
 	$cmd port function set en3f0c1pf0sf0 state active
 }
 
@@ -16050,11 +16052,16 @@ function qos
 {
 	# set on p0/p1 on dpu
 	# disable services lldpad.service and lldpad.socket
+	# use dscp for uplink , use pcp for vxlan
 	/auto/sw/regression/sw_net_ver_tools/mlnx_qos/x86_64/mlnx_qos -i $link -p 0,1,2,3,4,5,6,7 --trust dscp
 	echo 0:10 1:90 2:0 3:0 4:0 5:0 6:0 7:0 > /sys/class/net/$link/device/sriov/1/tc_bw
 
 	ip netns exec n11 raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --tos 32 &
 	ip netns exec n11 raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --tos 0
+
+	# vxlan pcp
+	ip netns exec n11 raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --vlan_pcp 0 &
+	ip netns exec n11 raw_ethernet_bw --duration 12 --ib-dev mlx5_3 --port 1901 --CPU-freq --cq-mod 1 --report_gbits --qp 1 --post_list 32 --client --source_mac 02:25:d0:05:01:02 --dest_mac 02:25:d0:06:01:02 --source_ip 1.1.1.1 --dest_ip 1.1.3.1 --vlan_pcp 1
 }
 
 function group_groups
@@ -16528,3 +16535,8 @@ alias devm=/opt/mellanox/iproute2/sbin/mlxdevm
 
 alias sf_bind='echo mlx5_core.sf.2 > /sys/bus/auxiliary/drivers/mlx5_core.sf/bind'
 alias sf_unbind='echo mlx5_core.sf.2 > /sys/bus/auxiliary/drivers/mlx5_core.sf/unbind'
+
+function rx_packets
+{
+	ethtool -S $link | grep rx[0-9]*_packets
+}

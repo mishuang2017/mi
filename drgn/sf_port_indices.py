@@ -21,7 +21,7 @@ print(mlx5_sf_hwc_table)
 
 max_fn = mlx5_sf_hwc_table.max_fn
 for i in range(max_fn):
-    mlx5_sf_hw = mlx5_sf_hwc_table.sfs[0]
+    mlx5_sf_hw = mlx5_sf_hwc_table.sfs[i]
     print(mlx5_sf_hw)
 
 #         .port_index = (unsigned int)32769,
@@ -89,8 +89,9 @@ print(" === mlx5_sf_dev === ")
 mlx5_sf_dev_table = mlx5e_priv.mdev.priv.sf_dev_table
 for node in radix_tree_for_each(mlx5_sf_dev_table.devices.address_of_()):
     mlx5_sf_dev = Object(prog, 'struct mlx5_sf_dev', address=node[1].value_())
-    print(mlx5_sf_dev.adev.dev.kobj.name.string_().decode())
-    print(mlx5_sf_dev)
+    print("%s" % mlx5_sf_dev.adev.dev.kobj.name.string_().decode(), end=', ')
+    print("sfnum: %d, fn_id: %d" % (mlx5_sf_dev.sfnum, mlx5_sf_dev.fn_id));
+#     print(mlx5_sf_dev)
 
 # (struct mlx5_sf_dev){
 #         .adev = (struct auxiliary_device){
