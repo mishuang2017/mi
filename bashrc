@@ -935,6 +935,8 @@ function cloud_setup_yum
 	sudo yum install -y dh-autoreconf
 	sudo yum install -y python-devel
 	sudo yum install -y platform-python-devel
+
+	sudo dnf install squashfs-tools busybox biosdevname -y # rhel 10.1 kdump
 # 	sudo yum install -y memstrack busybox
 
 # 	(( machine_num == 1 )) && sudo /workspace/cloud_tools/configure_asap_devtest_env.sh  --sw_steering --ovn
@@ -1777,6 +1779,11 @@ function headers_install
 	sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/usr -j -B
 }
 
+function headers_install2
+{
+	sudo make headers_install ARCH=i386 INSTALL_HDR_PATH=/images/cmi/iproute2 -j -B
+}
+
 function update_grub
 {
 	# for ubuntu
@@ -1838,7 +1845,7 @@ function mi
 {
 	test -f LINUX_BASE_BRANCH || return
 	make -j $cpu_num2 || return
-	sudo make install -j $cpu_num2
+	sudo make install_kernel -j $cpu_num2
 # 	sudo systemctl stop mlx-regex
 # 	sudo systemctl stop virtio-net-controller.service
 	sudo /etc/init.d/openibd force-restart
@@ -2012,7 +2019,7 @@ set -x
 
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
-	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
+	$TC filter add dev $rep2 prio 1 handle 99 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
 # set +x
 # 	return
 
@@ -5389,35 +5396,53 @@ set -x
 set +x
 }
 
-function brx_bf
+function brx_bf1
 {
 set -x
 	del-br
 	ovs-vsctl add-br $br
 
-	ovs-vsctl add-port $br pf0vf0
+# 	ovs-vsctl add-port $br pf0vf0
 # 	ovs-vsctl add-port $br pf0vf1
 # 	ovs-vsctl add-port $br pf0vf2
 # 	ovs-vsctl add-port $br pf0vf3
 
+	ovs-vsctl add-port pf0hpf $br
+	ovs-vsctl add-port pf1hpf $br
 	ovs-vsctl add-port $br vxlan0 -- set interface vxlan0 type=vxlan \
-		options:remote_ip=$link_remote_ip  \
+		options:remote_ip=192.168.1.2  \
 		options:key=flow options:dst_port=4789
-	ifconfig p0 $link_ip/24 up
-	ifconfig p0 mtu 1600
 
-# 	ovs-vsctl add-br br2
-# 
-# 	ovs-vsctl add-port br2 pf1vf0
-# 	ovs-vsctl add-port br2 pf1vf1
-# 	ovs-vsctl add-port br2 pf1vf2
-# 	ovs-vsctl add-port br2 pf1vf3
-# 
-# 	ovs-vsctl add-port br2 vxlan1 -- set interface vxlan1 type=vxlan \
-# 		options:remote_ip=$link2_remote_ip  \
-# 		options:key=flow options:dst_port=4789
-# 	ifconfig p1 $link2_ip/24 up
-# 	ifconfig p1 mtu 1600
+# 	ifconfig p0 $link_ip/24 up
+# 	ifconfig p0 mtu 1600
+
+	ifconfig $bond 192.168.1.1/24 up
+	ifconfig $bond mtu 1600
+}
+
+function brx_bf2
+{
+set -x
+	del-br
+	ovs-vsctl add-br $br
+
+# 	ovs-vsctl add-port $br pf0vf0
+# 	ovs-vsctl add-port $br pf0vf1
+# 	ovs-vsctl add-port $br pf0vf2
+# 	ovs-vsctl add-port $br pf0vf3
+
+	ovs-vsctl add-port pf0hpf $br
+	ovs-vsctl add-port pf1hpf $br
+	ovs-vsctl add-port $br vxlan0 -- set interface vxlan0 type=vxlan \
+		options:remote_ip=192.168.1.1  \
+		options:key=flow options:dst_port=4789
+
+# 	ifconfig p0 $link_ip/24 up
+# 	ifconfig p0 mtu 1600
+
+	ifconfig $bond 192.168.1.2/24 up
+	ifconfig $bond mtu 1600
+
 set +x
 }
 
@@ -11769,7 +11794,8 @@ set -x
 	modprobe bonding
 	echo +bond0 > /sys/class/net/bonding_masters
 	echo 2 > /sys/class/net/bond0/bonding/mode
-	echo 1 > /sys/class/net/bond0/bonding/xmit_hash_policy
+	echo 0 > /sys/class/net/bond0/bonding/xmit_hash_policy
+# 	echo 1 > /sys/class/net/bond0/bonding/xmit_hash_policy
 	echo 100 > /sys/class/net/bond0/bonding/miimon
 	echo 100 > /sys/class/net/bond0/bonding/downdelay
 	echo 100 > /sys/class/net/bond0/bonding/updelay
@@ -11823,7 +11849,11 @@ set +x
 
 function bond_create_bf
 {
+	echo "need to unload host drivers first"
 set -x
+	devlink dev eswitch set pci/0000:03:00.0 mode legacy
+	devlink dev eswitch set pci/0000:03:00.1 mode legacy
+
 	ifenslave -d bond0 p0 p1 2> /dev/null
 	sleep 1
 	rmmod bonding
@@ -15074,10 +15104,12 @@ function build_makedumpfile
 	test -d makedumpfile && return
 	sudo yum install -y snappy-devel bzip2-devel lzo-devel libzstd-devel
 	sudo apt-get -y install libsnappy-dev libzstd-dev
-	git clone https://github.com/makedumpfile/makedumpfile.git
+# 	git clone https://github.com/makedumpfile/makedumpfile.git
+	git clone https://codeberg.org/ptesarik/libkdumpfile
 	cd makedumpfile
-	make USEZSTD=on USESNAPPY=on USELZO=on LINKTYPE=dynamic
-	sudo cp ./makedumpfile /sbin
+# 	make USEZSTD=on USESNAPPY=on USELZO=on LINKTYPE=dynamic
+# 	sudo cp ./makedumpfile /sbin
+	make-usr
 	makedumpfile -v
 }
 
@@ -15087,6 +15119,11 @@ function cloud_grub
 {
 	sudo systemctl start kdump
 	sudo systemctl enable kdump
+
+	# rhel 10.1
+# 	sudo grubby --update-kernel=ALL --args="crashkernel=1G"
+# 	sudo kdumpctl reset-crashkernel --kernel=ALL
+
 	sudo sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /etc/default/grub
 	sudo sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /boot/loader/entries/*
 	sudo sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
@@ -16183,11 +16220,9 @@ function cloud_ofed
 	/bin/rm -rf 2
 	mkdir 2
 	cd 2
-	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_25_10
+	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01
 	cd mlnx-ofa_kernel-4.0
-	fetch mlnx_ofed_25_07
-	fetch mlnx_ofed_25_04
-	fetch mlnx_ofed_24_10
+	fetch mlnx_ofed_25_10
 	git fetch --tags
 	cd ..
 	tar zcvf 1.tar.gz mlnx-ofa_kernel-4.0
@@ -16539,4 +16574,10 @@ alias sf_unbind='echo mlx5_core.sf.2 > /sys/bus/auxiliary/drivers/mlx5_core.sf/u
 function rx_packets
 {
 	ethtool -S $link | grep rx[0-9]*_packets
+}
+
+function maxrate
+{
+	cd /sys/class/net/eth2/qos
+	echo 0 0 0 0 0 0 0 100000  > maxrate
 }

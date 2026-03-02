@@ -31,7 +31,7 @@ for name in pf0_name,:
     mlx5e_priv = get_mlx5e_priv(name)
     mlx5_lag = mlx5e_priv.mdev.priv.lag
 
-    print(mlx5_lag)
+#     print(mlx5_lag)
 
     print('-------------')
     MLX5_LAG_MODE_ROCE = prog['MLX5_LAG_MODE_ROCE']
@@ -48,12 +48,12 @@ for name in pf0_name,:
 #     print("state_flags: %x (MLX5_LAG_MODE_NDEVS_READY = 1)" % mlx5_lag.state_flags)
 #     print(mlx5_lag)
 #     print(mlx5_lag.v2p_map)
-#     print(mlx5_lag.tracker)
+    print(mlx5_lag.tracker)
     port_sel = mlx5_lag.port_sel
     print_port_sel(port_sel)
 #     continue
-    print(mlx5_lag.pf[0])
-    print(mlx5_lag.pf[1])
+#     print(mlx5_lag.pf[0])
+#     print(mlx5_lag.pf[1])
     print("mlx5_lag.ports: %d" % mlx5_lag.ports)
     print(mlx5_lag.mode)
 #     print("mlx5_lag %x, flags: %x" % (mlx5_lag, mlx5_lag.flags))
@@ -89,13 +89,13 @@ def print_mlx5_vport(priv):
         print('')
 
         # if egress acl is not NULL, it is shared_fdb
-        if vport.egress.acl:
-            flow_table("vport.egress.acl", vport.egress.acl)
+#         if vport.egress.acl:
+#             flow_table("vport.egress.acl", vport.egress.acl)
 
-        print("vport.ingress.acl start")
-        if vport.ingress.acl:
-            flow_table("vport.ingress.acl", vport.ingress.acl)
-        print("vport.ingress.acl end")
+#         print("vport.ingress.acl start")
+#         if vport.ingress.acl:
+#             flow_table("vport.ingress.acl", vport.ingress.acl)
+#         print("vport.ingress.acl end")
 
     for node in radix_tree_for_each(vports.address_of_()):
         mlx5_vport = Object(prog, 'struct mlx5_vport', address=node[1].value_())

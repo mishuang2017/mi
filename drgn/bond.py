@@ -45,6 +45,7 @@ for x, dev in enumerate(get_netdevs()):
     curr_active_slave = bonding.curr_active_slave
     if curr_active_slave:
         print("bonding.curr_active_slave: %s" % bonding.curr_active_slave.dev.name.string_().decode())
-    print(bonding.params.mode)
+    print("bonding.params.mode: %d (BOND_MODE_XOR = 2)" % bonding.params.mode)
+    print("bonding.params.xmit_policy: %d (BOND_XMIT_POLICY_LAYER34 = 1" % bonding.params.xmit_policy)
 #     print(bonding)
-    print(bonding.recv_probe)
+#     print(bonding.recv_probe)
