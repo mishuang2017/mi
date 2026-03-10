@@ -358,7 +358,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_04;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_10'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
@@ -599,8 +599,8 @@ function ethtool-rxvlan-on
 
 alias restart-virt='systemctl restart libvirtd.service'
 
-# export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
-export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+# export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
@@ -890,7 +890,8 @@ function cloud_linux
 	tar zvxf linux.tar.gz
 	/bin/rm -f linux.tar.gz &
 	cd linux
-	/bin/cp -f ~cmi/mi/config .config
+	# /bin/cp -f ~cmi/mi/config .config
+	/bin/cp -f /swgwork/cmi/config.new .config
 	sml
 	if [[ -n $branch ]]; then
 		git checkout v$branch -b $branch && make-all all
@@ -6964,7 +6965,7 @@ alias sf_create_bf_devlink='_sf_create_bf devlink'
 function sf_create
 {
 set -x
-	debug=1
+	debug=0
 	cmd=$1
 	sfnum=$2
 	sf_device=mlx5_core.sf.$((sfnum+1))
@@ -7963,7 +7964,8 @@ function syndrome
 {
 	file=/auto/host_fw_release/fw-4125/fw-4125-rel-22_33_0830-build-001/etc/syndrome_list.log
 	file=/auto/host_fw_release/fw-4129/fw-4129-rel-28_43_0220-build-001/etc/syndrome_list.log
-	file=/swgwork/cmi/syndrome_list.log
+	file=/auto/host_fw_release/fw-4131/fw-4131-codecov-rel-40_49_0080-build-001/etc/syndrome_list.log
+# 	file=/swgwork/cmi/syndrome_list.log
 	echo $file
 	grep -i $1 $file
 }
