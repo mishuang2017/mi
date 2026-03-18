@@ -568,7 +568,7 @@ alias tune3="ethtool -c $link"
 
 alias lsblk_all='lsblk -o name,label,partlabel,mountpoint,size,uuid,fstype'
 
-alias clone-crash='git clone https://github.com/mishuang2017/crash.git --branch=AI_hackathon_2025'
+alias clone-crash='git clone https://github.com/mishuang2017/crash.git --branch=7.0'
 
 function build_crash
 {
@@ -599,8 +599,8 @@ function ethtool-rxvlan-on
 
 alias restart-virt='systemctl restart libvirtd.service'
 
-export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
-# export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+# export PATH=/opt/mellanox/iproute2/sbin:/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
+export PATH=/usr/local/bin:/usr/local/sbin/:/usr/bin/:/usr/sbin:/bin/:/sbin:~/bin
 
 # export PATH=$PATH:/images/cmi/dpdk-stable-17.11.2/install
 export EDITOR=vim
@@ -1529,16 +1529,16 @@ set -x
 	sudo echo 0 > /proc/sys/fs/suid_dumpable
 	# otherwise, will hit this error
 	# Aug 23 09:31:51 c-237-175-60-063 ovs-ctl[4478]: ==4478==HINT: LeakSanitizer does not work under ptrace (strace, gdb, etc)
-	sudo pip install ovs-sphinx-theme docutils
+# 	sudo pip install ovs-sphinx-theme docutils
 
 # 	sudo pip uninstall docutils
 # 	sudo pip install docutils==0.17.0
 # 
-        sudo make clean
-        ./boot.sh
+#         sudo make clean
+#         ./boot.sh
 # 	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 
-	sudo yum -y install libasan
+# 	sudo yum -y install libasan
 	./configure CFLAGS="-g -O0" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 # 	./configure CFLAGS="-g -O2 -fsanitize=address -fno-omit-frame-pointer -fno-common" --prefix=/usr --localstatedir=/var --sysconfdir=/etc
 
@@ -16222,7 +16222,7 @@ function cloud_ofed
 	/bin/rm -rf 2
 	mkdir 2
 	cd 2
-	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01
+	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_04
 	cd mlnx-ofa_kernel-4.0
 	fetch mlnx_ofed_25_10
 	git fetch --tags
