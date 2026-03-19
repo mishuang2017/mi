@@ -54,14 +54,17 @@ map <F6> :call Endif()<CR>
 map <F7> :call Print1()<CR>
 map <F8> :call Print2()<CR>
 
+map <F9> :call Devlink()<CR>
+
 " map <F7> :retab!<CR>
 " map <F7> :!make<CR>:!make run<CR>
 " imap <F7> <ESC>:!make<CR>:!make run<CR>
 " map <F8> :!make -j 32<CR>
 " imap <F8> <ESC>:w<ESC>:!make all<CR>
-map <F9> :w<CR>:!make run<CR>
 
-map <F10> :!make clean<CR>
+" map <F9> :w<CR>:!make run<CR>
+
+" map <F10> :!make clean<CR>
 " map <F11> :!make clean<CR>:!make<CR>:!make run<CR>
 map <F12> :set hlsearch!<CR>
 
@@ -71,6 +74,12 @@ map <c-w>o <c-w><c-p>
 function Syn()
 	:color default
 	:set bg=dark
+endfunc
+
+function Devlink()
+	let line = getline(".")
+	:s/devlink/mlxdevm/g
+	:s/DEVLINK/MLXDEVM/g
 endfunc
 
 function CComment()
