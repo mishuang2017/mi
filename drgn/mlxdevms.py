@@ -20,7 +20,7 @@ mlxdevms = prog['mlxdevms']
 # print(mlxdevms)
 for node in radix_tree_for_each(mlxdevms.address_of_()):
     mlxdevm = Object(prog, 'struct mlxdevm', address=node[1].value_())
-#    print(mlxdevm)
+#     print(mlxdevm)
     pci_name = mlxdevm.dev.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue
@@ -29,6 +29,7 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
 
     print("========================== mlxdevm.dev.kobj.name: %s index: %d =========================" % (pci_name, mlxdevm.index))
     print("mlxdevm %x" % mlxdevm.address_of_())
+#     print(mlxdevm.dev_driver)
 #     if pci_name.find("mlx5_core.sf") == 0:
 #         auxiliary_device = container_of(mlxdevm.dev, 'struct auxiliary_device', "dev")
 #         print("\tauxiliary_device.name: %s" % auxiliary_device.name.string_().decode())

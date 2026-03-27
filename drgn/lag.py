@@ -26,12 +26,15 @@ def print_port_sel(port_sel):
             flow_table("", mlx5_lag_definer[i].ft)
     print('------port_sel end-------')
 
+def print_pfs(pfs):
+    for node in radix_tree_for_each(pfs.address_of_()):
+        lag_func = Object(prog, 'struct lag_func', address=node[1].value_())
+        print(lag_func)
+
 # for name in pf0_name,pf1_name:
 for name in pf0_name,:
     mlx5e_priv = get_mlx5e_priv(name)
     mlx5_lag = mlx5e_priv.mdev.priv.lag
-
-#     print(mlx5_lag)
 
     print('-------------')
     MLX5_LAG_MODE_ROCE = prog['MLX5_LAG_MODE_ROCE']
@@ -55,6 +58,7 @@ for name in pf0_name,:
 #     print(mlx5_lag.pf[0])
 #     print(mlx5_lag.pf[1])
     print("mlx5_lag.ports: %d" % mlx5_lag.ports)
+    print_pfs(mlx5_lag.pfs)
     print(mlx5_lag.mode)
 #     print("mlx5_lag %x, flags: %x" % (mlx5_lag, mlx5_lag.flags))
 #     print_fib_info(mlx5_lag.lag_mp.mfi)
