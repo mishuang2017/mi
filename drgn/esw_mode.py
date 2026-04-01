@@ -42,8 +42,8 @@ def print_esw(priv):
         print(MLX5_FLOW_STEERING_MODE_SMFS)
     elif priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_DMFS:
         print(MLX5_FLOW_STEERING_MODE_DMFS)
-    elif priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_HMFS:
-        print(MLX5_FLOW_STEERING_MODE_HMFS)
+#     elif priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_HMFS:
+#         print(MLX5_FLOW_STEERING_MODE_HMFS)
 #     print(esw.offloads.ft_offloads)
     if esw.mode == 0:
         return
@@ -65,6 +65,7 @@ def print_esw(priv):
 #     print("esw->offloads->encap: %d" % esw.offloads.encap)
 #     print(esw.offloads.rep_ops[0])
 #     print(esw.offloads.rep_ops[1])
+    print("esw.offloads.host_number: %d" % esw.offloads.host_number)
     print("user_count: %d" % esw.user_count.counter)
     print("num_flows %d" % esw.offloads.num_flows.counter)
 
@@ -86,7 +87,7 @@ mlx5e_priv = get_mlx5e_priv(pf0_name)
 print_esw(mlx5e_priv)
 # print(mlx5e_priv.netdev.devlink_port.switch_port)
 
-exit(0)
+# exit(0)
 
 print("===================== port 2 =======================")
 mlx5e_priv2 = get_mlx5e_priv(pf1_name)

@@ -3885,28 +3885,42 @@ function tc_vxlan1
 
 	TC=tc
 	ip1
+	# if dev is uplink, will use termination table
+	redirect=$link
+	redirect=$rep2
 	ip link del $vx > /dev/null 2>&1
 	ip link add $vx type vxlan dstport $vxlan_port dev $link external udp6zerocsumrx udp6zerocsumtx
-	$TC qdisc del dev $link ingress > /dev/null 2>&1
-	ethtool -K $link hw-tc-offload on
+	$TC qdisc del dev $redirect ingress > /dev/null 2>&1
+	ethtool -K $redirect hw-tc-offload on
 
-	$TC qdisc add dev $link ingress
-	ip link set $link promisc on
+	$TC qdisc add dev $redirect ingress
+	ip link set $redirect promisc on
 
 	local_vm_mac=02:25:d0:$host_num:01:02
 	remote_vm_mac=$vxlan_mac
 
-# if dev is uplink, will use termination table
 set -x
-	$TC filter add dev $link protocol ip  parent ffff: prio 1 flower $offload \
-		src_mac $local_vm_mac		\
-		dst_mac $remote_vm_mac		\
-		action tunnel_key set		\
-		src_ip $link_ip			\
-		dst_ip $link_remote_ip		\
-		dst_port $vxlan_port		\
-		id $vni				\
-		action mirred egress redirect dev $vx
+# 	for i in {0..1}; do
+# 		for j in {3..4}; do
+# 			tc filter add dev $rep2 protocol ip parent ffff: flower skip_sw dst_ip 10.0.$i.$j \
+# 				action tunnel_key set src_ip 100.0.0.1 dst_ip 100.0.$i.$j dst_port 4789 \
+# 				id $vni action mirred egress redirect dev $vx;
+# 		done
+# 	done
+
+	
+	for i in {0..1}; do
+		$TC filter add dev $redirect protocol ip  parent ffff: prio 1 flower $offload \
+			src_mac $local_vm_mac		\
+			dst_mac $remote_vm_mac		\
+			dst_ip 1.1.1.$i			\
+			action tunnel_key set		\
+			src_ip $link_ip			\
+			dst_ip $link_remote_ip		\
+			dst_port $vxlan_port		\
+			id $vni				\
+			action mirred egress redirect dev $vx
+	done
 set +x
 }
 
@@ -9242,7 +9256,11 @@ alias ofed-configure-rhel-8.1="./configure --all -j $cpu_num2 --kernel-version 4
 alias ofed-configure-rhel-8.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-193.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-193.el8.x86_64/"
 alias ofed-configure-rhel-8.4="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-305.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-305.el8.x86_64 "
 alias ofed-configure-rhel-8.5="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18.0-372.9.1.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-372.9.1.el8.x86_64 "
+
+alias ofed-configure-rhel-8.10="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version linux-4.18.0-541.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-541.el8.x86_64 "
+
 alias ofed-configure-rhel-9.1="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version linux-5.14.0-162.6.1.el9_1.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.14.0-162.6.1.el9_1.x86_64 "
+alias ofed-configure-rhel-10.0="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.12.0-55.9.1.el10_0.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.12.0-55.9.1.el10_0.x86_64 "
 
 function ofed_all
 {
