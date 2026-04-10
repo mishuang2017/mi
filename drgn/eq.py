@@ -20,7 +20,7 @@ for i in range(MLX5_EVENT_TYPE_MAX):
         print(head)
 # print(eq_table.async_eq)
 
-# exit(0)
+exit(0)
 
 # The number is set by "ethtool -L eth0 combined 2"
 i = 0;

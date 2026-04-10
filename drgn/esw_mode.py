@@ -68,6 +68,7 @@ def print_esw(priv):
     print("esw.offloads.host_number: %d" % esw.offloads.host_number)
     print("user_count: %d" % esw.user_count.counter)
     print("num_flows %d" % esw.offloads.num_flows.counter)
+    print(esw.generation)
 
 #     print("-------------------------------")
 #     for j in range(2):

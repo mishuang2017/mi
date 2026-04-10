@@ -41,11 +41,6 @@ print_mlx5_sf(mlx5_sf_table)
 mlx5_sf_hwc_table = mlx5e_priv.mdev.priv.sf_hw_table
 # print(mlx5_sf_hwc_table)
 
-print("--- port 2 ---\n")
-mlx5e_priv = get_mlx5e_priv(pf1_name)
-mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
-print_mlx5_sf(mlx5_sf_table)
-
 print("\n === mlx5e_priv.mdev.priv.eswitch.n_head === \n")
 
 n_head = mlx5e_priv.mdev.priv.eswitch.n_head
@@ -84,9 +79,10 @@ while True:
 print(" === sf === ")
 
 mlx5_sf_dev_table = mlx5e_priv.mdev.priv.sf_dev_table
-for node in radix_tree_for_each(mlx5_sf_dev_table.devices.address_of_()):
-    mlx5_sf_dev = Object(prog, 'struct mlx5_sf_dev', address=node[1].value_())
-    print(mlx5_sf_dev.adev.dev.kobj.name.string_().decode())
+if mlx5_sf_dev_table:
+	for node in radix_tree_for_each(mlx5_sf_dev_table.devices.address_of_()):
+	    mlx5_sf_dev = Object(prog, 'struct mlx5_sf_dev', address=node[1].value_())
+	    print(mlx5_sf_dev.adev.dev.kobj.name.string_().decode())
 
 # (struct mlx5_sf_dev){
 #         .adev = (struct auxiliary_device){
@@ -115,3 +111,9 @@ for mlx5_devm_device in list_for_each_entry('struct mlx5_devm_device', dev_head.
         print("mlx5_devm_port.vport_num: %d, %#x" % (mlx5_devm_port.vport_num, mlx5_devm_port.vport_num))
 #         for i in range(8):
 #             print("%x%x%x%x" % mlx5_devm_port.port.dl_port.attrs.switch_id.id[i])
+
+print("--- port 2 ---\n")
+# mlx5e_priv = get_mlx5e_priv(pf1_name)
+# mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
+# print_mlx5_sf(mlx5_sf_table)
+

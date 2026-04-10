@@ -67,9 +67,9 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
 #         if port.index != 1:
 #             continue
         print("mlxdevm_port %x" % node[1].value_())
-        print(port.mlxdevm_rate)
-        print(port.mlxdevm_rate.parent)
-#         print(port.dl_port)
+#         print(port.mlxdevm_rate)
+#         print(port.mlxdevm_rate.parent)
+        print(port.dl_port)
         print("\tport index: %x, %d" % (port.index, port.index))
         print(port.ops.port_fn_hw_addr_get)
 #         print(port.switch_port)
@@ -81,8 +81,8 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
     print("\t=== mlxdevm_port end ===")
 
     print("\t=== mlxdevm_rate start ===")
-    for rate in list_for_each_entry('struct mlxdevm_rate', mlxdevm.rate_list.address_of_(), 'list'):
-        print(rate)
+#     for rate in list_for_each_entry('struct mlxdevm_rate', mlxdevm.rate_list.address_of_(), 'list'):
+#         print(rate)
     print("\t=== mlxdevm_rate end ===")
 
     # old kernel 

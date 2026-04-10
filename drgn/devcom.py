@@ -27,17 +27,24 @@ def print_devcom_dev_list():
 # print_devcom_dev_list()
 # exit(0)
 
+def print_esw_paired(esw):
+    for node in radix_tree_for_each(esw.paired.address_of_()):
+        esw = Object(prog, 'struct mlx5_eswitch', address=node[1].value_())
+        pci_name = esw.dev.device.kobj.name.string_().decode()
+        print("paired: %s" % pci_name)
+
 def print_esw(devcom):
     print(" ==== devcom_comp_list ==== ")
     print("devcom.ready: %d" % devcom.ready)
     print(devcom.key)
     print(devcom.handler)
     for dev in list_for_each_entry('struct mlx5_devcom_comp_dev', devcom.comp_dev_list_head.address_of_(), 'list'):
-        print(dev.comp.key)
+        print('--------------------------------------')
+#         print(dev.comp.key)
         esw = Object(prog, 'struct mlx5_eswitch', address=dev.data)
-#         print(esw)
         pci_name = esw.dev.device.kobj.name.string_().decode()
-        print(pci_name)
+        print("primary: %s" % pci_name)
+        print_esw_paired(esw)
 
 devcom_comp_list = prog['devcom_comp_list']
 for devcom in list_for_each_entry('struct mlx5_devcom_comp', devcom_comp_list.address_of_(), 'comp_list'):

@@ -67,7 +67,8 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     #     continue
     elif pci_name.startswith("mlx5_core.eth"):
         mlx5e_dev = Object(prog, 'struct mlx5e_dev', address=devlink.priv.address_of_().value_())
-        print("mlx5e_dev.priv.netdev.name: %s" % mlx5e_dev.priv.netdev.name.string_().decode())
+#         print("mlx5e_dev.priv.netdev.name: %s" % mlx5e_dev.priv.netdev.name.string_().decode())
+        print("mlx5e_dev.netdev.name: %s" % mlx5e_dev.netdev.name.string_().decode())
         print("devlink_port: %x" % mlx5e_dev.dl_port.address_of_())
     print("\t=== devlink_port start ===")
 
