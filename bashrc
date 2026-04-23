@@ -1206,8 +1206,8 @@ function drop_tc
 
 function ovs-drop
 {
-# 	ovs-ofctl add-flow br-int "table=0,in_port=$rep2,actions=drop"
-	ovs-ofctl add-flow br-ex "table=0,in_port=$link,actions=drop"
+	ovs-ofctl add-flow $br "table=0,in_port=$rep2,actions=drop"
+# 	ovs-ofctl add-flow br-ex "table=0,in_port=$link,actions=drop"
 }
 
 function tc-drop
@@ -5099,7 +5099,7 @@ set -x
 		vs add-port $br $rep -- set Interface $rep ofport_request=$((i+1))
 	done
 	ip1
-	vxlan1
+# 	vxlan1
 
 #   	for (( i = 0; i < numvfs; i++)); do
 # 		local rep=$(get_rep2 $i)
@@ -5112,7 +5112,7 @@ set -x
 # 	 ovs-ofctl add-flow $br "table=0, ip,in_port=vxlan1,dl_src=02:25:d0:06:01:02,dl_dst=02:25:d0:05:01:02,nw_src=1.1.3.1,nw_dst=1.1.1.1 actions=output:enp8s0f0_1"
 # 	ovs-ofctl add-flow $br "table=0, actions=dec_ttl,normal"
 # 	ovs-vsctl add-port br1 vxlan2 -- set interface vxlan2 type=vxlan options:remote_ip=79.84.75.127 options:local_ip=79.84.75.126 options:key=6902995 options:dst_port=4790
-# 	geneve
+	geneve
 # 	ovs-ofctl  add-tlv-map $br "{class=0x8fa7,type=0xf5,len=4}->tun_metadata0"
 # 	ovs-ofctl add-flow -O OpenFlow15 $br " actions=set_field:0x4d2->tun_metadata0,NORMAL"
 set +x
@@ -9231,6 +9231,9 @@ alias ofed-configure-5.9="./configure --with-mlx5-core-and-ib-and-en-mod --with-
 alias ofed-configure-5.10="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.10-rc2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.10-rc2 "
 alias ofed-configure-5.11="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.11 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.11 "
 alias ofed-configure-5.12="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.12 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.12 "
+
+alias ofed-configure-5.9="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --without-memtrack     --with-ipoib-cm --with-user_mad-mod --with-nfsrdma-mod -j $cpu_num2 --kernel-version 5.9 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.9 "
+
 alias ofed-configure-5.13="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --without-memtrack     --with-ipoib-cm --with-user_mad-mod --with-nfsrdma-mod -j $cpu_num2 --kernel-version 5.13 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.13 "
 alias ofed-configure-5.14="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.14 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.14 "
 alias ofed-configure-5.15="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15 "
@@ -10746,11 +10749,17 @@ set -x
 	mac2=02:25:d0:$host_num:01:03
 	echo "add ct rules"
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
-		dst_mac $mac2 ct_state -trk \
+		dst_mac $mac2 dst_ip 1.1.1.1 ct_state -trk \
+		action ct pipe action goto chain 1
+	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
+		dst_mac $mac2 dst_ip 1.1.1.2 ct_state -trk \
+		action ct pipe action goto chain 1
+	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
+		dst_mac $mac2 dst_ip 1.1.1.3 ct_state -trk \
 		action ct pipe action goto chain 1
 
-# set +x
-# 	return
+set +x
+	return
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \

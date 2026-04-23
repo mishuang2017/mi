@@ -38,8 +38,9 @@ mlx5e_priv = get_mlx5e_priv(pf0_name)
 mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
 print_mlx5_sf(mlx5_sf_table)
 
+print("\n === mlx5e_priv.mdev.priv.sf_hw_table === \n")
 mlx5_sf_hwc_table = mlx5e_priv.mdev.priv.sf_hw_table
-# print(mlx5_sf_hwc_table)
+print(mlx5_sf_hwc_table)
 
 print("\n === mlx5e_priv.mdev.priv.eswitch.n_head === \n")
 

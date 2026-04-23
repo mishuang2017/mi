@@ -69,7 +69,7 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
         print("mlxdevm_port %x" % node[1].value_())
 #         print(port.mlxdevm_rate)
 #         print(port.mlxdevm_rate.parent)
-        print(port.dl_port)
+#         print(port.dl_port)
         print("\tport index: %x, %d" % (port.index, port.index))
         print(port.ops.port_fn_hw_addr_get)
 #         print(port.switch_port)
@@ -79,6 +79,17 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
         print("")
 
     print("\t=== mlxdevm_port end ===")
+    mlx5_devm_device = container_of(mlxdevm.address_of_(), "struct mlx5_devm_device", "device")
+#     print(mlx5_devm_device)
+    devm_sfs = mlx5_devm_device.devm_sfs
+    print("\t=== devm_sfs start ===")
+    for node in radix_tree_for_each(devm_sfs.address_of_()):
+        print("\tsf port index: %#x, %d" % (node[0], node[0]))
+#         port = Object(prog, 'void *', address=node[1].value_())
+#         print(*port)
+#         print(port)
+#         print("port: %x" % port)
+    print("\t=== devm_sfs end ===")
 
     print("\t=== mlxdevm_rate start ===")
 #     for rate in list_for_each_entry('struct mlxdevm_rate', mlxdevm.rate_list.address_of_(), 'list'):
