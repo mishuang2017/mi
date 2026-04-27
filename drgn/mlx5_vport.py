@@ -31,7 +31,7 @@ def print_mlx5_vport(priv):
     def print_vport(vport):
         print("mlx5_vport %x" % vport.address_of_(), end=' ')
         print("vport: %4x, metadata: %4x, index: %4x" % (vport.vport, vport.metadata, vport.index), end=' ')
-#         print(vport.info)
+#         print(vport.info.link_state)
         print_mac(vport.info.mac)
 #         print(vport.qos.sched_node)
 #         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')

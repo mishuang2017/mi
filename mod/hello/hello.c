@@ -7,9 +7,9 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 static int hello_init(void)
 {
-	struct flow_action action;
+	printk(KERN_ALERT "%ld\n", 86400 * HZ + jiffies);
+	printk(KERN_ALERT "2 %ld\n", jiffies);
 
-	flow_offload_has_one_action(&action);
 	return 0;
 }
 

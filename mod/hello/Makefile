@@ -10,8 +10,8 @@ all:
 	$(MAKE) -C $(KERNEL_SRC) M=$(CURRENT_PATH) modules
 
 run:
+	sudo rmmod ./hello.ko
 	sudo insmod ./hello.ko
-	dmesg | grep hello
 
 clean:
 	rm *.ko

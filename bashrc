@@ -10749,17 +10749,11 @@ set -x
 	mac2=02:25:d0:$host_num:01:03
 	echo "add ct rules"
 	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
-		dst_mac $mac2 dst_ip 1.1.1.1 ct_state -trk \
-		action ct pipe action goto chain 1
-	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
-		dst_mac $mac2 dst_ip 1.1.1.2 ct_state -trk \
-		action ct pipe action goto chain 1
-	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
-		dst_mac $mac2 dst_ip 1.1.1.3 ct_state -trk \
+		dst_mac $mac2 ct_state -trk \
 		action ct pipe action goto chain 1
 
-set +x
-	return
+# set +x
+# 	return
 
 	$TC filter add dev $rep2 ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac2 ct_state +trk+new \

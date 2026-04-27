@@ -76,15 +76,17 @@ int main(int argc, char *argv[])
 		if (verbose)
 			printf("Hello message sent %d.\n", i + 1); 
 			
-// #if 0
+ #if 0
 		n = recvfrom(sockfd, (char *)buffer, MAXLINE, 
 					MSG_WAITALL, (struct sockaddr *) &servaddr, 
 					&len); 
 		buffer[n] = '\0'; 
 		if (verbose)
 			printf("Server : %s\n", buffer); 
-// #endif
+ #endif
 		sleep(interval);
+		if (i == 10)
+			sleep(3600);
 	}
 
 	close(sockfd); 

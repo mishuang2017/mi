@@ -108,10 +108,16 @@ usage(void)
 	exit(1);
 }
 
+int total;
+
 int
 reliable_write(int fd, unsigned char *buffer, int buffer_size)
 {
 	int ret;			/* bytes have been sent by one call */
+
+/* 	printf("%s: total: %d\n", __func__, total); */
+/* 	if (total++ == 10) */
+/* 		sleep(3600); */
 
 	sleep(1);
 	while (1) {
