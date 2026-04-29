@@ -234,15 +234,6 @@ tcf_ct_act
 					flow_offload_queue_work
 						schedule_work(&nf_flow_offload_work);
 							flow_offload_work_handler
-								flow_offload_work_stats
-								flow_offload_work_del
-									clear_bit (IPS_HW_OFFLOAD_BIT, &offload->flow->ct->status);
-									flow_offload_tuple_del (offload, FLOW_OFFLOAD_DIR_ORIGINAL);
-										nf_flow_offload_tuple
-											mlx5_tc_ct_block_flow_offload (FLOW_CLS_DESTROY)
-												mlx5_tc_ct_block_flow_offload_del
-									flow_offload_tuple_del (offload, FLOW_OFFLOAD_DIR_REPLY);
-									set_bit( NF_FLOW_HW_DEAD , &offload->flow->flags);
 								flow_offload_work_add
 									nf_flow_offload_alloc <- fill nf_flow_rule according to flow_offload
 										nf_flow_offload_rule_alloc (FLOW_OFFLOAD_DIR_ORIGINAL) alloc nf_flow_rule
@@ -263,7 +254,6 @@ tcf_ct_act
 												nf_flow_offload_init init flow_cls_offload
 												list_for_each_entry(block_cb, block_cb_list, list)
 													mlx5_tc_ct_block_flow_offload
-														mlx5_tc_ct_block_flow_offload_stats
 														mlx5_tc_ct_block_flow_offload_add
 															alloc mlx5_ct_entry
 															mlx5_tc_ct_entry_add_rules
@@ -278,10 +268,6 @@ tcf_ct_act
 							clear_bit(NF_FLOW_HW_PENDING, &offload->flow->flags)
 							free(struct flow_offload_work)
 
-
-					nf_flow_offload_tuple
-						nf_flow_offload_init
-							cls_flow->cookie
 mlx5_tc_ct_flow_offload
 	__mlx5_tc_ct_flow_offload
 		mlx5_tc_ct_add_ft_cb
@@ -303,6 +289,26 @@ nf_flow_offload_del is called because test_bit(NF_FLOW_TEARDOWN, &flow->flags)
 NF_FLOW_TEARDOWN is set because of FIN is received in
 	tcf_ct_act()->tcf_ct_flow_table_lookup()->flow_offload_teardown()
 
+ovs revalidator calls mlx5e_stats_flower
+ct calls mlx5_tc_ct_block_flow_offload_stats
+
+[Wed Apr 29 12:58:27 2026] CPU: 6 PID: 64943 Comm: revalidator26 Kdump: loaded Tainted: G           O       6.8.12+ #2
+[Wed Apr 29 12:58:27 2026] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org 04/01/2014
+[Wed Apr 29 12:58:27 2026] Call Trace:
+[Wed Apr 29 12:58:27 2026]  <TASK>
+[Wed Apr 29 12:58:27 2026]  dump_stack_lvl+0x55/0x70
+[Wed Apr 29 12:58:27 2026]  mlx5e_stats_flower+0xa7/0x410 [mlx5_core]
+[Wed Apr 29 12:58:27 2026]  tc_setup_cb_call+0xa6/0x150
+[Wed Apr 29 12:58:27 2026]  fl_hw_update_stats+0x7f/0x180 [cls_flower]
+[Wed Apr 29 12:58:27 2026]  fl_terse_dump+0x13a/0x180 [cls_flower]
+[Wed Apr 29 12:58:27 2026]  tcf_fill_node+0x1b4/0x2d0
+[Wed Apr 29 12:58:27 2026]  tcf_node_dump+0x6c/0x90
+[Wed Apr 29 12:58:27 2026]  fl_walk+0x61/0x120 [cls_flower]
+[Wed Apr 29 12:58:27 2026]  tcf_chain_dump+0x117/0x270
+[Wed Apr 29 12:58:27 2026]  ? __pfx_tcf_node_dump+0x10/0x10
+[Wed Apr 29 12:58:27 2026]  tc_dump_tfilter+0x23c/0x340
+[Wed Apr 29 12:58:27 2026]  netlink_dump+0x3d4/0x490
+
 [Wed Apr  8 14:27:24 2020] nf_flow_offload_gc_step: expried: 0, dying: 0, teardown: 1
 
 nf_flow_offload_gc_step
@@ -316,8 +322,22 @@ nf_flow_offload_gc_step
 			NF_FLOW_HW_DYING
 			flow_offload_queue_work(offload)
 				schedule_work(&nf_flow_offload_work)
+					flow_offload_work_del
+						clear_bit (IPS_HW_OFFLOAD_BIT, &offload->flow->ct->status);
+						flow_offload_tuple_del (offload, FLOW_OFFLOAD_DIR_ORIGINAL);
+							nf_flow_offload_tuple(FLOW_CLS_DESTROY)
+								mlx5_tc_ct_block_flow_offload (FLOW_CLS_DESTROY)
+									mlx5_tc_ct_block_flow_offload_del
+						flow_offload_tuple_del (offload, FLOW_OFFLOAD_DIR_REPLY);
+						set_bit( NF_FLOW_HW_DEAD , &offload->flow->flags);
 	if NF_FLOW_HW
 		nf_flow_offload_stats
+			flow_offload_queue_work
+				flow_offload_work_stats
+					flow_offload_tuple_stats
+						nf_flow_offload_tuple(FLOW_CLS_STATS)
+							mlx5_tc_ct_block_flow_offload
+								mlx5_tc_ct_block_flow_offload_stats
 
 flow_offload_work_handler(FLOW_CLS_DESTROY)
 	flow_offload_work_del(FLOW_OFFLOAD_DIR_ORIGINAL)
