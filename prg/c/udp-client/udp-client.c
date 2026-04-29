@@ -85,8 +85,8 @@ int main(int argc, char *argv[])
 			printf("Server : %s\n", buffer); 
  #endif
 		sleep(interval);
-		if (i == 10)
-			sleep(3600);
+/* 		if (i == 10) */
+/* 			sleep(3600); */
 	}
 
 	close(sockfd); 

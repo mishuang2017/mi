@@ -306,10 +306,18 @@ NF_FLOW_TEARDOWN is set because of FIN is received in
 [Wed Apr  8 14:27:24 2020] nf_flow_offload_gc_step: expried: 0, dying: 0, teardown: 1
 
 nf_flow_offload_gc_step
-	nf_flow_offload_del
-		NF_FLOW_HW_DYING
-		flow_offload_queue_work(offload)
-			schedule_work(&nf_flow_offload_work)
+	if nf_flow_has_expired	/* if no traffic within net.netfilter.nf_flowtable_udp_timeout, teardown */
+		flow_offload_teardown
+			clear IPS_OFFLOAD_BIT
+			set NF_FLOW_TEARDOWN
+			set ct timeout net.netfilter.nf_conntrack_udp_timeout_stream - net.netfilter.nf_flowtable_udp_timeout
+	if NF_FLOW_TEARDOWN
+		nf_flow_offload_del
+			NF_FLOW_HW_DYING
+			flow_offload_queue_work(offload)
+				schedule_work(&nf_flow_offload_work)
+	if NF_FLOW_HW
+		nf_flow_offload_stats
 
 flow_offload_work_handler(FLOW_CLS_DESTROY)
 	flow_offload_work_del(FLOW_OFFLOAD_DIR_ORIGINAL)

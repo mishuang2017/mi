@@ -590,7 +590,7 @@ def print_tuple(tuple, ct):
     if protonum == IPPROTO_UDP:
         dport = ntohs(tuple.tuple.dst.u.udp.port.value_())
         sport = ntohs(tuple.tuple.src.u.udp.port.value_())
-    if protonum != IPPROTO_GRE and dport != 5001 and dport != 4000 and dport != 20000 and dport != 5201:
+    if protonum != IPPROTO_GRE and dport != 5001 and dport != 4000 and dport != 20000 and dport != 5201 and dport != 8080:
         return
 
     print("============================================================")
