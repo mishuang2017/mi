@@ -10,20 +10,29 @@ import os
 sys.path.append(".")
 from lib import *
 
+while True:
+    jiffies = prog['jiffies']
+    print(jiffies)
+    time.sleep(10)
+
+rtnl_msg_handlers = prog['rtnl_msg_handlers']
+for i in range(129):
+    link = cast("struct rtnl_link *", rtnl_msg_handlers[i])
+    print(link)
+
+exit(0)
+
 for cpu in for_each_online_cpu(prog):
     if type_exist("struct page_pool_recycle_stats"):
         bytes += per_cpu_ptr(a.cpu_bstats, cpu).bytes.v.a.a.counter
         packets += per_cpu_ptr(a.cpu_bstats, cpu).packets.v.a.a.counter
 
-exit(0)
 
 print(sys.path)
 
 devs = get_netdevs()
 # print(devs)
 
-jiffies = prog['jiffies']
-print(jiffies)
 
 exit(0)
 

@@ -74,8 +74,8 @@ if is_arm():
 
 print("pf0_name: %s" % pf0_name)
 
-MLX5_FLOW_STEERING_MODE_SMFS = prog['MLX5_FLOW_STEERING_MODE_SMFS']
-MLX5_FLOW_STEERING_MODE_DMFS = prog['MLX5_FLOW_STEERING_MODE_DMFS']
+# MLX5_FLOW_STEERING_MODE_SMFS = prog['MLX5_FLOW_STEERING_MODE_SMFS']
+# MLX5_FLOW_STEERING_MODE_DMFS = prog['MLX5_FLOW_STEERING_MODE_DMFS']
 # MLX5_FLOW_STEERING_MODE_HMFS = prog['MLX5_FLOW_STEERING_MODE_HMFS']
 
 def get_pci(name):
@@ -593,6 +593,10 @@ def print_tuple(tuple, ct):
     if protonum != IPPROTO_GRE and dport != 5001 and dport != 4000 and dport != 20000 and dport != 5201 and dport != 8080:
         return
 
+    jiffies = prog['jiffies']
+    jiffies_u32 = jiffies & 0xFFFFFFFF
+    print(jiffies_u32)
+
     print("============================================================")
     print("nf_conn %lx" % ct.value_())
 #     print(ct)
@@ -607,7 +611,7 @@ def print_tuple(tuple, ct):
         print("protonum: %3d" % protonum, end=' ')
         print("dir: %3d" % dir, end=' ')
         print("zone: %3d" % ct.zone.id, end=' ')
-        print("timeout: %3d" % ct.timeout, end=' ')
+        print("timeout: %d (hours)" % ((ct.timeout - jiffies_u32) / 60 / 60 / 1000), end=' ')
         state = ct.proto.tcp.state
         print("state: %x, tcp_state: %s" % (state, get_tcp_state(state)))
 #         print("timeout: %d" % ct.timeout);

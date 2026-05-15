@@ -319,7 +319,7 @@ nf_flow_offload_gc_step
 			set ct timeout net.netfilter.nf_conntrack_udp_timeout_stream - net.netfilter.nf_flowtable_udp_timeout
 	if NF_FLOW_TEARDOWN
 		nf_flow_offload_del
-			NF_FLOW_HW_DYING
+			set NF_FLOW_HW_DYING (prevent to queue twice)
 			flow_offload_queue_work(offload)
 				schedule_work(&nf_flow_offload_work)
 					flow_offload_work_del

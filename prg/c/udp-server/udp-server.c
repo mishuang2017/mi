@@ -8,6 +8,7 @@
 #include <arpa/inet.h> 
 #include <netinet/in.h> 
 #include <linux/ip.h>
+#include <errno.h>
 
 #define PORT	 8080 
 #define MAXLINE 1024 
@@ -69,7 +70,7 @@ int main(int argc, char *argv[])
 			n = sendto(sockfd, (const char *)hello, strlen(hello) + 1,
 				MSG_CONFIRM, (const struct sockaddr *) &cliaddr,
 					len);
-			printf("Hello message sent: %d\n", n);
+			printf("Hello message sent: %d\n", errno);
 		}
 	}
 

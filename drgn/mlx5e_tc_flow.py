@@ -61,6 +61,11 @@ for x, dev in enumerate(get_netdevs()):
 #             print(mlx5_flow_attr.parse_attr)
 #             print(mlx5_flow_attr.esw_attr[0])
 
+            # dest ft is mlx5e_priv.mdev.priv.eswitch.offloads.ft_offloads
+            print("mlx5_flow_attr.act_id_restore_rule:")
+            if mlx5_flow_attr.act_id_restore_rule:
+                print_mlx5_flow_handle(mlx5_flow_attr.act_id_restore_rule)
+
         print("=====peer_flow start=====")
         for peer_flow in list_for_each_entry('struct mlx5e_tc_flow', flow.peer_flows.address_of_(), 'peer_flows'):
             print(flow.peer[0])

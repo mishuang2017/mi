@@ -43,6 +43,8 @@ for x, dev in enumerate(get_netdevs()):
     print("\n====================================== %s =======================================\n" % name)
 #     print("%20s ingress_sched_data %20x\n" % (name, addr))
     print("tcf_block %lx, block index: %d" % (block, block.index))
+    # print(block)
+    print("block.lockeddevcnt: %d" % block.lockeddevcnt)
 
     if type_exist("struct flow_block_cb"):
         for cb in list_for_each_entry('struct flow_block_cb', block.flow_block.cb_list.address_of_(), 'list'):

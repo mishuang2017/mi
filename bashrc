@@ -1943,8 +1943,8 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=$remote_mac
 	$TC filter add dev $rep2 prio 3 protocol ip  parent ffff: flower $offload src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
- set +x
- 	return
+#  set +x
+#  	return
 	$TC filter add dev $rep2 prio 2 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $link
 	$TC filter add dev $rep2 prio 1 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $link
 
@@ -16605,4 +16605,11 @@ function maxrate
 {
 	cd /sys/class/net/eth2/qos
 	echo 0 0 0 0 0 0 0 100000  > maxrate
+}
+
+function trace_sf
+{
+	cd /sys/kernel/debug/tracing
+	cat available_events | grep -E "mlx5_sf" >> set_event
+	cat trace
 }
