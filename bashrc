@@ -901,6 +901,28 @@ function cloud_linux
 	fi
 }
 
+function cloud_linux_6.8
+{
+	local branch=$1
+
+	cloud_grub
+	cd /images/cmi
+	cp /swgwork/cmi/linux-bluefield-6.8.tar.gz
+	tar zvxf linux-bluefield-6.8.tar.gz
+	/bin/rm -f linux-bluefield-6.8.tar.gz &
+	ln -s linux-bluefield-6.8 linux
+	cd linux
+	# /bin/cp -f ~cmi/mi/config .config
+	/bin/cp -f /swgwork/cmi/config.new .config
+	sml
+	if [[ -n $branch ]]; then
+		git checkout v$branch -b $branch && make-all all
+# 		git checkout $branch && make-all all
+	else
+		make-all all
+	fi
+}
+
 function cloud_linux_upstream
 {
 	local branch=$1
@@ -16609,7 +16631,13 @@ function maxrate
 
 function trace_sf
 {
+	mount -t debugfs none /sys/kernel/debug
 	cd /sys/kernel/debug/tracing
 	cat available_events | grep -E "mlx5_sf" >> set_event
 	cat trace
 }
+export PATH="$HOME/.local/bin:$PATH"
+
+alias claude_install='curl -fsSL https://claude.ai/install.sh | bash'
+
+alias openibd='/etc/init.d/openibd'

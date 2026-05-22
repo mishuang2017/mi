@@ -235,7 +235,7 @@ def print_exts(e):
                 ip_tunnel_key = tun.params.tcft_enc_metadata.u.tun_info.key
 #                 print(ip_tunnel_key)
                 print("\tTCA_TUNNEL_KEY_ACT_SET")
-                print("\tip_tunnel_info: %x" % tun.params.tcft_enc_metadata.u.tun_info.address_of_().value_())
+                print("\tip_tunnel_info %x" % tun.params.tcft_enc_metadata.u.tun_info.address_of_().value_())
                 print("\ttun_id: 0x%x" % ip_tunnel_key.tun_id.value_())
                 print("\tsrc ip: %s" % ipv4(ntohl(ip_tunnel_key.u.ipv4.src.value_())))
                 print("\tdst ip: %s" % ipv4(ntohl(ip_tunnel_key.u.ipv4.dst.value_())))
@@ -260,7 +260,10 @@ def print_cls_fl_filter(f):
     print("    cls_fl_filter %lx" % f.address_of_(), end=' ')
     print("handle: 0x%x" % f.handle, end=' ')
     print("in_hw_count: %d" % f.in_hw_count, end=' ')
-    k = f.mkey
+    k = f.key
+    m = f.mask
+    print(k.enc_opts)
+    print(m.key.enc_opts)
 #     print("ct_state: 0x%x" % k.ct.ct_state)
 #     print("ct_state: %x" % k.ct_state)
 #     print("mask ct_state: %x" % f.mask.key.ct_state)
@@ -283,7 +286,8 @@ def print_cls_fl_filter(f):
 #         print("dst ip: ", end='')
 #         print(ipv4(ntohl(k.ipv4.dst.value_())))
  
-    print_exts(f.exts)
+#     print_exts(f.exts)
+    print('')
 
 def get_netdevs():
     devs = []

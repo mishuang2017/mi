@@ -14,18 +14,18 @@ for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     print(name)
 #     if "enp4s0f0" not in name and "vxlan_sys_4789" != name:
-#     if "enp8s0f0_1" != name:
 #     if "p0" != name:
 #     if "enp8s0f1" == name:
 #         continue
-#     if "vxlan_sys_4789" != name:
-#         continue
+#     if "enp8s0f0" != name:
+    if "genev_sys_6081" != name and "geneve1" != name:
+        continue
     ingress_queue = dev.ingress_queue
 #     if name == "mymacvlan1":
 #         print(ingress_queue)
     if ingress_queue.value_() == 0:
         continue
-    qdisc = ingress_queue.qdisc
+    qdisc = ingress_queue.qdisc_sleeping
     print("qdisc %x" % qdisc)
     qdisc_size = prog.type('struct Qdisc').size
 
