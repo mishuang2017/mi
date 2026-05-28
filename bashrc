@@ -548,6 +548,16 @@ function sfs4
 	mlxconfig -d 0000:03:00.1 set SRIOV_EN=1 NUM_OF_VFS=4 PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=2 PF_SF_BAR_SIZE=10
 }
 
+function fw_ib_cx7
+{
+	mlxconfig -d /dev/mst/mt4129_pciconf0 set LINK_TYPE_P1=1 LINK_TYPE_P2=1
+}
+
+function fw_ether_cx7
+{
+	mlxconfig -d /dev/mst/mt4129_pciconf0 set LINK_TYPE_P1=2 LINK_TYPE_P2=2
+}
+
 alias vfs4="mlxconfig -d $pci set SRIOV_EN=1 NUM_OF_VFS=4"
 alias vfq="mlxconfig -d $pci q"
 alias vfq2="mlxconfig -d $pci2 q"
