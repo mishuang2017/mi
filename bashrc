@@ -16272,9 +16272,8 @@ function cloud_ofed
 	/bin/rm -rf 2
 	mkdir 2
 	cd 2
-	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_04
+	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01_vr
 	cd mlnx-ofa_kernel-4.0
-	fetch mlnx_ofed_25_10
 	git fetch --tags
 	cd ..
 	tar zcvf 1.tar.gz mlnx-ofa_kernel-4.0
