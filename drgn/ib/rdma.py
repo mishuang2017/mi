@@ -25,7 +25,7 @@ uverbs_async_event_fops = prog['uverbs_async_event_fops'].address_of_().value_()
 uverbs_mmap_fops = prog['uverbs_mmap_fops'].address_of_().value_()
 ucma_fops = prog['ucma_fops'].address_of_().value_()
 tty_fops = prog['tty_fops'].address_of_().value_()
-xfs_file_operations = prog['xfs_file_operations'].address_of_().value_()
+# xfs_file_operations = prog['xfs_file_operations'].address_of_().value_()
 socket_file_ops = prog['socket_file_ops'].address_of_().value_()
 
 def print_ib_uverbs(file):
@@ -206,8 +206,8 @@ def print_files(files, n):
             print("uverbs_event_fops")
         elif file.f_op.value_() == uverbs_async_event_fops:
             print("uverbs_async_event_fops")
-        elif file.f_op.value_() == xfs_file_operations:
-            print("xfs_file_operations")
+#         elif file.f_op.value_() == xfs_file_operations:
+#             print("xfs_file_operations")
         elif file.f_op.value_() == socket_file_ops:
             print("socket_file_ops")
             print_socket_file(file)

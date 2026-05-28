@@ -359,7 +359,7 @@ alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
 alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_04;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
-alias clone-ofed2='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_07_backports_devel_2;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed2='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_07;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_10'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
@@ -509,22 +509,13 @@ alias ll='ls -lh'
 alias df='df -h'
 
 alias vi='vim'
-alias vipr='vi ~/.profile'
-alias virca='vi ~/.bashrc*'
-alias visc='vi ~/.screenrc'
 alias vv='vi ~/.vimrc'
 alias vis='vi ~/.ssh/known_hosts'
 alias vin='vi ~/mi/notes.txt'
-alias vij='vi ~/Documents/jd.txt'
-alias vi1='vi ~/Documents/ovs.txt'
-alias vi2='vi ~/Documents/mirror.txt'
-alias vip='vi ~/Documents/private.txt'
+alias vip='vi ~/cmi/private.txt'
 alias vic='vi ~/.crash'
-alias vigdb='vi ~/.gdbinit'
 
 alias vi_errno='vi include/uapi/asm-generic/errno.h '
-
-
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
@@ -9260,6 +9251,9 @@ alias ofed-configure-5.9="./configure  --with-core-mod --with-user_mad-mod --wit
 alias ofed-configure-5.13="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --without-memtrack     --with-ipoib-cm --with-user_mad-mod --with-nfsrdma-mod -j $cpu_num2 --kernel-version 5.13 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.13 "
 alias ofed-configure-5.14="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.14 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.14 "
 alias ofed-configure-5.15="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15 "
+
+alias ofed-configure-5.15-bf="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15.0-1081.79.gc9f821e-bluefield/ "
+
 alias ofed-configure-5.15-uek="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15.0-101.103.2.1.el9uek.x86_64/ "
 alias ofed-configure-5.16="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.16-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.16-rc7 "
 alias ofed-configure-5.17="./configure  \
