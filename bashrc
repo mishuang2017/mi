@@ -835,7 +835,7 @@ function cloud_setup0
 	/root/bin/sudoer.sh
 	mkdir -p /images/cmi
 	chown cmi.mtl /images/cmi
-	ln -s ~cmi/mi /images/cmi
+	ln -s ~cmi/cmi/mi /images/cmi
 
 	env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends cscope tmux screen exuberant-ctags bison flex automake
 	yum install -y cscope tmux screen ctags
@@ -896,8 +896,12 @@ function cloud_linux
 	/bin/cp -f /swgwork/cmi/config.new .config
 	sml
 	if [[ -n $branch ]]; then
-		git checkout v$branch -b $branch && make-all all
-# 		git checkout $branch && make-all all
+		git branch | grep -w $branch
+		if [[ $? == 0 ]]; then
+			git checkout $branch
+		else
+			git checkout v$branch -b $branch && make-all all
+		fi
 	else
 		make-all all
 	fi
