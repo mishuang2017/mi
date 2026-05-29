@@ -18,6 +18,7 @@ Usage:
 import string
 
 from drgn import Object, cast
+from drgn.helpers.linux.list import list_for_each_entry
 from drgn.helpers.linux.xarray import xa_for_each
 
 
@@ -88,6 +89,33 @@ def _func_name(fn):
         return hex(addr)
 
 
+def _dump_ipoib_list(list_head_ptr, indent):
+    """The ipoib client_data is a kmalloc'd list_head whose entries are
+    struct ipoib_dev_priv {... struct list_head list; ...}.  Print each netdev."""
+    head = cast("struct list_head *", list_head_ptr)
+    try:
+        priv_type = prog.type("struct ipoib_dev_priv")
+    except LookupError:
+        print(f"{indent}(ipoib module not loaded -- no struct ipoib_dev_priv)")
+        return
+    for priv in list_for_each_entry(priv_type, head, "list"):
+        netdev = priv.dev
+        nd_name = netdev.name.string_().decode() if netdev.value_() else "?"
+        parent = priv.parent
+        parent_name = (
+            parent.name.string_().decode() if parent.value_() else "-"
+        )
+        pkey = int(priv.pkey)
+        port = int(priv.port)
+        qp = priv.qp.value_()
+        qpn = int(priv.qp.qp_num) if qp else 0
+        print(
+            f"{indent}{nd_name:<12} port={port} pkey=0x{pkey:04x} "
+            f"qpn=0x{qpn:06x} parent={parent_name}  "
+            f"struct ipoib_dev_priv {hex(priv.value_())}"
+        )
+
+
 def client_devices(client, ibdev_type):
     """Yield (ib_device *, client_data) for each device this client is bound to."""
     client_id = client.client_id.value_()
@@ -124,3 +152,5 @@ for _, entry in xa_for_each(prog["clients"].address_of_()):
         print(
             f"        {dev_name:<10} {data_type} {hex(data.value_())}"
         )
+        if name == "ipoib":
+            _dump_ipoib_list(data, indent="          ")

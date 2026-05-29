@@ -898,7 +898,7 @@ function cloud_linux
 	if [[ -n $branch ]]; then
 		git branch | grep -w $branch
 		if [[ $? == 0 ]]; then
-			git checkout $branch
+			git checkout $branch && make-all all
 		else
 			git checkout v$branch -b $branch && make-all all
 		fi
