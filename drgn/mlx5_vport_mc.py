@@ -7,6 +7,7 @@ import time
 import sys
 import os
 
+# legacy mode
 # print esw->vports, struct mlx5_vport
 
 sys.path.append(".")
