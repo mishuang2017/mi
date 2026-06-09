@@ -16648,3 +16648,8 @@ function trace_sf
 export PATH="$HOME/.local/bin:$PATH"
 alias claude_install='curl -fsSL https://claude.ai/install.sh | bash'
 alias openibd='/etc/init.d/openibd'
+
+function mlnx_sf
+{
+	/sbin/mlnx-sf --action create --device 0000:08:00.0 --sfnum 2 --hwaddr 02:9c:b3:ab:70:01
+}

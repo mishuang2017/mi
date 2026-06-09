@@ -42,8 +42,8 @@ def print_mlx5_vport(priv):
 #         if vport.enabled:
 #             print(vport)
 #             print(vport.dl_port)
-        print("vlan: %d" % vport.info.vlan, end=' ')
-        print("vhca_id: %d" % vport.vhca_id, end=' ')
+#         print("vlan: %d" % vport.info.vlan, end=' ')
+#         print("vhca_id: %d" % vport.vhca_id, end=' ')
 #         if vport.ingress.acl:
 #             lib.flow_table("ingress", vport.ingress.acl)
 #         if vport.egress.acl:

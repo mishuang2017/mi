@@ -13161,3 +13161,13 @@ d2ef6aa077bd net: page_pool: add netlink notifications for state changes
 f17c69649c69 net: page_pool: id the page pools
 23cfaf67ba5d net: page_pool: factor out uninit
 
+===wsl===
+
+Rufus
+\\wsl.localhost\Ubuntu\home\cmi\ubuntu-26.04-desktop-amd64.iso
+
+sudo mkdir -p /mnt/d
+sudo mount -t drvfs D: /mnt/d
+ls /mnt/d
+
+

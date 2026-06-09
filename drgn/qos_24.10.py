@@ -74,20 +74,20 @@ def print_mlx5_vport(priv):
         node = vport.qos.sched_node
         if node.value_() == 0:
             return
-        print("mlx5_vport %x" % vport.address_of_(), end=' ')
-        print("vport: %4x, %4d, metadata: %4x" % (vport.vport, vport.vport, vport.metadata), end=' ')
+        print('-------')
+        print("mlx5_vport %x, mlx5_eswitch %x" % (vport.address_of_(), mlx5_eswitch), end=' ')
+        print("vport: %#4x(%d)" % (vport.vport, vport.vport), end=' ')
         print_mac(vport.info.mac)
         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
         print("vport: %5x" % vport.vport, end=' ')
         print("enabled: %x" % vport.enabled.value_())
         print(vport.qos)
-        node = vport.qos.sched_node
-        print('-------')
         if node:
             print("sched_node: %x, type: %s, ix: %d, esw: %x, tx_max: %d, min_rate: %d" % \
                 (node, type(node.type), node.ix, node.esw.value_(), node.max_rate, node.min_rate))
             print("sched_node.parent: %x, type: %s, ix: %d" % \
                 (node.parent, type(node.parent.type), node.parent.ix))
+        print('-------')
 
         if vport.qos.sched_nodes:
             print('-------')
@@ -138,7 +138,8 @@ def print_nodes(nodes):
     for node in list_for_each_entry('struct mlx5_esw_sched_node', nodes.address_of_(), 'entry'):
         print("node: %x" % node, end='\t')
         print("type: %s" % type(node.type), end='\t')
-#         print("ix: %d" % node.ix, end='\t')
+        print("group_id: %d" % node.group_id, end='\t')
+        print("num_vports: %d" % node.num_vports, end='\t')
         print("%s" % node.esw.dev.device.kobj.name.string_().decode(), end='\t')
         print("max_rate: %d, min_rate: %d, bw_share: %d" % (node.max_rate, node.min_rate, node.bw_share))
 #         print("parent %x" % node.parent.value_(), end=' ')
@@ -183,5 +184,6 @@ print_mlx5_vport(mlx5e_priv)
 SCHED_NODE_TYPE_VPORTS_TC_TSAR = prog['SCHED_NODE_TYPE_VPORTS_TC_TSAR']
 
 esw = mlx5e_priv.mdev.priv.eswitch
+print("esw.qos.refcnt.refs.counter: %d" % esw.qos.refcnt.refs.counter)
    
 # print_domain(esw)
