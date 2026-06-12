@@ -16,13 +16,14 @@ def print_health(health):
     print(health.fw_fatal_reporter)
 
 def print_esw(priv):
-#     print(priv.netdev.xfrmdev_ops)
 #     print("mlx5e_priv %#x" % priv.address_of_())
 #     print("mlx5e_priv.fs.state_destroy %#x" % priv.fs.state_destroy.value_())
 #     print(priv.mdev.mlx5e_res.dl_port)
 #     print("mlx5_core_dev.num_block_tc %d" % priv.mdev.num_block_tc)
 #     print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
     print(priv.mdev.coredev_type)
+    print(priv.mdev.sd)
+    print("priv.mdev.pdev.devfn: %d" % priv.mdev.pdev.devfn)
     print("priv.mdev.caps.embedded_cpu: %d" % priv.mdev.caps.embedded_cpu)
 
 #     for i in range(priv.mdev.mlx5e_res.dl_port.attrs.switch_id.id_len):
@@ -36,12 +37,13 @@ def print_esw(priv):
     print("mlx5_eswitch %#x" % esw)
 #     print(esw.qos)
 #     return
+    print("esw.esw_funcs.controller_num: %d" % esw.esw_funcs.controller_num)
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
     print("esw->flags: %#x (1 means MLX5_ESWITCH_VPORT_MATCH_METADATA)" % esw.flags)
-    if priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_SMFS:
-        print(MLX5_FLOW_STEERING_MODE_SMFS)
-    elif priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_DMFS:
-        print(MLX5_FLOW_STEERING_MODE_DMFS)
+#     if priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_SMFS:
+#         print(MLX5_FLOW_STEERING_MODE_SMFS)
+#     elif priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_DMFS:
+#         print(MLX5_FLOW_STEERING_MODE_DMFS)
 #     elif priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_HMFS:
 #         print(MLX5_FLOW_STEERING_MODE_HMFS)
 #     print(esw.offloads.ft_offloads)

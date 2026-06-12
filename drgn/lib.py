@@ -50,6 +50,10 @@ def is_arm():
     else:
         return False
 
+def is_bf4():
+    (status, output) = subprocess.getstatusoutput("lspci -d 15b3:a2df")
+    return status == 0 and output.strip() != ""
+
 def hostname(name):
     b = os.popen('hostname -s')
     text = b.read()
@@ -69,8 +73,12 @@ if hostname.find("c-") == 0:
     pf1_name = "enp8s0f1"
 
 if is_arm():
-    pf0_name = "p0"
-    pf1_name = "p1"
+    if is_bf4():
+        pf0_name = "enP6s6f0"
+        pf1_name = "enP6s6f1"
+    else:
+        pf0_name = "p0"
+        pf1_name = "p1"
 
 print("pf0_name: %s" % pf0_name)
 

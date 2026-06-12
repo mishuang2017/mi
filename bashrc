@@ -7019,6 +7019,7 @@ set -x
 # 	return
 	(( debug == 1 )) && read
 	sleep 1
+# 	$cmd port function set pci/$pci/32768 hw_addr 02:9c:b3:ab:70:01
 	$cmd port function set $sf_name state active
 
 	(( debug == 1 )) && read
@@ -14927,7 +14928,12 @@ function cloud_setup2
 # 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends libunwind-devel libunwind-devel binutils-devel libcap-devel libbabeltrace-devel asciidoc xmlto libdwarf-devel # for perf
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends liblzo2-dev libncurses5-dev # for crash
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends libgmp-dev libmpfr-dev # for new crash
-	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev libdw-dev #drgn
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends python3-dev python2-dev liblzma-dev elfutils libbz2-dev python3-pip libarchive-dev libcurl4-gnutls-dev libsqlite3-dev #drgn
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends libdw-dev # for linux
+
+	# FLASH_KERNEL_SKIP=1 make install
+	# or remove flash-kernel
+	sudo env DEBIAN_FRONTEND=noninteractive apt remove flash-kernel
 }
 
 # ubuntu
@@ -16652,4 +16658,9 @@ alias openibd='/etc/init.d/openibd'
 function mlnx_sf
 {
 	/sbin/mlnx-sf --action create --device 0000:08:00.0 --sfnum 2 --hwaddr 02:9c:b3:ab:70:01
+}
+
+function phys
+{
+	cat /sys/class/net/$1/phys_port_name
 }
