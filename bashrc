@@ -12216,7 +12216,7 @@ function build_bcc
 	fi
 	cd ..
 	mkdir -p bcc/build; cd bcc/build
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+	cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_LLVM_SHARED=ON
 	time make -j
 	sudo make install
 }
