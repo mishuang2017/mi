@@ -992,9 +992,9 @@ function cloud_setup_yum
 	build_makedumpfile
 
 	build_crash
+	builc_bcc
 
 # 	sm
-# 	git clone https://github.com/iovisor/bcc.git
 	if (( bf == 1 )); then
 		env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends bpfcc-tools
 	fi
