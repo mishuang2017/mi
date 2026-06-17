@@ -14969,10 +14969,8 @@ function cloud_setup
 	build_kexec
 	build_makedumpfile
 
-	sm
-	git clone https://github.com/iovisor/bcc.git
-	build_bcc
-# 	env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends bpfcc-tools
+# 	build_bcc
+	env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends bpfcc-tools
 
 	build_crash
 }
