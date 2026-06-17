@@ -544,8 +544,8 @@ alias simx='/opt/simx/bin/manage_vm_simx_support.py -n vm2'
 
 function sfs4
 {
-	mlxconfig -d 0000:03:00.0 set SRIOV_EN=1 NUM_OF_VFS=4 PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=2 PF_SF_BAR_SIZE=10
-	mlxconfig -d 0000:03:00.1 set SRIOV_EN=1 NUM_OF_VFS=4 PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=2 PF_SF_BAR_SIZE=10
+	mlxconfig -d 0000:03:00.0 set SRIOV_EN=1 NUM_OF_VFS=4 PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_SF_BAR_SIZE=10
+	mlxconfig -d 0000:03:00.1 set SRIOV_EN=1 NUM_OF_VFS=4 PF_BAR2_ENABLE=0 PER_PF_NUM_SF=1 PF_TOTAL_SF=4 PF_SF_BAR_SIZE=10
 }
 
 function fw_ib_cx7
@@ -879,6 +879,20 @@ function bf_linux_upstream
 	/bin/cp /boot/config-$(uname -r) .config
 	bf_config
 
+	make-all all
+}
+
+function cloud_linux_6.17
+{
+	local branch=$1
+
+	cloud_grub
+	cd /images/cmi
+	cp /swgwork/cmi/nvidia-6.17-next.tar.gz .
+	tar zvxf nvidia-6.17-next.tar.gz
+	cd linux
+ 	# /bin/cp -f /swgwork/cmi/config-6.17.0-1014-nvidia-64k .config
+	bf_config
 	make-all all
 }
 
@@ -11851,8 +11865,8 @@ set -x
 	modprobe bonding
 	echo +bond0 > /sys/class/net/bonding_masters
 	echo 2 > /sys/class/net/bond0/bonding/mode
-	echo 0 > /sys/class/net/bond0/bonding/xmit_hash_policy
-# 	echo 1 > /sys/class/net/bond0/bonding/xmit_hash_policy
+# 	echo 0 > /sys/class/net/bond0/bonding/xmit_hash_policy
+	echo 1 > /sys/class/net/bond0/bonding/xmit_hash_policy
 	echo 100 > /sys/class/net/bond0/bonding/miimon
 	echo 100 > /sys/class/net/bond0/bonding/downdelay
 	echo 100 > /sys/class/net/bond0/bonding/updelay
@@ -14933,7 +14947,7 @@ function cloud_setup2
 
 	# FLASH_KERNEL_SKIP=1 make install
 	# or remove flash-kernel
-	sudo env DEBIAN_FRONTEND=noninteractive apt remove flash-kernel
+	sudo env DEBIAN_FRONTEND=noninteractive apt remove --yes flash-kernel
 }
 
 # ubuntu

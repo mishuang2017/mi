@@ -14,6 +14,7 @@ from lib import *
 # mlx5_lag_register_hca_devcom_comp
 
 MLX5_DEVCOM_ESW_OFFLOADS = prog['MLX5_DEVCOM_ESW_OFFLOADS']
+MLX5_DEVCOM_SD_GROUP = prog['MLX5_DEVCOM_SD_GROUP']
 
 def print_devcom_dev_list():
     print(" ==== devcom_dev_list ==== ")
@@ -48,5 +49,7 @@ def print_esw(devcom):
 
 devcom_comp_list = prog['devcom_comp_list']
 for devcom in list_for_each_entry('struct mlx5_devcom_comp', devcom_comp_list.address_of_(), 'comp_list'):
-    if devcom.id == MLX5_DEVCOM_ESW_OFFLOADS:
+    print(devcom)
+#     if devcom.id == MLX5_DEVCOM_ESW_OFFLOADS:
+    if devcom.id == MLX5_DEVCOM_SD_GROUP:
         print_esw(devcom)

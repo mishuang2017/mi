@@ -76,6 +76,8 @@ if is_arm():
     if is_bf4():
         pf0_name = "enP6s6f0"
         pf1_name = "enP6s6f1"
+        pf0_name = "p0"
+        pf1_name = "p1"
     else:
         pf0_name = "p0"
         pf1_name = "p1"
