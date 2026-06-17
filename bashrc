@@ -14933,7 +14933,7 @@ function build_doca
 
 function cloud_setup2
 {
-	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv
+	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends rsync htop pciutils vim diffstat texinfo gdb zip bison flex cmake make pv dkms
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends dracut-network
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends kexec-tools
 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends linux-crashdump
@@ -14948,6 +14948,7 @@ function cloud_setup2
 	# FLASH_KERNEL_SKIP=1 make install
 	# or remove flash-kernel
 	sudo env DEBIAN_FRONTEND=noninteractive apt remove --yes flash-kernel
+	sudo pip3 install pycryptodome
 }
 
 # ubuntu
