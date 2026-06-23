@@ -893,6 +893,7 @@ function cloud_linux_6.17
 	cd linux
  	# /bin/cp -f /swgwork/cmi/config-6.17.0-1014-nvidia-64k .config
 	bf_config
+	git apply /swgwork/cmi/6.17.diff
 	make-all all
 }
 
