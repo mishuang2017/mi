@@ -52,8 +52,8 @@ def print_esw(devcom):
 def print_sd(devcom):
     print(" ==== devcom_comp_list ==== ")
     print("devcom.ready: %d" % devcom.ready)
-#     print(devcom.key)
-#     print(devcom.handler)
+    print(devcom.key)
+    print(devcom.handler)
     for dev in list_for_each_entry('struct mlx5_devcom_comp_dev', devcom.comp_dev_list_head.address_of_(), 'list'):
         print('--------------------------------------')
 #         print(dev.comp.key)

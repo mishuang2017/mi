@@ -29,7 +29,12 @@ def print_port_sel(port_sel):
 def print_pfs(pfs):
     for node in radix_tree_for_each(pfs.address_of_()):
         lag_func = Object(prog, 'struct lag_func', address=node[1].value_())
-        print(lag_func)
+        pci_name = lag_func.dev.device.kobj.name.string_().decode()
+        print('---lag_func---')
+        print(pci_name)
+        print(lag_func.group_id)
+        print(lag_func.sd_fdb_active)
+#         print(lag_func)
 
 # for name in pf0_name,pf1_name:
 for name in pf0_name,:
