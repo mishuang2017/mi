@@ -7026,8 +7026,8 @@ set -x
 	cmd=$1
 	sfnum=$2
 	sf_device=mlx5_core.sf.$((sfnum+1))
-	sf_name=en8f0pf0sf$sfnum
-# 	sf_name=enp8s0f0npf0sf1
+# 	sf_name=en8f0pf0sf$sfnum
+	sf_name=enp8s0f0npf0sf1
 	devlink dev eswitch set pci/$pci mode switchdev
 	$cmd port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum $sfnum
 # set +x
@@ -15191,6 +15191,9 @@ function build_makedumpfile
 
 alias default=grub2-set-default
 
+#
+# systemd.mask=openibd.service systemd.mask=mlx_ipmid.service systemd.mask=systemd-networkd-wait-online.service
+#
 function cloud_grub
 {
 	sudo systemctl start kdump
@@ -15528,6 +15531,7 @@ function meter_list
 }
 
 alias m20='make -j 20'
+alias m6='make -j 60'
 
 function ipsec_rand_hex_key() {
     local size=$1
@@ -16441,9 +16445,9 @@ function ipsec_tunnel_packet1
 	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 offload packet dev $link dir in tmpl src 2.2.2.3 dst 2.2.2.2 proto esp reqid 0x83392bf3 mode tunnel
 	ip xfrm policy add src 1.1.1.0/24 dst 1.1.1.0/24 dir fwd tmpl src 2.2.2.3 dst 2.2.2.2 proto esp reqid 0x83392bf3 mode tunnel
 	ip xfrm state add src 2.2.2.2 dst 2.2.2.3 proto esp spi 0x5a9fb551 reqid 0x5a9fb551 mode tunnel aead 'rfc4106(gcm(aes))' \
-		0x066c0cff00a3a49a16696993a1cfcd6340833f12 128 offload packet dev $link dir out flag esn 
+		0x066c0cff00a3a49a16696993a1cfcd6340833f12 128 offload packet dev $link dir out flag esn replay-window 128
 	ip xfrm state add src 2.2.2.3 dst 2.2.2.2 proto esp spi 0x83392bf3 reqid 0x83392bf3 mode tunnel aead 'rfc4106(gcm(aes))' \
-		0x1e5cfd63a5779381d6a7315ff4f44732aaa7c60c 128 offload packet dev $link dir in flag esn  replay-window 64
+		0x1e5cfd63a5779381d6a7315ff4f44732aaa7c60c 128 offload packet dev $link dir in  flag esn replay-window 128
 }
 
 function ipsec_tunnel_packet2
@@ -16671,7 +16675,16 @@ alias openibd='/etc/init.d/openibd'
 
 function mlnx_sf
 {
-	/sbin/mlnx-sf --action create --device 0000:08:00.0 --sfnum 2 --hwaddr 02:9c:b3:ab:70:01
+	local cmd=/sbin/mlnx-sf
+	[[ $# == 1 ]] && cmd=/labhome/cmi/cmi/mlnx-tools/tsbin/mlnx-sf
+	$cmd --action create --device 0000:08:00.0 --sfnum 2 --hwaddr 02:9c:b3:ab:70:01
+}
+
+function sf_show
+{
+	local cmd=/sbin/mlnx-sf
+	[[ $# == 1 ]] && cmd=/labhome/cmi/cmi/mlnx-tools/tsbin/mlnx-sf
+	$cmd -a show
 }
 
 function phys
