@@ -79,6 +79,7 @@ endfunc
 function Devlink()
 	let line = getline(".")
 	:s/devlink/mlxdevm/g
+	:s/devl_/devm_/g
 	:s/DEVLINK/MLXDEVM/g
 endfunc
 

@@ -11,7 +11,7 @@ from lib import *
 
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 ipsec = mlx5e_priv.ipsec
-print(ipsec)
+# print(ipsec)
 # exit(0)
 print(mlx5e_priv.netdev.xfrmdev_ops)
 
@@ -34,8 +34,10 @@ def print_sadb(sadb):
 sadb = ipsec.sadb
 print("\n======================== tx ===========================\n")
 # print(sadb)
-flow_table("sa", ipsec.tx.ft.sa)
-flow_table("pol", ipsec.tx.ft.pol)
+print(ipsec.tx)
+exit(0)
+# flow_table("sa", ipsec.tx.ft.sa)
+# flow_table("pol", ipsec.tx.ft.pol)
 
 for node in radix_tree_for_each(sadb.address_of_()):
 #     print(node)
@@ -186,9 +188,10 @@ def print_net_xfrm_policy(net):
 
 net = prog['init_net']
 print_net_xfrm_state(net)
+# exit(0)
 # print_net_xfrm_policy(net)
 
-print(ipsec.rx_ipv4)
+# print(ipsec.rx_ipv4)
 
 # print_sadb(sadb)
 

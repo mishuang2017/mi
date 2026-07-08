@@ -177,8 +177,8 @@ mlx5e_priv = get_mlx5_pf0()
 print_mlx5_vport(mlx5e_priv)
 
 esw = mlx5e_priv.mdev.priv.eswitch
-print("esw.qos.refcnt.refs.counter: %d" % esw.qos.refcnt.refs.counter)
-print_nodes(esw.qos.domain.nodes)
+# print("esw.qos.refcnt.refs.counter: %d" % esw.qos.refcnt.refs.counter)
+# print_nodes(esw.qos.root.nodes)
 
 print("\n === vports qos port 2 ===\n")
 

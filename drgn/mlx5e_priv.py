@@ -14,10 +14,16 @@ print("===================== port 1 =======================")
 mlx5e_priv = get_mlx5e_priv(pf0_name)
 # print(mlx5e_priv)
 rx_res = mlx5e_priv.rx_res
-print(rx_res)
+# print(rx_res)
 
-for i in range(16):
-    print(rx_res.rss[i])
+# for i in range(16):
+#     print(rx_res.rss[i])
 
 num = mlx5e_priv.channels.params.num_channels
 print(num)
+print(mlx5e_priv.channels.num)
+
+# for i in range(num):
+#      print(mlx5e_priv.channels.c[i])
+
+print(mlx5e_priv.channels.c[0].rq.page_pool)

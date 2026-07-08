@@ -20,6 +20,9 @@ devlinks = prog['devlinks']
 # print(devlinks)
 for node in radix_tree_for_each(devlinks.address_of_()):
     devlink = Object(prog, 'struct devlink', address=node[1].value_())
+    if not devlink.dev and devlink.index != 0:
+#         print(devlink)
+        continue
 #     print(devlink.rel)
 
     # in legacy mode

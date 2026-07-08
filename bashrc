@@ -358,7 +358,7 @@ alias clone-git='git clone git@github.com:git/git.git'
 alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
-alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_04;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01_vr;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-ofed2='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_07;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_10'
@@ -839,6 +839,8 @@ function cloud_setup0
 
 	env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends cscope tmux screen exuberant-ctags bison flex automake
 	yum install -y cscope tmux screen ctags
+
+	echo "alias rc='. /root/mi/bashrc'" >> /root/.profile
 }
 
 function bf_linux_5.4
@@ -998,7 +1000,7 @@ function cloud_setup_yum
 	sm
 	clone-drgn
 	cd drgn
-	git reset --hard 92023c5b
+	# git reset --hard 92023c5b
 	sudo ./setup.py build
 	sudo ./setup.py install
 	sudo ln -s /usr/bin/drgn /usr/local/bin/drgn
@@ -9312,6 +9314,9 @@ alias ofed-configure-rhel-8.5="./configure --with-mlx5-core-and-ib-and-en-mod --
 alias ofed-configure-rhel-8.10="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version linux-4.18.0-541.el8.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18.0-541.el8.x86_64 "
 
 alias ofed-configure-rhel-9.1="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version linux-5.14.0-162.6.1.el9_1.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.14.0-162.6.1.el9_1.x86_64 "
+
+alias ofed-configure-rhel-9.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.14.0-284.11.1.el9_2.x86_64 --kernel-sources /home/cmi/cmi/rhel-9 "
+
 alias ofed-configure-rhel-10.0="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.12.0-55.9.1.el10_0.x86_64 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.12.0-55.9.1.el10_0.x86_64 "
 
 function ofed_all
@@ -15192,7 +15197,20 @@ function build_makedumpfile
 alias default=grub2-set-default
 
 #
+# method 1
+#
 # systemd.mask=openibd.service systemd.mask=mlx_ipmid.service systemd.mask=systemd-networkd-wait-online.service
+# 
+# method 2
+#
+# Step 1. Set “ONBOOT=no” in the "/etc/infiniband/openib.conf" file.
+#  
+# Step 2. Add the following lines to the "/etc/modprobe.d/mlnx_blklist.conf" file.
+#  
+# blacklist mlx4_core
+# blacklist mlx4_en
+# blacklist mlx5_core
+# blacklist mlx5_ib
 #
 function cloud_grub
 {
@@ -16690,4 +16708,12 @@ function sf_show
 function phys
 {
 	cat /sys/class/net/$1/phys_port_name
+}
+
+function ipsec_commands
+{
+	ipsec setup start
+	ipsec auto --rereadsecrets
+	ipsec auto --add enp8s0f0
+	ipsec auto --up enp8s0f0
 }
