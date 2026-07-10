@@ -124,6 +124,8 @@ endfunc
 function RemovePlus()
 	let line = getline(".")
 	if line[0][0] == "\+"
+		:%s/^+               /\t\t/
+		:%s/^+       /\t/
 		:%s/^+//
 	endif
 endfunc

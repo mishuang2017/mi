@@ -471,6 +471,7 @@ fi
 
 alias sml="cd /$images/cmi/linux"
 alias smm="cd /$images/cmi/mlnx-ofa_kernel-4.0"
+alias smm2="cd ~/cmi/mlnx-ofa_kernel-4.0"
 alias cd-test="cd $linux_dir/tools/testing/selftests/tc-testing/"
 alias smo="cd /$images/cmi/ovs"
 alias smo2="cd /$images/cmi/openvswitch"
@@ -8087,7 +8088,7 @@ fi
 
 alias checkpatch="./scripts/checkpatch.pl --strict --show-types -g HEAD"
 alias git_fixes="git log -1 --pretty=fixes"
-alias gf1="git format-patch -o ~/tmp -1"
+alias gf1="git format-patch -o ~/cmi/tmp -1"
 alias cover_letter='git commit --allow-empty -F /labhome/cmi/none/cover-letter.txt'
 alias ovs_cover_letter='git commit --allow-empty -F /labhome/cmi/sflow/ovs/10/0000-cover-letter.patch'
 # to regenerate the change-id for cover letter
@@ -8257,6 +8258,7 @@ set -x
 	git format-patch -o $dir/$n $commit
 set +x
 }
+alias gp=git_patch
 
 function git-format-patch
 {
@@ -9673,9 +9675,15 @@ alias ofed2='./ofed_scripts/ofed_get_patches.sh'
 
 function ofed3
 {
-	[[ $# == 0 ]] && return
+	if [[ $# == 0 ]]; then
+		local branch
+		branch=$(git branch --show-current)
+		new_branch="${branch#backport-}"
+	else
+		new_branch=$1
+	fi
 
-	git checkout $1
+	git checkout $new_branch
 	./ofed_scripts/backports_copy_patches.sh
 	git add backports
 	git commit -s backports/
