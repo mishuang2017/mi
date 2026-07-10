@@ -16570,7 +16570,7 @@ function clean
 	git branch -D backport-mlnx_ofed_26_01
 }
 
-alias all=ofed-configure-all
+alias all='./configure --all -j 20'
 alias push='git push origin HEAD:refs/for/mlnx_ofed_26_01'
 
 alias cd_sf='cd /sys/bus/auxiliary/drivers/mlx5_core.sf'
