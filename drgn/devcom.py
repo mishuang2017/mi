@@ -38,7 +38,7 @@ def print_esw(devcom):
     print(" ==== devcom_comp_list ==== ")
     print("devcom.ready: %d" % devcom.ready)
 #     print(devcom.key)
-#     print(devcom.handler)
+    print(devcom.handler)
     for dev in list_for_each_entry('struct mlx5_devcom_comp_dev', devcom.comp_dev_list_head.address_of_(), 'list'):
         print('--------------------------------------')
 #         print(dev.comp.key)
@@ -67,10 +67,10 @@ def print_sd(devcom):
 
 devcom_comp_list = prog['devcom_comp_list']
 for devcom in list_for_each_entry('struct mlx5_devcom_comp', devcom_comp_list.address_of_(), 'comp_list'):
-#     if devcom.id == MLX5_DEVCOM_ESW_OFFLOADS:
-#         print(devcom.id)
-#         print_esw(devcom)
-
-    if devcom.id == MLX5_DEVCOM_SD_GROUP:
+    if devcom.id == MLX5_DEVCOM_ESW_OFFLOADS:
         print(devcom.id)
-        print_sd(devcom)
+        print_esw(devcom)
+
+#     if devcom.id == MLX5_DEVCOM_SD_GROUP:
+#         print(devcom.id)
+#         print_sd(devcom)

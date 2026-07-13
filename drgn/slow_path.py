@@ -1,6 +1,7 @@
 #!/usr/local/bin/drgn -k
 
 from drgn.helpers.linux import *
+from drgn.helpers.linux.xarray import xa_for_each
 from drgn import Object
 from drgn import reinterpret
 import time
@@ -54,8 +55,13 @@ for x, dev in enumerate(get_netdevs()):
 #             flow_table(name, mlx5e_rep_priv.vport_rx_rule.rule[0].dest_attr.ft)
 
             vport_sqs_list = mlx5e_rep_priv.vport_sqs_list
-            i = 0;
+            i = 0
             for mlx5e_rep_sq in list_for_each_entry('struct mlx5e_rep_sq', vport_sqs_list.address_of_(), 'list'):
-                print('mlx5e_rep_sq.send_to_vport_rule, index: %d, sqn: %d, %#x' % (i, mlx5e_rep_sq.sqn, mlx5e_rep_sq.sqn))
+                print('mlx5e_rep_sq[%d] sqn: %d, %#x' % (i, mlx5e_rep_sq.sqn, mlx5e_rep_sq.sqn))
+                print('  send_to_vport_rule (local):')
                 print_mlx5_flow_handle(mlx5e_rep_sq.send_to_vport_rule)
+                for vhca_id, entry in xa_for_each(mlx5e_rep_sq.sq_peer):
+                    sq_peer = Object(prog, 'struct mlx5e_rep_sq_peer', address=entry.value_())
+                    print('  send_to_vport_rule_peer (vhca_id: %#x):' % vhca_id)
+                    print_mlx5_flow_handle(sq_peer.rule)
                 i = i + 1
