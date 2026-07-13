@@ -114,17 +114,30 @@ def print_mlx5_vport(priv):
         print_vport(mlx5_vport)
 
 def find_devlink_rate_name(node):
-    """Return the devlink rate name (e.g. 'g1') for a sched_node, or None if not found."""
-    devlink = node.esw.dev.shd
-    if not devlink.value_():
-        return None
+    """Return the rate name (e.g. 'g1') for a sched_node via devlink or mlxdevm, or None."""
     node_ix = int(node.ix)
-    for rate in list_for_each_entry('struct devlink_rate', devlink.rate_list.address_of_(), 'list'):
-        if not rate.priv.value_():
-            continue
-        sched_node = Object(prog, 'struct mlx5_esw_sched_node *', value=rate.priv.value_())
-        if sched_node.ix == node_ix:
-            return rate.name.string_().decode()
+
+    shd = node.esw.dev.shd
+    if shd.value_():
+        for rate in list_for_each_entry('struct devlink_rate', shd.rate_list.address_of_(), 'list'):
+            if not rate.priv.value_():
+                continue
+            sched_node = Object(prog, 'struct mlx5_esw_sched_node *', value=rate.priv.value_())
+            if sched_node.ix == node_ix:
+                return rate.name.string_().decode()
+
+    try:
+        shd_mlxdevm = node.esw.dev.shd_mlxdevm
+        if shd_mlxdevm.value_():
+            for rate in list_for_each_entry('struct mlxdevm_rate', shd_mlxdevm.rate_list.address_of_(), 'list'):
+                if not rate.priv.value_():
+                    continue
+                sched_node = Object(prog, 'struct mlx5_esw_sched_node *', value=rate.priv.value_())
+                if sched_node.ix == node_ix:
+                    return rate.name.string_().decode()
+    except AttributeError:
+        pass
+
     return None
 
 def print_node(node, indent=0):

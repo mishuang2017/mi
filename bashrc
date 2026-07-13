@@ -16501,6 +16501,12 @@ function cross_esw_qos
 	devlink port function rate set pci/0000:08:00.0/1 parent pci/0000:08:00.1/g1
 }
 
+function cross_esw_qos2
+{
+	mlxdevm port function rate add pci/0000:08:00.1/g1
+	mlxdevm port function rate set pci/0000:08:00.0/1 parent pci/0000:08:00.1/g1
+}
+
 # bdf=$(sudo mst status | grep -A 1 "mt4129" | grep -E -o '[0-9]{2}:[0-9]{2}\.[0-9]')
 # bd=$(echo $bdf | cut -d'.' -f 1)
 # vf_bdf=$(realpath /sys/devices/pci0000:*/0000:*/0000:$bd.*/net/* | grep "v" | tail -1 | grep -E -o '[0-9]{2}:[0-9]{2}\.[0-9]' | tail -1)
