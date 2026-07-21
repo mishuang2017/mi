@@ -6,6 +6,7 @@ import time
 import socket
 import sys
 import os
+import enum
 
 sys.path.append(".")
 from lib import *
@@ -31,9 +32,8 @@ def print_pfs(pfs):
         lag_func = Object(prog, 'struct lag_func', address=node[1].value_())
         pci_name = lag_func.dev.device.kobj.name.string_().decode()
         print('---lag_func---')
-        print(pci_name)
-        print(lag_func.group_id)
-        print(lag_func.sd_fdb_active)
+        print("pci_name: %s, lag_func.idx: %d, lag_func.group_id: %d, lag_func.sd_fdb_active: %d" %
+            (pci_name, lag_func.idx.value_(), lag_func.group_id.value_(), lag_func.sd_fdb_active.value_()))
 #         print(lag_func)
 
 # for name in pf0_name,pf1_name:
@@ -64,7 +64,8 @@ for name in pf0_name,:
 #     print(mlx5_lag.pf[1])
     print("mlx5_lag.ports: %d" % mlx5_lag.ports)
     print_pfs(mlx5_lag.pfs)
-    print(mlx5_lag.mode)
+    print("")
+    print("mlx5_lag.mode: %s" % mlx5_lag.mode.format_())
 #     print("mlx5_lag %x, flags: %x" % (mlx5_lag, mlx5_lag.flags))
 #     print_fib_info(mlx5_lag.lag_mp.mfi)
     print('')

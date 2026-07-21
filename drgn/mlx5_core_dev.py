@@ -23,8 +23,11 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     print(mlx5_core_dev.coredev_type)
     parent_mdev = mlx5_core_dev.priv.parent_mdev
     print("%x" % parent_mdev)
-    print(mlx5_core_dev.shd)
-    print(mlx5_core_dev.shd_mlxdevm)
+#     if mlx5_core_dev.shd.value_():
+#         print("mlx5_core_dev.shd.index")
+#         print(mlx5_core_dev.shd.index)
+#     print("mlx5_core_dev.mlxdevm_res.shd_mlxdevm.index")
+#     print(mlx5_core_dev.mlxdevm_res.shd_mlxdevm.index)
 #     if parent_mdev:
 #         print("parent_mdev: %s" % parent_mdev.device.kobj.name.string_().decode())
 

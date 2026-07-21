@@ -78,7 +78,6 @@ if is_arm():
         pf1_name = "enP6s6f1"
         pf0_name = "p0"
         pf1_name = "p1"
-        pf1_name = "eth1"
     else:
         pf0_name = "p0"
         pf1_name = "p1"

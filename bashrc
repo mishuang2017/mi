@@ -15664,7 +15664,7 @@ set -x
 # 	devlink dev eswitch set pci/$pci mode legacy
 # 	devlink dev eswitch set pci/$pci encap disable
 	devlink dev param set pci/0000:08:00.0 name flow_steering_mode value dmfs cmode runtime
-	devlink dev eswitch set pci/$pci mode switchdev
+# 	devlink dev eswitch set pci/$pci mode switchdev
 	if (( machine_num == 1 )); then
 		ip1=$link_ip
 		ip2=$link_remote_ip
@@ -16087,6 +16087,13 @@ set -x
 set +x
 }
 
+function enable_esw_multiport
+{
+	devlink dev param show pci/$pci name esw_multiport
+	devlink dev param set pci/$pci name esw_multiport value 1 cmode runtime
+	devlink dev param show pci/$pci name esw_multiport
+}
+
 function dev_all
 {
 set -x
@@ -16110,8 +16117,7 @@ set -x
 	ifconfig $rep2 up
 	ifconfig enp8s0f0v1 1.1.1.$host_num/24 up
 
-	devlink dev param show pci/$pci name esw_multiport
-	devlink dev param set pci/$pci name esw_multiport value 1 cmode runtime
+	enable_esw_multiport
 set +x
 }
 
