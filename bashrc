@@ -130,6 +130,8 @@ link2_remote_ip=192.168.2.$rhost_num
 if (( bf == 1 )); then
 	link=pf0hpf
 	link2=pf1hpf
+	link=p0
+	link2=p1
 	rep1=pf0vf0
 	rep2=pf0vf1
 	rep3=pf0vf2
@@ -12249,6 +12251,9 @@ function build_bcc
 	sm
 	test -d /images/cmi/bcc || clone-bcc
 	sudo yum install -y clang clang-devel llvm llvm-devel llvm-static
+# 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends zip bison build-essential cmake flex git libedit-dev \
+# 	  libllvm14 llvm-14-dev libclang-14-dev python3 zlib1g-dev libelf-dev libfl-dev python3-setuptools \
+# 	  liblzma-dev libdebuginfod-dev arping netperf iperf
 	cd bcc
 	grep 27 /etc/redhat-release
 	if [[ $? == 0 ]]; then
@@ -12279,7 +12284,7 @@ BCC_DIR=/usr/share/bcc
 
 alias install_bcc='apt install bpfcc-tools'
 TRACE=$BCC_DIR/tools/trace
-(( debian == 1 )) && TRACE=/usr/sbin/trace-bpfcc
+# (( debian == 1 )) && TRACE=/usr/sbin/trace-bpfcc
 alias trace="sudo $TRACE -t"
 alias execsnoop="sudo $BCC_DIR/tools/execsnoop"
 alias tcpaccept="sudo $BCC_DIR/tools/tcpaccept"
@@ -14911,21 +14916,6 @@ function grub_timeout
 	sed -i 's/timeout=0/timeout=10/' /boot/grub/grub.cfg
 }
 
-function build_bcc
-{
-	sm
-	test -d /images/cmi/bcc || clone-bcc
-	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends zip bison build-essential cmake flex git libedit-dev \
-	  libllvm14 llvm-14-dev libclang-14-dev python3 zlib1g-dev libelf-dev libfl-dev python3-setuptools \
-	  liblzma-dev libdebuginfod-dev arping netperf iperf
-	mkdir -p bcc/build; cd bcc/build
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-	time make -j $cpu_num2
-	sudo make install
-
-	sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 20
-}
-
 function build_dpdk
 {
 	sm
@@ -16100,6 +16090,13 @@ set -x
 set +x
 }
 
+function disable_esw_multiport
+{
+	devlink dev param show pci/$pci name esw_multiport
+	devlink dev param set pci/$pci name esw_multiport value 0 cmode runtime
+	devlink dev param show pci/$pci name esw_multiport
+}
+
 function enable_esw_multiport
 {
 	devlink dev param show pci/$pci name esw_multiport
@@ -16749,4 +16746,12 @@ function ipsec_commands
 	ipsec auto --rereadsecrets
 	ipsec auto --add enp8s0f0
 	ipsec auto --up enp8s0f0
+}
+
+function multi-pf
+{
+set -x
+	cat /sys/kernel/debug/mlx5/0002:01:00.0/multi-pf/*
+	cat /sys/kernel/debug/mlx5/0006:01:00.0/multi-pf/*
+set +x
 }
