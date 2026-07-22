@@ -22,7 +22,7 @@ def print_esw(priv):
 #     print("mlx5_core_dev.num_block_tc %d" % priv.mdev.num_block_tc)
 #     print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
     print(priv.mdev.coredev_type)
-    print(priv.mdev.sd)
+#     print(priv.mdev.sd)
     print("priv.mdev.pdev.devfn: %d" % priv.mdev.pdev.devfn)
     print("priv.mdev.caps.embedded_cpu: %d" % priv.mdev.caps.embedded_cpu)
 
@@ -39,6 +39,7 @@ def print_esw(priv):
 #     return
     try:
         print("esw.esw_funcs.controller_num: %d" % esw.esw_funcs.controller_num)
+        print("esw.esw_funcs.phys_port_cnum: %d" % esw.esw_funcs.phys_port_cnum)
     except AttributeError:
         pass
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
@@ -97,9 +98,17 @@ print_esw(mlx5e_priv)
 # exit(0)
 
 print("===================== port 2 =======================")
-# mlx5e_priv2 = get_mlx5e_priv("B61c2pf1")
-# mlx5e_priv2 = get_mlx5e_priv("B61c1pf1")
-# mlx5e_priv2 = get_mlx5e_priv("B21c1pf0")
-# mlx5e_priv2 = get_mlx5e_priv("B21c2pf0")
-mlx5e_priv2 = get_mlx5e_priv(pf1_name)
+mlx5e_priv2 = get_mlx5e_priv("B21c1pf0")
 print_esw(mlx5e_priv2)
+print("============================================")
+mlx5e_priv2 = get_mlx5e_priv("B21c2pf0")
+print_esw(mlx5e_priv2)
+print("============================================")
+mlx5e_priv2 = get_mlx5e_priv("B61c1pf1")
+print_esw(mlx5e_priv2)
+print("============================================")
+mlx5e_priv2 = get_mlx5e_priv("B61c2pf1")
+print_esw(mlx5e_priv2)
+
+# mlx5e_priv2 = get_mlx5e_priv(pf1_name)
+# print_esw(mlx5e_priv2)

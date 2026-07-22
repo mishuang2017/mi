@@ -571,7 +571,7 @@ alias tune3="ethtool -c $link"
 
 alias lsblk_all='lsblk -o name,label,partlabel,mountpoint,size,uuid,fstype'
 
-alias clone-crash='git clone https://github.com/mishuang2017/crash.git --branch=7.0'
+alias clone-crash='git clone https://github.com/mishuang2017/crash.git --branch=7.1'
 
 function build_crash
 {
@@ -6998,7 +6998,7 @@ set -x
 set +x
 }
 
-function sf1
+function sfn
 {
 	n=1
         [[ $# == 1 ]] && n=$1
@@ -7008,6 +7008,19 @@ function sf1
 	$cmd port add pci/$pci flavour pcisf pfnum 0 sfnum $n
 	read
 	$cmd port function set en8f0pf0sf1 state active
+}
+
+alias sf1="devlink port add pci/0002:01:00.0 flavour pcisf pfnum 0 sfnum 0"
+alias sf2="devlink port add pci/0002:01:00.1 flavour pcisf pfnum 1 sfnum 0"
+alias sf3="devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 4"
+alias sf4="devlink port add pci/0006:01:00.1 flavour pcisf pfnum 1 sfnum 0 controller 4"
+
+function sf5
+{
+	phys B61c4pf1sf0
+	phys B61c4pf0sf0
+	phys B21pf1sf0
+	phys B21pf0sf0
 }
 
 function sf_create_bf
