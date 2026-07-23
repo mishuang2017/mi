@@ -16,6 +16,9 @@ devlinks = prog['devlinks']
 # print(devlinks)
 for node in radix_tree_for_each(devlinks.address_of_()):
     devlink = Object(prog, 'struct devlink', address=node[1].value_())
+    if devlink.dev_name_index.value_():
+        print(devlink.dev_name_index)
+        continue
     pci_name = devlink.dev.kobj.name.string_().decode()
     print("devlink.dev.kobj.name: %s" % pci_name)
     mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_())
