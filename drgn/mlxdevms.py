@@ -20,6 +20,9 @@ mlxdevms = prog['mlxdevms']
 # print(mlxdevms)
 for node in radix_tree_for_each(mlxdevms.address_of_()):
     mlxdevm = Object(prog, 'struct mlxdevm', address=node[1].value_())
+    mlx5_devm_device = container_of(mlxdevm.address_of_(), "struct mlx5_devm_device", "device")
+    if mlx5_devm_device.dev.coredev_type == prog['MLX5_COREDEV_VF']:
+        continue
 #     print(mlxdevm)
     print("========================== mlxdevm.dev.kobj.name: %s index: %d =========================" % (pci_name, mlxdevm.index))
     print("mlxdevm %x" % mlxdevm.address_of_())
@@ -75,8 +78,8 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
 #     print(mlxdevm._net)
 #     print(mlxdevm.ops.reload_down)
 #     print(mlxdevm.ops.reload_up)
-    mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=mlxdevm.priv.address_of_().value_())
-    print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
+    mlx5_core_dev = mlx5_devm_device.dev
+    print("mlx5_core_dev %x" % mlx5_core_dev.value_())
     print("mlx5_priv %x" % mlx5_core_dev.priv.address_of_())
 #     print(mlx5_core_dev.priv.fw_reset)
     print("mlx5_eswitch %x" % mlx5_core_dev.priv.eswitch)
@@ -90,16 +93,16 @@ for node in radix_tree_for_each(mlxdevms.address_of_()):
         port = Object(prog, 'struct mlxdevm_port', address=node[1].value_())
 #         if port.index != 1:
 #             continue
-        print("mlxdevm_port %x" % node[1].value_())
+        print("\tmlxdevm_port %x" % node[1].value_())
 #         print(port.mlxdevm_rate)
 #         print(port.mlxdevm_rate.parent)
 #         print(port.dl_port)
         print("\tport index: %x, %d" % (port.index, port.index))
-        print(port.ops.port_fn_hw_addr_get)
+#         print(port.ops.port_fn_hw_addr_get)
 #         print(port.switch_port)
-        print(port.type_eth.ifname);
-        for i in range(port.attrs.switch_id.id_len):
-            print("%02x:" % port.attrs.switch_id.id[i], end="")
+#         print(port.type_eth.ifname);
+#         for i in range(port.attrs.switch_id.id_len):
+#             print("%02x:" % port.attrs.switch_id.id[i], end="")
         print("")
 
     print("\t=== mlxdevm_port end ===")
