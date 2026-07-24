@@ -1162,18 +1162,7 @@ function off0
 	echo 0 > /sys/class/net/$l/device/sriov_numvfs
 }
 
-function off_pci
-{
-	cd /sys/devices/pci0000:00/0000:00:02.0/0000:04:00.0
-	echo 0 > sriov_numvfs
-	cd -
-}
-
-function compat_mode
-{
-	cat /sys/class/net/$link/compat/devlink/mode
-}
-function set-switchdev
+function dev
 {
 set -x
 	devlink dev eswitch show pci/$pci
@@ -1186,7 +1175,6 @@ set -x
 	devlink dev eswitch show pci/$pci
 set +x
 }
-alias dev=set-switchdev
 
 function dev2
 {
@@ -1199,20 +1187,6 @@ set -x
 		devlink dev eswitch set pci/$pci2 mode legacy
 	fi
 	devlink dev eswitch show pci/$pci2
-set +x
-}
-
-function dev3
-{
-set -x
-	devlink dev eswitch show pci/$pci3
-	if [[ $# == 0 ]]; then
-		devlink dev eswitch set pci/$pci3 mode switchdev
-	fi
-	if [[ $# == 1 && "$1" == "off" ]]; then
-		devlink dev eswitch set pci/$pci3 mode legacy
-	fi
-	devlink dev eswitch show pci/$pci3
 set +x
 }
 
@@ -1229,18 +1203,6 @@ set -x
 	devlink dev eswitch show pci/$pci2
 set +x
 }
-
-function inline-mode
-{
-set -x
-	devlink dev eswitch show pci/$pci mode
-	devlink dev eswitch show pci/$pci inline
-# 	devlink dev eswitch set pci/$bdf inline-mode transport
-set +x
-}
-
-alias tcq="tc -s qdisc show dev"
-alias tcq1="tc -s qdisc show dev $link"
 
 function drop_tc
 {
@@ -14451,86 +14413,6 @@ set -x
 set +x
 }
 
-function qos_4280863
-{
-set -x
-	echo  1 > /sys/bus/pci/devices/$pci/sriov_numvfs
-	echo  1 > /sys/class/net/$link/device/sriov/0/group
-	echo  1500 > /sys/class/net/$link/device/sriov/groups/1/max_tx_rate
-set +x
-}
-
-function devm_4204932
-{
-	sf_m
-
-	mlxdevm port func rate set pci/0000:08:00.0/32768 tx_max 30000
-	mlxdevm port func rate set pci/0000:08:00.0/32769 tx_max 30000
-	mlxdevm port func rate add pci/0000:08:00.0/group1
-	mlxdevm port func rate set pci/0000:08:00.0/group1 tx_max 40000
-	mlxdevm port func rate set pci/0000:08:00.0/32768 parent group1
-	mlxdevm port func rate set pci/0000:08:00.0/32769 parent group1
-	mlxdevm port func rate set pci/0000:08:00.0/group1 tc-bw 0:30 1:40 2:30 3:0 4:0 5:0 6:0 7:0
-}
-
-function devm_4196432
-{
-# pci/0000:12:00.0/group1: type node tx_max 10000 tx_share 0 tc_0 bw 50 tc_1 bw 50
-# pci/0000:12:00.0/32768: type leaf tx_max 5000 tx_share 0 tc_0 bw 70 tc_1 bw 30
-# pci/0000:12:00.0/32769: type leaf tx_max 0 tx_share 0 parent group1
-# pci/0000:12:00.0/32770: type leaf tx_max 0 tx_share 0
-# pci/0000:12:00.1/98304: type leaf tx_max 0 tx_share 0
-# pci/0000:12:00.1/98305: type leaf tx_max 0 tx_share 0
-# pci/0000:12:00.1/98306: type leaf tx_max 0 tx_share 0
-
-# /opt/mellanox/iproute2/sbin/mlxdevm port function rate set pci/0000:12:00.0/32769 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
-
-# /opt/mellanox/iproute2/sbin/mlxdevm  port function rate show
-	sf_m
-	mlxdevm port function rate add pci/0000:08:00.0/group1
-	mlxdevm port function rate set pci/0000:08:00.0/32768 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
-	mlxdevm port function rate set pci/0000:08:00.0/32769 parent group1
-	mlxdevm port function rate set pci/0000:08:00.0/32769 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
-}
-
-function devm_4197006
-{
-	sf_m
-	mlxdevm port function rate add pci/0000:08:00.0/group1
-	mlxdevm port function rate add pci/0000:08:00.0/group2
-	mlxdevm port function rate set pci/0000:08:00.0/32768 parent group1
-	mlxdevm port function rate set pci/0000:08:00.0/32769 parent group2
-	mlxdevm port function rate set pci/0000:08:00.0/group1 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0
-	mlxdevm port function rate set pci/0000:08:00.0/group2 tc-bw 0:30 1:70 2:0 3:0 4:0 5:0 6:0 7:0
-
-	mlxdevm port function rate set pci/0000:08:00.0/32768 tc-bw 0:70 1:30 2:0 3:0 4:0 5:0 6:0 7:0 
-}
-
-function devm_4196328
-{
-	sf_m 1
-	mlxdevm port function rate add pci/$pci/g1
-	mlxdevm port function rate set pci/$pci/32768 parent g1
-	mlxdevm port function rate set pci/$pci/g1 tx_max 10000
-	mlxdevm port function rate set pci/$pci/g1 tc-bw 0:20 1:10 2:10 3:10 4:10 5:10 6:10 7:20
-	mlxdevm port function rate set pci/$pci/g1 tc-bw 0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0
-}
-
-function devm_4149808
-{
-	sf_m 1
-	mlxdevm port function rate set pci/$pci/32768 tx_max 1000
-	mlxdevm port function rate set pci/$pci/32768 tc-bw 0:20 1:10 2:10 3:10 4:10 5:10 6:10 7:20
-	mlxdevm port function rate set pci/$pci/32768 tx_max 0
-}
-
-function devlink_4149808
-{
-	devlink port function rate set pci/$pci/32768 tx_max 1000
-	devlink port function rate set pci/$pci/32768 tc-bw 0:20 1:10 2:10 3:10 4:10 5:10 6:10 7:20
-	devlink port function rate set pci/$pci/32768 tx_max 0
-}
-
 function devm_sf_ets
 {
 set -x
@@ -16519,8 +16401,9 @@ function cross_esw_qos
 
 function cross_esw_qos2
 {
-	mlxdevm port function rate add pci/0000:08:00.1/g1
-	mlxdevm port function rate set pci/0000:08:00.0/1 parent pci/0000:08:00.1/g1
+	mlxdevm port function rate add pci/0000:08:00.0/g1
+	mlxdevm port function rate add pci/0000:08:00.1/g2
+	mlxdevm port function rate set pci/0000:08:00.0/1 parent pci/0000:08:00.1/g2
 }
 
 # bdf=$(sudo mst status | grep -A 1 "mt4129" | grep -E -o '[0-9]{2}:[0-9]{2}\.[0-9]')

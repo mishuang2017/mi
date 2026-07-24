@@ -21,14 +21,38 @@ mlxdevms = prog['mlxdevms']
 for node in radix_tree_for_each(mlxdevms.address_of_()):
     mlxdevm = Object(prog, 'struct mlxdevm', address=node[1].value_())
 #     print(mlxdevm)
+    print("========================== mlxdevm.dev.kobj.name: %s index: %d =========================" % (pci_name, mlxdevm.index))
+    print("mlxdevm %x" % mlxdevm.address_of_())
+    if mlxdevm.dev_name_index.value_():
+        print("mlxdevm.dev_name_index: %s" % mlxdevm.dev_name_index)
+        try:
+            print("pci_name: %s" % mlxdevm.dev.kobj.name.string_().decode())
+        except drgn.FaultError:
+            print("pci_name: <not mapped>")
+        for rate in list_for_each_entry('struct mlxdevm_rate', mlxdevm.rate_list.address_of_(), 'list'):
+            print("\tmlxdevm_rate %x" % rate.list.address_of_().value_())
+            print("\t\ttype: %s" % rate.type.format_())
+            rate_mlxdevm = rate.mlxdevm
+            try:
+                rate_pci_name = rate_mlxdevm.dev.kobj.name.string_().decode()
+            except drgn.FaultError:
+                rate_pci_name = "<not mapped>"
+            print("\t\tmlxdevm: %x (%s)" % (rate_mlxdevm.value_(), rate_pci_name))
+            print("\t\ttx_share: %d, tx_max: %d" % (rate.tx_share, rate.tx_max))
+            if rate.type == prog['MLXDEVM_RATE_TYPE_NODE']:
+                print("\t\tname: %s" % rate.name.string_().decode())
+            if rate.parent:
+                print("\t\tparent: %s" % rate.parent.name.string_().decode())
+            else:
+                print("\t\tparent: none")
+        continue
     pci_name = mlxdevm.dev.kobj.name.string_().decode()
 #     if pci_name != "0000:08:00.0":
 #         continue
 #     print(mlxdevm.ops.eswitch_encap_mode_set)
 #     print(mlxdevm.ops)
 
-    print("========================== mlxdevm.dev.kobj.name: %s index: %d =========================" % (pci_name, mlxdevm.index))
-    print("mlxdevm %x" % mlxdevm.address_of_())
+
 #     print(mlxdevm.dev_driver)
 #     if pci_name.find("mlx5_core.sf") == 0:
 #         auxiliary_device = container_of(mlxdevm.dev, 'struct auxiliary_device', "dev")
