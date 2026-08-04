@@ -74,10 +74,10 @@ if hostname.find("c-") == 0:
 
 if is_arm():
     if is_bf4():
-        pf0_name = "enP6s6f0"
-        pf1_name = "enP6s6f1"
-        pf0_name = "p0"
-        pf1_name = "p1"
+        pf0_name = "B21c1pf0"
+        pf1_name = "B61c1pf1"
+#         pf0_name = "p0"
+#         pf1_name = "p1"
     else:
         pf0_name = "p0"
         pf1_name = "p1"

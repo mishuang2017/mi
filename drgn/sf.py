@@ -38,13 +38,20 @@ mlx5e_priv = get_mlx5e_priv(pf0_name)
 mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
 print_mlx5_sf(mlx5_sf_table)
 
+print("--- port 2 ---\n")
+mlx5e_priv = get_mlx5e_priv(pf1_name)
+mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
+print_mlx5_sf(mlx5_sf_table)
+
+exit(0)
+
 print("\n === mlx5e_priv.mdev.priv.sf_hw_table === \n")
 mlx5_sf_hwc_table = mlx5e_priv.mdev.priv.sf_hw_table
 print(mlx5_sf_hwc_table)
 
-print("\n === mlx5e_priv.mdev.priv.eswitch.n_head === \n")
+print("\n === mlx5e_priv.mdev.priv.esw_n_head === \n")
 
-n_head = mlx5e_priv.mdev.priv.eswitch.n_head
+n_head = mlx5e_priv.mdev.priv.esw_n_head
 # print(n_head)
 
 notifier_block = n_head.head
@@ -53,14 +60,13 @@ while True:
     if notifier_block.value_() == 0:
         break
     print(notifier_block)
-    mlx5_sf_table = container_of(notifier_block, "struct mlx5_sf_table", "esw_nb");
-#     print(mlx5_sf_table.refcount)
+    mlx5_core_dev = container_of(notifier_block, "struct mlx5_core_dev", "priv.sf_table_esw_nb");
+#     print(mlx5_core_dev.priv.sf_table)
     notifier_block = notifier_block.next
 
-print(" === mlx5e_priv.mdev.priv.vhca_state_notifier.n_head === \n")
+print(" === mlx5e_priv.mdev.priv.vhca_state_n_head === \n")
 
-# n_head = mlx5e_priv.mdev.priv.eswitch.n_head
-n_head = mlx5e_priv.mdev.priv.vhca_state_notifier.n_head
+n_head = mlx5e_priv.mdev.priv.vhca_state_n_head
 # print(n_head)
 
 notifier_block = n_head.head
@@ -71,8 +77,8 @@ while True:
         break
     print("---%d---" % i)
     print(notifier_block)
-    mlx5_sf_table = container_of(notifier_block, "struct mlx5_sf_table", "esw_nb");
-#     print(mlx5_sf_table.refcount)
+    mlx5_core_dev = container_of(notifier_block, "struct mlx5_core_dev", "priv.sf_table_esw_nb");
+#     print(mlx5_core_dev.priv.sf_table)
     notifier_block = notifier_block.next
     i=i+1
  
@@ -113,8 +119,4 @@ for mlx5_devm_device in list_for_each_entry('struct mlx5_devm_device', dev_head.
 #         for i in range(8):
 #             print("%x%x%x%x" % mlx5_devm_port.port.dl_port.attrs.switch_id.id[i])
 
-print("--- port 2 ---\n")
-# mlx5e_priv = get_mlx5e_priv(pf1_name)
-# mlx5_sf_table = mlx5e_priv.mdev.priv.sf_table
-# print_mlx5_sf(mlx5_sf_table)
 

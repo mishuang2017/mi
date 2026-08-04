@@ -1,5 +1,6 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhistcnt =3
+let g:netrw_dirhistcnt =4
+let g:netrw_dirhist_4='/workspace/mlnx-ofa_kernel-4.0/compat'
 let g:netrw_dirhist_3='/labhome/cmi/ofed/revert/2'
 let g:netrw_dirhist_2='/labhome/cmi/bf4'
 let g:netrw_dirhist_1='/labhome/cmi/patch'

@@ -1012,7 +1012,7 @@ function cloud_setup_yum
 	build_makedumpfile
 
 	build_crash
-	builc_bcc
+	build_bcc
 
 # 	sm
 	if (( bf == 1 )); then
@@ -6978,6 +6978,10 @@ alias sf1="devlink port add pci/0002:01:00.0 flavour pcisf pfnum 0 sfnum 0"
 alias sf2="devlink port add pci/0002:01:00.1 flavour pcisf pfnum 1 sfnum 0"
 alias sf3="devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 4"
 alias sf4="devlink port add pci/0006:01:00.1 flavour pcisf pfnum 1 sfnum 0 controller 4"
+
+alias sf6='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 0' # fail
+alias sf7='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0'		 # pass
+alias sf8="devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 4" # pass
 
 function sf5
 {
@@ -16637,4 +16641,15 @@ set -x
 	cat /sys/kernel/debug/mlx5/0002:01:00.0/multi-pf/*
 	cat /sys/kernel/debug/mlx5/0006:01:00.0/multi-pf/*
 set +x
+}
+
+alias mod='modinfo mlx5_core --field=version'
+
+function fix_nvme
+{
+# 	cdr
+# 	/bin/rm -rf updates
+# 	install ofed
+	echo 'omit_drivers+="mlx5_core"' >/etc/dracut.conf.d/mlx5_core_disable.conf
+	dracut -f
 }
