@@ -15,7 +15,7 @@ from lib import *
 def print_auxiliary_driver(driver):
     auxiliary_driver = container_of(driver, "struct auxiliary_driver", "driver")
     print(auxiliary_driver.name.string_().decode())
-    print(auxiliary_driver)
+#     print(auxiliary_driver)
 
 def print_auxiliary_device(device):
     auxiliary_device = container_of(device, "struct auxiliary_device", "dev")
