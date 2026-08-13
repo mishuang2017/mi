@@ -129,7 +129,6 @@ def find_devlink_rate_name(node):
     try:
         shd_mlxdevm = node.esw.dev.shd_mlxdevm
         if shd_mlxdevm.value_():
-#             print(shd_mlxdevm)
             for rate in list_for_each_entry('struct mlxdevm_rate', shd_mlxdevm.rate_list.address_of_(), 'list'):
                 if not rate.priv.value_():
                     continue
@@ -140,6 +139,8 @@ def find_devlink_rate_name(node):
         pass
 
     return None
+
+MLX5_ESW_QOS_NON_SYSFS_GROUP = 256  # MLX5_ESW_QOS_SYSFS_GROUP_MAX_ID + 1
 
 def print_node(node, indent=0):
     prefix = '\t' * indent
@@ -152,6 +153,14 @@ def print_node(node, indent=0):
         node.max_rate, node.min_rate, node.bw_share,
         node.parent.value_() if node.parent.value_() else 0,
         rate_str))
+    if node.type == SCHED_NODE_TYPE_VPORTS_TSAR:
+        node_id = node.node_id.value_()
+        num_vports = node.num_vports.value_()
+        if node_id == MLX5_ESW_QOS_NON_SYSFS_GROUP:
+            sysfs_str = "non-sysfs"
+        else:
+            sysfs_str = "sysfs node_id: %d" % node_id
+        print("%s  [sysfs: %s  num_vports: %d]" % (prefix, sysfs_str, num_vports))
     if node.type == SCHED_NODE_TYPE_VPORT:
         vport = node.vport
         print("%s  vport: %d  %s" % (prefix, vport.vport,

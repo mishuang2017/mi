@@ -14,6 +14,35 @@ sys.path.append(libpath)
 from lib import *
 # import lib
 
+def flavour_name(flavour):
+    val = flavour.value_()
+    for enumerator in prog.type('enum devlink_port_flavour').enumerators:
+        if enumerator.value == val:
+            return enumerator.name
+    return "UNKNOWN(%d)" % val
+
+def port_external(port):
+    # 'external' only exists in the PCI PF/VF/SF members of the attrs union
+    fl = flavour_name(port.attrs.flavour)
+    if fl == "DEVLINK_PORT_FLAVOUR_PCI_PF":
+        return int(port.attrs.pci_pf.external)
+    elif fl == "DEVLINK_PORT_FLAVOUR_PCI_VF":
+        return int(port.attrs.pci_vf.external)
+    elif fl == "DEVLINK_PORT_FLAVOUR_PCI_SF":
+        return int(port.attrs.pci_sf.external)
+    return None
+
+def port_controller(port):
+    # 'controller' only exists in the PCI PF/VF/SF members of the attrs union
+    fl = flavour_name(port.attrs.flavour)
+    if fl == "DEVLINK_PORT_FLAVOUR_PCI_PF":
+        return int(port.attrs.pci_pf.controller)
+    elif fl == "DEVLINK_PORT_FLAVOUR_PCI_VF":
+        return int(port.attrs.pci_vf.controller)
+    elif fl == "DEVLINK_PORT_FLAVOUR_PCI_SF":
+        return int(port.attrs.pci_sf.controller)
+    return None
+
 # prog = drgn.program_from_core_dump("/var/crash/vmcore.4")
 # prog = drgn.program_from_kernel()
 devlinks = prog['devlinks']
@@ -84,6 +113,9 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print("\tdevlink_port %x, port index: %#x, %d, rel_index: %d" % (port.address_of_(), port.index, port.index, port.rel_index))
 #         print(port.ops)
 #         print(port.switch_port)
+        print("\tport.attrs.flavour: %s" % flavour_name(port.attrs.flavour))
+        print("\tport.attrs.external: %s" % port_external(port))
+        print("\tport.attrs.controller: %s" % port_controller(port))
         print("\tport.type_eth.ifname: %s" % port.type_eth.ifname.string_().decode());
         continue
         print("\t", end='')

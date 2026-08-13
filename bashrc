@@ -6981,7 +6981,6 @@ alias sf4="devlink port add pci/0006:01:00.1 flavour pcisf pfnum 1 sfnum 0 contr
 
 alias sf6='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 0' # fail
 alias sf7='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0'		 # pass
-alias sf8="devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 4" # pass
 
 function sf5
 {
@@ -7891,7 +7890,7 @@ function gdb1
 	sudo $GDB $(which $bin) $(pgrep $bin)
 }
 
-alias g='gdb1 ovs-vswitchd'
+alias gdb-ovs='gdb1 ovs-vswitchd'
 
 function n-revalidator-threads
 {
