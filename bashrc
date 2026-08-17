@@ -6974,9 +6974,11 @@ function sfn
 	$cmd port function set en8f0pf0sf1 state active
 }
 
+# bf4 self PF
 alias sf1="devlink port add pci/0002:01:00.0 flavour pcisf pfnum 0 sfnum 0"
-alias sf2="devlink port add pci/0002:01:00.1 flavour pcisf pfnum 1 sfnum 0"
-alias sf3="devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 4"
+alias sf2="devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 4"
+
+alias sf3="devlink port add pci/0002:01:00.1 flavour pcisf pfnum 1 sfnum 0"
 alias sf4="devlink port add pci/0006:01:00.1 flavour pcisf pfnum 1 sfnum 0 controller 4"
 
 alias sf6='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 0' # fail
@@ -6984,11 +6986,18 @@ alias sf7='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0'		 # 
 
 function sf5
 {
-	phys B61c4pf1sf0
-	phys B61c4pf0sf0
-	phys B21pf1sf0
 	phys B21pf0sf0
+	phys B21pf1sf0
+	phys B61c4pf0sf0
+	phys B61c4pf1sf0
 }
+
+# bf4 external
+alias sf11='devlink port add pci/0002:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 1'
+alias sf12='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 1 sfnum 0 controller 1'
+
+alias sf13='devlink port add pci/0002:01:00.1 flavour pcisf pfnum 0 sfnum 0 controller 2'
+alias sf14='devlink port add pci/0006:01:00.1 flavour pcisf pfnum 1 sfnum 0 controller 2'
 
 function sf_create_bf
 {

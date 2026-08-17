@@ -40,6 +40,9 @@ def print_esw(priv):
     try:
         print("esw.esw_funcs.controller_num: %d" % esw.esw_funcs.controller_num)
         print("esw.esw_funcs.phys_port_cnum: %d" % esw.esw_funcs.phys_port_cnum)
+        print("esw.esw_funcs.num_spfs: %d" % esw.esw_funcs.num_spfs)
+        print("esw.esw_funcs.hpf_host_number: %d" % esw.esw_funcs.hpf_host_number)
+        print("esw.esw_funcs.hpf_pf_num: %d" % esw.esw_funcs.hpf_pf_num)
     except AttributeError:
         pass
     print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
