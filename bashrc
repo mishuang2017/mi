@@ -389,7 +389,6 @@ alias clone-smfs='git clone https://github.com/Mellanox/mlx_steering_dump.git'
 alias cd_smfs="cd /sys/kernel/debug/mlx5/$pci/steering/"
 # alias parser='/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f'
 alias parser1="/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci/steering/fdb/dmn_*"
-alias parser2="/swgwork/cmi/mlx_steering_dump/sws/mlx_steering_dump_parser.py -f /sys/kernel/debug/mlx5/$pci2/steering/fdb/dmn_*"
 
 alias clone-ubuntu-xenial='git clone git://kernel.ubuntu.com/ubuntu/ubuntu-xential.git'
 alias clone-ubuntu='git clone git://kernel.ubuntu.com/ubuntu/ubuntu-bionic.git'
@@ -15119,17 +15118,18 @@ alias default=grub2-set-default
 #
 function cloud_grub
 {
-	sudo systemctl start kdump
-	sudo systemctl enable kdump
+# 	sudo systemctl start kdump
+# 	sudo systemctl enable kdump
 
 	# rhel 10.1
 # 	sudo grubby --update-kernel=ALL --args="crashkernel=1G"
 # 	sudo kdumpctl reset-crashkernel --kernel=ALL
 
-	sudo sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /etc/default/grub
-	sudo sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /boot/loader/entries/*
-	sudo sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
-	sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+# 	sudo sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /etc/default/grub
+# 	sudo sed -i 's/\s*\S*crashkernel\S*/ crashkernel=1G /g' /boot/loader/entries/*
+# 	sudo sed -i '/KDUMP_CMDLINE_APPEND/d' /etc/default/kdump-tools
+# 	sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+
 	sudo sed -i 's/timeout=5/timeout=20/' /boot/grub2/grub.cfg
 
 # 	sudo bash -c 'cat << EOF >> /etc/default/kdump-tools
@@ -16660,4 +16660,19 @@ function fix_nvme
 # 	install ofed
 	echo 'omit_drivers+="mlx5_core"' >/etc/dracut.conf.d/mlx5_core_disable.conf
 	dracut -f
+}
+
+function sf_del
+{
+	for sf in $(devlink port show | grep -i pcisf | awk '{print $1}' | sed 's/:$//'); do
+		echo "Deleting $sf..."
+		devlink port del $sf
+	done
+}
+
+function hmfs_dump
+{
+	cat /sys/kernel/debug/mlx5/$pci/steering/fdb/ctx* > /tmp/hmfs.csv
+	cd /swgwork/cmi/mlx_steering_dump/hws
+	./mlx_hw_steering_parser.py -d $pci -f /tmp/hmfs.csv -vv
 }

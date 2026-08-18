@@ -12,8 +12,8 @@ from lib_pedit import *
 
 mlx5e_rep_priv = get_mlx5e_rep_priv()
 ct_priv = mlx5e_rep_priv.uplink_priv.ct_priv
-print("ct_priv.num_offloaded_flows:")
-print(ct_priv.num_offloaded_flows)
+# print("ct_priv.num_offloaded_flows:")
+# print(ct_priv.num_offloaded_flows)
 # ct_nat_miss_rule = ct_priv.ct_nat_miss_rule
 # print_mlx5_flow_handle(ct_nat_miss_rule)
 tunnel_mapping = mlx5e_rep_priv.uplink_priv.tunnel_mapping
