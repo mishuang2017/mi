@@ -30,14 +30,14 @@ def print_table(priv):
 
     #         print(obj)
 
-dev = netdev_get_by_name(prog['init_net'], "enp8s0f0")
-mlx5e_priv = get_mlx5(dev)
-# mlx5e_priv = get_mlx5_pf0()
-print("=== indir_table p0 ===")
+# dev = netdev_get_by_name(prog['init_net'], "enp8s0f0")
+# mlx5e_priv = get_mlx5(dev)
+mlx5e_priv = get_mlx5_pf0()
+print("=== indir_table ===")
 print_table(mlx5e_priv)
 
-dev = netdev_get_by_name(prog['init_net'], "enp8s0f1")
-mlx5e_priv = get_mlx5(dev)
+# dev = netdev_get_by_name(prog['init_net'], "enp8s0f1")
+# mlx5e_priv = get_mlx5(dev)
 # mlx5e_priv = get_mlx5_pf1()
-print("=== indir_table p1 ===")
-print_table(mlx5e_priv)
+# print("=== indir_table p1 ===")
+# print_table(mlx5e_priv)

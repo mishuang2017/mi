@@ -16672,6 +16672,7 @@ function sf_del
 
 function hmfs_dump
 {
+	pci=0006:01:00.0
 	cat /sys/kernel/debug/mlx5/$pci/steering/fdb/ctx* > /tmp/hmfs.csv
 	cd /swgwork/cmi/mlx_steering_dump/hws
 	./mlx_hw_steering_parser.py -d $pci -f /tmp/hmfs.csv -vv
