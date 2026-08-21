@@ -11,6 +11,26 @@ libpath = os.path.dirname(os.path.realpath("__file__"))
 sys.path.append(libpath)
 from lib import *
 
+def bswap32(x):
+    x &= 0xffffffff
+    return ((x & 0xff) << 24) | ((x & 0xff00) << 8) | ((x >> 8) & 0xff00) | ((x >> 24) & 0xff)
+
+def dev_vhca_id(mdev):
+    # MLX5_CAP_GEN(mdev, vhca_id): cmd_hca_cap stored big-endian; vhca_id is
+    # bits[48:63] -> low 16 bits of dword 1 after be32->cpu. MLX5_CAP_GENERAL = 0.
+    try:
+        return "%d" % (bswap32(mdev.caps.hca[0].cur[1].value_()) & 0xffff)
+    except Exception as e:
+        return "?(%s)" % e
+
+def pci_of(mdev):
+    try:
+        return mdev.pdev.dev.kobj.name.string_().decode()
+    except Exception:
+        return "?"
+
+vhca_map = []   # (netdev_name, pci, vhca_id) for the summary at the end
+
 for x, dev in enumerate(get_netdevs()):
     name = dev.name.string_().decode()
     addr = dev.value_()
@@ -40,6 +60,11 @@ for x, dev in enumerate(get_netdevs()):
 
     mlx5e_priv_addr = addr + prog.type('struct net_device').size
     mlx5e_priv = Object(prog, 'struct mlx5e_priv', address=mlx5e_priv_addr)
+    mdev = mlx5e_priv.mdev
+    vid = dev_vhca_id(mdev)
+    pci = pci_of(mdev)
+    print("pci: %s   vhca_id: %s   (flow-dest 'vhca_id')" % (pci, vid))
+    vhca_map.append((name, pci, vid))
     print(mlx5e_priv.mdev.caps.embedded_cpu)
 #     print(mlx5e_priv.aso)
 #     print("wq: %x" % mlx5e_priv.wq)
@@ -65,3 +90,8 @@ for x, dev in enumerate(get_netdevs()):
 
     print('\t', end='')
     print('')
+
+print("\n================= netdev -> vhca_id map =================")
+print("%-20s %-16s %s" % ("netdev", "pci", "vhca_id"))
+for name, pci, vid in sorted(vhca_map, key=lambda r: r[2]):
+    print("%-20s %-16s %s" % (name, pci, vid))
