@@ -11,8 +11,8 @@ ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
 numvfs=3
-ports=2
 ports=1
+ports=2
 
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
@@ -431,7 +431,7 @@ alias t="tcpdump -enn -i $link"
 alias t1="tcpdump -enn -v -i $link"
 alias t2="tcpdump -enn -vv -i $link"
 alias t4="tcpdump -enn -vvvv -i $link"
-alias ti='sudo tcpdump -enn -i'
+alias ti='sudo tcpdump -c 20 -enn -i'
 alias mount-mswg='sudo mkdir -p /mswg; sudo mount 10.4.0.102:/vol/mswg/mswg /mswg/'
 alias mount-swgwork='sudo mkdir -p /swgwork; sudo mount l1:/vol/swgwork /swgwork'
 
@@ -1033,13 +1033,6 @@ function cloud_setup_yum
 # 	smo
 # 	./boot.sh
 # 	install-ovs
-}
-
-function cloud_ofed_cp
-{
-	test -d /images/cmi/mlnx-ofa_kernel-4.0 || cp -r /swgwork/cmi/mlnx-ofa_kernel-4.0 /images/cmi
-	cd /images/cmi/mlnx-ofa_kernel-4.0
-	git fetch --tags
 }
 
 function bind5
@@ -16236,6 +16229,7 @@ function cloud_ofed
 	/bin/rm -rf 2
 	mkdir 2
 	cd 2
+# 	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_24_10
 	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01_vr
 	cd mlnx-ofa_kernel-4.0
 	git fetch --tags
@@ -16674,6 +16668,17 @@ function hmfs_dump
 {
 	pci=0006:01:00.0
 	cat /sys/kernel/debug/mlx5/$pci/steering/fdb/ctx* > /tmp/hmfs.csv
-	cd /swgwork/cmi/mlx_steering_dump/hws
+# 	cd /swgwork/cmi/mlx_steering_dump/hws
 	./mlx_hw_steering_parser.py -d $pci -f /tmp/hmfs.csv -vv
+}
+
+function lspci_host
+{
+	lspci -s 0000:17:00.0 -vvv | grep -i VU | awk '{print $4}'
+# 82045ab3f041f1118000f4204d497e9cMLNXS0D0F0
+}
+
+function doca_caps
+{
+	/opt/mellanox/doca/tools/doca_caps --list-rep-devs
 }

@@ -15,8 +15,29 @@ import lib
 def print_mac(mac):
     print("mac: %02x:%02x:%02x:%02x:%02x:%02x" % (mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]), end=' ')
 
+def bswap32(x):
+    x &= 0xffffffff
+    return ((x & 0xff) << 24) | ((x & 0xff00) << 8) | ((x >> 8) & 0xff00) | ((x >> 24) & 0xff)
+
+def pci_of(mdev):
+    try:
+        return mdev.pdev.dev.kobj.name.string_().decode()
+    except Exception:
+        return "?"
+
+def dev_vhca_id(mdev):
+    # MLX5_CAP_GEN(mdev, vhca_id): cmd_hca_cap is stored big-endian; vhca_id is
+    # bits [48:63] -> low 16 bits of dword 1 after be32->cpu. MLX5_CAP_GENERAL = 0.
+    try:
+        cur = mdev.caps.hca[0].cur
+        return "%d" % (bswap32(cur[1].value_()) & 0xffff)
+    except Exception as e:
+        return "?(%s)" % e
+
 def print_mlx5_vport(priv):
-    mlx5_eswitch = mlx5e_priv.mdev.priv.eswitch
+    mlx5_eswitch = priv.mdev.priv.eswitch
+    print("=== PF %s   device vhca_id: %s (== flow-dest 'vhca_id') ===" %
+          (pci_of(priv.mdev), dev_vhca_id(priv.mdev)))
     vports = mlx5_eswitch.vports
     total_vports = mlx5_eswitch.total_vports
     enabled_vports = mlx5_eswitch.enabled_vports
@@ -39,6 +60,11 @@ def print_mlx5_vport(priv):
 #         if vport.dl_port:
 #             print(vport.dl_port.devlink_rate)
         print("enabled: %x" % vport.enabled, end=' ')
+        # per-vport vhca_id field (owner vhca for delegated/proxy vports; often 0/-1 for local)
+        try:
+            print("vport.vhca_id: %d" % vport.vhca_id, end=' ')
+        except Exception:
+            pass
 #         if vport.enabled:
 #             print(vport)
 #             print(vport.dl_port)

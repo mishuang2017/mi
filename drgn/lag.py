@@ -32,8 +32,10 @@ def print_pfs(pfs):
         lag_func = Object(prog, 'struct lag_func', address=node[1].value_())
         pci_name = lag_func.dev.device.kobj.name.string_().decode()
         print('---lag_func---')
-        print("pci_name: %s, lag_func.idx: %d, lag_func.group_id: %d, lag_func.sd_fdb_active: %d" %
-            (pci_name, lag_func.idx.value_(), lag_func.group_id.value_(), lag_func.sd_fdb_active.value_()))
+        print("pci_name: %s, lag_func.idx: %d" %
+            (pci_name, lag_func.idx.value_()))
+#         print("lag_func.group_id: %d, lag_func.sd_fdb_active: %d" %
+#             (lag_func.group_id.value_(), lag_func.sd_fdb_active.value_()))
 #         print(lag_func)
 
 # for name in pf0_name,pf1_name:

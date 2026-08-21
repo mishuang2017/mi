@@ -642,7 +642,7 @@ def print_dest(rule):
         (rule.value_(), rule.node.refcount.refs.counter))
 #     print(rule.dest_attr)
     if prog['MLX5_FLOW_DESTINATION_TYPE_COUNTER'] == rule.dest_attr.type:
-#         print("\t\t\tdest: counter_id: %x" % (rule.dest_attr.counter_id))
+        print("\t\t\tdest: counter_id: %x" % (rule.dest_attr.counter.id))
 #         print(rule.dest_attr.counter)
         return
     if prog['MLX5_FLOW_DESTINATION_TYPE_VPORT'] == rule.dest_attr.type or \
