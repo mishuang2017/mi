@@ -1260,7 +1260,6 @@ function mlx5_clean
 
 function mybuild
 {
-	(( $UID == 0 )) && return
 	test -f Kconfig || return
 set -x; 
 	module=mlx5_core;
@@ -15991,6 +15990,11 @@ function enable_esw_multiport
 	devlink dev param show pci/$pci name esw_multiport
 }
 
+function show_esw_multiport
+{
+	devlink dev param show pci/$pci name esw_multiport
+}
+
 function dev_all
 {
 set -x
@@ -16681,4 +16685,43 @@ function lspci_host
 function doca_caps
 {
 	/opt/mellanox/doca/tools/doca_caps --list-rep-devs
+# 	/opt/mellanox/doca/tools/doca_caps -p 0000:02:00.0 --list-rep-devs
+}
+
+# cmi@dev-h-vrt-028
+# /images/migo/git/uek8
+function uek_bf4_install
+{
+	yum install flex bison gcc-toolset-12 openssl-devel bc
+}
+
+function sf_bf4
+{
+	pci=0006:01:00.0
+	devlink_num=$2
+	sf_num=$3
+
+	devlink port add pci/$pci flavour pcisf pfnum 0 sfnum 0
+	devlink port function set pci/$pci/$devlink_num hw_addr 02:f4:2a:9f:2e:6b
+	devlink port function set pci/$pci/$devlink_num state active
+	sleep 1
+	devlink dev show auxiliary/mlx5_core.sf.$sf_num
+	devlink dev param set auxiliary/mlx5_core.sf.$sf_num name enable_eth value true cmode driverinit
+	devlink dev param set auxiliary/mlx5_core.sf.$sf_num name enable_rdma value true cmode driverinit
+	devlink dev param set auxiliary/mlx5_core.sf.$sf_num name enable_roce value true cmode driverinit
+	devlink dev reload auxiliary/mlx5_core.sf.$sf_num
+}
+
+function bf4_enable_ecvf
+{
+	mlxconfig -d 0002:01:00.0 -y s SRIOV_EN=1 PF_NUM_OF_VF_VALID=1 NUM_OF_VFS=0 
+	mlxconfig -d 0002:01:00.0 -y s PF_NUM_OF_VF=32
+	mlxconfig -d 0006:01:00.0 -y s SRIOV_EN=1 PF_NUM_OF_VF_VALID=1 NUM_OF_VFS=0 
+	mlxconfig -d 0006:01:00.0 -y s PF_NUM_OF_VF=32
+
+	# power cycle host
+	# ipmitool power cycle
+
+	# to enable ecvf
+	# echo 1 > /sys/class/net/p0/device/sriov_numvfs
 }

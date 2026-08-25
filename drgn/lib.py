@@ -77,7 +77,7 @@ if is_arm():
         # ct_priv lives on the UPLINK rep (uplink_priv.ct_priv is only set for
         # MLX5_VPORT_UPLINK), so point at the uplink netdev p0/p1 — NOT a
         # PF/VF rep like B61c1pf1 (whose uplink_priv is zeroed -> ct_priv NULL).
-        pf0_name = "p1"        # uplink for 0006 / port 1 (use "p0" for 0002 / port 0)
+        pf0_name = "p0"        # uplink for 0006 / port 1 (use "p0" for 0002 / port 0)
         pf1_name = "p1"
     else:
         pf0_name = "p0"
