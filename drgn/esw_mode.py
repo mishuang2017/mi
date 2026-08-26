@@ -116,15 +116,15 @@ def print_bf4_sd():
     print_esw(mlx5e_priv2)
 
 def print_bf4():
-    mlx5e_priv2 = get_mlx5e_priv("B21c1pf0")
+    mlx5e_priv2 = get_mlx5e_priv("p0")
     print_esw(mlx5e_priv2)
     print("============================================")
-    mlx5e_priv2 = get_mlx5e_priv("B61c1pf1")
+    mlx5e_priv2 = get_mlx5e_priv("p1")
     print_esw(mlx5e_priv2)
 
 mlx5e_priv2 = get_mlx5e_priv(pf1_name)
 print_esw(mlx5e_priv2)
 
 print("===================== bf4 =======================")
-# print_bf4()
-print_bf4_sd()
+print_bf4()
+# print_bf4_sd()

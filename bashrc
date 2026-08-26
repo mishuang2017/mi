@@ -11,8 +11,8 @@ ofed=0
 /sbin/modinfo mlx5_core -n > /dev/null 2>&1 && /sbin/modinfo mlx5_core -n | egrep "extra|updates" > /dev/null 2>&1 && ofed=1
 
 numvfs=3
-ports=1
 ports=2
+ports=1
 
 alias virc='vi ~/.bashrc'
 alias rc='. ~/.bashrc'
@@ -899,6 +899,18 @@ function cloud_linux_6.17
 	bf_config
 	git apply /swgwork/cmi/6.17.diff
 	make-all all
+}
+
+function cloud_linux_bf4
+{
+	local branch=$1
+
+	cd /root/linux
+	/bin/cp -f /boot/config-* .config
+	bf_config
+	make olddefconfig
+	make -j 60
+	mm
 }
 
 function cloud_linux
