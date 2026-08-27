@@ -618,7 +618,7 @@ alias np3="ip netns exec n1 netperf -H 1.1.1.13 -t TCP_STREAM -l $n_time -- m $m
 alias np4="ip netns exec n1 netperf -H 1.1.1.13 -t TCP_STREAM -l $n_time -- m $m_msg -p 12866 &"
 alias np5="ip netns exec n1 netperf -H 1.1.1.13 -t TCP_STREAM -l $n_time -- m $m_msg -p 12867 &"
 
-alias sshcopy='ssh-copy-id -i ~/.ssh/id_rsa.pub'
+alias sp='~/.ssh/sshcopy.exp'
 
 # ct + snat with br-int and br-ex and pf is in br-ex without vxlan
 # use arp responder to get arp reply
@@ -901,12 +901,37 @@ function cloud_linux_6.17
 	make-all all
 }
 
-function cloud_linux_bf4
+function cloud_linux_bf4_no_nis
 {
 	local branch=$1
 
 	cd /root/linux
 	/bin/cp -f /boot/config-* .config
+	bf_config
+	make olddefconfig
+	make -j 60
+	mm
+}
+
+function cloud_linux_bf4
+{
+	local branch=$1
+
+	cloud_grub
+	cd /images/cmi
+	cp /swgwork/cmi/linux.tar.gz .
+	tar zvxf linux.tar.gz
+	/bin/rm -f linux.tar.gz &
+	cd linux
+	/bin/cp -f /boot/config-* .config
+	sml
+
+	git branch -D 1
+	git branch 1
+	git checkout 1
+	git branch -D net-next-mlx5
+	fetch net-next-mlx5
+
 	bf_config
 	make olddefconfig
 	make -j 60
