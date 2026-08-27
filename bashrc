@@ -14902,7 +14902,7 @@ function cloud_setup
 	sm
 	clone-drgn
 	cd drgn
-	git reset --hard 92023c5b
+#	git reset --hard 92023c5b
 	sudo ./setup.py build
 	sudo ./setup.py install
 
