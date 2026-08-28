@@ -14,18 +14,7 @@ NETDEV_ALIGN = 32
 IFNAME = sys.argv[1] if len(sys.argv) > 1 else "p1"
 
 def find_netdev(name):
-    for nd in for_each_netdev(prog["init_net"]):
-        try:
-            if nd.name.string_().decode() == name:
-                return nd
-        except Exception:
-            continue
-    return None
-
-def netdev_priv(dev):
-    sz = prog.type('struct net_device').size
-    off = (sz + NETDEV_ALIGN - 1) & ~(NETDEV_ALIGN - 1)
-    return dev.value_() + off
+    return netdev_get_by_name(prog["init_net"], name)
 
 def ftinfo(label, ft):
     try:
@@ -40,7 +29,7 @@ dev = find_netdev(IFNAME)
 if dev is None or not dev.value_():
     print("netdev %s not found" % IFNAME); sys.exit(1)
 
-priv = Object(prog, 'struct mlx5e_priv', address=netdev_priv(dev))
+priv = netdev_priv(dev, "struct mlx5e_priv")
 mdev = priv.mdev
 pci = mdev.pdev.dev.kobj.name.string_().decode()
 print("=== netdev %s  ->  mdev %#x  (pci %s) ===" % (IFNAME, mdev.value_(), pci))
