@@ -27,9 +27,9 @@ for node in radix_tree_for_each(devlinks.address_of_()):
     if sd:
         print(sd)
 
-    esw = mlx5_core_dev.priv.eswitch
-    if esw:
-        print("esw.esw_funcs.controller_num: %d" % esw.esw_funcs.controller_num)
+#     esw = mlx5_core_dev.priv.eswitch
+#     if esw:
+#         print("esw.esw_funcs.controller_num: %d" % esw.esw_funcs.controller_num)
 
     print(mlx5_core_dev.coredev_type)
     parent_mdev = mlx5_core_dev.priv.parent_mdev

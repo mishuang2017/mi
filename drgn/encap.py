@@ -12,6 +12,15 @@ sys.path.append(".")
 # from lib import *
 from lib_pedit import *
 
+# Accept the PF/uplink netdev name as an argument, like the other scripts.
+# Usage:  drgn -k encap.py [ifname ...]     (default: p0 p1)
+IFNAMES = sys.argv[1:] if len(sys.argv) > 1 else ["p0", "p1"]
+
+def rep_priv_by_name(name):
+    mlx5e_priv = get_mlx5e_priv(name)
+    ppriv = mlx5e_priv.ppriv
+    return Object(prog, 'struct mlx5e_rep_priv', address=ppriv.value_())
+
 # mlx5e_priv = get_mlx5_pf0()
 # struct mlx5_esw_offload
 # offloads = mlx5e_priv.mdev.priv.eswitch.offloads
@@ -24,7 +33,7 @@ from lib_pedit import *
 #         node = node.next
 
 def print_encap(rep_priv):
-    addr = mlx5e_rep_priv.neigh_update.neigh_list.address_of_()
+    addr = rep_priv.neigh_update.neigh_list.address_of_()
     i=1
     for nhe in list_for_each_entry('struct mlx5e_neigh_hash_entry', addr, 'neigh_list'):
         print("================================= mlx5e_neigh_hash_entry ================================")
@@ -65,7 +74,7 @@ def print_encap(rep_priv):
 #                 print_mod_hdr_key(flow.attr.mh.key)
 #                 print_completion(flow.init_done)
 
-mlx5e_rep_priv = get_mlx5e_rep_priv()
-print_encap(mlx5e_rep_priv)
-# mlx5e_rep_priv = get_mlx5e_rep_priv2()
-# print_encap(mlx5e_rep_priv)
+for ifname in IFNAMES:
+    print("############################## PF %s ##############################" % ifname)
+    mlx5e_rep_priv = rep_priv_by_name(ifname)
+    print_encap(mlx5e_rep_priv)

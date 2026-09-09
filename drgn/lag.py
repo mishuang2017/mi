@@ -27,13 +27,27 @@ def print_port_sel(port_sel):
             flow_table("", mlx5_lag_definer[i].ft)
     print('------port_sel end-------')
 
-def print_pfs(pfs):
+def print_pfs(mlx5_lag):
+    pfs = mlx5_lag.pfs
+    # pf_metadata[] is only populated in MPESW mode (mlx5_mpesw_metadata_set);
+    # it is a per-PF unique uplink source metadata (reg_c_0 >> 16).
+    try:
+        MLX5_LAG_MODE_MPESW = prog['MLX5_LAG_MODE_MPESW']
+        is_mpesw = int(mlx5_lag.mode.value_()) == int(MLX5_LAG_MODE_MPESW.value_())
+    except Exception:
+        is_mpesw = False
     for node in radix_tree_for_each(pfs.address_of_()):
         lag_func = Object(prog, 'struct lag_func', address=node[1].value_())
         pci_name = lag_func.dev.device.kobj.name.string_().decode()
+        idx = lag_func.idx.value_()
         print('---lag_func---')
-        print("pci_name: %s, lag_func.idx: %d" %
-            (pci_name, lag_func.idx.value_()))
+        print("pci_name: %s, lag_func.idx: %d" % (pci_name, idx))
+        if is_mpesw:
+            pf_md = int(mlx5_lag.lag_mpesw.pf_metadata[idx].value_())
+            print("  pf_metadata[%d]: 0x%x   (uplink reg_c_0 = 0x%x)" %
+                  (idx, pf_md, (pf_md << 16) & 0xffffffff))
+        else:
+            print("  pf_metadata: n/a (not MPESW)")
 #         print("lag_func.group_id: %d, lag_func.sd_fdb_active: %d" %
 #             (lag_func.group_id.value_(), lag_func.sd_fdb_active.value_()))
 #         print(lag_func)
@@ -65,7 +79,7 @@ for name in pf0_name,:
 #     print(mlx5_lag.pf[0])
 #     print(mlx5_lag.pf[1])
     print("mlx5_lag.ports: %d" % mlx5_lag.ports)
-    print_pfs(mlx5_lag.pfs)
+    print_pfs(mlx5_lag)
     print("")
     print("mlx5_lag.mode: %s" % mlx5_lag.mode.format_())
 #     print("mlx5_lag %x, flags: %x" % (mlx5_lag, mlx5_lag.flags))

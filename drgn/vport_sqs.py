@@ -59,7 +59,7 @@ def print_fte_match(fte, indent='    '):
         # source SQN is in outer misc (word 16), bits [31:8]
         source_sqn = ntohl(val[16].value_() & 0xffffff00)
         if source_sqn:
-            print("%smatch source_sqn: 0x%x" % (indent, source_sqn >> 8))
+            print("%smatch source_sqn: 0x%x" % (indent, source_sqn))
 
         # source_port and source_eswitch_owner_vhca_id (word 17)
         source_port = ntohl(val[17].value_()) & 0xffff
@@ -68,6 +68,18 @@ def print_fte_match(fte, indent='    '):
             print("%smatch source_port: 0x%x" % (indent, source_port))
         if source_vhca:
             print("%smatch source_eswitch_owner_vhca_id: 0x%x" % (indent, source_vhca))
+
+        # metadata_reg_c_0 (misc_parameters_2, word 59) -- the uplink source
+        # metadata; stale (0) is the SD+MPESW forward-to-wire bug.
+        reg_c0 = ntohl(val[59].value_()) & 0xffffffff
+        print("%smatch metadata_reg_c_0: 0x%x%s" % (
+            indent, reg_c0, "  <-- STALE/ZERO" if reg_c0 == 0 else ""))
+
+        # metadata_reg_c_1 (word 58, one dword before reg_c_0). For the
+        # send_to_vport_meta rule this carries ESW_TUN_SLOW_TABLE_GOTO_VPORT_MARK.
+        reg_c1 = ntohl(val[58].value_()) & 0xffffffff
+        if reg_c1:
+            print("%smatch metadata_reg_c_1: 0x%x" % (indent, reg_c1))
 
         action = act_dests.action.action.value_()
         print("%saction flags: 0x%x" % (indent, action))
@@ -126,7 +138,15 @@ def dump_vport_sqs():
             # check if list is empty
             list_head = rpriv.vport_sqs_list.address_of_()
             next_ptr = rpriv.vport_sqs_list.next.value_()
-            if next_ptr == list_head.value_():
+            list_empty = (next_ptr == list_head.value_())
+
+            has_rx_rule = False
+            try:
+                has_rx_rule = bool(rpriv.vport_rx_rule.value_())
+            except AttributeError:
+                pass
+
+            if list_empty and not has_rx_rule:
                 continue
 
             print("\nnetdev: %s  vport: 0x%x  rpriv: 0x%lx" % (
@@ -160,6 +180,29 @@ def dump_vport_sqs():
                     peer_idx += 1
 
                 sq_idx += 1
+
+            # send_to_vport_meta rule: single per rep (tunnel slow-table-goto
+            # path). Matches reg_c_0 (vport metadata) + reg_c_1 (tunnel mark).
+            try:
+                meta = rpriv.send_to_vport_meta_rule
+                if meta.value_():
+                    print_flow_handle(meta, "send_to_vport_meta_rule")
+                else:
+                    print("  send_to_vport_meta_rule: (null)")
+            except AttributeError:
+                pass
+
+            # vport_rx_rule: RX-direction rule, root FDB steers ingress
+            # traffic for this vport to its rep netdev. Matches source_port
+            # (or reg_c_0 in metadata mode) with no source_sqn.
+            try:
+                rx_rule = rpriv.vport_rx_rule
+                if rx_rule.value_():
+                    print_flow_handle(rx_rule, "vport_rx_rule")
+                else:
+                    print("  vport_rx_rule: (null)")
+            except AttributeError:
+                pass
 
         except Exception as e:
             try:

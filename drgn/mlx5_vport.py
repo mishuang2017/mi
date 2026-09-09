@@ -76,6 +76,7 @@ def print_mlx5_vport(priv):
 #             lib.flow_table("egress", vport.egress.acl)
 #             print(vport.ingress.allow_rule)
         print('')
+#         print("default_metadata: %4x" % (vport.default_metadata))
 
     # for i in range(enabled_vports):
     #     print_vport(vports[i])

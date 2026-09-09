@@ -361,7 +361,7 @@ alias clone-sflowtool='git clone https://github.com/sflow/sflowtool.git'
 alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
 alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01_vr;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
-alias clone-ofed2='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_07;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed2='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_10;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_10'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
@@ -932,10 +932,12 @@ function cloud_linux_bf4
 	git branch -D net-next-mlx5
 	fetch net-next-mlx5
 
+	git am ~/cmi/000*
 	bf_config
 	make olddefconfig
 	make -j 60
-	mm
+	sudo make modules_install -j
+	sudo make install
 }
 
 function cloud_linux
@@ -8103,7 +8105,6 @@ else
 	alias fwreset="sudo mlxfwreset -d $pci reset -y"
 fi
 
-alias checkpatch="./scripts/checkpatch.pl --strict --show-types -g HEAD"
 alias git_fixes="git log -1 --pretty=fixes"
 alias gf1="git format-patch -o ~/cmi/tmp -1"
 alias cover_letter='git commit --allow-empty -F /labhome/cmi/none/cover-letter.txt'
@@ -8111,81 +8112,7 @@ alias ovs_cover_letter='git commit --allow-empty -F /labhome/cmi/sflow/ovs/10/00
 # to regenerate the change-id for cover letter
 # git commit --amend --allow-empty
 
-function gt
-{
-	[[ $# != 1 ]] && return
-	[[ "$USER" != "cmi" ]] && return
-	mkdir -p ~/t
-	local file=$(git format-patch -1 $1 -o ~/t)
-	vim $file
-}
-
-function ga
-{
-	[[ $# == 0 ]] && return
-	rej
-	local file=$(printf "/labhome/cmi/jd/vlad/*%02d-net*" $1)
-	echo $file
-	git apply --reject $file
-}
-alias cdv='cd ~/vlad'
-
-# git reset HEAD~ file.c
-# git show --stat
-# git reset
-# amend
-# checkout
-function git-ofed-reset
-{
-	[[ $# != 1 ]] && return
-	local file=$1
-	local file2
-	echo $file | egrep "^a\/||^b\/" > /dev/null || return
-	file2=$(echo $file | sed "s/^..//")
-	git show --stat
-	git reset HEAD~ $file2
-	git commit --amend
-	git show --stat
-}
-
-function git_ofed_reset
-{
-	local file="$1"
-	git show --stat
-	for i in "$file"; do
-		git reset HEAD~ $i
-	done
-	git commit --amend
-	git show --stat
-}
-
-function git_ofed_reset_all
-{
-	for i in backports/*; do
-		if echo $i | egrep "0196-BACKPORT-drivers-net-ethernet-mellanox-mlx5-core-en_.patch" > /dev/null 2>&1; then
-			echo "ignore $i"
-			continue
-		fi
-		echo "reset $i"
-		git reset HEAD~ $i
-	done
-	git commit --amend
-}
-
-function git-am
-{
-	[[ $# != 3 ]] && return
-	local dir=$1
-	local start=$2
-	local end=$3
-	local file
-
-	for ((i = start; i <= end; i ++)); do
-		file=$(printf "$dir/00%02d-*" $i)
-		echo $file
-		git am $file
-	done
-}
+alias ga='git am --reject'
 
 function git_apply
 {
@@ -12256,6 +12183,12 @@ function build_bcc
 # 	sudo env DEBIAN_FRONTEND=noninteractive apt install --yes --no-install-recommends zip bison build-essential cmake flex git libedit-dev \
 # 	  libllvm14 llvm-14-dev libclang-14-dev python3 zlib1g-dev libelf-dev libfl-dev python3-setuptools \
 # 	  liblzma-dev libdebuginfod-dev arping netperf iperf
+
+	sudo apt install -y llvm-dev libclang-dev clang \
+			      libelf-dev zlib1g-dev libfl-dev \
+			      bison flex libedit-dev cmake python3 \
+			      build-essential
+
 	cd bcc
 	grep 27 /etc/redhat-release
 	if [[ $? == 0 ]]; then
@@ -16051,9 +15984,14 @@ set -x
 	set_mac 2
 	bi2
 
-	return
+# 	return
 	ifconfig $rep2 up
 	ifconfig enp8s0f0v1 1.1.1.$host_num/24 up
+	ifconfig $link up
+	ifconfig $link2 up
+
+	br
+	ovs-vsctl add-port $br $link2
 
 	enable_esw_multiport
 set +x
@@ -16762,3 +16700,12 @@ function bf4_enable_ecvf
 	# to enable ecvf
 	# echo 1 > /sys/class/net/p0/device/sriov_numvfs
 }
+
+alias host1='ssh root@10.220.176.221'
+alias host2='ssh root@10.220.176.222'
+
+alias dpu1='ssh root@10.220.178.212'
+alias dpu2='ssh root@10.220.178.214'
+
+alias bmc1='ssh service@10.220.178.213'
+alias bmc2='ssh service@10.220.178.215'

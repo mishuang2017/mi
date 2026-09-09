@@ -72,5 +72,5 @@ for x, dev in enumerate(get_netdevs()):
             print(flow.peer[1])
             print(flow.peer[2])
             print("peer_flow.flags: %x" % peer_flow.flags)
-#             print_mlx5e_tc_flow(peer_flow)
+            print_mlx5e_tc_flow(peer_flow)
         print("=====peer_flow end=====")

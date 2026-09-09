@@ -41,6 +41,6 @@ print("========================= port 1 =====================")
 mlx5e_priv = get_mlx5_pf0()
 print_rep_data(mlx5e_priv)
 print("========================= port 2 =====================")
-# mlx5e_priv = get_mlx5_pf1()
-# print_rep_data(mlx5e_priv)
+mlx5e_priv = get_mlx5_pf1()
+print_rep_data(mlx5e_priv)
 
