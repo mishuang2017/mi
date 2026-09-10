@@ -901,7 +901,7 @@ function cloud_linux_6.17
 	make-all all
 }
 
-function cloud_linux_bf4_no_nis
+function linux_bf4_no_nis
 {
 	local branch=$1
 
@@ -913,7 +913,7 @@ function cloud_linux_bf4_no_nis
 	mm
 }
 
-function cloud_linux_bf4
+function linux_bf4
 {
 	local branch=$1
 
@@ -16709,3 +16709,9 @@ alias dpu2='ssh root@10.220.178.214'
 
 alias bmc1='ssh service@10.220.178.213'
 alias bmc2='ssh service@10.220.178.215'
+
+function bf4_dev
+{
+	devlink dev eswitch set pci/0002:01:00.0 mode switchdev;
+	devlink dev eswitch set pci/0006:01:00.0 mode switchdev;
+}
