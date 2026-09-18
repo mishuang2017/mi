@@ -932,7 +932,7 @@ function linux_bf4
 	git branch -D net-next-mlx5
 	fetch net-next-mlx5
 
-	git am ~/cmi/000*
+	git am ~/cmi/1/000*
 	bf_config
 	make olddefconfig
 	make -j 60
@@ -1009,7 +1009,7 @@ function cloud_setup1
 {
 	sudo yum install -y ctags cscope tmux screen rsync grubby iperf3 htop pciutils vim diffstat texinfo gdb \
 		python3-devel xz-devel zlib-devel lzo-devel bzip2-devel kexec-tools elfutils-devel \
-		bcc-tools pv minicom automake
+		bcc-tools pv minicom automake bison openssl-devel
 }
 
 function cloud_setup_yum
@@ -2061,8 +2061,8 @@ set -x
 	src_mac=02:25:d0:$host_num:01:02
 	dst_mac=02:25:d0:$host_num:01:03
 	$TC filter add dev $rep2 prio 1 handle 99 protocol ip  parent ffff: flower $offload  src_mac $src_mac dst_mac $dst_mac action mirred egress redirect dev $rep3
-# set +x
-# 	return
+set +x
+	return
 
 # 		action mirred egress redirect dev $rep1
 
@@ -7011,8 +7011,15 @@ alias sf2="devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 contr
 alias sf3="devlink port add pci/0002:01:00.1 flavour pcisf pfnum 1 sfnum 0"
 alias sf4="devlink port add pci/0006:01:00.1 flavour pcisf pfnum 1 sfnum 0 controller 4"
 
-alias sf6='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 0' # fail
-alias sf7='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0'		 # pass
+alias sf6='devlink port add pci/0002:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 0' # pass
+alias sf7='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 0' # fail
+alias sf8='devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0'		 # pass
+
+# the following command pass
+# devlink port add pci/0002:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 0
+
+# the following command pass if esw_multiport is disabled and fail is enabled
+# devlink port add pci/0006:01:00.0 flavour pcisf pfnum 0 sfnum 0 controller 0
 
 function sf5
 {
@@ -15918,6 +15925,7 @@ alias bridge_fdb2='cat /sys/kernel/debug/mlx5/0000:08:00.1/esw/bridge/tst1/fdb'
 function  rshim_install
 {
 	rpm -Uvh /mswg/release/sw_mc_soc/packages/rshim-latest.rpm
+	dpkg -i /mswg/release/sw_mc_soc/packages/rshim-latest.deb
 
 	systemctl daemon-reload
 	systemctl enable rshim
@@ -16592,7 +16600,7 @@ alias openibd='/etc/init.d/openibd'
 function mlnx_sf
 {
 	local cmd=/sbin/mlnx-sf
-	[[ $# == 1 ]] && cmd=/labhome/cmi/cmi/mlnx-tools/tsbin/mlnx-sf
+	[[ $# == 1 ]] && cmd=/labhome/cmi/cmi/tools-mlnx/tsbin/mlnx-sf
 	$cmd --action create --device 0000:08:00.0 --sfnum 2 --hwaddr 02:9c:b3:ab:70:01
 }
 
@@ -16713,5 +16721,6 @@ alias bmc2='ssh service@10.220.178.215'
 function bf4_dev
 {
 	devlink dev eswitch set pci/0002:01:00.0 mode switchdev;
+	sleep 5
 	devlink dev eswitch set pci/0006:01:00.0 mode switchdev;
 }

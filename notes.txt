@@ -9133,6 +9133,8 @@ http://wiki.ubuntu.org.cn/跟我一起写Makefile:使用函数
 
 ===skills===
 
+apt install -y bf-release mlnx-iproute2
+
 vfio-pci: Re-indent what was vfio_pci_core_ioctl()
  $ git clang-format-14 -i --lines 675:1210 drivers/vfio/pci/vfio_pci_core.c
 

@@ -23,30 +23,32 @@ def print_esw(priv):
 #     print("mlx5_core_dev.num_block_ipsec %d" % priv.mdev.num_block_ipsec)
     print(priv.mdev.coredev_type)
 #     print(priv.mdev.sd)
-    print("priv.mdev.pdev.devfn: %d" % priv.mdev.pdev.devfn)
-    print("priv.mdev.caps.embedded_cpu: %d" % priv.mdev.caps.embedded_cpu)
+    print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
+#     print("priv.mdev.pdev.devfn: %d" % priv.mdev.pdev.devfn)
+#     print("priv.mdev.caps.embedded_cpu: %d" % priv.mdev.caps.embedded_cpu)
 
 #     for i in range(priv.mdev.mlx5e_res.dl_port.attrs.switch_id.id_len):
 #         print("%02x:" % priv.mdev.mlx5e_res.dl_port.attrs.switch_id.id[i], end='')
 
     print('')
-    print("mlx5_priv %#x" % priv.mdev.priv.address_of_())
+#     print("mlx5_priv %#x" % priv.mdev.priv.address_of_())
 #     print_health(priv.mdev.priv.health)
     esw = priv.mdev.priv.eswitch
     print("mode: %d (1 means switchdev)" % esw.mode)
-    print("mlx5_eswitch %#x" % esw)
+#     print("mlx5_eswitch %#x" % esw)
 #     print(esw.qos)
 #     return
+    print("esw.esw_funcs.hpf_pf_num: %d" % esw.esw_funcs.hpf_pf_num)
     try:
         print("esw.esw_funcs.controller_num: %d" % esw.esw_funcs.controller_num)
         print("esw.esw_funcs.phys_port_cnum: %d" % esw.esw_funcs.phys_port_cnum)
         print("esw.esw_funcs.num_spfs: %d" % esw.esw_funcs.num_spfs)
         print("esw.esw_funcs.hpf_host_number: %d" % esw.esw_funcs.hpf_host_number)
+        print("esw.esw_funcs.self_pf_pfnum: %d" % esw.esw_funcs.self_pf_pfnum)
         print("esw.esw_funcs.hpf_pf_num: %d" % esw.esw_funcs.hpf_pf_num)
     except AttributeError:
         pass
-    print("mlx5_core_dev %#x, %s" % (priv.mdev, priv.mdev.device.kobj.name.string_().decode()))
-    print("esw->flags: %#x (1 means MLX5_ESWITCH_VPORT_MATCH_METADATA)" % esw.flags)
+#     print("esw->flags: %#x (1 means MLX5_ESWITCH_VPORT_MATCH_METADATA)" % esw.flags)
 #     if priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_SMFS:
 #         print(MLX5_FLOW_STEERING_MODE_SMFS)
 #     elif priv.mdev.priv.steering.mode == MLX5_FLOW_STEERING_MODE_DMFS:
@@ -57,17 +59,17 @@ def print_esw(priv):
     if esw.mode == 0:
         return
 #     print(esw.qos.domain)
-    print("esw->fdb_table->flags: %x" % esw.fdb_table.flags);
+#     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags);
 #     print("esw->offloads_inactive: %d" % esw.offloads_inactive)
-    print("esw->total_vports: %d" % esw.total_vports)
-    print("esw->num_peers: %d" % esw.num_peers)
-    print("esw->enabled_vports: %d" % esw.enabled_vports)
-    print("esw->manager_vport: %#x" % esw.manager_vport)
-    print("esw->esw_funcs->num_vfs: %d" % esw.esw_funcs.num_vfs)
+#     print("esw->total_vports: %d" % esw.total_vports)
+#     print("esw->num_peers: %d" % esw.num_peers)
+#     print("esw->enabled_vports: %d" % esw.enabled_vports)
+#     print("esw->manager_vport: %#x" % esw.manager_vport)
+#     print("esw->esw_funcs->num_vfs: %d" % esw.esw_funcs.num_vfs)
 #     print(esw.esw_funcs)
-    print("esw->dev->priv->sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
-    print("esw->dev->priv->sriov.max_vfs: %d" % esw.dev.priv.sriov.max_vfs)
-    print("esw->fdb_table->flags: %x" % esw.fdb_table.flags)
+#     print("esw->dev->priv->sriov.num_vfs: %d" % esw.dev.priv.sriov.num_vfs)
+#     print("esw->dev->priv->sriov.max_vfs: %d" % esw.dev.priv.sriov.max_vfs)
+#     print("esw->fdb_table->flags: %x" % esw.fdb_table.flags)
 #     print("esw->fdb_table->offloads->send_to_vport_meta_grp: %x" % esw.fdb_table.offloads.send_to_vport_meta_grp)
 #     print("esw->fdb_table->offloads->send_to_vport_meta_rules: %d" % esw.fdb_table.offloads.send_to_vport_meta_rules)
 #     print("esw->offloads->inline_mode: %d" % esw.offloads.inline_mode)
@@ -75,9 +77,9 @@ def print_esw(priv):
 #     print(esw.offloads.rep_ops[0])
 #     print(esw.offloads.rep_ops[1])
 #     print("esw.offloads.host_number: %d" % esw.offloads.host_number)
-    print("user_count: %d" % esw.user_count.counter)
-    print("num_flows %d" % esw.offloads.num_flows.counter)
-    print(esw.generation)
+#     print("user_count: %d" % esw.user_count.counter)
+#     print("num_flows %d" % esw.offloads.num_flows.counter)
+#     print(esw.generation)
 #     print(esw.esw_funcs)
 
 #     print("-------------------------------")
@@ -126,5 +128,5 @@ mlx5e_priv2 = get_mlx5e_priv(pf1_name)
 print_esw(mlx5e_priv2)
 
 print("===================== bf4 =======================")
-print_bf4()
-# print_bf4_sd()
+# print_bf4()
+print_bf4_sd()

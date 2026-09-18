@@ -29,6 +29,16 @@ def pci_of(mdev):
     except Exception:
         return "?"
 
+def eswitch_manager(mdev):
+    # MLX5_CAP_GEN(mdev, eswitch_manager): cmd_hca_cap bit_off 423 (hand
+    # counted from mlx5_ifc.h, anchored at reserved_at_16e=0x16e=366)
+    # -> dword 13 (423//32), bit 24 (32-1-(423%32)) of that dword after
+    # be32->cpu, same convention as dev_vhca_id() above.
+    try:
+        return bool((bswap32(mdev.caps.hca[0].cur[13].value_()) >> 24) & 0x1)
+    except Exception as e:
+        return "?(%s)" % e
+
 vhca_map = []   # (netdev_name, pci, vhca_id) for the summary at the end
 
 for x, dev in enumerate(get_netdevs()):
@@ -63,9 +73,11 @@ for x, dev in enumerate(get_netdevs()):
     mdev = mlx5e_priv.mdev
     vid = dev_vhca_id(mdev)
     pci = pci_of(mdev)
-    print("pci: %s   vhca_id: %s   (flow-dest 'vhca_id')" % (pci, vid))
-    vhca_map.append((name, pci, vid))
-    print(mlx5e_priv.mdev.caps.embedded_cpu)
+    embedded_cpu = bool(mdev.caps.embedded_cpu.value_())
+    esw_mgr = eswitch_manager(mdev)
+    print("pci: %s   vhca_id: %s   (flow-dest 'vhca_id')   embedded_cpu: %s   eswitch_manager: %s" % (
+        pci, vid, embedded_cpu, esw_mgr))
+    vhca_map.append((name, pci, vid, embedded_cpu, esw_mgr))
 #     print(mlx5e_priv.aso)
 #     print("wq: %x" % mlx5e_priv.wq)
 #     print(mlx5e_priv.ipsec)
@@ -92,6 +104,6 @@ for x, dev in enumerate(get_netdevs()):
     print('')
 
 print("\n================= netdev -> vhca_id map =================")
-print("%-20s %-16s %s" % ("netdev", "pci", "vhca_id"))
-for name, pci, vid in sorted(vhca_map, key=lambda r: r[2]):
-    print("%-20s %-16s %s" % (name, pci, vid))
+print("%-20s %-16s %-8s %-13s %s" % ("netdev", "pci", "vhca_id", "embedded_cpu", "eswitch_manager"))
+for name, pci, vid, embedded_cpu, esw_mgr in sorted(vhca_map, key=lambda r: r[2]):
+    print("%-20s %-16s %-8s %-13s %s" % (name, pci, vid, embedded_cpu, esw_mgr))
