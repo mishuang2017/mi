@@ -59,12 +59,8 @@ def print_mlx5_vport(priv):
 #         print("\tdevlink_port %18x" % vport.dl_port.value_(), end=' ')
 #         if vport.dl_port:
 #             print(vport.dl_port.devlink_rate)
-        print("enabled: %x" % vport.enabled, end=' ')
+        print("enabled: %x" % vport.enabled.value_(), end=' ')
         # per-vport vhca_id field (owner vhca for delegated/proxy vports; often 0/-1 for local)
-        try:
-            print("vport.vhca_id: %d" % vport.vhca_id, end=' ')
-        except Exception:
-            pass
 #         if vport.enabled:
 #             print(vport)
 #             print(vport.dl_port)

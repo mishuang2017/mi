@@ -21,6 +21,13 @@ def flavour_name(flavour):
             return enumerator.name
     return "UNKNOWN(%d)" % val
 
+def coredev_type_name(coredev_type):
+    val = coredev_type.value_()
+    for enumerator in prog.type('enum mlx5_coredev_type').enumerators:
+        if enumerator.value == val:
+            return enumerator.name
+    return "UNKNOWN(%d)" % val
+
 def port_external(port):
     # 'external' only exists in the PCI PF/VF/SF members of the attrs union
     fl = flavour_name(port.attrs.flavour)
@@ -94,9 +101,14 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print("mlx5_priv %x" % mlx5_core_dev.priv.address_of_())
     #     print(mlx5_core_dev.priv.fw_reset)
         print("mlx5_eswitch %x" % mlx5_core_dev.priv.eswitch)
-        print("mlx5_core_dev.coredev_type: ")
-        print(mlx5_core_dev.coredev_type)
     #     continue
+        print("mlx5_core_dev.coredev_type: %s" % coredev_type_name(mlx5_core_dev.coredev_type))
+    elif pci_name.startswith("mlx5_core.sf"):
+        mlx5_core_dev = Object(prog, 'struct mlx5_core_dev', address=devlink.priv.address_of_().value_())
+        print("mlx5_core_dev %x" % mlx5_core_dev.address_of_())
+        print("mlx5_priv %x" % mlx5_core_dev.priv.address_of_())
+        print("mlx5_eswitch %x" % mlx5_core_dev.priv.eswitch)
+        print("mlx5_core_dev.coredev_type: %s" % coredev_type_name(mlx5_core_dev.coredev_type))
     elif pci_name.startswith("mlx5_core.eth"):
         mlx5e_dev = Object(prog, 'struct mlx5e_dev', address=devlink.priv.address_of_().value_())
 #         print("mlx5e_dev.priv.netdev.name: %s" % mlx5e_dev.priv.netdev.name.string_().decode())
@@ -113,10 +125,13 @@ for node in radix_tree_for_each(devlinks.address_of_()):
         print("\tdevlink_port %x, port index: %#x, %d, rel_index: %d" % (port.address_of_(), port.index, port.index, port.rel_index))
 #         print(port.ops)
 #         print(port.switch_port)
-        print("\tport.attrs.flavour: %s" % flavour_name(port.attrs.flavour))
-        print("\tport.attrs.external: %s" % port_external(port))
-        print("\tport.attrs.controller: %s" % port_controller(port))
+        fl = flavour_name(port.attrs.flavour)
+        print("\tport.attrs.flavour: %s" % fl)
+        if fl not in ("DEVLINK_PORT_FLAVOUR_PHYSICAL", "DEVLINK_PORT_FLAVOUR_VIRTUAL"):
+            print("\tport.attrs.external: %s" % port_external(port))
+            print("\tport.attrs.controller: %s" % port_controller(port))
         print("\tport.type_eth.ifname: %s" % port.type_eth.ifname.string_().decode());
+        print('\t---------------------')
         continue
         print("\t", end='')
         for i in range(port.attrs.switch_id.id_len):
