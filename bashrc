@@ -101,6 +101,11 @@ if (( cloud == 1 )); then
 	rep3=${link}_2
 	rep4=${link}_3
 
+# 	rep1=enp8s0f0r0
+# 	rep2=enp8s0f0r1
+# 	rep3=enp8s0f0r2
+# 	rep4=enp8s0f0r3
+
 	(( host_num == 21 )) && remote_mac=10:70:fd:d9:0f:8c
 	(( host_num == 23 )) && remote_mac=e8:eb:d3:98:22:7c
 	(( host_num == 65 )) && remote_mac=10:70:fd:d9:0d:a4
@@ -307,7 +312,6 @@ else
 fi
 VMLINUX=$linux_dir/vmlinux
 alias crash1="$CRASH -i /root/.crash $VMLINUX"
-alias c=crash1
 
 alias c0="$CRASH -i /root/.crash $crash_dir/vmcore.0 $VMLINUX"
 alias c1="$CRASH -i /root/.crash $crash_dir/vmcore.1 $VMLINUX"
@@ -362,6 +366,7 @@ alias clone-gdb="git clone git://sourceware.org/git/binutils-gdb.git"
 alias clone-ethtool='git clone https://git.kernel.org/pub/scm/network/ethtool/ethtool.git'
 alias clone-ofed='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01_vr;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-ofed2='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_10;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
+alias clone-ofed3='git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_27_01_7_3_rebase;  cp ~cmi/commit-msg mlnx-ofa_kernel-4.0/.git/hooks/'
 alias clone-asap='git clone "ssh://cmi@git-nbu.nvidia.com:12023/cloud_networking/asap_dev_reg"'
 alias clone-iproute2='git clone ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/iproute2 --branch=mlnx_ofed_25_10'
 alias clone-iproute2-upstream='git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git'
@@ -1995,6 +2000,49 @@ set -x
 	$TC filter add dev $link prio 1 protocol arp parent ffff: flower skip_hw  src_mac $src_mac dst_mac $brd_mac action mirred egress redirect dev $rep2
 set +x
 }
+
+function tc_pf_no_mac
+{
+set -x
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+	TC=/images/cmi/iproute2/tc/tc
+	TC=tc
+
+	$TC qdisc del dev $rep2 ingress
+	$TC qdisc del dev $link ingress
+	$TC qdisc del dev $link2 ingress
+
+	ethtool -K $rep2 hw-tc-offload on 
+	ethtool -K $link hw-tc-offload on 
+	ethtool -K $link2 hw-tc-offload on 
+
+	ip link set $rep2 promisc on
+	ip link set $link promisc on
+	ip link set $link2 promisc on
+
+	$TC qdisc add dev $rep2 ingress 
+	$TC qdisc add dev $link ingress 
+	$TC qdisc add dev $link2 ingress 
+
+	$TC filter add dev $rep2 prio 1 protocol ip  parent ffff: flower $offload action mirred egress redirect dev $link
+	$TC filter add dev $rep2 prio 2 protocol ip  parent ffff: flower $offload action mirred egress redirect dev $link2
+#  set +x
+#  	return
+	$TC filter add dev $rep2 prio 3 protocol arp parent ffff: flower skip_hw action mirred egress redirect dev $link
+	$TC filter add dev $rep2 prio 4 protocol arp parent ffff: flower skip_hw action mirred egress redirect dev $link2
+
+	src_mac=$remote_mac
+	$TC filter add dev $link  prio 1 protocol ip  parent ffff: flower $offload action mirred egress redirect dev $rep2
+	$TC filter add dev $link2 prio 2 protocol ip  parent ffff: flower $offload action mirred egress redirect dev $rep2
+	$TC filter add dev $link  prio 3 protocol arp parent ffff: flower skip_hw  action mirred egress redirect dev $rep2
+	$TC filter add dev $link2 prio 4 protocol arp parent ffff: flower skip_hw  action mirred egress redirect dev $rep2
+set +x
+}
+
+
 
 function tc_pf_mirror
 {
@@ -11029,15 +11077,15 @@ function tc_bond
 set -x
 
 	TC=/images/cmi/iproute2/tc/tc
-# 	TC=/opt/mellanox/iproute2/sbin/tc
+	TC=/opt/mellanox/iproute2/sbin/tc
+	TC=tc
 
 	bond=bond0
 	block_id=22
 
-	remote_mac=e8:eb:d3:98:24:8c
-	$TC qdisc del dev $rep2 ingress > /dev/null 2>&1;
-	ethtool -K $rep2 hw-tc-offload on;
-	$TC qdisc add dev $rep2 ingress
+	$TC qdisc del dev $rep1 ingress > /dev/null 2>&1;
+	ethtool -K $rep1 hw-tc-offload on;
+	$TC qdisc add dev $rep1 ingress
 
 	for i in $link $link2; do
 		$TC qdisc del dev $i ingress_block 22 ingress &>/dev/null
@@ -11046,21 +11094,19 @@ set -x
 		$TC qdisc add dev $i ingress_block 22 ingress
 	done
 
-	mac1=02:25:d0:$host_num:01:02
-	mac2=$remote_mac
 	echo "add arp rules"
-	$TC filter add dev $rep2 ingress protocol arp prio 1 flower $offload \
+	$TC filter add dev $rep1 ingress protocol arp prio 1 flower $offload \
 		action mirred egress redirect dev $bond
 
 	$TC filter add block $block_id ingress protocol arp prio 1 flower $offload \
-		action mirred egress redirect dev $rep2
+		action mirred egress redirect dev $rep1
 
 	echo "add ip rules"
-	$TC filter add dev $rep2 ingress protocol ip chain 0 prio 2 flower $offload \
+	$TC filter add dev $rep1 ingress protocol ip chain 0 prio 2 flower $offload \
 		action mirred egress redirect dev $bond
 
 	$TC filter add block $block_id ingress protocol ip chain 0 prio 2 flower $offload \
-		action mirred egress redirect dev $rep2
+		action mirred egress redirect dev $rep1
 
 set +x
 }
@@ -11126,6 +11172,86 @@ set -x
 	$TC filter add block $block_id ingress protocol ip chain 1 prio 2 flower $offload \
 		dst_mac $mac1 ct_state +trk+est \
 		action mirred egress redirect dev $rep2
+
+set +x
+}
+
+function tc_bond_vxlan
+{
+	offload=""
+	[[ "$1" == "sw" ]] && offload="skip_hw"
+	[[ "$1" == "hw" ]] && offload="skip_sw"
+
+set -x
+
+	TC=tc
+
+	bond=bond0
+	block_id=22
+	redirect=$rep1
+
+	ip link del $vx > /dev/null 2>&1
+	ip link add $vx type vxlan dstport $vxlan_port dev $bond external udp6zerocsumrx udp6zerocsumtx
+	ip link set $vx up
+
+	$TC qdisc del dev $redirect ingress > /dev/null 2>&1;
+	$TC qdisc del dev $vx ingress > /dev/null 2>&1;
+	ethtool -K $redirect hw-tc-offload on;
+	$TC qdisc add dev $redirect ingress
+	$TC qdisc add dev $vx ingress
+
+	for i in $link $link2; do
+		$TC qdisc del dev $i ingress_block $block_id ingress &>/dev/null
+		$TC qdisc del dev $i ingress > /dev/null 2>&1;
+		ethtool -K $i hw-tc-offload on;
+		$TC qdisc add dev $i ingress_block $block_id ingress
+	done
+
+	ip link set $redirect promisc on
+	ip link set $vx promisc on
+
+	local_vm_mac=02:25:d0:$host_num:01:01
+	remote_vm_mac=02:25:d0:$rhost_num:01:01
+
+	echo "add vxlan encap rules ($redirect -> $vx, egress via $bond)"
+	$TC filter add dev $redirect protocol ip parent ffff: prio 2 flower $offload \
+		src_mac $local_vm_mac		\
+		dst_mac $remote_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	$TC filter add dev $redirect protocol arp parent ffff: prio 3 flower $offload \
+		src_mac $local_vm_mac		\
+		action tunnel_key set		\
+		src_ip $link_ip			\
+		dst_ip $link_remote_ip		\
+		dst_port $vxlan_port		\
+		id $vni				\
+		action mirred egress redirect dev $vx
+
+	echo "add vxlan decap rules ($vx -> $redirect, ingress may arrive on either bond slave)"
+	$TC filter add dev $vx protocol ip parent ffff: prio 4 flower $offload \
+		src_mac $remote_vm_mac		\
+		dst_mac $local_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset	\
+		action mirred egress redirect dev $redirect
+
+	$TC filter add dev $vx protocol arp parent ffff: prio 5 flower $offload \
+		src_mac $remote_vm_mac		\
+		enc_src_ip $link_remote_ip	\
+		enc_dst_ip $link_ip		\
+		enc_dst_port $vxlan_port	\
+		enc_key_id $vni			\
+		action tunnel_key unset	\
+		action mirred egress redirect dev $redirect
 
 set +x
 }
@@ -11997,12 +12123,12 @@ function bond_setup
 	bond_delete
 	sleep 1
 set -x
-	echo hash > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-	echo hash > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
-# 	echo queue_affinity > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-# 	echo queue_affinity > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
-# 	echo multiport_esw > /sys/class/net/$link/compat/devlink/lag_port_select_mode
-# 	echo multiport_esw > /sys/class/net/$link2/compat/devlink/lag_port_select_mode
+	echo hash >		/sys/class/net/$link/compat/devlink/lag_port_select_mode
+	echo hash >		/sys/class/net/$link2/compat/devlink/lag_port_select_mode
+# 	echo queue_affinity >	/sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo queue_affinity >	/sys/class/net/$link2/compat/devlink/lag_port_select_mode
+# 	echo multiport_esw >	/sys/class/net/$link/compat/devlink/lag_port_select_mode
+# 	echo multiport_esw >	/sys/class/net/$link2/compat/devlink/lag_port_select_mode
 set +x
 	bond_switchdev
 	sleep 1
@@ -15992,7 +16118,9 @@ set -x
 	set_mac 2
 	bi2
 
-# 	return
+	enable_esw_multiport
+set +x
+	return
 	ifconfig $rep2 up
 	ifconfig enp8s0f0v1 1.1.1.$host_num/24 up
 	ifconfig $link up
@@ -16001,7 +16129,6 @@ set -x
 	br
 	ovs-vsctl add-port $br $link2
 
-	enable_esw_multiport
 set +x
 }
 

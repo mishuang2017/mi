@@ -30,9 +30,8 @@ def print_table(priv):
 
     #         print(obj)
 
-# dev = netdev_get_by_name(prog['init_net'], "enp8s0f0")
-# mlx5e_priv = get_mlx5(dev)
-mlx5e_priv = get_mlx5_pf0()
+uplink = sys.argv[1] if len(sys.argv) > 1 else pf0_name
+mlx5e_priv = get_mlx5e_priv(uplink)
 print("=== indir_table ===")
 print_table(mlx5e_priv)
 

@@ -39,6 +39,17 @@ def eswitch_manager(mdev):
     except Exception as e:
         return "?(%s)" % e
 
+def native_port_num(mdev):
+    # MLX5_CAP_GEN(mdev, native_port_num): cmd_hca_cap u8 field at bit_off
+    # 0x608 = 1544 (hand counted from mlx5_ifc.h, anchored at
+    # reserved_at_5f8=0x5f8=1528) -> dword 48 (1544//32), 8 bits wide
+    # starting at bit 8 of that dword (1544%32=8), so after be32->cpu shift
+    # right by 32-8-8=16 and mask 0xff, same convention as eswitch_manager().
+    try:
+        return (bswap32(mdev.caps.hca[0].cur[48].value_()) >> 16) & 0xff
+    except Exception as e:
+        return "?(%s)" % e
+
 vhca_map = []   # (netdev_name, pci, vhca_id) for the summary at the end
 
 for x, dev in enumerate(get_netdevs()):
@@ -75,9 +86,10 @@ for x, dev in enumerate(get_netdevs()):
     pci = pci_of(mdev)
     embedded_cpu = bool(mdev.caps.embedded_cpu.value_())
     esw_mgr = eswitch_manager(mdev)
-    print("pci: %s   vhca_id: %s   (flow-dest 'vhca_id')   embedded_cpu: %s   eswitch_manager: %s" % (
-        pci, vid, embedded_cpu, esw_mgr))
-    vhca_map.append((name, pci, vid, embedded_cpu, esw_mgr))
+    npn = native_port_num(mdev)
+    print("pci: %s   vhca_id: %s   (flow-dest 'vhca_id')   embedded_cpu: %s   eswitch_manager: %s   native_port_num: %s" % (
+        pci, vid, embedded_cpu, esw_mgr, npn))
+    vhca_map.append((name, pci, vid, embedded_cpu, esw_mgr, npn))
 #     print(mlx5e_priv.aso)
 #     print("wq: %x" % mlx5e_priv.wq)
 #     print(mlx5e_priv.ipsec)
@@ -104,6 +116,6 @@ for x, dev in enumerate(get_netdevs()):
     print('')
 
 print("\n================= netdev -> vhca_id map =================")
-print("%-20s %-16s %-8s %-13s %s" % ("netdev", "pci", "vhca_id", "embedded_cpu", "eswitch_manager"))
-for name, pci, vid, embedded_cpu, esw_mgr in sorted(vhca_map, key=lambda r: r[2]):
-    print("%-20s %-16s %-8s %-13s %s" % (name, pci, vid, embedded_cpu, esw_mgr))
+print("%-20s %-16s %-8s %-13s %-16s %s" % ("netdev", "pci", "vhca_id", "embedded_cpu", "eswitch_manager", "native_port_num"))
+for name, pci, vid, embedded_cpu, esw_mgr, npn in sorted(vhca_map, key=lambda r: r[2]):
+    print("%-20s %-16s %-8s %-13s %-16s %s" % (name, pci, vid, embedded_cpu, esw_mgr, npn))

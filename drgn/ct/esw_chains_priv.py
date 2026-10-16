@@ -12,8 +12,8 @@ import os
 sys.path.append("..")
 from lib import *
 
-# mlx5e_priv = get_mlx5_pf0()
-mlx5e_priv = get_mlx5e_priv(pf0_name)
+uplink = sys.argv[1] if len(sys.argv) > 1 else pf0_name
+mlx5e_priv = get_mlx5e_priv(uplink)
 offloads = mlx5e_priv.mdev.priv.eswitch.fdb_table.offloads
 # print(offloads)
 slow_fdb = offloads.slow_fdb

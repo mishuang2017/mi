@@ -368,8 +368,8 @@ def get_mlx5_pf1():
 def get_pf0_netdev():
     dev = netdev_get_by_name(prog['init_net'], pf0_name)
 
-def get_mlx5e_rep_priv():
-    mlx5e_priv = get_mlx5_pf0()
+def get_mlx5e_rep_priv(uplink=None):
+    mlx5e_priv = get_mlx5e_priv(uplink) if uplink else get_mlx5_pf0()
     ppriv = mlx5e_priv.ppriv
     mlx5e_rep_priv = Object(prog, 'struct mlx5e_rep_priv', address=ppriv.value_())
 
@@ -1123,7 +1123,7 @@ def print_mlx5e_encap_entry(e):
 #         print("%#x " % e.encap_header[i])
     print("mlx5e_encap_entry %lx" % e.value_())
     print_tun(e.tun_info)
-    print(e.pkt_reformat)
+#     print(e.pkt_reformat)
     print("--- end ---")
 
 def print_mlx5e_tc_flow_flags():

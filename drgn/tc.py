@@ -18,8 +18,8 @@ for x, dev in enumerate(get_netdevs()):
 #     if "enp8s0f1" == name:
 #         continue
 #     if "enp8s0f0" != name:
-    if "genev_sys_6081" != name and "geneve1" != name:
-        continue
+#     if "genev_sys_6081" != name and "geneve1" != name:
+#         continue
     ingress_queue = dev.ingress_queue
 #     if name == "mymacvlan1":
 #         print(ingress_queue)

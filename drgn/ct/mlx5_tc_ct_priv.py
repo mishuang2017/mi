@@ -10,7 +10,8 @@ sys.path.append("..")
 # from lib import *
 from lib_pedit import *
 
-mlx5e_rep_priv = get_mlx5e_rep_priv()
+uplink = sys.argv[1] if len(sys.argv) > 1 else None
+mlx5e_rep_priv = get_mlx5e_rep_priv(uplink)
 ct_priv = mlx5e_rep_priv.uplink_priv.ct_priv
 # print("ct_priv.num_offloaded_flows:")
 # print(ct_priv.num_offloaded_flows)

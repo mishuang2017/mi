@@ -10,7 +10,8 @@ import os
 sys.path.append(".")
 from lib import *
 
-mlx5e_rep_priv = get_mlx5e_rep_priv()
+uplink = sys.argv[1] if len(sys.argv) > 1 else None
+mlx5e_rep_priv = get_mlx5e_rep_priv(uplink)
 # print(mlx5e_rep_priv.uplink_priv)
 post_act = mlx5e_rep_priv.uplink_priv.post_act
 # print(post_act)
