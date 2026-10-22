@@ -915,7 +915,8 @@ function linux_bf4_no_nis
 	bf_config
 	make olddefconfig
 	make -j 60
-	mm
+	sudo make modules_install -j
+	sudo make install
 }
 
 function linux_bf4
@@ -1885,7 +1886,7 @@ function make-all
 alias m=make-all
 alias mm='sudo make modules_install -j; sudo make install; headers_install'
 alias mm1='sudo INSTALL_MOD_STRIP=1 make modules_install -j; sudo make install'
-alias mm='sudo make modules_install -j; sudo make install'
+alias mm2='sudo make modules_install -j; sudo make install'
 
 function mi
 {
@@ -16344,7 +16345,8 @@ function cloud_ofed
 	mkdir 2
 	cd 2
 # 	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_24_10
-	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01_vr
+	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_01_vr_1_0
+# 	git clone "ssh://cmi@git-nbu.nvidia.com:12023/mlnx_ofed/mlnx-ofa_kernel-4.0" --branch=mlnx_ofed_26_10
 	cd mlnx-ofa_kernel-4.0
 	git fetch --tags
 	cd ..
@@ -16851,3 +16853,7 @@ function bf4_dev
 	sleep 5
 	devlink dev eswitch set pci/0006:01:00.0 mode switchdev;
 }
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
