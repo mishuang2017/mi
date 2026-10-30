@@ -49,9 +49,9 @@ priv = get_mlx5e_priv(pf0_name)
 # print(priv.channels.params.tx_cq_moderation)
 # print(priv.channels.params)
 
-print_channel(priv)
+# print_channel(priv)
 
-exit(0)
+# exit(0)
 
 page_pools = prog['page_pools']
 print(page_pools)
