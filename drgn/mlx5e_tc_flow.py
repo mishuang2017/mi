@@ -68,9 +68,7 @@ for x, dev in enumerate(get_netdevs()):
 
         print("=====peer_flow start=====")
         for peer_flow in list_for_each_entry('struct mlx5e_tc_flow', flow.peer_flows.address_of_(), 'peer_flows'):
-            print(flow.peer[0])
-            print(flow.peer[1])
-            print(flow.peer[2])
+            print(peer_flow.peer)
             print("peer_flow.flags: %x" % peer_flow.flags)
             print_mlx5e_tc_flow(peer_flow)
         print("=====peer_flow end=====")

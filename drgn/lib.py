@@ -16,6 +16,14 @@ crash_file = ""
 print(crash_file)
 if crash_file == "":
     prog = drgn.program_from_kernel()
+    # No distro debuginfo for custom kernels: load the locally built vmlinux
+    # (override with VMLINUX=/path) plus loaded modules' debug info.
+    _vmlinux = os.environ.get("VMLINUX", "/images/cmi/linux/vmlinux")
+    if os.path.exists(_vmlinux):
+        try:
+            prog.load_debug_info([_vmlinux], default=True, main=True)
+        except drgn.MissingDebugInfoError as e:
+            print("warning:", e)
 else:
     prog = drgn.program_from_core_dump(crash_file)
 

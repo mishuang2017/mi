@@ -9232,6 +9232,8 @@ set +x
 
 alias restart-udev='sudo systemctl restart systemd-udevd.service'
 
+alias all_without_nvme="./configure --all --without-nvmf_host-mod --without-nvmf_target-mod -j$(nproc)"
+
 alias ofed-configure-all="./configure -j \
     --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlx5-mod  \
     --with-gds --with-nfsrdma-mod --with-mlxdevm-mod --with-mlx5-ipsec --with-sf-cfg-drv --with-mlxfw-mod --with-ipoib-mod"
@@ -9249,50 +9251,6 @@ alias ofed-configure-4.1="./configure -j --kernel-version 4.1 --kernel-sources /
 
 alias vi_m4='vi compat/config/rdma.m4'
 
-alias ofed-configure-4.4="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.4 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.4-rc6 "
-alias ofed-configure-4.8="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.8 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.8-rc4 "
-alias ofed-configure-4.9="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.9 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.9 "
-alias ofed-configure-4.10="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.10 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.10-IRQ_POLL-OFF "
-alias ofed-configure-4.10-2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.10 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.10-Without-VXLAN "
-alias ofed-configure-4.11="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.11 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.11 "
-alias ofed-configure-4.12="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.12-rc6 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.12-rc6 "
-alias ofed-configure-4.13="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.13 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.13 "
-alias ofed-configure-4.14="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.14.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.14.3 "
-alias ofed-configure-4.15="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.15 "
-alias ofed-configure-4.16="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.16 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.16 "
-alias ofed-configure-4.17="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.17-rc1 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.17-rc1 "
-alias ofed-configure-4.18="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.18 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.18 "
-alias ofed-configure-4.19="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.19 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.19 "
-alias ofed-configure-4.19k="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.19 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.19.90-89.11.v2401.ky10.x86_64/ "
-alias ofed-configure-4.20="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 4.20 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-4.20 "
-alias ofed-configure-5.0="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.0 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.0 "
-alias ofed-configure-5.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.2 "
-alias ofed-configure-5.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.3 "
-alias ofed-configure-5.3-fc31="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.3.7-301.fc31.x86_64  --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.3.7-301.fc31.x86_64 "
-alias ofed-configure-5.3.18="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.3.18-51-default "
-alias ofed-configure-5.4="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.4 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.4 "
-alias ofed-configure-5.5="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.5 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.5 "
-alias ofed-configure-5.6="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.6 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.6-rc2 "
-alias ofed-configure-5.7="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.7 "
-alias ofed-configure-5.8="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.8 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.8 "
-alias ofed-configure-5.9="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.9-rc2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.9-rc2 "
-alias ofed-configure-5.10="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.10-rc2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.10-rc2 "
-alias ofed-configure-5.11="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.11 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.11 "
-alias ofed-configure-5.12="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.12 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.12 "
-
-alias ofed-configure-5.9="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --without-memtrack     --with-ipoib-cm --with-user_mad-mod --with-nfsrdma-mod -j $cpu_num2 --kernel-version 5.9 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.9 "
-
-alias ofed-configure-5.13="./configure  --with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --without-memtrack     --with-ipoib-cm --with-user_mad-mod --with-nfsrdma-mod -j $cpu_num2 --kernel-version 5.13 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.13 "
-alias ofed-configure-5.14="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.14 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.14 "
-alias ofed-configure-5.15="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15 "
-
-alias ofed-configure-5.15-bf="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15.0-1081.79.gc9f821e-bluefield/ "
-
-alias ofed-configure-5.15-uek="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.15 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.15.0-101.103.2.1.el9uek.x86_64/ "
-alias ofed-configure-5.16="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 5.16-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.16-rc7 "
-alias ofed-configure-5.17="./configure  \
-	--with-core-mod --with-user_mad-mod --with-user_access-mod --with-addr_trans-mod --with-mlxfw-mod --with-mlx5-mod --with-mlx5-ipsec --with-ipoib-mod --without-memtrack     \
-	--with-ipoib-cm --with-user_mad-mod --with-nfsrdma-mod -j $cpu_num2 --kernel-version 5.17-rc7 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-5.17-rc7 "
 alias ofed-configure-6.0="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.0 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.0 "
 alias ofed-configure-6.2="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.2 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.2-rc6 "
 alias ofed-configure-6.3="./configure --with-mlx5-core-and-ib-and-en-mod --with-mlxfw-mod -j $cpu_num2 --kernel-version 6.3 --kernel-sources /.autodirect/mswg2/work/kernel.org/x86_64/linux-6.3 "
@@ -15235,6 +15193,7 @@ function cloud_grub
 }
 
 test -f ~cmi/cmi/mi/cloud_alias && source ~cmi/cmi/mi/cloud_alias
+test -f ~cmi/mi/cloud_alias && source ~cmi/mi/cloud_alias
 
 alias cd_vrtsdk="cd /opt/python/2.7.3/lib/python2.7/site-packages/vrtsdk"
 
